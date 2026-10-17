@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useShop } from "../../context/ShopContext";
 import { imageUrl } from "../../utils/imageUrl";
+import { getProductPricing } from "../../utils/pricing";
 
-export default function CuratedCard({ product, badgeLabel, badgeTone = "hot" }) {
+export default function CuratedCard({ product, badgeLabel, badgeTone = "hot", className = "", style = {} }) {
   const navigate = useNavigate();
   const {
     formatPrice,
@@ -16,6 +17,7 @@ export default function CuratedCard({ product, badgeLabel, badgeTone = "hot" }) 
 
   const isSaved = isInWishlist ? isInWishlist(product.id) : wishlist.some((id) => String(id) === String(product.id));
   const [addedAnimation, setAddedAnimation] = useState(false);
+  const isOutOfStock = !product.inStock || Number(product.stockCount ?? 0) <= 0 || product.stockStatus === "out_of_stock";
 
   const primaryImg =
     (product.images && product.images[0]) ||
@@ -26,6 +28,7 @@ export default function CuratedCard({ product, badgeLabel, badgeTone = "hot" }) 
 
   const handleQuickAdd = (e) => {
     e.stopPropagation();
+    if (isOutOfStock) return;
     addToCart(product);
     setAddedAnimation(true);
     setTimeout(() => setAddedAnimation(false), 1400);
@@ -39,13 +42,14 @@ export default function CuratedCard({ product, badgeLabel, badgeTone = "hot" }) 
     return "badge-hot";
   };
 
-  const discountPercent =
-    product.originalPrice && product.originalPrice > product.price
-      ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
-      : null;
+  const pricing = getProductPricing(product);
+  const shownPrice = pricing.price;
+  const displayOriginalPrice = pricing.originalPrice;
+  const isOfferActive = pricing.isOffer;
+  const saveBadge = isOfferActive ? pricing.offerBadge : (displayOriginalPrice ? `${pricing.savingsPercent}% OFF` : null);
 
   return (
-    <div className="curated-card">
+    <div className={`curated-card ${className}`.trim()} style={style}>
       {/* Media Box */}
       <div
         className="curated-media-box"
@@ -61,13 +65,15 @@ export default function CuratedCard({ product, badgeLabel, badgeTone = "hot" }) 
         }}
       >
         {/* Dynamic Badge */}
-        {badgeLabel && (
+        {isOutOfStock ? (
+          <span className="curated-badge badge-soldout">OUT OF STOCK</span>
+        ) : badgeLabel ? (
           <span className={`curated-badge ${getBadgeClass()}`}>
             {typeof badgeLabel === "string"
               ? badgeLabel.replace(/^#\d+\s*[-–—:]?\s*/i, "").trim()
               : badgeLabel}
           </span>
-        )}
+        ) : null}
 
         {/* Primary & Secondary Hover Images */}
         <img
@@ -135,7 +141,7 @@ export default function CuratedCard({ product, badgeLabel, badgeTone = "hot" }) 
 
           <button
             type="button"
-            className={`curated-action-btn quick-buy-btn ${addedAnimation ? "added" : ""}`}
+            className={`curated-action-btn quick-buy-btn ${addedAnimation ? "added" : ""} ${isOutOfStock ? "is-disabled" : ""}`}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -144,8 +150,9 @@ export default function CuratedCard({ product, badgeLabel, badgeTone = "hot" }) 
             onTouchEnd={(e) => {
               e.stopPropagation();
             }}
-            title="Quick Add to Bag"
-            aria-label={`Add ${product.name} to bag`}
+            title={isOutOfStock ? "Out of Stock" : "Quick Add to Bag"}
+            aria-label={isOutOfStock ? "Out of Stock" : `Add ${product.name} to bag`}
+            disabled={isOutOfStock}
           >
             {addedAnimation ? (
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -166,13 +173,24 @@ export default function CuratedCard({ product, badgeLabel, badgeTone = "hot" }) 
       <div className="curated-info">
         {/* Rating & Reviews */}
         <div className="curated-rating-row">
-          <div className="curated-star-box">
-            <span className="curated-star">★</span>
-            <span className="curated-rating-num">{product.rating || "4.9"}</span>
-            <span className="curated-review-count">({product.reviewCount || "120"})</span>
-          </div>
-          {discountPercent && (
-            <span className="curated-save-tag">{discountPercent}% OFF</span>
+          {Number(product.reviewCount || 0) > 0 && (
+            <div
+              className="curated-star-box"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                navigate(`/products/${product.slug || product.id}#customer-reviews`);
+              }}
+              style={{ cursor: "pointer" }}
+              title="Click to view verified customer reviews"
+            >
+              <span className="curated-star">★</span>
+              <span className="curated-rating-num">{Number(product.rating || 0).toFixed(1)}</span>
+              <span className="curated-review-count">({product.reviewCount})</span>
+            </div>
+          )}
+          {saveBadge && (
+            <span className="curated-save-tag">{saveBadge}</span>
           )}
         </div>
 
@@ -187,9 +205,9 @@ export default function CuratedCard({ product, badgeLabel, badgeTone = "hot" }) 
         {/* Pricing Row */}
         <div className="curated-pricing-row">
           <div className="curated-price-box">
-            <span className="curated-price-current">{formatPrice(product.price)}</span>
-            {product.originalPrice && product.originalPrice > product.price && (
-              <span className="curated-price-original">{formatPrice(product.originalPrice)}</span>
+            <span className="curated-price-current">{formatPrice(shownPrice)}</span>
+            {displayOriginalPrice && (
+              <span className="curated-price-original">{formatPrice(displayOriginalPrice)}</span>
             )}
           </div>
         </div>

@@ -1,14 +1,20 @@
+import SeoHead from "../components/Seo/SeoHead";
 import React from "react";
 import "./PolicyPages.css";
 
 export default function PrivacyPolicy() {
   return (
     <div className="policy-page">
+      <SeoHead
+        title="Privacy Policy — Data Protection & Security | ZMW Clothing"
+        description="Learn how ZMW Clothing collects, uses, and protects your personal information and transactions with bank-grade SSL encryption."
+        canonicalPath="/privacy-policy"
+      />
       <section className="policy-hero" aria-label="Privacy Policy">
         <div className="container">
           <span className="policy-eyebrow">LEGAL & PRIVACY</span>
           <h1 className="policy-title">Privacy Policy</h1>
-          <p className="policy-updated">Last Updated: September 2026</p>
+          {/* <p className="policy-updated">Last Updated: September 2026</p> */}
         </div>
       </section>
 

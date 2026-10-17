@@ -1,6 +1,9 @@
 require("dotenv").config();
 
-const required = ["DB_HOST", "DB_NAME", "DB_USER", "DB_PASSWORD", "JWT_SECRET"];
+const required = ["DB_HOST", "DB_NAME", "DB_USER", "JWT_SECRET"];
+if (process.env.NODE_ENV === "production") {
+  required.push("DB_PASSWORD");
+}
 
 const missing = required.filter((key) => !process.env[key] || process.env[key].trim() === "");
 

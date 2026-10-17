@@ -1,0 +1,269 @@
+/* ══════════════════════════════════════════════════════════════════
+   OFFER BANNER POPUP MODAL — LUXURY STREETWEAR SPOTLIGHT
+   ══════════════════════════════════════════════════════════════════ */
+
+.offer-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background-color: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: offerModalFadeIn 260ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes offerModalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.offer-modal-card {
+  position: relative;
+  width: 100%;
+  max-width: 580px;
+  background: #0F172A;
+  border: 1px solid rgba(250, 167, 3, 0.3);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7),
+              0 0 40px rgba(250, 167, 3, 0.15);
+  animation: offerModalSlideUp 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  color: #FFFFFF;
+}
+
+@keyframes offerModalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Close button */
+.offer-modal-close-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 10;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 200ms ease;
+  backdrop-filter: blur(4px);
+}
+
+.offer-modal-close-btn:hover {
+  background: #FAA703;
+  color: #0F172A;
+  border-color: #FAA703;
+  transform: rotate(90deg);
+}
+
+/* Hero Area */
+.offer-modal-hero {
+  position: relative;
+  width: 100%;
+  height: 270px;
+  background: #1E293B;
+  overflow: hidden;
+}
+
+.offer-modal-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%;
+  transition: transform 600ms ease;
+}
+
+.offer-modal-card:hover .offer-modal-img {
+  transform: scale(1.03);
+}
+
+.offer-modal-img-fallback {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+}
+
+.offer-modal-hero-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0) 45%, rgba(15, 23, 42, 0.85) 100%);
+}
+
+.offer-modal-floating-tags {
+  position: absolute;
+  bottom: 14px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 2;
+}
+
+.offer-modal-promo-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: #FAA703;
+  color: #0F172A;
+  font-family: var(--font-primary, "Plus Jakarta Sans", sans-serif);
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: 9999px;
+  box-shadow: 0 4px 14px rgba(250, 167, 3, 0.4);
+}
+
+/* Body */
+.offer-modal-body {
+  padding: 24px 28px 28px;
+}
+
+.offer-modal-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-primary, "Plus Jakarta Sans", sans-serif);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: #FBBF24;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.offer-modal-title {
+  font-family: var(--font-display, "Syne", sans-serif);
+  font-size: clamp(1.4rem, 2.4vw, 1.85rem);
+  font-weight: 900;
+  color: #FFFFFF;
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+  margin: 0 0 10px 0;
+  text-transform: uppercase;
+}
+
+.offer-modal-subtitle {
+  font-family: var(--font-primary, "Plus Jakarta Sans", sans-serif);
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: #CBD5E1;
+  margin: 0 0 22px 0;
+}
+
+/* Actions */
+.offer-modal-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.offer-modal-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 26px;
+  background: #FAA703;
+  color: #0F172A;
+  border: 1.5px solid #FAA703;
+  border-radius: 9999px;
+  font-family: var(--font-primary, "Plus Jakarta Sans", sans-serif);
+  font-size: 0.84rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  box-shadow: 0 4px 18px rgba(250, 167, 3, 0.35);
+  transition: all 220ms cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+
+.offer-modal-cta-btn:hover {
+  background: #F59E0B;
+  border-color: #F59E0B;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px rgba(250, 167, 3, 0.45);
+}
+
+.offer-modal-secondary-link {
+  font-family: var(--font-primary, "Plus Jakarta Sans", sans-serif);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #94A3B8;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+  transition: color 180ms ease;
+}
+
+.offer-modal-secondary-link:hover {
+  color: #FFFFFF;
+}
+
+.offer-modal-disclaimer {
+  font-family: var(--font-primary, "Plus Jakarta Sans", sans-serif);
+  font-size: 0.72rem;
+  color: #64748B;
+  line-height: 1.4;
+  margin: 0;
+}
+
+@media (max-width: 520px) {
+  .offer-modal-body {
+    padding: 18px 20px 22px;
+  }
+  .offer-modal-hero {
+    height: 190px;
+  }
+  .offer-modal-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .offer-modal-cta-btn {
+    justify-content: center;
+    width: 100%;
+  }
+  .offer-modal-secondary-link {
+    text-align: center;
+  }
+}
+
+@media (max-width: 360px) {
+  .offer-modal-overlay {
+    padding: 10px 8px;
+  }
+  .offer-modal-body {
+    padding: 14px 12px 18px;
+  }
+  .offer-modal-hero {
+    height: 160px;
+  }
+  .offer-modal-title {
+    font-size: 1.25rem;
+  }
+}

@@ -996,3 +996,195 @@
 
   .dash-scard-value { font-size: 28px; }
 }
+
+/* ════════════════════════════════════════════════════════════════════════
+   CANCELLATIONS & REFUNDS ACTION CENTER (NEW)
+════════════════════════════════════════════════════════════════════════ */
+.dash-alert-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  background: #fffbeb;
+  border: 1.5px solid #fde68a;
+  border-left: 5px solid #f59e0b;
+  border-radius: var(--radius-md);
+  padding: 16px 22px;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.08);
+}
+
+.dash-alert-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.dash-alert-pulse {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #f59e0b;
+  box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7);
+  animation: dash-pulse 1.8s infinite;
+  flex-shrink: 0;
+}
+
+@keyframes dash-pulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+}
+
+.dash-alert-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #92400e;
+  margin: 0 0 2px;
+}
+
+.dash-alert-sub {
+  font-size: 12px;
+  color: #b45309;
+  margin: 0;
+}
+
+.dash-alert-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.dash-alert-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.dash-alert-pill.--amber {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}
+.dash-alert-pill.--amber:hover {
+  background: #fde68a;
+  transform: translateY(-1px);
+}
+
+.dash-alert-pill.--coral {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+.dash-alert-pill.--coral:hover {
+  background: #fecaca;
+  transform: translateY(-1px);
+}
+
+.dash-alert-pill.--teal {
+  background: #ccfbf1;
+  color: #0f766e;
+  border: 1px solid #99f6e4;
+}
+.dash-alert-pill.--teal:hover {
+  background: #99f6e4;
+  transform: translateY(-1px);
+}
+
+.dash-order-stat-card.--alert {
+  border-left: 3px solid #f59e0b;
+  background: #fffdf5;
+}
+.dash-order-stat-card.--refund {
+  border-left: 3px solid #ef4444;
+  background: #fffdfa;
+}
+.dash-order-stat-card.--settled {
+  border-left: 3px solid #10b981;
+  background: #fafffd;
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   DASHBOARD SKELETON SHIMMER LOADING (Universal .sk Sweep)
+════════════════════════════════════════════════════════════════════════ */
+.dash-skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+  background: var(--sk, #e8e6f4) !important;
+}
+
+.dash-skeleton-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(100deg, transparent 20%, var(--sh, rgba(255, 255, 255, 0.75)) 50%, transparent 80%);
+  animation: sweep 1.4s infinite;
+}
+
+.dash-skeleton-card {
+  border-radius: var(--radius-lg, 14px);
+  border: 1px solid #eef0f3;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  position: relative;
+  overflow: hidden;
+}
+
+.dash-skeleton-card--kpi {
+  min-height: 136px;
+}
+
+.dash-skeleton-card--summary {
+  min-height: 110px;
+}
+
+.dash-skeleton-card--pipe {
+  min-height: 96px;
+}
+
+.dash-skeleton-card--table {
+  min-height: 260px;
+}
+
+.dash-skeleton-bar {
+  border-radius: 6px;
+  background: #eef0f4;
+}
+
+.dash-skeleton-bar--title {
+  width: 240px;
+  height: 24px;
+  margin-bottom: 8px;
+}
+
+.dash-skeleton-bar--sub {
+  width: 320px;
+  height: 14px;
+}
+
+.dash-skeleton-bar--label {
+  width: 140px;
+  height: 16px;
+}
+
+.dash-skeleton-box--icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: #eef0f4;
+}
+
+.dash-skeleton-box--btn {
+  width: 110px;
+  height: 38px;
+  border-radius: 8px;
+  background: #eef0f4;
+}

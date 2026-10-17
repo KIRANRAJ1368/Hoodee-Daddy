@@ -18,6 +18,9 @@ async function create(req, res) {
       throw ApiError.badRequest("Maximum 3 Hero Banners can be added.");
     }
   }
+  if (placement === "offers" && await Banner.count({ where: { placement: "offers" } }) >= 10) {
+    throw ApiError.badRequest("Maximum 10 offer banners can be added.");
+  }
 
   const banner = await Banner.create({
     placement,
@@ -47,6 +50,9 @@ async function update(req, res) {
     if (heroCount >= 3) {
       throw ApiError.badRequest("Maximum 3 Hero Banners can be added.");
     }
+  }
+  if (placement === "offers" && banner.placement !== "offers" && await Banner.count({ where: { placement: "offers" } }) >= 10) {
+    throw ApiError.badRequest("Maximum 10 offer banners can be added.");
   }
 
   const fields = [

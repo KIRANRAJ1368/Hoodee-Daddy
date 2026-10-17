@@ -6,7 +6,8 @@ const create = [
     .trim()
     .notEmpty()
     .withMessage("Name is required")
-    .isLength({ max: 150 }),
+    .isLength({ min: 3, max: 30 })
+    .withMessage("Name must be between 3 and 30 characters"),
   body("email")
     .customSanitizer((val, { req }) => val || req.body.customer_email || req.body.customerEmail || "")
     .isEmail()
@@ -17,7 +18,8 @@ const create = [
     .trim()
     .notEmpty()
     .withMessage("Phone is required")
-    .isLength({ min: 6, max: 20 }),
+    .matches(/^\d{10}$/)
+    .withMessage("Phone number must contain exactly 10 digits"),
   body("shipping_address")
     .customSanitizer((val, { req }) => val || req.body.address || req.body.shipping_address_line1 || req.body.shippingAddress || "")
     .trim()
@@ -27,9 +29,10 @@ const create = [
   body("state").optional({ nullable: true }).isString(),
   body("pincode")
     .customSanitizer((val, { req }) => val || req.body.postal_code || req.body.postalCode || req.body.zip || "")
-    .optional({ nullable: true })
-    .isString()
-    .isLength({ max: 10 }),
+    .notEmpty()
+    .withMessage("PIN code is required")
+    .matches(/^\d{6}$/)
+    .withMessage("PIN code must contain exactly 6 digits"),
   body("payment_method")
     .customSanitizer((val) => (typeof val === "string" ? val.toUpperCase() : "COD"))
     .optional()

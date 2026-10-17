@@ -1,23 +1,24 @@
 import { useEffect, useState, useMemo } from "react";
+import { Link } from "react-router-dom";
 import { Plus, Edit2, Trash2, Eye, Image as ImageIcon, Sparkles, Layout, ExternalLink } from "lucide-react";
 import { bannersApi, categoriesApi } from "../../services/resources";
 import { useToast } from "../../context/ToastContext";
 import { useConfirm } from "../../components/ConfirmDialog/ConfirmDialog";
-import DataTable from "../../components/DataTable/DataTable";
+import PaginatedDataTable from "../../components/PaginatedDataTable/PaginatedDataTable";
 import StatusBadge from "../../components/StatusBadge/StatusBadge";
 import BannerFormModal from "./BannerFormModal";
 import BannerViewModal from "../../components/EntityViewModal/BannerViewModal";
 import ImageLightboxModal from "../../components/ImageLightboxModal/ImageLightboxModal";
 import { resolveImageUrl } from "../../utils/imageUrl";
 
-export default function BannersPage() {
+export default function BannersPage({ offerOnly = false }) {
   const [banners, setBanners] = useState([]);
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editing, setEditing] = useState(null);
   const [viewing, setViewing] = useState(null);
   const [lightboxImg, setLightboxImg] = useState(null);
-  const [activeTab, setActiveTab] = useState("all"); // 'all' | 'hero' | 'collection'
+  const [activeTab, setActiveTab] = useState("hero"); // 'hero'
   const [isCompact, setIsCompact] = useState(true);
   const toast = useToast();
   const [confirm, ConfirmModal] = useConfirm();
@@ -37,8 +38,12 @@ export default function BannersPage() {
       if (catsRes.status === "fulfilled" && Array.isArray(catsRes.value.data)) {
         setCategories(catsRes.value.data);
       }
+      const failures = [bannersRes, catsRes].filter((result) => result.status === "rejected");
+      if (failures.length) {
+        toast.error(failures.map((result) => result.reason?.message).filter(Boolean).join("; ") || "Failed to load banners and categories");
+      }
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.message || "Failed to load banners and categories");
     } finally {
       setIsLoading(false);
     }
@@ -56,34 +61,32 @@ export default function BannersPage() {
     if (!ok) return;
     try {
       await bannersApi.remove(banner.id);
-      toast.success("Banner removed successfully");
+      toast.delete(`Banner "${banner.title}" has been deleted successfully.`);
       load();
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.message || "Failed to delete banner");
     }
   }
 
   const filteredBanners = useMemo(() => {
-    if (activeTab === "hero") {
-      return banners.filter((b) => b.placement === "hero");
-    }
-    if (activeTab === "collection") {
-      return banners.filter((b) => b.placement !== "hero");
-    }
-    return banners;
-  }, [banners, activeTab]);
+    if (offerOnly) return banners.filter((b) => b.placement === "offers");
+    return banners.filter((b) => b.placement === "hero");
+  }, [banners, offerOnly]);
 
   const heroCount = banners.filter((b) => b.placement === "hero").length;
-  const collectionCount = banners.filter((b) => b.placement !== "hero").length;
+  const offerCount = banners.filter((b) => b.placement === "offers").length;
 
   function handleAddBanner() {
-    if (activeTab === "hero" && heroCount >= 3) {
+    if (!offerOnly && heroCount >= 3) {
       toast.error("Maximum 3 Hero Banners can be added.");
       return;
     }
-    const defaultCollectionPlacement = categories[0]?.slug || "mens";
+    if (offerOnly && offerCount >= 10) {
+      toast.error("Maximum 10 offer banners can be added.");
+      return;
+    }
     setEditing({
-      placement: activeTab === "collection" ? defaultCollectionPlacement : activeTab === "hero" ? "hero" : (heroCount >= 3 ? defaultCollectionPlacement : "hero")
+      placement: offerOnly ? "offers" : "hero"
     });
   }
 
@@ -92,22 +95,24 @@ export default function BannersPage() {
       <div className="page-header">
         <div>
           <h1 className="page-title">
-            <span>Hero & Promo Banners</span>
-            <span className="pill-badge badge-gold">{banners.length} Banner{banners.length === 1 ? "" : "s"}</span>
+            <span>{offerOnly ? "Offer Banners" : "Hero Banners"}</span>
+            <span className="pill-badge badge-gold">{offerOnly ? `${offerCount}/10` : `${heroCount}/3`} Banner{offerOnly ? (offerCount === 1 ? "" : "s") : (heroCount === 1 ? "" : "s")}</span>
           </h1>
           <p className="page-subtitle">
-            Configure homepage hero slider carousels and dedicated collection promotional banners.
+            {offerOnly
+              ? "Create and manage up to 10 storefront offer banners."
+              : "Configure storefront homepage hero slider carousels (max 3). Collection banners are managed in Categories."}
           </p>
         </div>
         <button type="button" className="btn btn-accent btn-lg" onClick={handleAddBanner}>
           <Plus size={17} />
-          <span>Add New Banner</span>
+          <span>Add New {offerOnly ? "Offer Banner" : "Hero Banner"}</span>
         </button>
       </div>
 
       <div className="card">
         {/* Navigation Tabs & View Mode Switch */}
-        <div
+        {!offerOnly && <div
           style={{
             display: "flex",
             alignItems: "center",
@@ -121,30 +126,24 @@ export default function BannersPage() {
             flexWrap: "wrap"
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-            <button
-              type="button"
-              className={`btn btn-sm ${activeTab === "all" ? "btn-primary" : "btn-secondary"}`}
-              onClick={() => setActiveTab("all")}
-            >
-              All Banners ({banners.length})
-            </button>
-            <button
-              type="button"
-              className={`btn btn-sm ${activeTab === "hero" ? "btn-accent" : "btn-secondary"}`}
-              onClick={() => setActiveTab("hero")}
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+            <span
+              className="btn btn-sm btn-accent"
+              style={{ cursor: "default" }}
             >
               <Sparkles size={14} />
               <span>Hero Slider ({heroCount}/3)</span>
-            </button>
-            <button
-              type="button"
-              className={`btn btn-sm ${activeTab === "collection" ? "btn-primary" : "btn-secondary"}`}
-              onClick={() => setActiveTab("collection")}
+            </span>
+
+            <Link
+              to="/categories"
+              className="btn btn-sm btn-secondary"
+              title="Collection page banners are configured directly within each Category"
+              style={{ display: "inline-flex", alignItems: "center", gap: 6, textDecoration: "none", whiteSpace: "normal", textAlign: "left", maxWidth: "100%" }}
             >
-              <Layout size={14} />
-              <span>Collection Banners ({collectionCount})</span>
-            </button>
+              <Layout size={14} style={{ flexShrink: 0 }} />
+              <span>Category Collection Banners &rarr; Go to Categories</span>
+            </Link>
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -158,11 +157,12 @@ export default function BannersPage() {
               <span>{isCompact ? "Compact Mode: ON" : "Detailed Mode"}</span>
             </button>
           </div>
-        </div>
+        </div>}
 
-        <DataTable
+        <PaginatedDataTable
           isLoading={isLoading}
           rows={filteredBanners}
+          sortNewestFirst
           rowKey={(row) => row.id}
           emptyTitle="No banners match this filter"
           emptyDescription="Create high-res hero banners or collection covers to attract customers."
@@ -360,6 +360,8 @@ export default function BannersPage() {
                 const matchedCat = categories.find((c) => c.slug === row.placement);
                 const label = matchedCat
                   ? `${matchedCat.name} Header`
+                  : row.placement === "offers"
+                  ? "Offer Banner"
                   : row.placement === "best-sellers"
                   ? "Best Sellers"
                   : row.placement === "new-arrivals"
@@ -465,6 +467,7 @@ export default function BannersPage() {
         <BannerFormModal
           banner={editing}
           heroCount={heroCount}
+          offerCount={offerCount}
           onClose={() => setEditing(null)}
           onSaved={() => {
             setEditing(null);

@@ -32,8 +32,8 @@ export default function ScrollToTop() {
     const collectionChanged = prevParams.get("collection") !== currParams.get("collection");
 
     // Only scroll to top on actual page navigation or top-level category/collection link switch,
-    // NEVER on in-page filter changes (color, size, price, availability, sorting)
-    const shouldScrollToTop = pathChanged || categoryChanged || collectionChanged;
+    // NEVER on in-page filter changes (color, size, price, availability, sorting) or when an anchor hash is targeted.
+    const shouldScrollToTop = (pathChanged || categoryChanged || collectionChanged) && !hash;
 
     if (shouldScrollToTop) {
       window.scrollTo(0, 0);
@@ -41,7 +41,10 @@ export default function ScrollToTop() {
       const id = hash.replace("#", "");
       const element = document.getElementById(id);
       if (element) {
-        element.scrollIntoView();
+        const navEl = document.querySelector(".site-header");
+        const navHeight = navEl ? navEl.offsetHeight : 76;
+        const targetY = Math.max(0, element.getBoundingClientRect().top + window.pageYOffset - navHeight - 12);
+        window.scrollTo({ top: targetY, behavior: "smooth" });
       }
     }
 

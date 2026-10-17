@@ -1,8 +1,41 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { useShop } from "../../context/ShopContext";
 import SizeGuideModal from "./SizeGuideModal";
 import { imageUrl } from "../../utils/imageUrl";
+import { getProductPricing } from "../../utils/pricing";
 import "./QuickViewModal.css";
+
+function availableColors(product) {
+  if (product?.variants?.length) {
+    const colors = new Map();
+    product.variants.forEach((variant) => {
+      if (variant.color) {
+        const key = variant.color.toLowerCase();
+        if (!colors.has(key)) colors.set(key, { name: variant.color, hex: variant.colorHex || "#181715" });
+      }
+    });
+    if (colors.size > 0) return [...colors.values()];
+  }
+  if (Array.isArray(product?.colors)) {
+    return product.colors.map((c) => {
+      if (typeof c === "string") return { name: c, hex: "#181715" };
+      return { name: c.name || "Default", hex: c.hex || c.hexCode || c.hex_code || "#181715" };
+    });
+  }
+  return [];
+}
+
+function availableSizes(product) {
+  if (product?.variants?.length) {
+    const sizes = [...new Set(product.variants.map((variant) => variant.size).filter(Boolean))];
+    if (sizes.length > 0) return sizes;
+  }
+  if (Array.isArray(product?.sizes)) {
+    return product.sizes.map((s) => (typeof s === "object" && s !== null ? (s.label || s.size || s.name) : s)).filter(Boolean);
+  }
+  return [];
+}
 
 export default function QuickViewModal() {
   const {
@@ -15,6 +48,7 @@ export default function QuickViewModal() {
     toggleWishlist
   } = useShop();
 
+  const navigate = useNavigate();
   const [activeImgIndex, setActiveImgIndex] = useState(0);
   const [selectedColor, setSelectedColor] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
@@ -30,15 +64,124 @@ export default function QuickViewModal() {
     return ["/images/photo-1521572163474-6864f9cf17ab.jpg"];
   }, [quickViewProduct]);
 
+  const productColors = useMemo(() => availableColors(quickViewProduct), [quickViewProduct]);
+
+  // Color-specific sizes
+  const colorSizes = useMemo(() => {
+    if (!quickViewProduct) return [];
+    if (Array.isArray(quickViewProduct.variants) && quickViewProduct.variants.length > 0 && selectedColor) {
+      const sizes = [...new Set(quickViewProduct.variants
+        .filter((variant) => variant.color?.toLowerCase() === selectedColor.toLowerCase())
+        .map((variant) => variant.size)
+        .filter(Boolean))];
+      if (sizes.length) return sizes;
+    }
+    return availableSizes(quickViewProduct);
+  }, [quickViewProduct, selectedColor]);
+
+  // Unavailable sizes for the selected color
+  const unavailableSizes = useMemo(() => {
+    if (!quickViewProduct?.variants || quickViewProduct.variants.length === 0 || !selectedColor) return new Set();
+    const set = new Set();
+    colorSizes.forEach((s) => {
+      const v = quickViewProduct.variants.find(
+        (item) =>
+          item.size?.toLowerCase() === s.toLowerCase() &&
+          item.color?.toLowerCase() === selectedColor.toLowerCase()
+      );
+      if (!v || Number(v.stockCount ?? 0) <= 0) {
+        set.add(s);
+      }
+    });
+    return set;
+  }, [quickViewProduct, selectedColor, colorSizes]);
+
+  const currentVariant = useMemo(() => {
+    if (!quickViewProduct?.variants || quickViewProduct.variants.length === 0) return null;
+    const exact = quickViewProduct.variants.find((v) => {
+      const matchColor = !v.color || !selectedColor || v.color.toLowerCase() === selectedColor.toLowerCase();
+      const matchSize = !v.size || !selectedSize || v.size.toLowerCase() === selectedSize.toLowerCase();
+      return matchColor && matchSize;
+    });
+    if (exact) return exact;
+    const colorMatch = quickViewProduct.variants.find((v) => {
+      return !v.color || !selectedColor || v.color.toLowerCase() === selectedColor.toLowerCase();
+    });
+    if (colorMatch) return colorMatch;
+    return quickViewProduct.variants[0];
+  }, [quickViewProduct, selectedColor, selectedSize]);
+
+  const variantImages = useMemo(() => {
+    if (!currentVariant) return images;
+    const gallery = Array.isArray(currentVariant.galleryImages) ? currentVariant.galleryImages : [];
+    const ownImages = [currentVariant.imageUrl || currentVariant.image_url, ...gallery].filter(Boolean);
+    return ownImages.length ? ownImages : images;
+  }, [currentVariant, images]);
+
+  useEffect(() => setActiveImgIndex(0), [currentVariant?.id]);
+
   // Initialize defaults when product changes
   useEffect(() => {
     if (quickViewProduct) {
       setActiveImgIndex(0);
-      setSelectedColor(quickViewProduct.colors?.[0]?.name || null);
-      setSelectedSize(quickViewProduct.sizes?.[0] || null);
+      const colors = availableColors(quickViewProduct);
+      const sizes = availableSizes(quickViewProduct);
+      const defaultVariant = quickViewProduct.variants?.find((variant) => Number(variant.stockCount ?? 0) > 0) || quickViewProduct.variants?.[0];
+      setSelectedColor(defaultVariant?.color || colors[0]?.name || null);
+      setSelectedSize(defaultVariant?.size || sizes[0] || null);
       setQuantity(1);
     }
   }, [quickViewProduct]);
+
+  // Intelligent color select
+  const handleColorSelect = (colorName) => {
+    setSelectedColor(colorName);
+    setQuantity(1);
+    if (quickViewProduct?.variants?.length) {
+      const variantsForColor = quickViewProduct.variants.filter(
+        (v) => v.color && v.color.toLowerCase() === colorName.toLowerCase()
+      );
+      if (variantsForColor.length > 0) {
+        const currentSizeHasStock = variantsForColor.some(
+          (v) => v.size && v.size.toLowerCase() === selectedSize?.toLowerCase() && Number(v.stockCount ?? 0) > 0
+        );
+        if (!currentSizeHasStock) {
+          const firstInStock = variantsForColor.find((v) => Number(v.stockCount ?? 0) > 0);
+          if (firstInStock?.size) {
+            setSelectedSize(firstInStock.size);
+          } else if (variantsForColor[0]?.size) {
+            setSelectedSize(variantsForColor[0].size);
+          }
+        }
+      }
+    }
+  };
+
+  const hasVariants = Array.isArray(quickViewProduct?.variants) && quickViewProduct.variants.length > 0;
+  const activeStockCount = hasVariants
+    ? Number(currentVariant?.stockCount ?? 0)
+    : Number(quickViewProduct?.stockCount ?? 0);
+  const isOutOfStock = hasVariants
+    ? !currentVariant || Number(currentVariant.stockCount ?? 0) <= 0
+    : !quickViewProduct?.inStock || Number(quickViewProduct?.stockCount ?? 0) <= 0;
+  const isLowStock = !isOutOfStock && activeStockCount > 0 && activeStockCount <= 5;
+
+  const pricing = useMemo(
+    () => getProductPricing(quickViewProduct, currentVariant),
+    [quickViewProduct, currentVariant]
+  );
+  const activePrice = pricing.price;
+  const displayOriginalPrice = pricing.originalPrice;
+  const isOffer = pricing.isOffer;
+
+  // Clamp quantity
+  useEffect(() => {
+    if (activeStockCount <= 0 && quantity !== 1) {
+      setQuantity(1);
+    } else if (activeStockCount > 0 && quantity > activeStockCount) {
+      setQuantity(activeStockCount);
+    }
+  }, [activeStockCount, quantity]);
 
   if (!quickViewProduct) return null;
 
@@ -47,11 +190,12 @@ export default function QuickViewModal() {
     : wishlist.some((id) => String(id) === String(quickViewProduct.id));
 
   const handleAddToCart = () => {
+    if (isOutOfStock) return;
     addToCart(quickViewProduct, selectedColor, selectedSize, quantity);
     setQuickViewProduct(null);
   };
 
-  const currentImg = images[activeImgIndex] || images[0];
+  const currentImg = variantImages[activeImgIndex] || variantImages[0];
 
   return (
     <div className="modal-overlay active" onClick={() => setQuickViewProduct(null)}>
@@ -82,9 +226,9 @@ export default function QuickViewModal() {
             </div>
 
             {/* Thumbnail Row */}
-            {images.length > 1 && (
+            {variantImages.length > 1 && (
               <div className="quickview-thumbnails">
-                {images.map((img, i) => (
+                {variantImages.map((img, i) => (
                   <button
                     key={i}
                     className={`thumb-btn ${i === activeImgIndex ? "active" : ""}`}
@@ -99,45 +243,65 @@ export default function QuickViewModal() {
 
           {/* Product Details & Variant Selectors */}
           <div className="quickview-details">
-            <span className="quickview-category">{quickViewProduct.category}</span>
+            <span className="quickview-category">{quickViewProduct.subCategory || quickViewProduct.category}</span>
             <h2 className="quickview-title">{quickViewProduct.name}</h2>
 
             {/* Rating & SKU */}
             <div className="quickview-meta-row">
-              <div className="star-rating">
-                <span>★</span>
-                <span>{quickViewProduct.rating}</span>
-                <span className="review-count">({quickViewProduct.reviewCount} reviews)</span>
-              </div>
-              <span className="sku-tag">SKU: {quickViewProduct.sku}</span>
+              {Number(quickViewProduct.reviewCount || 0) > 0 && (
+                <div
+                  className="star-rating"
+                  onClick={() => {
+                    const targetUrl = `/products/${quickViewProduct.slug || quickViewProduct.id}#customer-reviews`;
+                    setQuickViewProduct(null);
+                    navigate(targetUrl);
+                  }}
+                  style={{ cursor: "pointer" }}
+                  title="Click to view verified customer reviews"
+                >
+                  <span>★</span>
+                  <span>{Number(quickViewProduct.rating || 0).toFixed(1)}</span>
+                  <span className="review-count">
+                    ({quickViewProduct.reviewCount} {quickViewProduct.reviewCount === 1 ? "review" : "reviews"})
+                  </span>
+                </div>
+              )}
+              <span className="sku-tag">
+                SKU: {currentVariant?.skuSuffix ? `${quickViewProduct.sku}-${currentVariant.skuSuffix}` : quickViewProduct.sku}
+              </span>
             </div>
 
             {/* Pricing */}
             <div className="quickview-price-row">
-              <span className="price-current">{formatPrice(quickViewProduct.price)}</span>
-              {quickViewProduct.originalPrice && quickViewProduct.originalPrice > quickViewProduct.price && (
+              <span className="price-current">{formatPrice(activePrice)}</span>
+              {displayOriginalPrice && (
                 <span className="price-original">
-                  {formatPrice(quickViewProduct.originalPrice)}
+                  {formatPrice(displayOriginalPrice)}
                 </span>
+              )}
+              {isOffer && (
+                <span className="quickview-offer-chip">{pricing.offerBadge}</span>
               )}
             </div>
 
             <p className="quickview-description">{quickViewProduct.description}</p>
 
             {/* Color Selector */}
-            {quickViewProduct.colors && quickViewProduct.colors.length > 0 && (
+            {productColors.length > 0 && (
               <div className="variant-block">
                 <span className="variant-label">
                   Color: <strong>{selectedColor}</strong>
                 </span>
                 <div className="color-swatch-list">
-                  {quickViewProduct.colors.map((c) => (
+                  {productColors.map((c) => (
                     <button
                       key={c.name}
+                      type="button"
                       className={`color-swatch-btn ${selectedColor === c.name ? "active" : ""}`}
                       style={{ backgroundColor: c.hex }}
-                      onClick={() => setSelectedColor(c.name)}
+                      onClick={() => handleColorSelect(c.name)}
                       title={c.name}
+                      aria-pressed={selectedColor === c.name}
                     />
                   ))}
                 </div>
@@ -145,7 +309,7 @@ export default function QuickViewModal() {
             )}
 
             {/* Size Selector */}
-            {quickViewProduct.sizes && quickViewProduct.sizes.length > 0 && (
+            {colorSizes.length > 0 && (
               <div className="variant-block">
                 <div className="size-header">
                   <span className="variant-label">
@@ -160,15 +324,20 @@ export default function QuickViewModal() {
                   </button>
                 </div>
                 <div className="size-pill-list">
-                  {quickViewProduct.sizes.map((s) => (
-                    <button
-                      key={s}
-                      className={`size-pill ${selectedSize === s ? "active" : ""}`}
-                      onClick={() => setSelectedSize(s)}
-                    >
-                      {s}
-                    </button>
-                  ))}
+                  {colorSizes.map((s) => {
+                    const isSoldOut = unavailableSizes.has(s);
+                    return (
+                      <button
+                        key={s}
+                        type="button"
+                        className={`size-pill ${selectedSize === s ? "active" : ""} ${isSoldOut ? "sold-out" : ""}`}
+                        onClick={() => setSelectedSize(s)}
+                        title={isSoldOut ? `${s} (Out of stock in ${selectedColor || "this color"})` : s}
+                      >
+                        {s}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -177,26 +346,37 @@ export default function QuickViewModal() {
             <div className="quickview-actions">
               <div className="qty-control">
                 <button
+                  type="button"
                   className="qty-btn"
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  disabled={quantity <= 1}
+                  disabled={quantity <= 1 || isOutOfStock}
+                  aria-label="Decrease quantity"
                 >
                   -
                 </button>
-                <span className="qty-value">{quantity}</span>
+                <span className="qty-value">{isOutOfStock ? 0 : quantity}</span>
                 <button
+                  type="button"
                   className="qty-btn"
-                  onClick={() => setQuantity((q) => q + 1)}
+                  onClick={() => setQuantity((q) => Math.min(activeStockCount || 99, q + 1))}
+                  disabled={isOutOfStock || (activeStockCount > 0 && quantity >= activeStockCount)}
+                  aria-label="Increase quantity"
                 >
                   +
                 </button>
               </div>
 
               <button
+                type="button"
                 className="btn btn-primary btn-add-bag"
                 onClick={handleAddToCart}
+                disabled={isOutOfStock}
               >
-                Add To Bag • {formatPrice(quickViewProduct.price * quantity)}
+                {isOutOfStock ? (
+                  "Out of Stock"
+                ) : (
+                  `Add To Bag • ${formatPrice(activePrice * quantity)}`
+                )}
               </button>
 
               <button
@@ -219,9 +399,15 @@ export default function QuickViewModal() {
             </div>
 
             {/* Stock indicator */}
-            <div className="stock-indicator">
+            <div className={`stock-indicator ${isOutOfStock ? "out-of-stock" : isLowStock ? "low-stock" : "in-stock"}`}>
               <span className="stock-dot"></span>
-              <span>In stock ready to ship ({quickViewProduct.stockCount} units remaining)</span>
+              <span>
+                {isOutOfStock
+                  ? "Currently Out of Stock — Restock in progress"
+                  : isLowStock
+                  ? `Low Stock — Only ${activeStockCount} units remaining. Order soon!`
+                  : `In stock ready to ship (${activeStockCount} units remaining)`}
+              </span>
             </div>
           </div>
         </div>

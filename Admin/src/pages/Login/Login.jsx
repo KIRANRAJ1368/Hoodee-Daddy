@@ -36,6 +36,18 @@ export default function Login() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    if (!email.trim()) {
+      setError("Please enter your email address");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setError("Please enter a valid email address");
+      return;
+    }
+    if (!password) {
+      setError("Please enter your password");
+      return;
+    }
     setError("");
     setIsSubmitting(true);
     try {

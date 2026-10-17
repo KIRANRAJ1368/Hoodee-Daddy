@@ -2,11 +2,13 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useShop } from "../../context/ShopContext";
 import { imageUrl } from "../../utils/imageUrl";
-import useManualScrollCarousel from "../../hooks/useManualScrollCarousel";
+import useCarousel from "../../hooks/useCarousel";
 import {
   CAROUSEL_BREAKPOINTS,
   shouldShowArrows,
-  visibleCountForWidth
+  shouldShowCarousel,
+  visibleCountForWidth,
+  trackOffset
 } from "../../utils/carouselCore";
 import "./CategoryFeatureGrid.css";
 
@@ -18,7 +20,7 @@ function SubcategoryTile({ card }) {
         {hasImage ? (
           <img
             src={imageUrl(card.image)}
-            alt={card.title}
+            alt={card.title ? `${card.title} - ${card.tag || "Clothing"} | ZMW` : "Category Item"}
             className="cat-feature-img"
             loading="lazy"
             style={card.imagePosition ? { objectPosition: card.imagePosition } : undefined}
@@ -92,29 +94,53 @@ export function CategoryCards({ cards: customCards, category: directCategory, ca
         tag: sanitizeTag(category?.name?.toUpperCase() || defaultTag),
         image,
         imagePosition: subcategory.image_position || "center top",
-        link: `/collection?category=${encodeURIComponent(category?.slug || slug)}&type=${encodeURIComponent(subcategory.slug || subcategory.name.toLowerCase())}`
+        link: `/categories/${encodeURIComponent(category?.slug || slug)}/${encodeURIComponent(subcategory.slug || subcategory.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"))}`
       };
     });
   }
+
+  const { index, next, prev, setPaused } = useCarousel(
+    items.length,
+    visibleCount,
+    0
+  );
+
+  const slideWidth = 100 / visibleCount;
 
   if (items.length === 0) {
     return null;
   }
 
-  const { trackRef, scrollNext, scrollPrev, containerProps, trackProps } = useManualScrollCarousel({
-    autoDelayMs: 0
-  });
-
-  const slideWidth = 100 / visibleCount;
+  if (!shouldShowCarousel(items.length, visibleCount)) {
+    return (
+      <div className="cat-feature-grid cat-feature-grid--four">
+        {items.map((card) => (
+          <SubcategoryTile key={card.id} card={card} />
+        ))}
+      </div>
+    );
+  }
 
   return (
-    <div className="cat-feature-carousel" {...containerProps}>
+    <div
+      className="cat-feature-carousel"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onTouchStart={() => setPaused(true)}
+      onTouchEnd={() => setPaused(false)}
+    >
       {shouldShowArrows(items.length, visibleCount) && (
-        <CarouselArrow direction="left" onClick={scrollPrev} label="Previous categories" />
+        <CarouselArrow direction="left" onClick={prev} label="Previous subcategories" />
       )}
 
-      <div className="cat-feature-carousel-viewport" {...trackProps}>
-        <div className="cat-feature-carousel-track">
+      <div className="cat-feature-carousel-viewport">
+        <div
+          className="cat-feature-carousel-track"
+          style={{
+            transform: `translateX(-${trackOffset(index, visibleCount)}%)`,
+            transition: "transform 450ms cubic-bezier(0.25, 1, 0.5, 1)"
+          }}
+        >
           {items.map((card) => (
             <div
               key={card.id}
@@ -128,7 +154,7 @@ export function CategoryCards({ cards: customCards, category: directCategory, ca
       </div>
 
       {shouldShowArrows(items.length, visibleCount) && (
-        <CarouselArrow direction="right" onClick={scrollNext} label="Next categories" />
+        <CarouselArrow direction="right" onClick={next} label="Next subcategories" />
       )}
     </div>
   );
@@ -136,6 +162,7 @@ export function CategoryCards({ cards: customCards, category: directCategory, ca
 
 /* ── Generic Data-Driven Category Section ── */
 export function CategorySection({ category, section }) {
+  const { homeData } = useShop();
   if (!category || category.is_active === false || category.show_on_homepage === false) {
     return null;
   }
@@ -143,40 +170,63 @@ export function CategorySection({ category, section }) {
     return null;
   }
 
+  // Find the authoritative banner for this category from homeData.banners
+  const bannerList =
+    homeData?.banners?.[category.slug] ||
+    (category.slug === "mens" ? homeData?.banners?.["men"] : null) ||
+    (category.slug === "women" ? homeData?.banners?.["womens"] : null) ||
+    [];
+  const banner = Array.isArray(bannerList) && bannerList.length > 0 ? bannerList[0] : null;
+
   const visibleSubcategories = (category?.subcategories || []).filter(
     (subcategory) => subcategory.show_on_homepage !== false && subcategory.is_active !== false
   );
-  if (visibleSubcategories.length === 0) {
-    return null;
-  }
 
-  const eyebrowText = `${category.name.toUpperCase()} CATEGORIES`;
-  const defaultTitle = `${category.name} Categories`;
+  const eyebrowText = `${category.name.toUpperCase()} COLLECTION`;
+  const defaultTitle = `${category.name} Collection`;
   const defaultSubtitle =
     category.description ||
     `Explore premium ${category.name.toLowerCase()} essentials crafted for an elevated, modern fit.`;
 
-  const title = section?.title || defaultTitle;
-  const subtitle = section?.subtitle || defaultSubtitle;
+  const title = banner?.title || section?.title || defaultTitle;
+  const subtitle = banner?.subtitle || section?.subtitle || defaultSubtitle;
   const slugClass = `${category.slug}-feature-section`;
 
   return (
-    <section className={`category-feature-section ${slugClass}`} aria-label={`${category.name} Categories`}>
+    <section className={`category-feature-section ${slugClass}`} aria-label={`${category.name} Collection`}>
       <div className="container">
-        <div className="section-header-left">
-          <div className="section-eyebrow-badge">
-            <span className="eyebrow-dot" />
-            <span className="eyebrow-text">{eyebrowText}</span>
+        {/* Render Clean Category Section Header with Direct View All Products CTA */}
+        <div className="cat-feature-header-row">
+          <div className="section-header-left">
+            <div className="section-eyebrow-badge">
+              <span className="eyebrow-dot" />
+              <span className="eyebrow-text">{eyebrowText}</span>
+            </div>
+            <h2 className="section-heading-title">{title}</h2>
+            <p className="section-heading-subtitle">{subtitle}</p>
           </div>
-          <h2 className="section-heading-title">{title}</h2>
-          <p className="section-heading-subtitle">{subtitle}</p>
+
+          <Link
+            to={`/categories/${encodeURIComponent(category.slug)}`}
+            className="cat-feature-view-all-btn"
+            aria-label={`View all ${category.name} products`}
+          >
+            <span>View All Products</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </Link>
         </div>
 
-        <CategoryCards
-          category={category}
-          categorySlug={category.slug}
-          defaultTag={eyebrowText}
-        />
+        {/* If subcategories exist, render carousel underneath */}
+        {visibleSubcategories.length > 0 && (
+          <CategoryCards
+            category={category}
+            categorySlug={category.slug}
+            defaultTag={eyebrowText}
+          />
+        )}
       </div>
     </section>
   );
@@ -223,7 +273,7 @@ export default function CategoryFeatureGrid() {
   const { homeData } = useShop();
   const categories = (homeData?.categories || [])
     .filter((c) => c.is_active !== false && c.show_on_homepage !== false)
-    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.id - b.id);
   const sectionMap = new Map((homeData?.sections || []).map((s) => [s.section_key, s]));
 
   return (

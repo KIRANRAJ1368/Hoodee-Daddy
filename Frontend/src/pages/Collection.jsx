@@ -1,11 +1,14 @@
-import React, { useMemo, useState, useEffect, useRef } from "react";
-import { useSearchParams, useNavigate, Link } from "react-router-dom";
+import React, { useMemo, useState, useEffect, useRef, useCallback } from "react";
+import { useSearchParams, useNavigate, useLocation, Link, useParams } from "react-router-dom";
+import SeoHead from "../components/Seo/SeoHead";
+import { buildCategorySchema, buildBreadcrumbSchema } from "../utils/seoSchemas";
 import { useShop } from "../context/ShopContext";
+import { isCategoryMatch, resolveFallbackCategory, saveCategoryHistory } from "../utils/categoryFallback";
 import ProductCard from "../components/ProductCard/ProductCard";
 import RecentlyViewed from "../components/RecentlyViewed/RecentlyViewed";
 import { CURRENCY_SYMBOL, formatINRNumber, formatPrice } from "../utils/formatPrice";
 
-const SHIPPING_LABEL = "Pan-India Express Delivery";
+const SHIPPING_LABEL = "Pan-India Express Shipping";
 import "./Collection.css";
 
 const SORT_OPTIONS = [
@@ -90,95 +93,95 @@ function renderHeroIcon(name) {
 const BANNER_CONFIG = {
   mens: {
     categoryName: "Men",
-    badge: "New Arrivals",
+    badge: "★ PREMIUM MEN'S APPAREL · SEASON 2026",
     badgeIcon: "sparkle",
     subBadge: "Season 2026",
-    offer: "FLAT 25% OFF",
+    offer: "FLAT 25% OFF · AUTO-APPLIED",
     offerTag: "AUTO-APPLIED AT CHECKOUT",
-    title: "NEW SEASON STYLES",
-    subtitle: "Heavyweight 280 GSM drops with relaxed drop-shoulder silhouettes, modern street aesthetics, and all-day comfort.",
+    title: "MEN'S COLLECTION",
+    subtitle: "Heavyweight pure combed cotton essentials, oversized streetwear drops, and modern cuts.",
     perks: [
       { icon: "shield", label: "280 GSM Heavyweight" },
       { icon: "star", label: "4.9★ Customer Rating" },
       { icon: "tag", label: "100% Combed Cotton" }
     ],
-    ctaText: "Shop Now",
+    ctaText: "Shop Men's",
     urgencyTag: "✨ Fresh Drop",
     image: "/images/banner-mens.jpg",
     imagePosition: "85% top"
   },
   women: {
     categoryName: "Women",
-    badge: "New Arrivals",
+    badge: "★ CONTEMPORARY WOMEN'S WEAR · SEASON 2026",
     badgeIcon: "sparkle",
     subBadge: "Season 2026",
-    offer: "FLAT 25% OFF",
+    offer: "FLAT 25% OFF · AUTO-APPLIED",
     offerTag: "AUTO-APPLIED AT CHECKOUT",
-    title: "CONTEMPORARY CHIC",
+    title: "WOMEN'S COLLECTION",
     subtitle: "Chic relaxed drop-shoulder fits, ultra-breathable pure combed cotton, and modern minimalist artwork.",
     perks: [
       { icon: "sparkle", label: "Artistic Minimalist Prints" },
       { icon: "star", label: "4.9★ Customer Rating" },
       { icon: "tag", label: "100% Combed Cotton" }
     ],
-    ctaText: "Shop Now",
+    ctaText: "Shop Women's",
     urgencyTag: "✨ Fresh Drop",
     image: "/images/banner-womens.jpg",
     imagePosition: "85% top"
   },
   boys: {
     categoryName: "Boys",
-    badge: "Playful Drops",
+    badge: "⚡ PLAYFUL DROPS · SEASON 2026",
     badgeIcon: "bolt",
     subBadge: "Season 2026",
-    offer: "STARTING AT {{MIN_PRICE}}",
+    offer: "STARTING AT ₹599 · FREE SHIPPING",
     offerTag: "PREMIUM STREETWEAR",
-    title: "BUILT FOR PLAY",
+    title: "BOYS' COLLECTION",
     subtitle: "High-energy graphic streetwear hoodies, durable reinforced seams, and super-soft bio-washed cotton.",
     perks: [
       { icon: "shield", label: "Reinforced Durability" },
       { icon: "star", label: "4.8★ Parent Approved" },
       { icon: "truck", label: SHIPPING_LABEL }
     ],
-    ctaText: "Shop Now",
+    ctaText: "Shop Boys'",
     urgencyTag: "⚡ Selling Out Fast",
     image: "/images/banner-boys.jpg",
     imagePosition: "85% top"
   },
   girls: {
     categoryName: "Girls",
-    badge: "Sweet & Trendy",
+    badge: "★ SWEET & TRENDY · SEASON 2026",
     badgeIcon: "sparkle",
     subBadge: "Season 2026",
-    offer: "FLAT 20% OFF",
+    offer: "FLAT 20% OFF · AUTO-APPLIED",
     offerTag: "AUTO-APPLIED AT CHECKOUT",
-    title: "FRESH & PLAYFUL",
+    title: "GIRLS' COLLECTION",
     subtitle: "Cheerful graphic sweatshirts, soft high-necks, trendy matching sets, and gentle skin-friendly organic cotton.",
     perks: [
       { icon: "heart", label: "Ultra-Gentle on Skin" },
       { icon: "star", label: "4.9★ Customer Rating" },
       { icon: "tag", label: "100% Pure Cotton" }
     ],
-    ctaText: "Shop Now",
+    ctaText: "Shop Girls'",
     urgencyTag: "✨ Fresh Drop",
     image: "/images/banner-girls.jpg",
     imagePosition: "85% top"
   },
   babies: {
     categoryName: "Babies",
-    badge: "Tiny & Soft",
+    badge: "♥ TINY & SOFT · 100% BABY-SAFE",
     badgeIcon: "heart",
     subBadge: "100% Baby-Safe",
-    offer: "STARTING AT {{MIN_PRICE}}",
+    offer: "STARTING AT ₹449 · HYPOALLERGENIC",
     offerTag: "HYPOALLERGENIC COTTON",
-    title: "GENTLE ESSENTIALS",
+    title: "BABIES' COLLECTION",
     subtitle: "Cozy ribbed rompers, buttery-soft pyjamas, and stretch bottoms crafted in pure hypoallergenic organic cotton.",
     perks: [
       { icon: "heart", label: "Hypoallergenic Pure Cotton" },
       { icon: "shield", label: "Zero Harsh Chemicals" },
       { icon: "tag", label: "Easy Snap Fastening" }
     ],
-    ctaText: "Shop Now",
+    ctaText: "Shop Babies'",
     urgencyTag: "🍼 Gentle Care",
     image: "/images/banner-babies.jpg",
     imagePosition: "85% top"
@@ -265,25 +268,62 @@ function GridIcon({ columns }) {
 export default function Collection() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { allProducts, homeData } = useShop();
+  const location = useLocation();
+  const { allProducts, homeData, storefrontStatus, seoSettings, refreshHomeData } = useShop();
+  const { categorySlug, subcategorySlug } = useParams();
   const catalog = allProducts || [];
 
+  useEffect(() => {
+    if (typeof refreshHomeData === "function") {
+      refreshHomeData();
+    }
+  }, [refreshHomeData]);
+
   const priceCeiling = useMemo(
-    () => Math.ceil(Math.max(1, ...catalog.map((p) => Number(p.price) || 0)) / 100) * 100,
+    () => Math.ceil(catalog.reduce((max, p) => Math.max(max, Number(p.price) || 0), 1) / 100) * 100,
     [catalog]
   );
 
-  const rawCategoryParam = (searchParams.get("category") || "all").toLowerCase();
+  const rawCategoryParam = (categorySlug || searchParams.get("category") || "all").toLowerCase();
   const categoryParam = CATEGORY_ALIASES[rawCategoryParam] || rawCategoryParam;
   const collectionParam = (searchParams.get("collection") || "all").toLowerCase();
-  const typeParam = (searchParams.get("type") || "all").toLowerCase();
+  const typeParam = (subcategorySlug || searchParams.get("type") || "all").toLowerCase();
   const searchParam = (searchParams.get("q") || searchParams.get("search") || "").trim().toLowerCase();
   const colorParam = searchParams.getAll("color");
   const sizeParam = searchParams.getAll("size");
   const availabilityParam = searchParams.get("availability") || "all";
-  const minPriceParam = searchParams.get("minPrice") ? Number(searchParams.get("minPrice")) : 0;
-  const maxPriceParam = searchParams.get("maxPrice") ? Number(searchParams.get("maxPrice")) : priceCeiling;
+  const [minPrice, setMinPrice] = useState(() => (searchParams.get("minPrice") ? Number(searchParams.get("minPrice")) : 0));
+  const [maxPrice, setMaxPrice] = useState(() => (searchParams.get("maxPrice") ? Number(searchParams.get("maxPrice")) : priceCeiling));
+  const hasUserCustomizedPriceRef = useRef(Boolean(searchParams.get("minPrice") || searchParams.get("maxPrice")));
   const sortParam = searchParams.get("sort") || (collectionParam === "best-sellers" ? "best-selling" : collectionParam === "new-arrivals" ? "newest" : "featured");
+
+  // Keep maxPrice in sync with priceCeiling when catalog loads, unless user adjusted price
+  useEffect(() => {
+    if (!hasUserCustomizedPriceRef.current || maxPrice === 0 || maxPrice > priceCeiling) {
+      setMaxPrice(priceCeiling);
+    }
+  }, [priceCeiling]);
+
+  // Sync URL search params minPrice / maxPrice to state
+  useEffect(() => {
+    if (searchParams.has("minPrice")) {
+      setMinPrice(Number(searchParams.get("minPrice")) || 0);
+      hasUserCustomizedPriceRef.current = true;
+    }
+    if (searchParams.has("maxPrice")) {
+      setMaxPrice(Number(searchParams.get("maxPrice")) || priceCeiling);
+      hasUserCustomizedPriceRef.current = true;
+    }
+  }, [searchParams, priceCeiling]);
+
+  // Reset price filters when switching category, collection, or subcategory unless specified in URL
+  useEffect(() => {
+    if (!searchParams.has("minPrice") && !searchParams.has("maxPrice")) {
+      hasUserCustomizedPriceRef.current = false;
+      setMinPrice(0);
+      setMaxPrice(priceCeiling);
+    }
+  }, [categoryParam, collectionParam, typeParam, searchParams, priceCeiling]);
 
   const [openSections, setOpenSections] = useState({ price: true, color: true, size: true, availability: true });
   const [showAllColors, setShowAllColors] = useState(false);
@@ -293,6 +333,88 @@ export default function Collection() {
   const [gridCols, setGridCols] = useState(4);
   const [isSortOpen, setIsSortOpen] = useState(false);
   const sortRef = useRef(null);
+
+    const baseUrl = (seoSettings?.canonical_base_url || "https://zmwclothing.com").replace(/\/+$/, "");
+
+  const homeCategories = useMemo(() => {
+    const cats = homeData?.categories || [];
+    if (cats.length > 0) {
+      saveCategoryHistory(cats);
+    }
+    return cats;
+  }, [homeData]);
+
+  const currentCategoryKey = categoryParam === "all" ? "all" : categoryParam;
+  const matchedCategory = useMemo(() => {
+    if (!homeCategories || homeCategories.length === 0) return null;
+    return homeCategories.find((c) => isCategoryMatch(c.slug, currentCategoryKey));
+  }, [homeCategories, currentCategoryKey]);
+
+  const matchedCatObj = matchedCategory;
+
+  const isInvalidCategory = Boolean(
+    collectionParam === "all" &&
+    categoryParam !== "all" &&
+    homeCategories.length > 0 &&
+    !matchedCategory
+  );
+
+  useEffect(() => {
+    if (isInvalidCategory) {
+      const fallbackCat = resolveFallbackCategory(categoryParam, homeCategories);
+      if (fallbackCat && fallbackCat.slug) {
+        const targetSlug = fallbackCat.slug === "men" ? "mens" : fallbackCat.slug;
+        const search = location.search ? location.search : "";
+        if (categorySlug) {
+          navigate(`/categories/${targetSlug}${search}`, { replace: true });
+        } else {
+          const nextParams = new URLSearchParams(searchParams);
+          nextParams.set("category", targetSlug);
+          navigate(`/collection?${nextParams.toString()}`, { replace: true });
+        }
+      }
+    }
+  }, [isInvalidCategory, categoryParam, homeCategories, categorySlug, location.search, searchParams, navigate]);
+
+  const categoryName = useMemo(() => {
+    if (collectionParam === "best-sellers") return "Best Sellers";
+    if (collectionParam === "new-arrivals") return "New Arrivals";
+    if (matchedCatObj?.name) return matchedCatObj.name;
+    if (categoryParam === "all") return "All Collections";
+    return categoryParam.charAt(0).toUpperCase() + categoryParam.slice(1);
+  }, [collectionParam, matchedCatObj, categoryParam]);
+
+  const seoTitle = useMemo(() => {
+    if (matchedCatObj?.meta_title) return matchedCatObj.meta_title;
+    if (collectionParam === "best-sellers") return "Best Sellers — Most Popular Streetwear Drops | ZMW Clothing";
+    if (collectionParam === "new-arrivals") return "New Arrivals — Fresh Drops & Limited Editions | ZMW Clothing";
+    if (categoryParam !== "all" && seoSettings?.category_title_format) {
+      return seoSettings.category_title_format.replace("{name}", categoryName);
+    }
+    return `${categoryName} Collection — Luxury Apparel | ZMW Clothing`;
+  }, [matchedCatObj, collectionParam, categoryParam, seoSettings, categoryName]);
+
+  const seoDescription = useMemo(() => {
+    if (matchedCatObj?.meta_description) return matchedCatObj.meta_description;
+    if (categoryParam !== "all" && seoSettings?.category_description_format) {
+      return seoSettings.category_description_format.replace("{name}", categoryName);
+    }
+    return `Explore our premium ${categoryName.toLowerCase()} collection at ZMW Clothing. Handcrafted natural fibres, relaxed street fits, and nationwide express shipping.`;
+  }, [matchedCatObj, categoryParam, seoSettings, categoryName]);
+
+  const canonicalPath = categoryParam !== "all" ? `/categories/${categoryParam}` : "/collection";
+
+  const collectionSchemas = useMemo(() => {
+    const catSchema = buildCategorySchema(categoryName, categoryParam, catalog, baseUrl);
+    const breadcrumb = buildBreadcrumbSchema(
+      [
+        { name: "Home", path: "/" },
+        { name: `${categoryName} Collection`, path: canonicalPath }
+      ],
+      baseUrl
+    );
+    return [catSchema, breadcrumb];
+  }, [categoryName, categoryParam, catalog, baseUrl, canonicalPath]);
 
   const currentSortOption = useMemo(() => {
     return SORT_OPTIONS.find((opt) => opt.value === sortParam) || SORT_OPTIONS[0];
@@ -330,11 +452,6 @@ export default function Collection() {
     setVisibleCount(INITIAL_PAGE_SIZE);
   }, [searchParams]);
 
-  const homeCategories = useMemo(() => homeData?.categories || [], [homeData]);
-  const currentCategoryKey = categoryParam === "all" ? "all" : categoryParam;
-  const matchedCategory = homeCategories.find(
-    (c) => c.slug === currentCategoryKey || c.slug === CATEGORY_ALIASES[currentCategoryKey]
-  );
   const activeCategoryLabel = matchedCategory
     ? matchedCategory.name
     : currentCategoryKey === "all"
@@ -349,7 +466,6 @@ export default function Collection() {
       const keys = [
         categoryParam,
         matchedCategory?.slug,
-        CATEGORY_ALIASES[categoryParam],
         categoryParam === "mens" ? "men" : categoryParam === "men" ? "mens" : null,
         categoryParam === "women" ? "womens" : categoryParam === "womens" ? "women" : null
       ].filter(Boolean);
@@ -370,30 +486,48 @@ export default function Collection() {
   }, [homeData, possibleBannerKeys]);
 
   const dynamicCategoryBanner = useMemo(() => {
-    if (!matchedCategory && categoryParam === "all") return null;
-    const catName = matchedCategory?.name || (categoryParam !== "all" ? categoryParam.charAt(0).toUpperCase() + categoryParam.slice(1) : "Collection");
+    if (!matchedCategory) return null;
+    const catName = matchedCategory.name;
     const catUpper = catName.toUpperCase();
     const catLower = catName.toLowerCase();
     return {
       categoryName: catName,
       badge: "New Arrivals",
       badgeIcon: "sparkle",
-      subBadge: "Season 2026",
+      subBadge: "",
       offer: `${catUpper} STYLES`,
-      offerTag: "SEASON 2026",
+      offerTag: "",
       title: `${catUpper} COLLECTION`,
-      subtitle: matchedCategory?.description || `Explore our premium ${catLower} essentials crafted for elevated comfort and everyday style.`,
+      subtitle: matchedCategory.description || `Explore our premium ${catLower} essentials crafted for elevated comfort and everyday style.`,
       perks: [
-        { icon: "shield", label: "100% Quality Checked" },
-        { icon: "star", label: "4.9★ Customer Rating" },
-        { icon: "tag", label: "Pure Cotton Comfort" }
+        { icon: "truck", label: SHIPPING_LABEL },
+        { icon: "refresh", label: "7-Day Easy Returns" },
+        { icon: "shield", label: "100% Quality Checked" }
       ],
-      ctaText: "Shop Now",
+      ctaText: `Shop ${catName}`,
       urgencyTag: "",
-      image: "/images/dept-family-banner.jpg",
-      imagePosition: "75% 25%"
+      image: matchedCategory.banner_image_url || "/images/dept-family-banner.jpg",
+      imagePosition: matchedCategory.banner_image_position || "center center"
     };
-  }, [matchedCategory, categoryParam]);
+  }, [matchedCategory]);
+
+  const resolvedCategoryBanner = useMemo(() => {
+    if (managedBanner) return managedBanner;
+    if (matchedCategory?.banner_image_url || matchedCategory?.banner_title) {
+      return {
+        title: matchedCategory.banner_title,
+        subtitle: matchedCategory.banner_subtitle || matchedCategory.description,
+        tag: matchedCategory.banner_tag,
+        badge_promo: matchedCategory.banner_badge_promo,
+        image_url: matchedCategory.banner_image_url,
+        image_position: matchedCategory.banner_image_position || "center center",
+        primary_cta_text: matchedCategory.banner_primary_cta_text,
+        primary_cta_link: matchedCategory.banner_primary_cta_link || `/collection?category=${encodeURIComponent(matchedCategory.slug)}`,
+        secondary_cta_text: matchedCategory.banner_secondary_cta_text
+      };
+    }
+    return null;
+  }, [managedBanner, matchedCategory]);
 
   const rawConfig = BANNER_CONFIG[bannerKey] || dynamicCategoryBanner || BANNER_CONFIG.default;
   const config = {
@@ -415,36 +549,123 @@ export default function Collection() {
   }, [bannerKey, catalog]);
   const applyMinPrice = (text) => (text || "").replace(/\{\{MIN_PRICE\}\}/g, categoryMinPrice);
 
-  const banner = {
-    ...(managedBanner
-      ? {
-          ...config,
-          title: managedBanner.title || config.title,
-          subtitle: managedBanner.subtitle || config.subtitle,
-          badge: managedBanner.tag || config.badge,
-          subBadge: managedBanner.badge_promo || config.subBadge,
-          image: managedBanner.image_url || config.image,
-          imagePosition: managedBanner.image_position || config.imagePosition || "75% 25%",
-          ctaText: managedBanner.primary_cta_text?.trim() || config.ctaText || "Shop Now",
-          ctaLink: (managedBanner.primary_cta_link && !managedBanner.primary_cta_link.startsWith("#")) ? managedBanner.primary_cta_link : null,
-          urgencyTag: managedBanner.secondary_cta_text || config.urgencyTag,
-          perks: config.perks
-        }
-      : {
-          ...config,
-          ctaText: config.ctaText || "Shop Now",
-          ctaLink: null
-        }),
-    offer: applyMinPrice(managedBanner?.badge_promo || config.offer),
-    offerTag: applyMinPrice(config.offerTag)
-  };
+  const banner = useMemo(() => {
+    if (resolvedCategoryBanner) {
+      const promo = resolvedCategoryBanner.badge_promo?.trim() || "";
+      const tag = resolvedCategoryBanner.tag?.trim() || config.badge || "ZMW";
+      const title = resolvedCategoryBanner.title?.trim() || config.title || `${activeCategoryLabel.toUpperCase()} COLLECTION`;
+      const subtitle = resolvedCategoryBanner.subtitle?.trim() || config.subtitle || "";
+      const offer = promo || title;
+      const headline = (promo && promo.toLowerCase() === title.toLowerCase()) ? (tag || "Special Edition") : title;
+      const offerTag = resolvedCategoryBanner.secondary_cta_text && resolvedCategoryBanner.secondary_cta_text.toLowerCase() !== tag.toLowerCase()
+        ? resolvedCategoryBanner.secondary_cta_text
+        : "";
+      const urgencyTag = resolvedCategoryBanner.secondary_cta_text
+        ? (resolvedCategoryBanner.secondary_cta_text.includes("Fast")
+            ? `⚡ ${resolvedCategoryBanner.secondary_cta_text}`
+            : resolvedCategoryBanner.secondary_cta_text.includes("Stock")
+            ? `🔥 ${resolvedCategoryBanner.secondary_cta_text}`
+            : `✨ ${resolvedCategoryBanner.secondary_cta_text}`)
+        : (config.urgencyTag || "");
 
-  // A subcategory is requested whenever ?type= is present. Its page shows the
-  // products directly, with no banner.
+      return {
+        ...config,
+        badge: tag,
+        badgeIcon: config.badgeIcon || "bolt",
+        subBadge: "",
+        offer: applyMinPrice(offer),
+        offerTag: applyMinPrice(offerTag),
+        title: headline,
+        subtitle: subtitle,
+        image: resolvedCategoryBanner.image_url || config.image,
+        imagePosition: resolvedCategoryBanner.image_position || config.imagePosition || "center center",
+        ctaText: resolvedCategoryBanner.primary_cta_text?.trim() || config.ctaText || "Shop Now",
+        ctaLink: (resolvedCategoryBanner.primary_cta_link && !resolvedCategoryBanner.primary_cta_link.startsWith("#")) ? resolvedCategoryBanner.primary_cta_link : null,
+        urgencyTag,
+        perks: [
+          { icon: "truck", label: SHIPPING_LABEL },
+          { icon: "refresh", label: "7-Day Easy Returns" },
+          { icon: "shield", label: "100% Quality Checked" }
+        ]
+      };
+    }
+
+    return {
+      ...config,
+      subBadge: "",
+      offer: applyMinPrice(config.offer),
+      offerTag: applyMinPrice(config.offerTag),
+      ctaText: config.ctaText || "Shop Now",
+      ctaLink: null
+    };
+  }, [resolvedCategoryBanner, config, activeCategoryLabel, categoryMinPrice]);
+
+  const scrollToProducts = useCallback(() => {
+    const catalogEl = document.getElementById("collection-catalog");
+    if (catalogEl) {
+      const navEl = document.querySelector(".site-header");
+      const navHeight = navEl ? navEl.offsetHeight : 76;
+      const targetY = Math.max(0, catalogEl.getBoundingClientRect().top + window.pageYOffset - navHeight - 12);
+      window.scrollTo({
+        top: targetY,
+        behavior: "smooth"
+      });
+    }
+  }, []);
+
+  const handleBannerCtaClick = useCallback((e) => {
+    if (e && typeof e.preventDefault === "function") {
+      e.preventDefault();
+    }
+
+    const rawLink = banner.ctaLink ? String(banner.ctaLink).trim() : "";
+    if (rawLink && !rawLink.startsWith("#")) {
+      const currentCat = categoryParam;
+      let isDifferent = false;
+      try {
+        const url = new URL(rawLink, window.location.origin);
+        const targetCategory = (url.searchParams.get("category") || "").toLowerCase();
+        const targetPath = url.pathname.toLowerCase();
+
+        if (targetCategory && targetCategory !== currentCat && targetCategory !== CATEGORY_ALIASES[currentCat]) {
+          isDifferent = true;
+        } else if (targetPath.startsWith("/categories/")) {
+          const slugInPath = targetPath.replace("/categories/", "").split("/")[0].toLowerCase();
+          if (slugInPath && slugInPath !== currentCat && slugInPath !== CATEGORY_ALIASES[currentCat]) {
+            isDifferent = true;
+          }
+        } else if (targetPath !== "/collection" && targetPath !== location.pathname.toLowerCase()) {
+          isDifferent = true;
+        }
+      } catch (err) {
+        // Fallback to in-page scroll
+      }
+
+      if (isDifferent) {
+        const dest = rawLink.includes("#") ? rawLink : `${rawLink}#collection-catalog`;
+        navigate(dest);
+        return;
+      }
+    }
+
+    scrollToProducts();
+  }, [banner.ctaLink, categoryParam, location.pathname, navigate, scrollToProducts]);
+
+  useEffect(() => {
+    if (location.hash === "#collection-catalog") {
+      const timer = setTimeout(() => {
+        scrollToProducts();
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [location.pathname, location.search, location.hash, scrollToProducts]);
+
+  // When a specific subcategory is selected, hide the banner and display the
+  // subcategory name and product grid directly.
   const isSubcategoryView = typeParam !== "all";
   const isBannerlessCollection = collectionParam === "best-sellers" || collectionParam === "new-arrivals";
   const isSearchListing = Boolean(searchParam);
-  const isBannerlessListing = isSubcategoryView || isBannerlessCollection || isSearchListing;
+  const isBannerlessListing = isBannerlessCollection || isSearchListing || isSubcategoryView;
 
   const activeSubcategory = useMemo(() => {
     const needle = normalizeToken(typeParam);
@@ -457,7 +678,7 @@ export default function Collection() {
     const pool = [];
     scoped.forEach((c) => {
       (c.subcategories || []).forEach((s) => {
-        pool.push({ name: s.name, slug: s.slug, categorySlug: c.slug });
+        pool.push({ id: s.id, name: s.name, slug: s.slug, categorySlug: c.slug });
       });
     });
 
@@ -473,31 +694,61 @@ export default function Collection() {
   }, [homeCategories, categoryParam, typeParam]);
 
   /**
-   * True when a product belongs to the selected subcategory. Deliberately an
-   * exact comparison on the product's own subcategory name: a substring match
-   * on the loose product type would drag in sibling subcategories (a
-   * "T-shirt" subcategory matching every "T-Shirts" product), and an empty
-   * candidate would match anything at all.
+   * True when a product belongs to the selected subcategory.
+   * Matches by subcategoryId if available, or exact normalized subCategory name/slug,
+   * while ensuring the product belongs to the active category.
    */
   const matchesActiveSubcategory = (p) => {
     if (typeParam === "all") return true;
 
     if (activeSubcategory) {
-      return (
-        normalizeToken(p.subCategory) === normalizeToken(activeSubcategory.name)
-        && p.category === activeSubcategory.categorySlug
-      );
+      const matchCat =
+        !activeSubcategory.categorySlug ||
+        p.category === activeSubcategory.categorySlug ||
+        (activeSubcategory.categorySlug === "men" && p.category === "mens") ||
+        (activeSubcategory.categorySlug === "mens" && p.category === "men") ||
+        (activeSubcategory.categorySlug === "women" && p.category === "womens") ||
+        (activeSubcategory.categorySlug === "womens" && p.category === "women");
+
+      const matchId = p.subcategoryId && activeSubcategory.id && Number(p.subcategoryId) === Number(activeSubcategory.id);
+      const matchName =
+        (p.subCategory && normalizeToken(p.subCategory) === normalizeToken(activeSubcategory.name)) ||
+        (p.subCategory && normalizeToken(p.subCategory) === normalizeToken(activeSubcategory.slug));
+
+      return Boolean(matchCat && (matchId || matchName));
     }
 
     // Home payload unavailable (offline / API error): fall back to comparing the
     // type token with the product's subcategory name, still exactly.
     const needle = normalizeToken(typeParam);
-    return Boolean(needle) && normalizeToken(p.subCategory) === needle;
+    return Boolean(needle) && (
+      normalizeToken(p.subCategory) === needle ||
+      (p.subCategory && normalizeToken(p.subCategory).replace(/\s+/g, "-") === needle)
+    );
   };
 
   const updateParams = (updates) => {
+    let hasUrlChange = false;
+    if (updates.minPrice !== undefined) {
+      hasUserCustomizedPriceRef.current = updates.minPrice !== null && updates.minPrice > 0;
+      setMinPrice(updates.minPrice === null ? 0 : Math.max(0, Number(updates.minPrice)));
+    }
+    if (updates.maxPrice !== undefined) {
+      hasUserCustomizedPriceRef.current = updates.maxPrice !== null && updates.maxPrice < priceCeiling;
+      setMaxPrice(updates.maxPrice === null ? priceCeiling : Math.min(priceCeiling, Number(updates.maxPrice)));
+    }
     const next = new URLSearchParams(searchParams);
+    if (next.has("minPrice")) {
+      next.delete("minPrice");
+      hasUrlChange = true;
+    }
+    if (next.has("maxPrice")) {
+      next.delete("maxPrice");
+      hasUrlChange = true;
+    }
     Object.entries(updates).forEach(([key, val]) => {
+      if (key === "minPrice" || key === "maxPrice") return;
+      hasUrlChange = true;
       if (val === null || val === undefined || val === "" || val === "all") {
         next.delete(key);
       } else if (Array.isArray(val)) {
@@ -507,7 +758,9 @@ export default function Collection() {
         next.set(key, val);
       }
     });
-    setSearchParams(next, { preventScrollReset: true });
+    if (hasUrlChange) {
+      setSearchParams(next, { preventScrollReset: true });
+    }
   };
 
   const toggleArrayParam = (key, item) => {
@@ -517,6 +770,9 @@ export default function Collection() {
   };
 
   const clearAllFilters = () => {
+    hasUserCustomizedPriceRef.current = false;
+    setMinPrice(0);
+    setMaxPrice(priceCeiling);
     const next = new URLSearchParams();
     if (categoryParam !== "all") next.set("category", categoryParam);
     if (collectionParam !== "all") next.set("collection", collectionParam);
@@ -547,7 +803,8 @@ export default function Collection() {
     // No cross-category aliases (e.g. "kids" must NOT pull in boys/girls products).
     // Each category is independent — products appear only when Admin assigns them
     // to that specific category.
-    if (p.category === categoryParam) return true;
+    const pCat = String(p.category || "").toLowerCase();
+    if (isCategoryMatch(pCat, categoryParam)) return true;
 
     // Support subcategory filter links (e.g. ?category=oversized-t-shirts).
     // Only exact subcategory slug match is used — no partial string matching
@@ -559,15 +816,33 @@ export default function Collection() {
   };
 
   const baseCategoryProducts = useMemo(() => {
-    return catalog.filter(matchesCategory);
-  }, [catalog, categoryParam, searchParam]);
+    return catalog.filter((p) => matchesCategory(p) && matchesActiveSubcategory(p));
+  }, [catalog, categoryParam, searchParam, typeParam, activeSubcategory]);
 
   const availableColors = useMemo(() => {
     const map = new Map();
     baseCategoryProducts.forEach((p) => {
+      // Collect unique colors for THIS product
+      const productColors = new Map();
       (p.colors || p.color || []).forEach((c) => {
-        if (!map.has(c.name)) map.set(c.name, { ...c, count: 0 });
-        map.get(c.name).count += 1;
+        const name = (c?.name || c || "").trim();
+        if (name && !productColors.has(name.toLowerCase())) {
+          productColors.set(name.toLowerCase(), { name, hex: c.hex || "#ccc" });
+        }
+      });
+      (p.variants || []).forEach((v) => {
+        const name = (v?.color || "").trim();
+        if (name && !productColors.has(name.toLowerCase())) {
+          productColors.set(name.toLowerCase(), { name, hex: v.colorHex || "#181715" });
+        }
+      });
+
+      // Increment count once per product that carries this color
+      productColors.forEach(({ name, hex }, key) => {
+        if (!map.has(key)) {
+          map.set(key, { name, hex, count: 0 });
+        }
+        map.get(key).count += 1;
       });
     });
     return Array.from(map.values()).sort((a, b) => b.count - a.count);
@@ -576,17 +851,35 @@ export default function Collection() {
   const availableSizes = useMemo(() => {
     const map = new Map();
     baseCategoryProducts.forEach((p) => {
+      // Collect unique sizes for THIS product
+      const productSizes = new Set();
       (p.sizes || []).forEach((s) => {
-        map.set(s, (map.get(s) || 0) + 1);
+        const label = typeof s === "object" ? s.label : s;
+        if (label && String(label).trim()) {
+          productSizes.add(String(label).trim());
+        }
+      });
+      (p.variants || []).forEach((v) => {
+        if (v?.size && String(v.size).trim()) {
+          productSizes.add(String(v.size).trim());
+        }
+      });
+
+      // Increment count once per product that carries this size
+      productSizes.forEach((size) => {
+        map.set(size, (map.get(size) || 0) + 1);
       });
     });
-    const order = ["XS", "S", "M", "L", "XL", "XXL", "3XL", "0-1Y", "1-2Y", "2-3Y", "3-4Y", "4-5Y", "5-6Y", "6-7Y", "7-8Y", "38R", "40R", "42R", "44R"];
+
+    const order = ["0-3M", "3-6M", "6-9M", "9-12M", "12-18M", "18-24M", "0-1Y", "1-2Y", "2-3Y", "3-4Y", "4-5Y", "5-6Y", "6-7Y", "7-8Y", "8-9Y", "9-10Y", "10-11Y", "11-12Y", "XS", "S", "M", "L", "XL", "XXL", "3XL", "38R", "40R", "42R", "44R"];
     return Array.from(map.entries())
       .map(([size, count]) => ({ name: size, count }))
       .sort((a, b) => {
         const iA = order.indexOf(a.name);
         const iB = order.indexOf(b.name);
         if (iA !== -1 && iB !== -1) return iA - iB;
+        if (iA !== -1) return -1;
+        if (iB !== -1) return 1;
         return a.name.localeCompare(b.name);
       });
   }, [baseCategoryProducts]);
@@ -625,16 +918,21 @@ export default function Collection() {
       if (collectionParam === "new-arrivals" && !p.isNewArrival) return false;
       if (!matchesActiveSubcategory(p)) return false;
       if (colorParam.length > 0) {
-        const pColors = (p.colors || p.color || []).map((c) => c.name.toLowerCase());
+        const pColors = (p.colors || p.color || []).map((c) => (c.name || c).toLowerCase());
+        (p.variants || []).forEach((v) => { if (v.color) pColors.push(v.color.toLowerCase()); });
         if (!colorParam.some((col) => pColors.includes(col.toLowerCase()))) return false;
       }
       if (sizeParam.length > 0) {
-        if (!sizeParam.some((s) => (p.sizes || []).includes(s))) return false;
+        const pSizes = (p.sizes || []).map((s) => (typeof s === "object" ? s.label : s));
+        (p.variants || []).forEach((v) => { if (v.size) pSizes.push(v.size); });
+        if (!sizeParam.some((s) => pSizes.includes(s))) return false;
       }
       if (availabilityParam === "inStock" && !p.inStock) return false;
       if (availabilityParam === "outOfStock" && p.inStock) return false;
       const pPrice = Number(p.price) || 0;
-      if (pPrice < minPriceParam || pPrice > maxPriceParam) return false;
+      const effectiveMinPrice = searchParams.has("minPrice") ? Number(searchParams.get("minPrice")) : minPrice;
+      const effectiveMaxPrice = searchParams.has("maxPrice") ? Number(searchParams.get("maxPrice")) : maxPrice;
+      if (pPrice < effectiveMinPrice || pPrice > effectiveMaxPrice) return false;
       return true;
     });
     switch (sortParam) {
@@ -660,10 +958,9 @@ export default function Collection() {
       case "date-desc":
       case "newest":
         list = [...list].sort((a, b) => {
-          if (b.isNewArrival !== a.isNewArrival) return b.isNewArrival ? 1 : -1;
           const dA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
           const dB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-          return dB - dA;
+          return (dB - dA) || (Number(b.id) - Number(a.id));
         });
         break;
       case "best-selling":
@@ -682,24 +979,23 @@ export default function Collection() {
       case "featured":
       default:
         list = [...list].sort((a, b) => {
-          const sB = (b.isBestSeller ? 2 : 0) + (b.isNewArrival ? 1 : 0);
-          const sA = (a.isBestSeller ? 2 : 0) + (a.isNewArrival ? 1 : 0);
-          if (sB !== sA) return sB - sA;
-          return (b.reviewCount || 0) - (a.reviewCount || 0);
+          const dA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const dB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return (dB - dA) || (Number(b.id) - Number(a.id));
         });
         break;
     }
     return list;
-  }, [catalog, searchParam, categoryParam, collectionParam, typeParam, colorParam, sizeParam, availabilityParam, minPriceParam, maxPriceParam, sortParam, activeSubcategory]);
+  }, [catalog, searchParam, categoryParam, collectionParam, typeParam, colorParam, sizeParam, availabilityParam, minPrice, maxPrice, sortParam, activeSubcategory]);
 
   const activeFiltersCount = useMemo(() => {
     let count = 0;
     if (searchParam) count += 1;
     count += colorParam.length + sizeParam.length;
     if (availabilityParam !== "all") count += 1;
-    if (minPriceParam > 0 || maxPriceParam < priceCeiling) count += 1;
+    if (minPrice > 0 || maxPrice < priceCeiling) count += 1;
     return count;
-  }, [searchParam, colorParam, sizeParam, availabilityParam, minPriceParam, maxPriceParam, priceCeiling]);
+  }, [searchParam, colorParam, sizeParam, availabilityParam, minPrice, maxPrice, priceCeiling]);
 
   const displayedProducts = useMemo(() => filteredProducts.slice(0, visibleCount), [filteredProducts, visibleCount]);
 
@@ -732,7 +1028,7 @@ export default function Collection() {
         <button type="button" className="coll-sidebar-heading" onClick={() => toggleSection("price")}>
           <span>Price</span>
           <div className="coll-heading-right">
-            {(minPriceParam > 0 || maxPriceParam < priceCeiling) && (
+            {(minPrice > 0 || maxPrice < priceCeiling) && (
               <span className="coll-heading-badge">1</span>
             )}
             <SectionCaret sectionKey="price" />
@@ -745,8 +1041,8 @@ export default function Collection() {
               <div
                 className="coll-slider-fill"
                 style={{
-                  left: `${priceCeiling > 0 ? (minPriceParam / priceCeiling) * 100 : 0}%`,
-                  right: `${priceCeiling > 0 ? Math.max(0, 100 - (maxPriceParam / priceCeiling) * 100) : 0}%`
+                  left: `${priceCeiling > 0 ? (minPrice / priceCeiling) * 100 : 0}%`,
+                  right: `${priceCeiling > 0 ? Math.max(0, 100 - (maxPrice / priceCeiling) * 100) : 0}%`
                 }}
               />
               <input
@@ -754,9 +1050,9 @@ export default function Collection() {
                 min={0}
                 max={priceCeiling}
                 step={50}
-                value={minPriceParam}
+                value={minPrice}
                 onChange={(e) => {
-                  const val = Math.min(Number(e.target.value), maxPriceParam - 50);
+                  const val = Math.min(Number(e.target.value), maxPrice - 50);
                   updateParams({ minPrice: Math.max(0, val) });
                 }}
                 className="coll-range-thumb coll-range-min"
@@ -767,9 +1063,9 @@ export default function Collection() {
                 min={0}
                 max={priceCeiling}
                 step={50}
-                value={maxPriceParam}
+                value={maxPrice}
                 onChange={(e) => {
-                  const val = Math.max(Number(e.target.value), minPriceParam + 50);
+                  const val = Math.max(Number(e.target.value), minPrice + 50);
                   updateParams({ maxPrice: Math.min(priceCeiling, val) });
                 }}
                 className="coll-range-thumb coll-range-max"
@@ -783,8 +1079,8 @@ export default function Collection() {
                 <input
                   type="number"
                   min={0}
-                  max={maxPriceParam}
-                  value={minPriceParam}
+                  max={maxPrice}
+                  value={minPrice}
                   className="coll-price-input"
                   aria-label="Minimum price input"
                   onChange={(e) => updateParams({ minPrice: Math.max(0, Number(e.target.value)) })}
@@ -795,9 +1091,9 @@ export default function Collection() {
                 <span className="coll-price-prefix">{CURRENCY_SYMBOL}</span>
                 <input
                   type="number"
-                  min={minPriceParam}
+                  min={minPrice}
                   max={priceCeiling}
-                  value={maxPriceParam}
+                  value={maxPrice}
                   className="coll-price-input"
                   aria-label="Maximum price input"
                   onChange={(e) => updateParams({ maxPrice: Math.min(priceCeiling, Number(e.target.value)) })}
@@ -887,10 +1183,9 @@ export default function Collection() {
                     className={"coll-size-chip" + (isActive ? " active" : "")}
                     onClick={() => toggleArrayParam("size", item.name)}
                     aria-pressed={isActive}
-                    title={`${item.name} (${item.count} items)`}
+                    title={item.name}
                   >
                     <span className="coll-size-chip-name">{item.name}</span>
-                    <span className="coll-size-chip-count">{item.count}</span>
                   </button>
                 );
               })}
@@ -952,8 +1247,27 @@ export default function Collection() {
     </>
   );
 
+  if (isInvalidCategory) {
+    return (
+      <div className="collection-page" style={{ minHeight: "50vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ textAlign: "center", padding: "48px 24px" }}>
+          <div className="spinner" style={{ margin: "0 auto 16px" }} />
+          <p style={{ color: "#64748b", fontSize: "14px", fontWeight: 500 }}>Redirecting to active collection...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="collection-page">
+      <SeoHead
+        title={seoTitle}
+        description={seoDescription}
+        keywords={matchedCatObj?.meta_keywords}
+        canonicalPath={canonicalPath}
+        schema={collectionSchemas}
+      />
+      <h1 className="sr-only">{categoryName} Collection — Luxury Apparel &amp; Streetwear | ZMW</h1>
 
       {/* ── Collection Page Hero-Style Category Banner (Matching Home Hero Visuals & Proportions) ── */}
       {!isBannerlessListing && (
@@ -987,6 +1301,12 @@ export default function Collection() {
                   <>
                     <span className="coll-hero-breadcrumb-sep">/</span>
                     <span className="coll-hero-breadcrumb-active">{activeCategoryLabel}</span>
+                    {isSubcategoryView && activeSubcategory && (
+                      <>
+                        <span className="coll-hero-breadcrumb-sep">/</span>
+                        <span className="coll-hero-breadcrumb-active">{activeSubcategory.name}</span>
+                      </>
+                    )}
                   </>
                 )}
               </nav>
@@ -1057,32 +1377,18 @@ export default function Collection() {
 
                 {/* 3. CALL TO ACTION & URGENCY PILL */}
                 <div className="hero-cta-group coll-hero-cta-group">
-                  {banner.ctaLink ? (
-                    <Link to={banner.ctaLink} className="hero-btn-primary coll-hero-btn-primary">
-                      <span>{banner.ctaText || "Shop Now"}</span>
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
-                        <line x1="5" y1="12" x2="19" y2="12" />
-                        <polyline points="12 5 19 12 12 19" />
-                      </svg>
-                    </Link>
-                  ) : (
-                    <button
-                      type="button"
-                      className="hero-btn-primary coll-hero-btn-primary"
-                      onClick={() => {
-                        const catalogEl = document.getElementById("collection-catalog");
-                        if (catalogEl) {
-                          catalogEl.scrollIntoView({ behavior: "smooth" });
-                        }
-                      }}
-                    >
-                      <span>{banner.ctaText || "Shop Now"}</span>
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
-                        <line x1="5" y1="12" x2="19" y2="12" />
-                        <polyline points="12 5 19 12 12 19" />
-                      </svg>
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    className="hero-btn-primary coll-hero-btn-primary"
+                    onClick={handleBannerCtaClick}
+                    aria-label={banner.ctaText || "Shop Collection Products"}
+                  >
+                    <span>{banner.ctaText || "Shop Now"}</span>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                      <polyline points="12 5 19 12 12 19" />
+                    </svg>
+                  </button>
                   {banner.urgencyTag && (
                     <span className="hero-urgency-pill coll-hero-urgency-pill">
                       {banner.urgencyTag}
@@ -1097,12 +1403,36 @@ export default function Collection() {
 
       <section id="collection-catalog" className="coll-catalog-section section-padding" aria-label="Product catalog">
         <div className="container">
+          {/* Category Subcategories Quick Filter Pills */}
+          {matchedCategory?.subcategories && matchedCategory.subcategories.length > 0 && (
+            <div className="coll-subcat-pills-bar" role="group" aria-label="Subcategories">
+              <Link
+                to={`/categories/${encodeURIComponent(categoryParam)}`}
+                className={`coll-subcat-pill ${typeParam === "all" ? "active" : ""}`}
+              >
+                All {matchedCategory.name}
+              </Link>
+              {matchedCategory.subcategories.map((sub) => {
+                const isSubActive =
+                  normalizeToken(typeParam) === normalizeToken(sub.slug) ||
+                  normalizeToken(typeParam) === normalizeToken(sub.name);
+                const subSlug = sub.slug || sub.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+                return (
+                  <Link
+                    key={sub.id || sub.slug}
+                    to={`/categories/${encodeURIComponent(categoryParam)}/${encodeURIComponent(subSlug)}`}
+                    className={`coll-subcat-pill ${isSubActive ? "active" : ""}`}
+                  >
+                    {sub.name}
+                  </Link>
+                );
+              })}
+            </div>
+          )}
 
           {/* Bannerless listings keep their page context above the catalog. */}
-          {isBannerlessListing && (
+          {(isBannerlessListing || isSubcategoryView) && (
             <nav className="coll-subcat-trail" aria-label="Breadcrumb">
-              {/* <Link to="/" className="coll-subcat-trail-link">Home</Link> */}
-              {/* <span className="coll-subcat-trail-sep">/</span> */}
               {isSearchListing ? (
                 <h1 className="coll-subcat-trail-current">
                   Search results for "{searchParam}"
@@ -1114,7 +1444,7 @@ export default function Collection() {
               ) : (
                 <>
                   <Link
-                    to={`/collection?category=${encodeURIComponent(categoryParam)}`}
+                    to={`/categories/${encodeURIComponent(categoryParam)}`}
                     className="coll-subcat-trail-link"
                   >
                     {activeCategoryLabel}
@@ -1223,9 +1553,9 @@ export default function Collection() {
                   Search: "{searchParam}" <span>✕</span>
                 </button>
               )}
-              {(minPriceParam > 0 || maxPriceParam < priceCeiling) && (
+              {(minPrice > 0 || maxPrice < priceCeiling) && (
                 <button type="button" className="coll-chip" onClick={() => updateParams({ minPrice: null, maxPrice: null })}>
-                  Price: {CURRENCY_SYMBOL}{formatINRNumber(minPriceParam)} – {CURRENCY_SYMBOL}{formatINRNumber(maxPriceParam)} <span>✕</span>
+                  Price: {CURRENCY_SYMBOL}{formatINRNumber(minPrice)} – {CURRENCY_SYMBOL}{formatINRNumber(maxPrice)} <span>✕</span>
                 </button>
               )}
               {colorParam.map((c) => (
@@ -1263,11 +1593,28 @@ export default function Collection() {
             </aside>
 
             <div className="coll-grid-area">
-              {displayedProducts.length > 0 ? (
+              {storefrontStatus === "loading" && (!catalog || catalog.length === 0) ? (
+                <div className={`coll-product-grid coll-grid-cols-${gridCols}`} aria-busy="true">
+                  {Array.from({ length: 8 }).map((_, idx) => (
+                    <div key={idx} className="coll-product-skeleton">
+                      <div className="coll-skeleton-img sk" />
+                      <div style={{ padding: "4px 2px 2px" }}>
+                        <div className="t sk w1" />
+                        <div className="t sk w2" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : displayedProducts.length > 0 ? (
                 <>
                   <div className={`coll-product-grid coll-grid-cols-${gridCols}`}>
-                    {displayedProducts.map((product) => (
-                      <ProductCard key={product.id} product={product} />
+                    {displayedProducts.map((product, idx) => (
+                      <ProductCard
+                        key={product.id}
+                        product={product}
+                        className="fade"
+                        style={{ animationDelay: `${Math.min(idx * 60, 600)}ms` }}
+                      />
                     ))}
                   </div>
                   <div className="coll-pagination">
@@ -1293,11 +1640,21 @@ export default function Collection() {
                       <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /><line x1="8" y1="11" x2="14" y2="11" />
                     </svg>
                   </div>
-                  <h3 className="coll-empty-title">No products found</h3>
-                  <p className="coll-empty-desc">No designs match your current filter combination. Try adjusting your filters.</p>
-                  <button type="button" className="btn btn-primary" onClick={() => { clearAllFilters(); navigate("/collection"); }}>
-                    Clear Filters
-                  </button>
+                  <h3 className="coll-empty-title">No Products Found</h3>
+                  <p className="coll-empty-desc">
+                    {catalog.length === 0
+                      ? "No products have been added yet. Please check back later."
+                      : isSubcategoryView
+                      ? `No products found in "${activeSubcategory?.name || typeParam}".`
+                      : baseCategoryProducts.length === 0
+                      ? "No products found in this category."
+                      : "No designs match your current filter combination. Try adjusting your filters."}
+                  </p>
+                  {activeFiltersCount > 0 && (
+                    <button type="button" className="btn btn-primary" onClick={() => { clearAllFilters(); navigate(canonicalPath); }}>
+                      Clear Filters
+                    </button>
+                  )}
                 </div>
               )}
             </div>

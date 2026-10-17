@@ -3,7 +3,7 @@ import { Plus, Eye, Edit2, Trash2, Tag, Percent, IndianRupee } from "lucide-reac
 import { couponsApi } from "../../services/resources";
 import { useToast } from "../../context/ToastContext";
 import { useConfirm } from "../../components/ConfirmDialog/ConfirmDialog";
-import DataTable from "../../components/DataTable/DataTable";
+import PaginatedDataTable from "../../components/PaginatedDataTable/PaginatedDataTable";
 import StatusBadge from "../../components/StatusBadge/StatusBadge";
 import CouponFormModal from "./CouponFormModal";
 import CouponViewModal from "../../components/EntityViewModal/CouponViewModal";
@@ -42,7 +42,7 @@ export default function CouponsPage() {
     if (!ok) return;
     try {
       await couponsApi.remove(coupon.id);
-      toast.success(`Coupon "${coupon.code}" deleted successfully`);
+      toast.delete(`Coupon code "${coupon.code}" has been deleted successfully.`);
       await load();
     } catch (err) {
       toast.error(err.message || "Failed to delete coupon");
@@ -70,9 +70,10 @@ export default function CouponsPage() {
       </div>
 
       <div className="card">
-        <DataTable
+        <PaginatedDataTable
           isLoading={isLoading}
           rows={coupons}
+          sortNewestFirst
           rowKey={(row) => row.id}
           emptyTitle="No discount coupons found"
           emptyDescription="Create your first promotional discount voucher."

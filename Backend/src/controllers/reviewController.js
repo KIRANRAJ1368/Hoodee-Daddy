@@ -1,49 +1,121 @@
 const { Op } = require("sequelize");
-const { Product, Review, User } = require("../models");
+const { Product, Review, Order, OrderItem } = require("../models");
 const ApiError = require("../utils/ApiError");
 const { sendSuccess } = require("../utils/apiResponse");
 
 async function resolveProduct(idOrSlug) {
   if (!idOrSlug) return null;
-  const isNumeric = /^\d+$/.test(String(idOrSlug).trim());
-  const whereClause = isNumeric
-    ? { [Op.or]: [{ id: Number(idOrSlug) }, { slug: String(idOrSlug).trim() }] }
-    : { [Op.or]: [{ slug: String(idOrSlug).trim() }, { sku: String(idOrSlug).trim() }] };
-
-  return Product.findOne({ where: whereClause });
+  const clean = String(idOrSlug).trim();
+  const isNumeric = /^\d+$/.test(clean);
+  if (isNumeric) {
+    const byId = await Product.findByPk(Number(clean));
+    if (byId) return byId;
+  }
+  const hyphenated = clean.replace(/_/g, "-");
+  const underscored = clean.replace(/-/g, "_");
+  return Product.findOne({
+    where: {
+      [Op.or]: [
+        { slug: clean },
+        { slug: hyphenated },
+        { slug: underscored },
+        { sku: clean }
+      ]
+    }
+  });
 }
 
-// Curated verified templates to give real review content for items
-const SEED_REVIEW_TEMPLATES = [
-  {
-    customer_name: "Aravind Raghavan",
-    rating: 5,
-    title: "Exceptional fabric weight and structured cut",
-    comment: "The garment construction and stitching exceeded my expectations. The heavyweight drape holds its structured silhouette perfectly throughout the day. Luxury atelier quality.",
-    daysAgo: 4
-  },
-  {
-    customer_name: "Priya Sundaram",
-    rating: 5,
-    title: "Luxurious finish and premium feel",
-    comment: "Soft, breathable, and rich handfeel. The color is true to the product photos and it maintained its exact shape after the first wash. Highly recommended.",
-    daysAgo: 11
-  },
-  {
-    customer_name: "Vikram Malhotra",
-    rating: 4,
-    title: "Great tailoring and fit",
-    comment: "True to size with just the right amount of ease through the chest and shoulders. The minimalist aesthetics make it versatile for both casual and elevated wear.",
-    daysAgo: 18
-  },
-  {
-    customer_name: "Sneha Nair",
-    rating: 5,
-    title: "Worth every rupee",
-    comment: "Delivered promptly in pristine packaging. Premium fabrics, solid seams, and subtle branding. Will definitely be purchasing more pieces from ZMW.",
-    daysAgo: 26
+async function getCustomerEligibility(productId, user) {
+  if (!user) {
+    return {
+      canReview: false,
+      hasPurchased: false,
+      isDelivered: false,
+      alreadyReviewed: false,
+      reason: "not_logged_in",
+      message: "Please sign in to write a review.",
+      orderItemId: null
+    };
   }
-];
+
+  // 1. Check if user already submitted an active/approved review for this product
+  const existingReview = await Review.findOne({
+    where: {
+      product_id: productId,
+      [Op.or]: [
+        { user_id: user.id },
+        ...(user.email ? [{ customer_email: user.email }] : [])
+      ]
+    }
+  });
+
+  // 2. Query all order items for this user and this product
+  const orderWhere = {
+    [Op.or]: [
+      { user_id: user.id },
+      ...(user.email ? [{ email: user.email }] : [])
+    ]
+  };
+
+  const orderItems = await OrderItem.findAll({
+    where: { product_id: productId },
+    include: [
+      {
+        model: Order,
+        as: "order",
+        where: orderWhere,
+        attributes: ["id", "order_number", "user_id", "email", "status", "created_at"]
+      },
+      {
+        model: Review,
+        as: "review",
+        attributes: ["id"]
+      }
+    ],
+    order: [[{ model: Order, as: "order" }, "created_at", "DESC"]]
+  });
+
+  const hasPurchased = orderItems.length > 0;
+
+  if (existingReview) {
+    return {
+      canReview: false,
+      hasPurchased,
+      isDelivered: orderItems.some((item) => item.order?.status === "delivered"),
+      alreadyReviewed: true,
+      existingReviewId: existingReview.id,
+      reason: "already_reviewed",
+      message: "You have already submitted a review for this product.",
+      orderItemId: existingReview.order_item_id || null
+    };
+  }
+
+  // Check if any order is delivered for verified buyer status
+  const deliveredItems = orderItems.filter((item) => item.order?.status === "delivered");
+  const isDelivered = deliveredItems.length > 0;
+  const eligibleItem = isDelivered ? (deliveredItems.find((item) => !item.review) || deliveredItems[0]) : null;
+
+  return {
+    canReview: true,
+    hasPurchased,
+    isDelivered,
+    alreadyReviewed: false,
+    reason: "eligible",
+    message: isDelivered
+      ? "You are eligible to submit a verified purchase review."
+      : "Share your experience and feedback on this apparel.",
+    orderItemId: eligibleItem ? eligibleItem.id : null
+  };
+}
+
+async function checkReviewEligibility(req, res) {
+  const { idOrSlug } = req.params;
+  const product = await resolveProduct(idOrSlug);
+  if (!product) throw ApiError.notFound("Product not found");
+
+  const eligibility = await getCustomerEligibility(product.id, req.user);
+  return sendSuccess(res, { data: eligibility });
+}
 
 async function listByProduct(req, res) {
   const { idOrSlug } = req.params;
@@ -54,31 +126,6 @@ async function listByProduct(req, res) {
     where: { product_id: product.id, is_approved: true },
     order: [["created_at", "DESC"]]
   });
-
-  // If no reviews have been written yet, automatically seed curated reviews matching product's review_count
-  if (dbReviews.length === 0) {
-    const defaultRating = Number(product.rating) > 0 ? Number(product.rating) : 4.8;
-    const initialRows = SEED_REVIEW_TEMPLATES.map((tmpl) => {
-      const createdDate = new Date(Date.now() - tmpl.daysAgo * 86400000);
-      return {
-        product_id: product.id,
-        customer_name: tmpl.customer_name,
-        rating: tmpl.rating,
-        title: tmpl.title,
-        comment: tmpl.comment,
-        verified_purchase: true,
-        is_approved: true,
-        created_at: createdDate,
-        updated_at: createdDate
-      };
-    });
-
-    await Review.bulkCreate(initialRows);
-    dbReviews = await Review.findAll({
-      where: { product_id: product.id, is_approved: true },
-      order: [["created_at", "DESC"]]
-    });
-  }
 
   const totalReviews = dbReviews.length;
   const ratingSum = dbReviews.reduce((sum, r) => sum + Number(r.rating), 0);
@@ -95,14 +142,17 @@ async function listByProduct(req, res) {
     breakdownPercentages[s] = totalReviews > 0 ? Math.round((breakdown[s] / totalReviews) * 100) : 0;
   }
 
+  const userEligibility = await getCustomerEligibility(product.id, req.user);
+
   return sendSuccess(res, {
     data: {
       productId: product.id,
       productName: product.name,
-      averageRating: Number(product.rating) > 0 ? Number(product.rating) : averageRating,
-      totalReviews: Number(product.review_count) > 0 ? Number(product.review_count) : totalReviews,
+      averageRating,
+      totalReviews,
       breakdown,
       breakdownPercentages,
+      userEligibility,
       reviews: dbReviews.map((r) => ({
         id: r.id,
         customerName: r.customer_name,
@@ -110,21 +160,95 @@ async function listByProduct(req, res) {
         title: r.title,
         comment: r.comment,
         verifiedPurchase: Boolean(r.verified_purchase),
-        createdAt: r.created_at
+        imageUrls: Array.isArray(r.image_urls)
+          ? r.image_urls
+          : typeof r.image_urls === "string"
+          ? (() => {
+              try {
+                const parsed = JSON.parse(r.image_urls);
+                return Array.isArray(parsed) ? parsed : [];
+              } catch {
+                return [];
+              }
+            })()
+          : [],
+        createdAt: r.createdAt || r.created_at
       }))
     }
   });
 }
 
 async function createForProduct(req, res) {
+  if (!req.user) {
+    throw ApiError.unauthorized("Please sign in to write a review.");
+  }
+
   const { idOrSlug } = req.params;
   const product = await resolveProduct(idOrSlug);
   if (!product) throw ApiError.notFound("Product not found");
 
-  const { customer_name, customer_email, rating, title, comment } = req.body;
+  const { order_item_id, rating, title, comment, image_urls, customer_name } = req.body;
 
-  if (!customer_name || !customer_name.trim()) {
-    throw ApiError.badRequest("Name is required");
+  let orderItemToUse = null;
+
+  if (order_item_id) {
+    orderItemToUse = await OrderItem.findOne({
+      where: { id: order_item_id, product_id: product.id },
+      include: [{ model: Order, as: "order", attributes: ["id", "user_id", "status", "customer_name", "email"] }]
+    });
+
+    if (!orderItemToUse || !orderItemToUse.order) {
+      throw ApiError.forbidden("Invalid order item for this product.");
+    }
+
+    const orderBelongsToUser =
+      orderItemToUse.order.user_id === req.user.id ||
+      (req.user.email && orderItemToUse.order.email === req.user.email);
+
+    if (!orderBelongsToUser) {
+      throw ApiError.forbidden("This order does not belong to your account.");
+    }
+
+    if (orderItemToUse.order.status === "cancelled" || orderItemToUse.order.status === "returned") {
+      throw ApiError.forbidden("Reviews are not available for cancelled or returned orders.");
+    }
+
+    if (orderItemToUse.order.status !== "delivered") {
+      throw ApiError.badRequest("Reviews can only be submitted after your order has been delivered.");
+    }
+
+    const existingForOrderItem = await Review.findOne({ where: { order_item_id: orderItemToUse.id } });
+    if (existingForOrderItem) {
+      throw ApiError.conflict("You have already submitted a review for this purchase. Edit your existing review instead.");
+    }
+  } else {
+    // Automatically verify purchase and locate eligible delivered order item if available
+    const eligibility = await getCustomerEligibility(product.id, req.user);
+
+    if (eligibility.alreadyReviewed) {
+      throw ApiError.conflict("You have already submitted a review for this product.");
+    }
+    if (!eligibility.canReview) {
+      throw ApiError.forbidden(eligibility.message || "You are not eligible to review this product.");
+    }
+
+    if (eligibility.orderItemId) {
+      orderItemToUse = await OrderItem.findByPk(eligibility.orderItemId);
+    }
+  }
+
+  // Prevent duplicate reviews for the same product by the same user
+  const duplicateReview = await Review.findOne({
+    where: {
+      product_id: product.id,
+      [Op.or]: [
+        { user_id: req.user.id },
+        ...(req.user.email ? [{ customer_email: req.user.email }] : [])
+      ]
+    }
+  });
+  if (duplicateReview) {
+    throw ApiError.conflict("You have already submitted a review for this product.");
   }
 
   const numRating = Number(rating);
@@ -136,30 +260,30 @@ async function createForProduct(req, res) {
     throw ApiError.badRequest("Review comment must be at least 5 characters");
   }
 
+  const authorName = (
+    (req.user ? req.user.name : null) ||
+    customer_name ||
+    req.body.authorName ||
+    "Verified Patron"
+  ).trim();
+
+  const authorEmail = (req.user ? req.user.email : null) || req.body.customer_email || null;
+
   const newReview = await Review.create({
     product_id: product.id,
-    customer_name: customer_name.trim(),
-    customer_email: customer_email ? customer_email.trim() : null,
+    order_item_id: orderItemToUse ? orderItemToUse.id : null,
+    user_id: req.user.id,
+    customer_name: authorName,
+    customer_email: authorEmail ? String(authorEmail).trim() : null,
     rating: numRating,
     title: title ? title.trim() : null,
     comment: comment.trim(),
-    verified_purchase: true,
+    image_urls: Array.isArray(image_urls) ? image_urls.slice(0, 4) : [],
+    verified_purchase: Boolean(orderItemToUse),
     is_approved: true
   });
 
-  // Recalculate average rating and review count
-  const allReviews = await Review.findAll({
-    where: { product_id: product.id, is_approved: true },
-    attributes: ["rating"]
-  });
-
-  const totalReviews = allReviews.length;
-  const avg = Number((allReviews.reduce((sum, r) => sum + Number(r.rating), 0) / totalReviews).toFixed(1));
-
-  await product.update({
-    rating: avg,
-    review_count: totalReviews
-  });
+  await recalculateProductRating(product.id);
 
   return sendSuccess(res, {
     statusCode: 201,
@@ -171,12 +295,100 @@ async function createForProduct(req, res) {
       title: newReview.title,
       comment: newReview.comment,
       verifiedPurchase: Boolean(newReview.verified_purchase),
-      createdAt: newReview.created_at
+      imageUrls: newReview.image_urls || [],
+      isApproved: true,
+      createdAt: newReview.createdAt || newReview.created_at
     }
   });
 }
 
+async function recalculateProductRating(productId) {
+  const rows = await Review.findAll({ where: { product_id: productId, is_approved: true }, attributes: ["rating"] });
+  const count = rows.length;
+  const rating = count ? Number((rows.reduce((sum, row) => sum + Number(row.rating), 0) / count).toFixed(1)) : 0;
+  await Product.update({ rating, review_count: count }, { where: { id: productId } });
+}
+
+async function updateOwnReview(req, res) {
+  const product = await resolveProduct(req.params.idOrSlug);
+  const review = await Review.findOne({ where: { id: req.params.reviewId, product_id: product?.id, user_id: req.user.id } });
+  if (!review) throw ApiError.notFound("Review not found");
+  const { rating, title, comment, image_urls } = req.body;
+  const numRating = Number(rating);
+  if (!Number.isInteger(numRating) || numRating < 1 || numRating > 5) throw ApiError.badRequest("Rating must be between 1 and 5 stars.");
+  if (!comment || String(comment).trim().length < 5) throw ApiError.badRequest("Review comment must be at least 5 characters.");
+  await review.update({ rating: numRating, title: title ? String(title).trim() : null, comment: String(comment).trim(), image_urls: Array.isArray(image_urls) ? image_urls.slice(0, 4) : [], is_approved: true });
+  await recalculateProductRating(review.product_id);
+  return sendSuccess(res, { data: review, message: "Review updated successfully." });
+}
+
+async function deleteOwnReview(req, res) {
+  const review = await Review.findOne({ where: { id: req.params.reviewId, user_id: req.user.id } });
+  if (!review) throw ApiError.notFound("Review not found");
+  const productId = review.product_id;
+  await review.destroy();
+  await recalculateProductRating(productId);
+  return sendSuccess(res, { message: "Review deleted." });
+}
+
+async function adminList(req, res) {
+  const where = {};
+  if (req.query.approved === "true") where.is_approved = true;
+  if (req.query.approved === "false") where.is_approved = false;
+  const rows = await Review.findAll({ where, include: [{ model: Product, as: "product", attributes: ["id", "name", "slug"] }], order: [["created_at", "DESC"]], limit: 200 });
+  const formattedRows = rows.map((r) => {
+    let images = [];
+    if (Array.isArray(r.image_urls)) images = r.image_urls;
+    else if (typeof r.image_urls === "string") {
+      try {
+        const parsed = JSON.parse(r.image_urls);
+        if (Array.isArray(parsed)) images = parsed;
+      } catch {}
+    }
+    const plain = r.toJSON ? r.toJSON() : { ...r };
+    return { ...plain, image_urls: images };
+  });
+  return sendSuccess(res, { data: formattedRows });
+}
+
+async function adminUpdate(req, res) {
+  const review = await Review.findByPk(req.params.reviewId);
+  if (!review) throw ApiError.notFound("Review not found");
+  const updates = {};
+  if (req.body.rating !== undefined) {
+    const rating = Number(req.body.rating);
+    if (!Number.isInteger(rating) || rating < 1 || rating > 5) throw ApiError.badRequest("Rating must be between 1 and 5 stars.");
+    updates.rating = rating;
+  }
+  if (req.body.title !== undefined) updates.title = req.body.title ? String(req.body.title).trim() : null;
+  if (req.body.comment !== undefined) {
+    if (!String(req.body.comment).trim()) throw ApiError.badRequest("Review comment is required.");
+    updates.comment = String(req.body.comment).trim();
+  }
+  if (req.body.is_approved !== undefined) updates.is_approved = Boolean(req.body.is_approved);
+  if (req.body.action === "publish") updates.is_approved = true;
+  if (req.body.action === "reject") updates.is_approved = false;
+  await review.update(updates);
+  await recalculateProductRating(review.product_id);
+  return sendSuccess(res, { data: review });
+}
+
+async function adminDelete(req, res) {
+  const review = await Review.findByPk(req.params.reviewId);
+  if (!review) throw ApiError.notFound("Review not found");
+  const productId = review.product_id;
+  await review.destroy();
+  await recalculateProductRating(productId);
+  return sendSuccess(res, { message: "Review deleted." });
+}
+
 module.exports = {
   listByProduct,
-  createForProduct
+  checkReviewEligibility,
+  createForProduct,
+  updateOwnReview,
+  deleteOwnReview,
+  adminList,
+  adminUpdate,
+  adminDelete
 };

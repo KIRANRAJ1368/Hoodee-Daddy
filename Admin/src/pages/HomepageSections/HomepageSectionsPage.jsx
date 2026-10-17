@@ -369,10 +369,10 @@ function SectionCard({
 
   return (
     <div className={`section-manage-card card ${isActive ? "card-live" : "card-disabled"}`}>
-      {/* Top Bar: Sequence # + Name + Toggle */}
+      {/* Top Bar: Sequence + Name + Toggle */}
       <div className="card-top-bar">
         <div className="section-title-wrap">
-          <span className="sequence-badge">#{index}</span>
+          <span className="sequence-badge">{index}</span>
           <div className="section-icon-box">
             <Icon size={18} />
           </div>
@@ -636,7 +636,7 @@ function DepartmentModal({ section, isSaving, onClose, onSave }) {
                 className={`dept-tab-btn ${activeTabIdx === idx ? "active" : ""}`}
                 onClick={() => setActiveTabIdx(idx)}
               >
-                <span>{dept.title || `Card #${idx + 1}`}</span>
+                <span>{dept.title || `Card ${idx + 1}`}</span>
                 {dept.is_active === false && <span className="tab-off-pill">OFF</span>}
               </button>
             ))}
@@ -1068,7 +1068,7 @@ function HeroModal({ heroBanners, onClose }) {
                 <div key={b.id || i} className="hero-banner-item">
                   <img src={resolveImageUrl(b.image_url)} alt={b.title} />
                   <div className="hero-banner-item-details">
-                    <strong>{b.title || `Slide #${i + 1}`}</strong>
+                    <strong>{b.title || `Slide ${i + 1}`}</strong>
                     <span>{b.subtitle || b.cta_text || "Featured Hero Slide"}</span>
                   </div>
                 </div>

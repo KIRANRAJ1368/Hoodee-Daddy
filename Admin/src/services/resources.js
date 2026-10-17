@@ -24,7 +24,7 @@ export const subcategoriesApi = {
 };
 
 export const productsApi = {
-  list: (params) => api.get("/products", { limit: 20, ...params }),
+  list: (params) => api.get("/products", { includeInactive: true, limit: 20, ...params }),
   getById: (id) => api.get(`/products/admin/${id}`),
   create: (data) => api.post("/products", data),
   update: (id, data) => api.put(`/products/${id}`, data),
@@ -42,6 +42,13 @@ export const bannersApi = {
   remove: (id) => api.delete(`/banners/${id}`)
 };
 
+export const offersApi = {
+  list: () => api.get("/offers"),
+  create: (data) => api.post("/offers", data),
+  update: (id, data) => api.patch(`/offers/${id}`, data),
+  remove: (id) => api.delete(`/offers/${id}`)
+};
+
 export const homepageApi = {
   sections: () => api.get("/home/admin/sections"),
   updateSection: (key, data) => api.put(`/home/admin/sections/${key}`, data)
@@ -51,7 +58,18 @@ export const ordersApi = {
   list: (params) => api.get("/orders", params),
   getById: (id) => api.get(`/orders/${id}`),
   syncTracking: (id) => api.post(`/shipping/shipments/${id}/sync`),
-  updateStatus: (id, status) => api.patch(`/orders/${id}/status`, { status })
+  updateStatus: (id, status) => api.patch(`/orders/${id}/status`, { status }),
+  approveCancellation: (id) => api.post(`/orders/${id}/approve-cancellation`),
+  approveReturn: (id) => api.post(`/orders/${id}/approve-return`),
+  rejectCancellation: (id, data) => api.post(`/orders/${id}/reject-cancellation`, data),
+  markWarehouseReceived: (id, data) => api.post(`/orders/${id}/mark-warehouse-received`, data),
+  processUpiRefund: (id, data) => api.post(`/orders/${id}/process-upi-refund`, data)
+};
+
+export const reviewsApi = {
+  list: (params) => api.get("/products/admin/reviews", params),
+  update: (id, data) => api.patch(`/products/admin/reviews/${id}`, data),
+  remove: (id) => api.delete(`/products/admin/reviews/${id}`)
 };
 
 export const shippingApi = {
@@ -94,5 +112,27 @@ export const reportsApi = {
   sales: (params) => api.get("/admin/reports/sales", params),
   products: (params) => api.get("/admin/reports/products", params),
   orders: (params) => api.get("/admin/reports/orders", params)
+};
+
+export const seoApi = {
+  get: () => api.get("/seo/settings"),
+  update: (data) => api.put("/seo/settings", data),
+  listPages: (params) => api.get("/seo/pages", params),
+  getPageOptions: () => api.get("/seo/page-options"),
+  getPage: (id) => api.get(`/seo/pages/${id}`),
+  savePage: (data) => api.post("/seo/pages", data),
+  deletePage: (id) => api.delete(`/seo/pages/${id}`),
+  getSitemapSummary: () => api.get("/seo/sitemap-summary"),
+  syncSitemap: () => api.post("/seo/sync-sitemap"),
+  uploadSitemap: (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return api.upload("/seo/upload-sitemap", formData);
+  },
+  uploadRobots: (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return api.upload("/seo/upload-robots", formData);
+  }
 };
 

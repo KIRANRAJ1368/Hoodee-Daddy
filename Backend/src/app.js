@@ -32,9 +32,10 @@ app.use(
 
       const isConfigured = env.corsOrigins.length === 0 || env.corsOrigins.includes(origin);
       const isLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+      const isPrivateNetwork = /^https?:\/\/(192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+)(:\d+)?$/.test(origin);
       const isSaiTechno = /^https?:\/\/([a-zA-Z0-9-]+\.)*saitechnosolutions\.co\.in(:\d+)?$/.test(origin);
 
-      if (isConfigured || isLocalhost || isSaiTechno) {
+      if (isConfigured || isLocalhost || isPrivateNetwork || isSaiTechno) {
         return callback(null, true);
       }
       return callback(null, false);
@@ -59,9 +60,16 @@ app.use(generalLimiter);
 // that point here.
 app.use("/uploads", express.static(UPLOAD_ROOT));
 
+const seoController = require("./controllers/seoController");
+
 app.get("/health", (req, res) => res.json({ success: true, data: { status: "ok", env: env.env } }));
 
+// Root-level Technical SEO endpoints
+app.get("/sitemap.xml", seoController.getSitemapXml);
+app.get("/robots.txt", seoController.getRobotsTxt);
+
 app.use("/api", apiRoutes);
+app.use("/api/v1", apiRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

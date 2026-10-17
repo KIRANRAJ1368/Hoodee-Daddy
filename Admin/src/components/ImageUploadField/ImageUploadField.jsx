@@ -166,7 +166,7 @@ export default function ImageUploadField({
                 onClick={() => {
                   setLocalPreview(null);
                   onChange("");
-                  toast.info("Image removed.");
+                  toast.delete("Image removed.");
                 }}
                 disabled={isUploading}
                 title="Remove this image"

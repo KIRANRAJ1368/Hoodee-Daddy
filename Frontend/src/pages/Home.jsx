@@ -1,12 +1,53 @@
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import Hero from "../components/Hero/Hero";
 import { NewArrivalsSection, BestSellersSection } from "../components/CuratedShowcase/CuratedShowcase";
 import { CategorySection } from "../components/CategoryShowcase/CategoryFeatureGrid";
+import OfferBannerRow from "../components/OfferBanner/OfferBannerRow";
+import OfferBannerModal from "../components/Modals/OfferBannerModal";
 import { useShop } from "../context/ShopContext";
+import SeoHead from "../components/Seo/SeoHead";
+import { buildOrganizationSchema, buildWebSiteSchema } from "../utils/seoSchemas";
 import "./Home.css";
+import { imageUrl } from "../utils/imageUrl";
+import { Link } from "react-router-dom";
+
 
 export default function Home() {
-  const { homeData } = useShop();
+  const { homeData, seoSettings } = useShop();
+  const [selectedOfferBanner, setSelectedOfferBanner] = useState(null);
+  const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
+
+  const baseUrl = (seoSettings?.canonical_base_url || "https://zmwclothing.com").replace(/\/+$/, "");
+
+  const homeSchemas = useMemo(() => {
+    const org = buildOrganizationSchema(baseUrl, seoSettings || {});
+    const site = buildWebSiteSchema(baseUrl);
+    return [org, site];
+  }, [baseUrl, seoSettings]);
+
+  // Automatically pop up active offer banner when opening site unless dismissed in session
+  useEffect(() => {
+    const offerList = homeData?.banners?.offers || [];
+    if (!offerList.length) return;
+    const isDismissed = sessionStorage.getItem("zmw_offer_modal_dismissed");
+    if (!isDismissed) {
+      const timer = setTimeout(() => {
+        setSelectedOfferBanner(offerList[0]);
+        setIsOfferModalOpen(true);
+      }, 700);
+      return () => clearTimeout(timer);
+    }
+  }, [homeData?.banners?.offers]);
+
+  function handleOpenOfferBanner(banner) {
+    setSelectedOfferBanner(banner);
+    setIsOfferModalOpen(true);
+  }
+
+  function handleCloseOfferModal() {
+    setIsOfferModalOpen(false);
+    sessionStorage.setItem("zmw_offer_modal_dismissed", "true");
+  }
 
   // Section configs from Admin
   const sectionMap = useMemo(() => {
@@ -17,17 +58,36 @@ export default function Home() {
   const categories = useMemo(() => {
     return (homeData?.categories || [])
       .filter((c) => c.is_active !== false && c.show_on_homepage !== false)
-      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.id - b.id);
   }, [homeData]);
 
   const isHeroActive = sectionMap.get("hero")?.is_active ?? true;
-  const isNewArrivalsActive = sectionMap.get("new_arrivals")?.is_active ?? true;
-  const isBestSellersActive = sectionMap.get("best_sellers")?.is_active ?? true;
+  const isNewArrivalsActive = Boolean(sectionMap.get("new_arrivals")?.is_active);
+  const isBestSellersActive = Boolean(sectionMap.get("best_sellers")?.is_active);
 
   return (
     <>
+      <SeoHead
+        title={seoSettings?.homepage_title || "ZMW Clothing — Luxury Fashion, Streetwear & Everyday Essentials"}
+        description={seoSettings?.homepage_description || "Discover ZMW's luxury streetwear and couture collections. Handcrafted 240+ GSM oversized t-shirts, 450 GSM hoodies, and tailored apparel."}
+        canonicalPath="/"
+        schema={homeSchemas}
+      />
+      <h1 className="sr-only">ZMW Clothing — Luxury Fashion, Streetwear &amp; Everyday Essentials</h1>
+
       {/* 1. Hero Banners (Dynamic) */}
       {isHeroActive && <Hero />}
+
+      <OfferBannerRow
+        banners={homeData?.banners?.offers || []}
+        onOpenBanner={handleOpenOfferBanner}
+      />
+
+      <OfferBannerModal
+        banner={selectedOfferBanner}
+        isOpen={isOfferModalOpen}
+        onClose={handleCloseOfferModal}
+      />
 
       {/* 2. New Arrivals (Dynamic) */}
       {isNewArrivalsActive && <NewArrivalsSection />}

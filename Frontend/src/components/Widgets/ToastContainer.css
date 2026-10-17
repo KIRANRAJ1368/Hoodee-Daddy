@@ -2,7 +2,7 @@
 
 .toast-container {
   position: fixed;
-  bottom: 100px;
+  top: 88px;
   right: 28px;
   z-index: var(--z-toast);
   display: flex;
@@ -88,7 +88,7 @@
 
 @media (max-width: 425px) {
   .toast-container {
-    bottom: 80px;
+    top: 76px;
     right: 16px;
     width: calc(100% - 32px);
   }
@@ -100,7 +100,7 @@
 
 @media (max-width: 320px) {
   .toast-container {
-    bottom: 76px;
+    top: 72px;
     right: 10px;
     width: calc(100% - 20px);
   }

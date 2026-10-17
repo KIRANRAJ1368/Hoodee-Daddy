@@ -48,7 +48,13 @@ async function summary(req, res) {
     totalSales,
     todaySales,
     rangeSales,
-    newContactCount
+    newContactCount,
+    pendingCancellationRequests,
+    pendingRefundCount,
+    processedRefundCount,
+    totalRefundAmount,
+    rtoInTransitCount,
+    rtoDeliveredCount
   ] = await Promise.all([
     Product.count(),
     Product.count({ where: { is_active: true } }),
@@ -80,8 +86,44 @@ async function summary(req, res) {
     fromDate && toDate
       ? Order.sum("total", { where: salesWhere({ createdAt: { [Op.gte]: fromDate, [Op.lte]: toDate } }) })
       : null,
-    ContactSubmission.count({ where: { status: "new" } })
+    ContactSubmission.count({ where: { status: "new" } }),
+    Order.count({ where: { cancellation_status: "requested" } }),
+    Order.count({ where: { refund_status: "pending" } }),
+    Order.count({ where: { refund_status: "processed" } }),
+    Order.sum("refund_amount", { where: { refund_status: "processed" } }),
+    Order.count({ where: { cancellation_status: "rto_in_transit" } }),
+    Order.count({ where: { cancellation_status: "rto_delivered" } })
   ]);
+
+  const recentCancellations = await Order.findAll({
+    where: {
+      [Op.or]: [
+        { cancellation_status: { [Op.ne]: "none" } },
+        { refund_status: "pending" }
+      ]
+    },
+    order: [["updated_at", "DESC"]],
+    limit: 6,
+    attributes: [
+      "id",
+      "order_number",
+      "customer_name",
+      "email",
+      "phone",
+      "total",
+      "status",
+      "shipping_status",
+      "cancellation_type",
+      "cancellation_status",
+      "cancellation_reason",
+      "refund_status",
+      "refund_amount",
+      "refund_upi_id",
+      "refund_utr_number",
+      "created_at",
+      "updated_at"
+    ]
+  });
 
   return sendSuccess(res, {
     data: {
@@ -109,7 +151,14 @@ async function summary(req, res) {
       totalSales: Number(totalSales) || 0,
       todaySales: Number(todaySales) || 0,
       rangeSales: rangeSales === null ? null : Number(rangeSales) || 0,
-      newContactCount
+      newContactCount,
+      pendingCancellationRequests,
+      pendingRefundCount,
+      processedRefundCount,
+      totalRefundAmount: Number(totalRefundAmount) || 0,
+      rtoInTransitCount,
+      rtoDeliveredCount,
+      recentCancellations: recentCancellations || []
     }
   });
 }

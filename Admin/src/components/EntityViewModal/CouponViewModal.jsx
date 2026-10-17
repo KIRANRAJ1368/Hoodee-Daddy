@@ -93,7 +93,7 @@ export default function CouponViewModal({ coupon, onClose, onEdit }) {
             <div className="ev-meta-line">
               <span>Type: <strong>{isPercentage ? "Percentage Discount" : "Fixed Cash Amount"}</strong></span>
               <span className="ev-sep">•</span>
-              <span>Created ID: <strong>#{data.id}</strong></span>
+              <span>Created ID: <strong>{data.id}</strong></span>
             </div>
           </div>
           <div className="ev-status-col">
@@ -188,7 +188,7 @@ export default function CouponViewModal({ coupon, onClose, onEdit }) {
         {/* Footer Actions */}
         <div className="ev-footer">
           <div className="ev-footer-meta">
-            <span>Coupon ID: <strong>#{data.id}</strong></span>
+            <span>Coupon ID: <strong>{data.id}</strong></span>
           </div>
 
           <div className="ev-footer-actions">

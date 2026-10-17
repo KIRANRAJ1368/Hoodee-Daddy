@@ -331,6 +331,17 @@
   color: #FFFFFF;
 }
 
+.curated-badge.badge-soldout {
+  background-color: #475569;
+  color: #FFFFFF;
+}
+
+.curated-action-btn.quick-buy-btn.is-disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 /* Floating Action Bar */
 .curated-action-bar {
   position: absolute;
@@ -597,14 +608,14 @@
 }
 
 .curated-save-tag {
-  background-color: #FEF2F2;
-  color: #DC2626;
+  background-color: #ECFDF5;
+  color: #059669;
   font-size: 0.68rem;
   font-weight: 800;
   letter-spacing: 0.04em;
   padding: 2px 7px;
   border-radius: var(--radius-xs);
-  border: 1px solid #FECACA;
+  border: 1px solid #A7F3D0;
 }
 
 
@@ -702,6 +713,28 @@
     width: 100%;
   }
 
+  .curated-badge {
+    font-size: 0.62rem;
+    padding: 2.5px 7px;
+    top: 6px;
+    left: 6px;
+    max-width: calc(100% - 46px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .curated-action-bar {
+    top: 6px;
+    right: 6px;
+    gap: 4px;
+  }
+
+  .curated-action-btn {
+    width: 30px;
+    height: 30px;
+  }
+
   .curated-info {
     padding: 10px 2px 2px;
   }
@@ -717,16 +750,58 @@
   }
 
   .curated-price-current {
-    font-size: 18px;
+    font-size: 17px;
     font-weight: 600;
   }
 
   .curated-price-original {
-    font-size: 14px;
+    font-size: 13px;
   }
 
   .curated-price-discount {
-    font-size: 14px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 360px) {
+  .curated-badge {
+    font-size: 0.58rem;
+    padding: 2px 6px;
+    top: 5px;
+    left: 5px;
+    max-width: calc(100% - 40px);
+  }
+
+  .curated-action-bar {
+    top: 5px;
+    right: 5px;
+    gap: 3px;
+  }
+
+  .curated-action-btn {
+    width: 26px;
+    height: 26px;
+  }
+
+  .curated-action-btn svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  .curated-title {
+    font-size: 0.84rem;
+  }
+
+  .curated-price-current {
+    font-size: 15.5px;
+  }
+
+  .curated-price-original {
+    font-size: 12px;
+  }
+
+  .curated-price-discount {
+    font-size: 12px;
   }
 }
 
@@ -736,15 +811,15 @@
   }
 
   .curated-price-current {
-    font-size: 16px;
+    font-size: 15px;
   }
 
   .curated-price-original {
-    font-size: 12px;
+    font-size: 11.5px;
   }
 
   .curated-price-discount {
-    font-size: 12px;
+    font-size: 11.5px;
   }
 
   .curated-dept-pill {

@@ -23,6 +23,12 @@ import CustomersPage from "./pages/Customers/CustomersPage";
 import ContactPage from "./pages/Contact/ContactPage";
 import CouponsPage from "./pages/Coupons/CouponsPage";
 import ReportsPage from "./pages/Reports/ReportsPage";
+import ReviewsPage from "./pages/Reviews/ReviewsPage";
+import OffersPage from "./pages/Offers/OffersPage";
+import OfferBannersPage from "./pages/Banners/OfferBannersPage";
+import SeoSettingsPage from "./pages/Seo/SeoSettingsPage";
+import MetaSettingsPage from "./pages/Seo/MetaSettingsPage";
+import SitemapPage from "./pages/Seo/SitemapPage";
 
 export default function App() {
   return (
@@ -49,15 +55,22 @@ export default function App() {
             <Route path="variants" element={<VariantManagementPage />} />
             <Route path="stock" element={<StockManagementPage />} />
             <Route path="banners" element={<BannersPage />} />
+            <Route path="offer-banners" element={<OfferBannersPage />} />
+            <Route path="offers" element={<OffersPage />} />
             <Route path="homepage-sections" element={<HomepageSectionsPage />} />
             <Route path="orders" element={<OrdersPage />} />
             <Route path="orders/:id" element={<OrderDetailPage />} />
+            <Route path="reviews" element={<ReviewsPage />} />
             <Route path="shipping" element={<ShippingPage />} />
             <Route path="shipping/:id" element={<ShippingDetailPage />} />
             <Route path="coupons" element={<CouponsPage />} />
             <Route path="reports" element={<ReportsPage />} />
             <Route path="customers" element={<CustomersPage />} />
             <Route path="contact" element={<ContactPage />} />
+            <Route path="seo" element={<MetaSettingsPage />} />
+            <Route path="seo/meta" element={<MetaSettingsPage />} />
+            <Route path="seo/sitemap" element={<SitemapPage />} />
+            <Route path="seo/general" element={<SeoSettingsPage />} />
           </Route>
         </Routes>
       </ToastProvider>

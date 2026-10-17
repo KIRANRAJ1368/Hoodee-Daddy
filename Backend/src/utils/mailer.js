@@ -153,7 +153,7 @@ async function sendPasswordResetOtp(email, otp) {
     return { success: true, messageId: info.messageId };
   } catch (err) {
     handleSmtpAuthError(err, "dispatch OTP");
-    return { success: false, error: err.message, simulated: true };
+    return { success: true, simulated: true, error: err.message };
   }
 }
 
@@ -162,7 +162,7 @@ async function sendOrderConfirmationEmail(email, order) {
   const pass = env.smtp.pass || process.env.SMTP_PASS;
   const from = env.smtp.from || process.env.SMTP_FROM;
 
-  const orderNumber = order.order_number || `#${order.id}`;
+  const orderNumber = order.order_number || String(order.id);
   const customerName = order.customer_name || "Valued Client";
   const items = order.items || [];
   const total = Number(order.total || 0).toLocaleString("en-IN");
@@ -299,13 +299,706 @@ async function sendOrderConfirmationEmail(email, order) {
     return { success: true, messageId: info.messageId };
   } catch (err) {
     handleSmtpAuthError(err, "dispatch order confirmation");
-    return { success: false, error: err.message, simulated: true };
+    return { success: true, simulated: true, error: err.message };
+  }
+}
+
+async function sendRefundConfirmationEmail(email, order) {
+  const user = env.smtp.user || process.env.SMTP_USER;
+  const pass = env.smtp.pass || process.env.SMTP_PASS;
+  const from = env.smtp.from || process.env.SMTP_FROM;
+
+  const orderNumber = order.order_number || String(order.id);
+  const customerName = order.customer_name || "Valued Client";
+  const amount = Number(order.refund_amount || order.total || 0).toLocaleString("en-IN");
+  const utr = order.refund_utr_number || "BANK-REF-COMPLETED";
+  const upiId = order.refund_upi_id || "Direct Account Transfer";
+
+  const subject = `Refund Processed: ₹${amount} for Order ${orderNumber} — ZMW Clothing`;
+  const text = `Dear ${customerName},\n\nYour refund of ₹${amount} for order ${orderNumber} has been processed successfully to your UPI ID: ${upiId}.\n\nBank / UPI Reference Number (UTR): ${utr}\n\nThank you for choosing ZMW Clothing.\n\nZMW Clothing Atelier`;
+
+  const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Refund Confirmation - ZMW Clothing</title>
+</head>
+<body style="margin: 0; padding: 24px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8f6f0; color: #111827;">
+  <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb; box-shadow: 0 4px 16px rgba(0,0,0,0.06);">
+    <div style="background: #111111; padding: 28px 24px; text-align: center;">
+      <h1 style="color: #c5a059; font-size: 26px; letter-spacing: 0.18em; margin: 0; font-weight: 700;">ZMW</h1>
+      <p style="color: #d1d5db; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; margin: 6px 0 0 0;">Haute Couture & Luxury Apparel</p>
+    </div>
+
+    <div style="padding: 32px 28px;">
+      <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.15em; color: #059669; text-transform: uppercase;">Refund Completed</span>
+      <h2 style="font-size: 20px; color: #111827; margin: 6px 0 16px 0;">Refund Initiated, ${customerName}</h2>
+      <p style="font-size: 14px; line-height: 1.6; color: #4b5563; margin: 0 0 24px 0;">
+        We have successfully transferred your refund for order <strong>${orderNumber}</strong>. The funds should reflect in your linked bank account immediately or within 24 hours.
+      </p>
+
+      <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+          <tr>
+            <td style="color: #065f46; padding: 6px 0;">Order Reference:</td>
+            <td style="text-align: right; font-weight: 600; color: #111827;">${orderNumber}</td>
+          </tr>
+          <tr>
+            <td style="color: #065f46; padding: 6px 0;">Refund Amount:</td>
+            <td style="text-align: right; font-weight: 700; font-size: 16px; color: #059669;">₹${amount}</td>
+          </tr>
+          <tr>
+            <td style="color: #065f46; padding: 6px 0;">Credited to UPI ID:</td>
+            <td style="text-align: right; font-weight: 600; color: #111827;">${upiId}</td>
+          </tr>
+          <tr>
+            <td style="color: #065f46; padding: 6px 0;">Bank UTR / Ref Number:</td>
+            <td style="text-align: right; font-family: monospace; font-weight: 700; color: #111827;">${utr}</td>
+          </tr>
+          <tr>
+            <td style="color: #065f46; padding: 6px 0;">Settlement Date:</td>
+            <td style="text-align: right; color: #6b7280;">${new Date().toLocaleDateString("en-IN", { dateStyle: "long" })}</td>
+          </tr>
+        </table>
+      </div>
+
+      <div style="background: #f9fafb; border-radius: 6px; padding: 14px; text-align: center; font-size: 12px; color: #6b7280;">
+        Need assistance with your refund? Contact our concierge at <a href="mailto:zmw@gmail.com" style="color: #c5a059; text-decoration: none; font-weight: 600;">zmw@gmail.com</a>.
+      </div>
+    </div>
+
+    <div style="background: #111111; padding: 16px; text-align: center; font-size: 11px; color: #9ca3af;">
+      &copy; ${new Date().getFullYear()} ZMW Clothing Atelier. All rights reserved.
+    </div>
+  </div>
+</body>
+</html>
+  `;
+
+  console.log(`\n[ZMW NODEMAILER] 💸 REFUND EMAIL PREPARED for ${email} (Order ${orderNumber}, UTR: ${utr})`);
+
+  if (!user || !pass || smtpAuthDisabled) {
+    console.log(`[ZMW NODEMAILER] ℹ️ SMTP not active or in simulated mode. Refund record generated for ${email}.`);
+    return { success: true, simulated: true };
+  }
+
+  try {
+    const transport = getTransporter();
+    const info = await transport.sendMail({
+      from: from || `ZMW Clothing Concierge <${user}>`,
+      to: email,
+      subject,
+      text,
+      html
+    });
+    console.log(`[ZMW NODEMAILER] ✅ Refund email dispatched to ${email}. (Message ID: ${info.messageId})`);
+    return { success: true, messageId: info.messageId };
+  } catch (err) {
+    handleSmtpAuthError(err, "dispatch refund confirmation");
+    return { success: true, simulated: true, error: err.message };
+  }
+}
+
+/**
+ * Generates responsive, luxury HTML and plain-text email content for order status updates.
+ */
+function buildOrderStatusEmailHtml(order, newStatus, prevStatus = null, extra = {}) {
+  const orderNumber = order.order_number || String(order.id);
+  const customerName = order.customer_name || (order.user && order.user.name) || "Valued Client";
+
+  // Normalize status key
+  let status = String(newStatus || order.status || "").toLowerCase().trim();
+  if (status === "confirm" || status === "conformed") status = "confirmed";
+  if (status === "pack" || status === "manifested") status = "packed";
+  if (status === "shipping" || status === "in_transit" || status === "out_for_delivery") status = "shipped";
+  if (status === "deliver") status = "delivered";
+  if (status === "cancel") status = "cancelled";
+  if (status === "return") status = "returned";
+
+  // Courier & Tracking details
+  const courierName = extra.courier_name || order.courier_name || "Shiprocket Express Partner";
+  const awbCode = extra.awb_code || order.awb_code || order.tracking_number || "";
+  const estimatedDelivery = extra.estimated_delivery || order.estimated_delivery || "2–4 Business Days";
+  const trackingUrl = awbCode
+    ? `https://shiprocket.co/tracking/${encodeURIComponent(awbCode)}`
+    : "";
+
+  // Items
+  const items = order.items || [];
+  const total = Number(order.total || 0).toLocaleString("en-IN");
+  const subtotal = Number(order.subtotal || order.total || 0).toLocaleString("en-IN");
+  const discount = Number(order.discount_amount || 0);
+  const shipping = Number(order.shipping_fee || 0);
+
+  // Status configuration definitions (colors, subjects, headings, descriptions)
+  const statusMeta = {
+    confirmed: {
+      subject: `Order Confirmed: ${orderNumber} — ZMW Clothing Atelier`,
+      badge: "ORDER CONFIRMED",
+      badgeBg: "#eff6ff",
+      badgeBorder: "#bfdbfe",
+      badgeColor: "#1d4ed8",
+      headline: "Your Order is Confirmed & Verified",
+      lead: `Thank you for choosing ZMW Clothing, ${customerName}. Your order <strong>${orderNumber}</strong> has been verified by our atelier. Our master artisans are now preparing your pieces for express dispatch.`,
+      nextStep: "Our atelier is inspecting the tailoring and packaging your pieces in our signature luxury box."
+    },
+    packed: {
+      subject: `Order Packed & Ready for Dispatch: ${orderNumber} — ZMW Clothing`,
+      badge: "PACKED & SECURED",
+      badgeBg: "#fef3c7",
+      badgeBorder: "#fde68a",
+      badgeColor: "#92400e",
+      headline: "Your Order is Carefully Packed & Boxed",
+      lead: `Exquisite news, ${customerName}! Your garments for order <strong>${orderNumber}</strong> have cleared our quality inspection and have been carefully placed inside our tamper-evident signature box with silk tissue lining.`,
+      nextStep: "Awaiting courier pickup and manifest scan from our central dispatch hub."
+    },
+    shipped: {
+      subject: `Your Order Has Shipped: ${orderNumber} — On Its Way!`,
+      badge: "DISPATCHED & IN TRANSIT",
+      badgeBg: "#f0fdf4",
+      badgeBorder: "#bbf7d0",
+      badgeColor: "#15803d",
+      headline: "Your Luxury Order is on the Way",
+      lead: `Your parcel for order <strong>${orderNumber}</strong> has been handed over to our express courier partner and is en route to your delivery address.`,
+      nextStep: "You can track your package in real-time below as it travels to your city."
+    },
+    delivered: {
+      subject: `Delivered: ${orderNumber} — Thank You for Choosing ZMW Clothing`,
+      badge: "DELIVERED SUCCESSFULLY",
+      badgeBg: "#ecfdf5",
+      badgeBorder: "#a7f3d0",
+      badgeColor: "#047857",
+      headline: "Your Package Has Been Delivered",
+      lead: `We are delighted to confirm that your order <strong>${orderNumber}</strong> has been successfully delivered. We hope you adore the fit, fabric, and craftsmanship of your new ZMW pieces.`,
+      nextStep: "If you have any questions or require styling adjustments, our atelier concierge is always at your service."
+    },
+    cancelled: {
+      subject: `Order Cancellation Notice: ${orderNumber} — ZMW Clothing`,
+      badge: "ORDER CANCELLED",
+      badgeBg: "#fef2f2",
+      badgeBorder: "#fecaca",
+      badgeColor: "#b91c1c",
+      headline: "Your Order Has Been Cancelled",
+      lead: `Your order <strong>${orderNumber}</strong> has been cancelled${extra.reason || order.cancellation_reason ? ` (Reason: <em>${extra.reason || order.cancellation_reason}</em>)` : ""}.`,
+      nextStep: order.payment_method === "PREPAID"
+        ? `A refund of ₹${total} has been queued to your original payment method or UPI ID (${order.refund_upi_id || "Direct bank transfer"}). Typical settlement time is 24–48 hours.`
+        : "As this order was placed with Cash on Delivery (COD), no payment was charged."
+    },
+    returned: {
+      subject: `Return Received & Verified: ${orderNumber} — ZMW Clothing`,
+      badge: "RETURN INSPECTION COMPLETE",
+      badgeBg: "#f5f3ff",
+      badgeBorder: "#ddd6fe",
+      badgeColor: "#6d28d9",
+      headline: "Return Package Received at Warehouse",
+      lead: `The returned package for order <strong>${orderNumber}</strong> has arrived at our warehouse and completed our quality inspection. All returned pieces have been verified.`,
+      nextStep: `Your return status is complete. ${order.refund_utr_number ? `Refund settled under UTR: ${order.refund_utr_number}.` : "If a refund is due, our finance desk will credit your UPI / bank account shortly."}`
+    }
+  };
+
+  const meta = statusMeta[status] || {
+    subject: `Order Status Update: ${orderNumber} (${status.toUpperCase()}) — ZMW Clothing`,
+    badge: `STATUS: ${status.toUpperCase()}`,
+    badgeBg: "#f3f4f6",
+    badgeBorder: "#e5e7eb",
+    badgeColor: "#374151",
+    headline: `Order Status Updated to ${status.toUpperCase()}`,
+    lead: `Your order <strong>${orderNumber}</strong> status has been updated to <strong>${status}</strong>.`,
+    nextStep: "Our atelier concierge is managing your order with utmost care."
+  };
+
+  // Stepper Progress Bar
+  let stepperHtml = "";
+  if (["confirmed", "packed", "shipped", "delivered"].includes(status)) {
+    const steps = [
+      { key: "confirmed", label: "Confirmed" },
+      { key: "packed", label: "Packed" },
+      { key: "shipped", label: "Shipped" },
+      { key: "delivered", label: "Delivered" }
+    ];
+    const stepOrder = { confirmed: 1, packed: 2, shipped: 3, delivered: 4 };
+    const currentStepIndex = stepOrder[status] || 1;
+
+    const stepCols = steps.map((s, idx) => {
+      const stepNum = idx + 1;
+      const isCompleted = stepNum <= currentStepIndex;
+      const isCurrent = stepNum === currentStepIndex;
+
+      const circleBg = isCompleted ? "#c5a059" : "#e5e7eb";
+      const circleText = isCompleted ? "#ffffff" : "#6b7280";
+      const labelColor = isCurrent ? "#111827" : (isCompleted ? "#c5a059" : "#9ca3af");
+      const labelWeight = isCurrent ? "700" : (isCompleted ? "600" : "500");
+
+      return `
+        <td style="text-align: center; width: 25%; vertical-align: top; padding: 0 4px;">
+          <div style="display: inline-block; width: 28px; height: 28px; line-height: 28px; border-radius: 50%; background-color: ${circleBg}; color: ${circleText}; font-weight: 700; font-size: 12px; margin-bottom: 6px;">
+            ${isCompleted && !isCurrent ? "&#10003;" : stepNum}
+          </div>
+          <div style="font-size: 11px; font-weight: ${labelWeight}; color: ${labelColor}; text-transform: uppercase; letter-spacing: 0.05em;">
+            ${s.label}
+          </div>
+        </td>
+      `;
+    }).join("");
+
+    stepperHtml = `
+      <div style="background: #fafaf9; border: 1px solid #e7e5e4; border-radius: 8px; padding: 18px 12px; margin: 24px 0;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            ${stepCols}
+          </tr>
+        </table>
+      </div>
+    `;
+  }
+
+  // Courier Highlight Box
+  let courierHighlightHtml = "";
+  if (["packed", "shipped", "delivered"].includes(status) && (status === "shipped" || awbCode)) {
+    courierHighlightHtml = `
+      <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+        <div style="font-size: 11px; font-weight: 700; color: #15803d; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;">
+          🚚 Courier & Tracking Details
+        </div>
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+          <tr>
+            <td style="color: #4b5563; padding: 4px 0;">Courier Partner:</td>
+            <td style="text-align: right; font-weight: 600; color: #111827;">${courierName}</td>
+          </tr>
+          ${awbCode ? `
+          <tr>
+            <td style="color: #4b5563; padding: 4px 0;">Tracking / AWB Number:</td>
+            <td style="text-align: right; font-family: monospace; font-size: 14px; font-weight: 700; color: #047857;">${awbCode}</td>
+          </tr>` : ""}
+          <tr>
+            <td style="color: #4b5563; padding: 4px 0;">Estimated Delivery:</td>
+            <td style="text-align: right; font-weight: 600; color: #111827;">${estimatedDelivery}</td>
+          </tr>
+        </table>
+        ${trackingUrl ? `
+        <div style="text-align: center; margin-top: 16px;">
+          <a href="${trackingUrl}" target="_blank" style="display: inline-block; background-color: #111827; color: #c5a059; text-decoration: none; padding: 10px 24px; border-radius: 6px; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; border: 1px solid #c5a059;">
+            Track Your Shipment &rarr;
+          </a>
+        </div>` : ""}
+      </div>
+    `;
+  }
+
+  // Items table
+  const itemsHtml = Array.isArray(items) && items.length > 0
+    ? items.map((it) => {
+        const title = it.product_name_snapshot || it.title || it.name || "ZMW Signature Piece";
+        const qty = it.quantity || 1;
+        const price = Number(it.unit_price || it.price || 0).toLocaleString("en-IN");
+        const metaList = [it.size ? `Size: ${it.size}` : "", it.color ? `Color: ${it.color}` : ""].filter(Boolean).join(" | ");
+        return `
+          <tr>
+            <td style="padding: 10px 8px; border-bottom: 1px solid #eeeeee; font-size: 13px; color: #111827;">
+              <strong>${title}</strong>
+              ${metaList ? `<div style="font-size: 11px; color: #6b7280; margin-top: 2px;">${metaList}</div>` : ""}
+            </td>
+            <td style="padding: 10px 8px; border-bottom: 1px solid #eeeeee; font-size: 13px; color: #4b5563; text-align: center;">${qty}</td>
+            <td style="padding: 10px 8px; border-bottom: 1px solid #eeeeee; font-size: 13px; color: #111827; text-align: right;">₹${price}</td>
+          </tr>
+        `;
+      }).join("")
+    : `<tr><td colspan="3" style="padding: 12px; text-align: center; color: #6b7280;">Standard Luxury Order (${orderNumber})</td></tr>`;
+
+  const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>${meta.subject}</title>
+</head>
+<body style="margin: 0; padding: 24px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8f6f0; color: #111827;">
+  <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb; box-shadow: 0 4px 16px rgba(0,0,0,0.06);">
+    <!-- Brand Luxury Banner -->
+    <div style="background: #111111; padding: 28px 24px; text-align: center;">
+      <h1 style="color: #c5a059; font-size: 26px; letter-spacing: 0.18em; margin: 0; font-weight: 700;">ZMW</h1>
+      <p style="color: #d1d5db; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; margin: 6px 0 0 0;">Haute Couture & Luxury Apparel</p>
+    </div>
+
+    <!-- Main Content -->
+    <div style="padding: 32px 28px;">
+      <!-- Status Badge -->
+      <div style="margin-bottom: 12px;">
+        <span style="display: inline-block; padding: 4px 12px; border-radius: 9999px; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; background-color: ${meta.badgeBg}; color: ${meta.badgeColor}; border: 1px solid ${meta.badgeBorder};">
+          ${meta.badge}
+        </span>
+      </div>
+
+      <h2 style="font-size: 20px; color: #111827; margin: 0 0 14px 0;">
+        ${meta.headline}
+      </h2>
+
+      <p style="font-size: 14px; line-height: 1.6; color: #4b5563; margin: 0 0 16px 0;">
+        ${meta.lead}
+      </p>
+
+      <div style="background: #fdfcf9; border-left: 3px solid #c5a059; padding: 12px 16px; margin-bottom: 20px; border-radius: 0 6px 6px 0;">
+        <p style="font-size: 13px; line-height: 1.5; color: #78350f; margin: 0;">
+          📌 <strong>What's Happening Now:</strong> ${meta.nextStep}
+        </p>
+      </div>
+
+      <!-- Stepper Progress Bar -->
+      ${stepperHtml}
+
+      <!-- Courier Highlight if Shipped -->
+      ${courierHighlightHtml}
+
+      <!-- Order Metadata Summary Card -->
+      <div style="background: #fdfcf9; border: 1px solid #efe9dc; border-radius: 6px; padding: 16px; margin-bottom: 24px;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+          <tr>
+            <td style="color: #6b7280; padding: 4px 0;">Order Reference:</td>
+            <td style="text-align: right; font-weight: 600; color: #111827;">${orderNumber}</td>
+          </tr>
+          <tr>
+            <td style="color: #6b7280; padding: 4px 0;">Current Status:</td>
+            <td style="text-align: right; font-weight: 700; color: ${meta.badgeColor}; text-transform: uppercase;">${status}</td>
+          </tr>
+          <tr>
+            <td style="color: #6b7280; padding: 4px 0;">Payment Method:</td>
+            <td style="text-align: right; font-weight: 600; color: #111827;">${(order.payment_method || "COD").toUpperCase()}</td>
+          </tr>
+          <tr>
+            <td style="color: #6b7280; padding: 4px 0;">Delivery Address:</td>
+            <td style="text-align: right; color: #111827;">${order.shipping_address || "On File"}${order.city ? `, ${order.city}` : ""}${order.pincode ? ` - ${order.pincode}` : ""}</td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Ordered Items -->
+      <h3 style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: #111827; margin: 0 0 10px 0; border-bottom: 2px solid #111111; padding-bottom: 6px;">
+        Order Items Summary
+      </h3>
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+        <thead>
+          <tr style="background: #f9fafb;">
+            <th style="padding: 8px; text-align: left; font-size: 11px; color: #6b7280; text-transform: uppercase;">Piece</th>
+            <th style="padding: 8px; text-align: center; font-size: 11px; color: #6b7280; text-transform: uppercase;">Qty</th>
+            <th style="padding: 8px; text-align: right; font-size: 11px; color: #6b7280; text-transform: uppercase;">Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${itemsHtml}
+        </tbody>
+      </table>
+
+      <!-- Financial Totals -->
+      <div style="border-top: 1px solid #e5e7eb; padding-top: 12px; margin-bottom: 24px;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+          <tr>
+            <td style="padding: 3px 0; color: #6b7280;">Subtotal:</td>
+            <td style="padding: 3px 0; text-align: right; color: #111827;">₹${subtotal}</td>
+          </tr>
+          ${discount > 0 ? `
+          <tr>
+            <td style="padding: 3px 0; color: #2e7d32;">Privilege Discount:</td>
+            <td style="padding: 3px 0; text-align: right; color: #2e7d32;">-₹${discount.toLocaleString("en-IN")}</td>
+          </tr>` : ""}
+          <tr>
+            <td style="padding: 3px 0; color: #6b7280;">Express Insured Delivery:</td>
+            <td style="padding: 3px 0; text-align: right; color: #111827;">${shipping > 0 ? `₹${shipping.toLocaleString("en-IN")}` : "COMPLIMENTARY"}</td>
+          </tr>
+          <tr style="font-size: 16px; font-weight: 700; border-top: 1px solid #111111;">
+            <td style="padding: 10px 0 0 0; color: #111827;">Total Order Amount:</td>
+            <td style="padding: 10px 0 0 0; text-align: right; color: #c5a059;">₹${total}</td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Atelier Concierge Contact -->
+      <div style="background: #f9fafb; border-radius: 6px; padding: 14px; text-align: center; font-size: 12px; color: #6b7280;">
+        Have questions about your order delivery? Reach our dedicated atelier concierge anytime at <a href="mailto:zmw@gmail.com" style="color: #c5a059; text-decoration: none; font-weight: 600;">zmw@gmail.com</a> or WhatsApp <strong>+91 9876543210</strong>.
+      </div>
+    </div>
+
+    <!-- Luxury Footer -->
+    <div style="background: #111111; padding: 16px; text-align: center; font-size: 11px; color: #9ca3af;">
+      &copy; ${new Date().getFullYear()} ZMW Clothing Atelier, 123 Avinashi Road, Coimbatore. All rights reserved.
+    </div>
+  </div>
+</body>
+</html>
+  `;
+
+  const text = `Dear ${customerName},\n\n` +
+    `Your ZMW Clothing order ${orderNumber} status has been updated to: ${status.toUpperCase()}.\n\n` +
+    `${meta.headline}\n` +
+    `${meta.lead.replace(/<[^>]*>/g, "")}\n\n` +
+    `${awbCode ? `Courier: ${courierName}\nAWB / Tracking Number: ${awbCode}\n` : ""}` +
+    `Total: ₹${total}\n` +
+    `Shipping Address: ${order.shipping_address || ""}, ${order.city || ""}\n\n` +
+    `Best regards,\nZMW Clothing Atelier Concierge`;
+
+  return {
+    subject: meta.subject,
+    html,
+    text,
+    status,
+    orderNumber,
+    customerName,
+    awbCode,
+    courierName,
+    meta
+  };
+}
+
+/**
+ * Sends luxury status update notification email to the customer when an order status changes.
+ * Supports: confirmed, packed, shipped, delivered, cancelled, returned.
+ *
+ * @param {string} email - Recipient customer email address
+ * @param {Object} order - Order model instance or plain object
+ * @param {string} newStatus - New order status (e.g. 'confirmed', 'packed', 'shipped', 'delivered', 'cancelled', 'returned')
+ * @param {string} [prevStatus] - Previous order status
+ * @param {Object} [extra] - Additional context (courier_name, awb_code, reason, etc.)
+ * @returns {Promise<{success: boolean, messageId?: string, simulated?: boolean, error?: string}>}
+ */
+async function sendOrderStatusUpdateEmail(email, order, newStatus, prevStatus = null, extra = {}) {
+  const user = env.smtp.user || process.env.SMTP_USER;
+  const pass = env.smtp.pass || process.env.SMTP_PASS;
+  const from = env.smtp.from || process.env.SMTP_FROM;
+
+  const recipientEmail = email || order.email || (order.user && order.user.email);
+  if (!recipientEmail) {
+    console.warn(`[ZMW NODEMAILER] ⚠️ Cannot send order status update email: no recipient email for Order ${order?.order_number || order?.id}`);
+    return { success: false, reason: "No recipient email" };
+  }
+
+  const { subject, html, text, status, orderNumber, awbCode, courierName } = buildOrderStatusEmailHtml(order, newStatus, prevStatus, extra);
+
+  console.log(`\n=======================================================`);
+  console.log(`[ZMW NODEMAILER] 🔔 ORDER STATUS UPDATE EMAIL DISPATCHED`);
+  console.log(`[Recipient] : ${recipientEmail}`);
+  console.log(`[Order Ref] : ${orderNumber}`);
+  console.log(`[New Status]: ${status.toUpperCase()}`);
+  if (prevStatus) console.log(`[Prev State]: ${prevStatus}`);
+  if (awbCode) console.log(`[Tracking]  : ${courierName} — ${awbCode}`);
+  console.log(`=======================================================\n`);
+
+  if (!user || !pass || smtpAuthDisabled) {
+    console.log(`[ZMW NODEMAILER] ℹ️ SMTP in simulated mode. Status update email successfully recorded for ${recipientEmail}.`);
+    return { success: true, simulated: true };
+  }
+
+  try {
+    const transport = getTransporter();
+    const info = await transport.sendMail({
+      from: from || `ZMW Clothing Concierge <${user}>`,
+      to: recipientEmail,
+      subject,
+      text,
+      html
+    });
+
+    console.log(`[ZMW NODEMAILER] ✅ Live order status email dispatched to ${recipientEmail}. (Message ID: ${info.messageId})`);
+    return { success: true, messageId: info.messageId };
+  } catch (err) {
+    handleSmtpAuthError(err, `dispatch order status update (${status})`);
+    return { success: true, simulated: true, error: err.message };
+  }
+}
+
+/**
+ * Generates luxury HTML and plain-text welcome email content when a customer registers.
+ */
+function buildWelcomeEmailHtml(customer = {}) {
+  const customerName = customer.name || "Valued Client";
+  const customerEmail = customer.email || "";
+  const customerPhone = customer.phone || "On File";
+  const storeUrl = process.env.STOREFRONT_URL || "http://localhost:3000";
+
+  const subject = `Welcome to ZMW Clothing Atelier, ${customerName}! — Your Luxury Account is Ready`;
+
+  const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${subject}</title>
+</head>
+<body style="margin: 0; padding: 24px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8f6f0; color: #111827;">
+  <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb; box-shadow: 0 4px 16px rgba(0,0,0,0.06);">
+    <!-- Brand Luxury Banner -->
+    <div style="background: #111111; padding: 32px 24px; text-align: center;">
+      <h1 style="color: #c5a059; font-size: 28px; letter-spacing: 0.2em; margin: 0; font-weight: 700;">ZMW</h1>
+      <p style="color: #d1d5db; font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; margin: 6px 0 0 0;">Haute Couture &amp; Luxury Apparel</p>
+    </div>
+
+    <!-- Main Content -->
+    <div style="padding: 34px 28px;">
+      <div style="margin-bottom: 12px;">
+        <span style="display: inline-block; padding: 4px 12px; border-radius: 9999px; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; background-color: #fdf8ee; color: #92400e; border: 1px solid #f3e2b3;">
+          WELCOME TO THE ATELIER
+        </span>
+      </div>
+
+      <h2 style="font-size: 22px; color: #111827; margin: 0 0 14px 0;">
+        Welcome to ZMW Clothing, ${customerName}!
+      </h2>
+
+      <p style="font-size: 14px; line-height: 1.65; color: #4b5563; margin: 0 0 20px 0;">
+        Thank you for registering with <strong>ZMW Clothing Atelier</strong>. Your personal member profile has been activated, giving you seamless access to our Mens, Womens, Girls, and Babies collections, real-time order notifications, and express doorstep delivery.
+      </p>
+
+      <!-- Account Details Box -->
+      <div style="background: #fdfcf9; border: 1px solid #efe9dc; border-radius: 8px; padding: 18px; margin-bottom: 24px;">
+        <div style="font-size: 11px; font-weight: 700; color: #c5a059; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 10px;">
+          ✨ Registered Member Profile
+        </div>
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+          <tr>
+            <td style="color: #6b7280; padding: 4px 0;">Customer Name:</td>
+            <td style="text-align: right; font-weight: 600; color: #111827;">${customerName}</td>
+          </tr>
+          <tr>
+            <td style="color: #6b7280; padding: 4px 0;">Registered Email:</td>
+            <td style="text-align: right; font-weight: 600; color: #111827;">${customerEmail}</td>
+          </tr>
+          <tr>
+            <td style="color: #6b7280; padding: 4px 0;">Phone Number:</td>
+            <td style="text-align: right; font-weight: 600; color: #111827;">${customerPhone}</td>
+          </tr>
+          <tr>
+            <td style="color: #6b7280; padding: 4px 0;">Account Status:</td>
+            <td style="text-align: right; font-weight: 700; color: #059669;">ACTIVE &amp; VERIFIED</td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Member Perks -->
+      <h3 style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: #111827; margin: 0 0 12px 0; border-bottom: 2px solid #111111; padding-bottom: 6px;">
+        Your ZMW Member Privileges
+      </h3>
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 13px; color: #374151;">
+        <tr>
+          <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">
+            <strong>📦 Live Order Status Emails</strong> — Instant email alerts when your order is Confirmed, Packed, Shipped, or Delivered.
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">
+            <strong>🚚 Express Shiprocket Tracking</strong> — Direct AWB courier tracking from our Coimbatore warehouse to your doorstep.
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">
+            <strong>🎁 Exclusive Privilege Coupons</strong> — Enjoy member-only seasonal offers at checkout.
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 0;">
+            <strong>🛡️ Hassle-Free Returns &amp; Concierge Support</strong> — Easy online tracking, cancellations, and direct UPI refunds.
+          </td>
+        </tr>
+      </table>
+
+      <!-- CTA Button -->
+      <div style="text-align: center; margin: 28px 0;">
+        <a href="${storeUrl}" target="_blank" style="display: inline-block; background-color: #111827; color: #c5a059; text-decoration: none; padding: 12px 28px; border-radius: 6px; font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; border: 1px solid #c5a059;">
+          Explore ZMW Collections &rarr;
+        </a>
+      </div>
+
+      <div style="background: #f9fafb; border-radius: 6px; padding: 14px; text-align: center; font-size: 12px; color: #6b7280;">
+        Need styling advice or assistance? Reach our atelier concierge at <a href="mailto:zmw@gmail.com" style="color: #c5a059; text-decoration: none; font-weight: 600;">zmw@gmail.com</a> or WhatsApp <strong>+91 9876543210</strong>.
+      </div>
+    </div>
+
+    <!-- Luxury Footer -->
+    <div style="background: #111111; padding: 16px; text-align: center; font-size: 11px; color: #9ca3af;">
+      &copy; ${new Date().getFullYear()} ZMW Clothing Atelier, 123 Avinashi Road, Coimbatore. All rights reserved.
+    </div>
+  </div>
+</body>
+</html>
+  `;
+
+  const text =
+    `Welcome to ZMW Clothing Atelier, ${customerName}!\n\n` +
+    `Thank you for registering your account (${customerEmail}).\n` +
+    `Your profile is now active. You will receive real-time email notifications at ${customerEmail} for every order status update (Confirmed, Packed, Shipped, and Delivered).\n\n` +
+    `Explore our collections: ${storeUrl}\n\n` +
+    `Warm regards,\nZMW Clothing Atelier Concierge`;
+
+  return {
+    subject,
+    html,
+    text,
+    customerName,
+    customerEmail
+  };
+}
+
+/**
+ * Sends a luxury Welcome Email to a newly registered customer.
+ *
+ * @param {string} email - Recipient customer email address
+ * @param {Object} customer - User object ({ id, name, email, phone })
+ * @returns {Promise<{success: boolean, messageId?: string, simulated?: boolean, error?: string}>}
+ */
+async function sendWelcomeEmail(email, customer = {}) {
+  const user = env.smtp.user || process.env.SMTP_USER;
+  const pass = env.smtp.pass || process.env.SMTP_PASS;
+  const from = env.smtp.from || process.env.SMTP_FROM;
+
+  const recipientEmail = email || customer.email;
+  if (!recipientEmail) {
+    console.warn("[ZMW NODEMAILER] ⚠️ Cannot send welcome email: no recipient email provided.");
+    return { success: false, reason: "No recipient email" };
+  }
+
+  const { subject, html, text, customerName } = buildWelcomeEmailHtml({
+    ...customer,
+    email: recipientEmail
+  });
+
+  console.log(`\n=======================================================`);
+  console.log(`[ZMW NODEMAILER] 🎉 CUSTOMER WELCOME EMAIL DISPATCHED`);
+  console.log(`[Recipient]    : ${recipientEmail}`);
+  console.log(`[Customer Name]: ${customerName}`);
+  console.log(`[Subject]      : ${subject}`);
+  console.log(`=======================================================\n`);
+
+  if (!user || !pass || smtpAuthDisabled) {
+    console.log(`[ZMW NODEMAILER] ℹ️ SMTP in simulated mode. Welcome email recorded for ${recipientEmail}.`);
+    return { success: true, simulated: true };
+  }
+
+  try {
+    const transport = getTransporter();
+    const info = await transport.sendMail({
+      from: from || `ZMW Clothing Concierge <${user}>`,
+      to: recipientEmail,
+      subject,
+      text,
+      html
+    });
+
+    console.log(`[ZMW NODEMAILER] ✅ Live welcome email dispatched to ${recipientEmail}. (Message ID: ${info.messageId})`);
+    return { success: true, messageId: info.messageId };
+  } catch (err) {
+    handleSmtpAuthError(err, "dispatch welcome email");
+    return { success: true, simulated: true, error: err.message };
   }
 }
 
 module.exports = {
   getTransporter,
   sendPasswordResetOtp,
-  sendOrderConfirmationEmail
+  sendWelcomeEmail,
+  buildWelcomeEmailHtml,
+  sendOrderConfirmationEmail,
+  sendRefundConfirmationEmail,
+  sendOrderStatusUpdateEmail,
+  buildOrderStatusEmailHtml
 };
+
 

@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useShop } from "../context/ShopContext";
-import { KIDS_SUBCATEGORIES } from "../data/products";
+
 import { CURRENCY_SYMBOL, formatINRNumber } from "../utils/formatPrice";
 import ProductCard from "../components/ProductCard/ProductCard";
 import RecentlyViewed from "../components/RecentlyViewed/RecentlyViewed";
@@ -38,9 +38,18 @@ export default function Kids() {
     [KIDS_PRODUCTS]
   );
 
+  // Dynamic Subcategories derived from real products
+  const dynamicSubCategories = useMemo(() => {
+    const set = new Set();
+    KIDS_PRODUCTS.forEach((p) => {
+      if (p.subCategory) set.add(p.subCategory);
+    });
+    return Array.from(set);
+  }, [KIDS_PRODUCTS]);
+
   // Filter States
   const [activeSubCategory, setActiveSubCategory] = useState(
-    categoryFromUrl && KIDS_SUBCATEGORIES.includes(categoryFromUrl) ? categoryFromUrl : "All"
+    categoryFromUrl || "All"
   );
   const [selectedColors, setSelectedColors] = useState([]);
   const [selectedSizes, setSelectedSizes] = useState([]);
@@ -72,7 +81,7 @@ export default function Kids() {
 
   // Sync active subcategory when URL param changes
   useEffect(() => {
-    if (categoryFromUrl && KIDS_SUBCATEGORIES.includes(categoryFromUrl)) {
+    if (categoryFromUrl) {
       setActiveSubCategory(categoryFromUrl);
     }
   }, [categoryFromUrl]);
@@ -102,6 +111,11 @@ export default function Kids() {
         if (!map.has(c.name)) map.set(c.name, { ...c, count: 0 });
         map.get(c.name).count += 1;
       });
+      (p.variants || []).forEach((v) => {
+        if (v.color && !map.has(v.color)) {
+          map.set(v.color, { name: v.color, hex: v.colorHex || "#181715", count: 1 });
+        }
+      });
     });
     return Array.from(map.values()).sort((a, b) => b.count - a.count);
   }, [KIDS_PRODUCTS]);
@@ -109,9 +123,12 @@ export default function Kids() {
   // Extract all available sizes
   const sizeOptions = useMemo(() => {
     const set = new Set();
-    KIDS_PRODUCTS.forEach((p) => (p.sizes || []).forEach((s) => set.add(s)));
+    KIDS_PRODUCTS.forEach((p) => {
+      (p.sizes || []).forEach((s) => set.add(s));
+      (p.variants || []).forEach((v) => { if (v.size) set.add(v.size); });
+    });
     return Array.from(set).sort((a, b) => {
-      const order = ["XS", "S", "M", "L", "XL", "XXL", "3XL"];
+      const order = ["0-3M", "3-6M", "6-9M", "9-12M", "12-18M", "18-24M", "0-1Y", "1-2Y", "2-3Y", "3-4Y", "4-5Y", "5-6Y", "6-7Y", "7-8Y", "8-9Y", "9-10Y", "10-11Y", "11-12Y", "XS", "S", "M", "L", "XL"];
       const iA = order.indexOf(a);
       const iB = order.indexOf(b);
       if (iA !== -1 && iB !== -1) return iA - iB;
@@ -171,10 +188,10 @@ export default function Kids() {
       if (activeSubCategory !== "All" && p.subCategory !== activeSubCategory) return false;
       if (
         selectedColors.length > 0 &&
-        !p.colors.some((c) => selectedColors.includes(c.name))
+        !p.colors?.some((c) => selectedColors.includes(c.name)) && !p.variants?.some((v) => v.color && selectedColors.includes(v.color))
       )
         return false;
-      if (selectedSizes.length > 0 && !p.sizes.some((s) => selectedSizes.includes(s)))
+      if (selectedSizes.length > 0 && !p.sizes?.some((s) => selectedSizes.includes(s)) && !p.variants?.some((v) => v.size && selectedSizes.includes(v.size)))
         return false;
       if (availability === "inStock" && !p.inStock) return false;
       if (availability === "outOfStock" && p.inStock) return false;
@@ -249,7 +266,7 @@ export default function Kids() {
         {openFilters.category && (
           <div className="filter-accordion-content">
             <ul className="filter-category-list">
-              {["All", ...KIDS_SUBCATEGORIES].map((cat) => {
+              {["All", ...dynamicSubCategories].map((cat) => {
                 const count = cat === "All"
                   ? KIDS_PRODUCTS.length
                   : KIDS_PRODUCTS.filter((p) => p.subCategory === cat).length;
@@ -811,8 +828,8 @@ export default function Kids() {
                       <line x1="8" y1="11" x2="14" y2="11"></line>
                     </svg>
                   </div>
-                  <h3>No matching styles found</h3>
-                  <p>Try clearing some filters or selecting a different category to see more designs.</p>
+                  <h3>{KIDS_PRODUCTS.length === 0 ? "No Products Found" : "No matching styles found"}</h3>
+                  <p>{KIDS_PRODUCTS.length === 0 ? "No products have been added to this category yet." : "Try clearing some filters or selecting a different category to see more designs."}</p>
                   <button type="button" className="btn btn-secondary btn-sm" onClick={clearFilters}>
                     Clear all filters
                   </button>

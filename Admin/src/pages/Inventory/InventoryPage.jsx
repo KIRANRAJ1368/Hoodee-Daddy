@@ -24,7 +24,11 @@ import { productsApi, categoriesApi } from "../../services/resources";
 import { useToast } from "../../context/ToastContext";
 import { resolveImageUrl } from "../../utils/imageUrl";
 import LoadingState from "../../components/LoadingState/LoadingState";
+import Pagination from "../../components/Pagination/Pagination";
+import { sortNewestFirst } from "../../utils/sortNewestFirst";
 import "./InventoryPage.css";
+
+const PRODUCTS_PER_PAGE = 10;
 
 export default function InventoryPage() {
   const [searchParams] = useSearchParams();
@@ -34,6 +38,7 @@ export default function InventoryPage() {
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all"); // 'all' | 'in_stock' | 'low_stock' | 'out_of_stock'
   const [savingProductId, setSavingProductId] = useState(null);
@@ -135,11 +140,37 @@ export default function InventoryPage() {
     });
   }, [products, searchQuery, selectedCategory, selectedStatus]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedCategory, selectedStatus]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE));
+  const paginatedProducts = useMemo(
+    () => filteredProducts.slice((currentPage - 1) * PRODUCTS_PER_PAGE, currentPage * PRODUCTS_PER_PAGE),
+    [filteredProducts, currentPage]
+  );
+
+  useEffect(() => {
+    if (currentPage > totalPages) setCurrentPage(totalPages);
+  }, [currentPage, totalPages]);
+
+  useEffect(() => {
+    if (!highlightProductId) return;
+    const index = filteredProducts.findIndex((product) => String(product.id) === String(highlightProductId));
+    if (index >= 0) setCurrentPage(Math.floor(index / PRODUCTS_PER_PAGE) + 1);
+  }, [highlightProductId, filteredProducts]);
+
   // Quick variant stock adjuster
-  async function handleQuickStockChange(product, variantIdx, nextStock) {
+  async function handleQuickStockChange(product, variantIdx, nextStock, nextSales = null, shouldPersist = true) {
     const validStock = Math.max(0, parseInt(nextStock, 10) || 0);
     const updatedVariants = product.variants.map((v, i) =>
-      i === variantIdx ? { ...v, stock_count: validStock, stockCount: validStock } : v
+      i === variantIdx ? {
+        ...v,
+        stock_count: validStock,
+        stockCount: validStock,
+        sales_count: nextSales === null ? Number(v.salesCount ?? v.sales_count ?? 0) : Math.max(0, parseInt(nextSales, 10) || 0),
+        salesCount: nextSales === null ? Number(v.salesCount ?? v.sales_count ?? 0) : Math.max(0, parseInt(nextSales, 10) || 0)
+      } : v
     );
 
     // Optimistically update UI
@@ -151,10 +182,13 @@ export default function InventoryPage() {
           ...p,
           variants: updatedVariants,
           stockCount: totalStock,
+          salesCount: updatedVariants.reduce((sum, v) => sum + Number(v.salesCount ?? v.sales_count ?? 0), 0),
           inStock: totalStock > 0
         };
       })
     );
+
+    if (!shouldPersist) return;
 
     try {
       await productsApi.saveVariants(
@@ -163,8 +197,11 @@ export default function InventoryPage() {
           size: v.size,
           color: v.color,
           stock_count: v.stockCount,
+          sales_count: v.salesCount ?? v.sales_count ?? 0,
           sku_suffix: v.skuSuffix,
-          price_override: v.priceOverride
+          price_override: v.priceOverride,
+          original_price_override: v.originalPriceOverride ?? v.original_price_override,
+          created_at: v.createdAt || v.created_at || undefined
         }))
       );
     } catch (err) {
@@ -174,17 +211,21 @@ export default function InventoryPage() {
   }
 
   // Quick single product stock adjuster (for products without variants)
-  async function handleSingleProductStock(product, nextStock) {
+  async function handleSingleProductStock(product, nextStock, nextSales = product.salesCount ?? 0, shouldPersist = true) {
     const validStock = Math.max(0, parseInt(nextStock, 10) || 0);
+    const validSales = Math.max(0, parseInt(nextSales, 10) || 0);
     setProducts((prev) =>
       prev.map((p) =>
-        p.id === product.id ? { ...p, stockCount: validStock, inStock: validStock > 0 } : p
+        p.id === product.id ? { ...p, stockCount: validStock, salesCount: validSales, inStock: validStock > 0 } : p
       )
     );
+
+    if (!shouldPersist) return;
 
     try {
       await productsApi.updateStock(product.id, {
         stock_count: validStock,
+        sales_count: validSales,
         in_stock: validStock > 0
       });
     } catch (err) {
@@ -357,7 +398,7 @@ export default function InventoryPage() {
       {/* Products & Variants List */}
       <div className="inventory-products-list">
         {filteredProducts.length > 0 ? (
-          filteredProducts.map((product) => {
+          paginatedProducts.map((product) => {
             const hasVariants = product.variants && product.variants.length > 0;
             const isHighlighted = String(product.id) === String(highlightProductId);
 
@@ -446,12 +487,13 @@ export default function InventoryPage() {
                           <th>Size</th>
                           <th>Color Swatch</th>
                           <th>Stock Units</th>
+                          <th>Sales Units</th>
                           <th>Live Availability Status</th>
                           <th>Quick Adjust</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {product.variants.map((v, vIdx) => {
+                        {sortNewestFirst(product.variants.map((variant, originalIndex) => ({ ...variant, originalIndex }))).map(({ originalIndex, ...v }, vIdx) => {
                           const stock = Number(v.stockCount ?? v.stock_count ?? 0);
                           const colorObj = product.colors?.find(
                             (c) => c.name?.toLowerCase() === v.color?.toLowerCase()
@@ -485,9 +527,27 @@ export default function InventoryPage() {
                                   min="0"
                                   value={stock}
                                   onChange={(e) =>
-                                    handleQuickStockChange(product, vIdx, e.target.value)
+                                    handleQuickStockChange(product, originalIndex, e.target.value, null, false)
                                   }
+                                  onBlur={(e) => handleQuickStockChange(product, originalIndex, e.target.value)}
                                   className="stock-cell-input"
+                                />
+                              </td>
+                              <td>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  value={Number(v.salesCount ?? v.sales_count ?? 0)}
+                                  onChange={(e) => handleQuickStockChange(
+                                    product,
+                                    originalIndex,
+                                    stock,
+                                    e.target.value,
+                                    false
+                                  )}
+                                  onBlur={(e) => handleQuickStockChange(product, originalIndex, stock, e.target.value)}
+                                  className="stock-cell-input"
+                                  aria-label={`Sales units for ${product.name} ${v.color || ""} ${v.size || ""}`}
                                 />
                               </td>
                               <td>
@@ -501,7 +561,7 @@ export default function InventoryPage() {
                                   <button
                                     type="button"
                                     onClick={() =>
-                                      handleQuickStockChange(product, vIdx, Math.max(0, stock - 1))
+                                      handleQuickStockChange(product, originalIndex, Math.max(0, stock - 1))
                                     }
                                     title="Decrease by 1"
                                     disabled={stock <= 0}
@@ -511,7 +571,7 @@ export default function InventoryPage() {
                                   <button
                                     type="button"
                                     onClick={() =>
-                                      handleQuickStockChange(product, vIdx, stock + 1)
+                                      handleQuickStockChange(product, originalIndex, stock + 1)
                                     }
                                     title="Increase by 1"
                                   >
@@ -520,7 +580,7 @@ export default function InventoryPage() {
                                   <button
                                     type="button"
                                     onClick={() =>
-                                      handleQuickStockChange(product, vIdx, stock + 10)
+                                      handleQuickStockChange(product, originalIndex, stock + 10)
                                     }
                                     title="Add 10 units"
                                   >
@@ -530,7 +590,7 @@ export default function InventoryPage() {
                                     type="button"
                                     className="btn-set-zero"
                                     onClick={() =>
-                                      handleQuickStockChange(product, vIdx, 0)
+                                      handleQuickStockChange(product, originalIndex, 0)
                                     }
                                     title="Mark Sold Out"
                                   >
@@ -547,17 +607,28 @@ export default function InventoryPage() {
                 ) : (
                   <div className="single-stock-strip">
                     <div className="single-stock-info">
-                      <span className="single-stock-label">
-                        Single SKU Inventory (No variants configured yet):
-                      </span>
+                      <span className="single-stock-label">Single SKU Inventory (no variants configured):</span>
                       <div className="single-stock-input-wrap">
+                        <label>Available stock
                         <input
                           type="number"
                           min="0"
                           value={product.stockCount || 0}
-                          onChange={(e) => handleSingleProductStock(product, e.target.value)}
+                          onChange={(e) => handleSingleProductStock(product, e.target.value, product.salesCount || 0, false)}
+                          onBlur={(e) => handleSingleProductStock(product, e.target.value)}
                           className="stock-cell-input"
                         />
+                        </label>
+                        <label>Sales stock
+                          <input
+                            type="number"
+                            min="0"
+                            value={product.salesCount || 0}
+                            onChange={(e) => handleSingleProductStock(product, product.stockCount || 0, e.target.value, false)}
+                            onBlur={(e) => handleSingleProductStock(product, product.stockCount || 0, e.target.value)}
+                            className="stock-cell-input"
+                          />
+                        </label>
                         <button
                           type="button"
                           className="btn btn-xs btn-secondary"
@@ -601,6 +672,16 @@ export default function InventoryPage() {
         )}
       </div>
 
+      <Pagination
+        page={currentPage}
+        totalPages={totalPages}
+        total={filteredProducts.length}
+        onChange={(nextPage) => {
+          setCurrentPage(nextPage);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
+      />
+
       {/* Modal: Full Variants & Stock Matrix Manager */}
       {editingProductModal && (
         <VariantsMatrixModal
@@ -618,11 +699,14 @@ export default function InventoryPage() {
 function VariantsMatrixModal({ product, isSaving, onClose, onSave }) {
   const initialVariants = (product.variants || []).map((v) => ({
     id: v.id,
+    created_at: v.createdAt || v.created_at || undefined,
     size: v.size || "",
     color: v.color || "",
     stock_count: v.stockCount ?? v.stock_count ?? 10,
+    sales_count: v.salesCount ?? v.sales_count ?? 0,
     sku_suffix: v.skuSuffix ?? v.sku_suffix ?? "",
-    price_override: v.priceOverride ?? v.price_override ?? ""
+    price_override: v.priceOverride ?? v.price_override ?? "",
+    original_price_override: v.originalPriceOverride ?? v.original_price_override ?? ""
   }));
 
   const [variants, setVariants] = useState(initialVariants);
@@ -644,20 +728,22 @@ function VariantsMatrixModal({ product, isSaving, onClose, onSave }) {
     const existingMap = new Map();
     variants.forEach((v) => {
       const key = `${(v.size || "").toLowerCase()}__${(v.color || "").toLowerCase()}`;
-      existingMap.set(key, v.stock_count);
+      existingMap.set(key, v);
     });
 
     const generated = [];
     validSizes.forEach((s) => {
       validColors.forEach((c) => {
         const key = `${s.toLowerCase()}__${c.toLowerCase()}`;
-        const stock = existingMap.has(key) ? existingMap.get(key) : 10;
+        const existing = existingMap.get(key);
         generated.push({
+          ...(existing || {}),
           size: s,
           color: c,
-          stock_count: stock,
-          sku_suffix: "",
-          price_override: ""
+          stock_count: existing ? existing.stock_count : 10,
+          sales_count: existing ? existing.sales_count : 0,
+          sku_suffix: existing?.sku_suffix || "",
+          price_override: existing?.price_override ?? ""
         });
       });
     });
@@ -672,6 +758,7 @@ function VariantsMatrixModal({ product, isSaving, onClose, onSave }) {
         size: sizes[0] || "M",
         color: colors[0]?.name || "Standard",
         stock_count: 10,
+        sales_count: 0,
         sku_suffix: "",
         price_override: ""
       }

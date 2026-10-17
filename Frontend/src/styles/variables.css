@@ -2,6 +2,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
+  /* Skeleton Shimmer Tokens */
+  --sk: #e8e6f4;
+  --sh: rgba(255, 255, 255, 0.75);
+
   /* Section-by-Section Distinct Backgrounds */
   --bg-hero:           #0B0F19;   /* High-impact sleek obsidian dark */
   --bg-trust:          #FFFFFF;
@@ -43,8 +47,8 @@
   /* CrazyMonk High-Energy Badges & Signals */
   --color-badge-hot:       #9A84C8; /* CrazyMonk Purple */
   --color-badge-new:       #10B981; /* CrazyMonk Mint Green */
-  --color-badge-sale:      #DA3F3F; /* CrazyMonk Crimson Red */
-  --color-badge-sale-soft: #FDE8E8;
+  --color-badge-sale:      #059669; /* Standard E-Commerce Emerald Green */
+  --color-badge-sale-soft: #ECFDF5;
   --color-badge-exclusive: #0284C7; /* Electric Cyan */
 
   /* Backwards-compatibility aliases */

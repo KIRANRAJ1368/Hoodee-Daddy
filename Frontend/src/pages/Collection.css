@@ -174,12 +174,8 @@
   line-height: 1.04;
   letter-spacing: -0.02em;
   text-transform: uppercase;
-  background: linear-gradient(135deg, #FFFFFF 15%, #FFD166 60%, #FAA703 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-  text-shadow: none;
+  color: #FFFFFF;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.45);
 }
 
 .coll-hero-offer-tag {
@@ -206,13 +202,13 @@
 
 .coll-hero-campaign-headline {
   font-family: var(--font-display, "Outfit", sans-serif);
-  font-size: clamp(1.25rem, 2vw, 1.7rem);
+  font-size: clamp(1.25rem, 2.1vw, 1.75rem);
   font-weight: 800;
-  color: #FFFFFF;
+  color: #FAA703;
   text-transform: uppercase;
   letter-spacing: 0.02em;
-  margin: 0 0 6px 0;
-  line-height: 1.25;
+  margin: 0 0 8px 0;
+  line-height: 1.2;
 }
 
 .coll-hero-subtitle {
@@ -334,6 +330,8 @@
   letter-spacing: 0.05em;
   text-transform: uppercase;
   text-decoration: none;
+  border: none;
+  cursor: pointer;
   background: #FAA703;
   color: #111827 !important;
   box-shadow: 0 4px 18px rgba(250, 167, 3, 0.45);
@@ -1139,15 +1137,15 @@
 }
 
 .coll-grid-cols-4 {
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .coll-grid-cols-3 {
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .coll-grid-cols-2 {
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 /* Stagger entrance */
@@ -1723,3 +1721,85 @@
     justify-content: center;
   }
 }
+
+/* ── Product Card Skeleton Shimmer ── */
+/* ── Product Card Skeleton Shimmer (Universal .sk System) ── */
+.coll-product-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  padding: 10px;
+  border: 1px solid #f1f5f9;
+}
+
+.coll-skeleton-img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: 8px;
+}
+
+.coll-skeleton-title {
+  width: 75%;
+  height: 14px;
+}
+
+.coll-skeleton-price {
+  width: 40%;
+  height: 12px;
+}
+
+/* ── Subcategory Quick Filter Pills ── */
+.coll-subcat-pills-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 10px 0 16px;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+
+.coll-subcat-pills-bar::-webkit-scrollbar {
+  height: 4px;
+}
+
+.coll-subcat-pills-bar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.coll-subcat-pill {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 16px;
+  border-radius: 9999px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #334155;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 150ms ease;
+  flex-shrink: 0;
+}
+
+.coll-subcat-pill:hover {
+  border-color: #0f172a;
+  color: #0f172a;
+  background: #f8fafc;
+  text-decoration: none;
+}
+
+.coll-subcat-pill.active {
+  background: #0f172a;
+  border-color: #0f172a;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.16);
+}
+
+

@@ -20,9 +20,10 @@ import { useConfirm } from "../../components/ConfirmDialog/ConfirmDialog";
 import { resolveImageUrl } from "../../utils/imageUrl";
 import LoadingState from "../../components/LoadingState/LoadingState";
 import Pagination from "../../components/Pagination/Pagination";
+import { sortNewestFirst } from "../../utils/sortNewestFirst";
 import "./VariantManagementPage.css";
 
-const PRODUCTS_PER_PAGE = 20;
+const PRODUCTS_PER_PAGE = 10;
 
 const SIZE_PRESETS = ["Free Size", "XS", "S", "M", "L", "XL", "XXL", "3XL"];
 
@@ -165,14 +166,14 @@ export default function VariantManagementPage() {
       variantId: variant.id,
       variantIdx,
       size: variant.size || "Free Size",
-      color: variant.color || "Standard",
+      color: variant.color || "",
       colorHex: variant.colorHex || "#181715",
       sku: variant.skuSuffix || variant.sku_suffix || "",
       price: variant.priceOverride ?? product.price,
-      originalPrice: product.originalPrice ?? "",
+      originalPrice: variant.originalPriceOverride ?? product.originalPrice ?? "",
       stockCount: Number(variant.stockCount ?? variant.stock_count ?? 0),
-      lowStockThreshold: variant.lowStockThreshold ?? 10,
-      gstRate: variant.gstRate || "5",
+      lowStockThreshold: Number(variant.lowStockThreshold ?? variant.low_stock_threshold ?? 10),
+      gstRate: String(variant.gstRate ?? variant.gst_rate ?? "5"),
       imageUrl: variant.imageUrl || variant.image_url || "",
       galleryImages: variant.galleryImages || variant.gallery_images || [],
     });
@@ -190,19 +191,22 @@ export default function VariantManagementPage() {
     const updatedVariants = (product.variants || [])
       .filter((_, idx) => idx !== variantIdx)
       .map((v) => ({
+        created_at: v.createdAt || v.created_at || undefined,
         size: v.size,
         color: v.color,
         colorHex: v.colorHex,
         sku_suffix: v.skuSuffix || v.sku_suffix || null,
         stock_count: Number(v.stockCount ?? v.stock_count ?? 0),
+        sales_count: Number(v.salesCount ?? v.sales_count ?? 0),
         price_override: v.priceOverride ?? v.price_override ?? null,
+        original_price_override: v.originalPriceOverride ?? v.original_price_override ?? null,
         image_url: v.imageUrl || v.image_url || null,
         gallery_images: v.galleryImages || v.gallery_images || [],
       }));
 
     try {
       await productsApi.saveVariants(product.id, updatedVariants);
-      toast.success("Variant deleted successfully");
+      toast.delete(`Variant "${variant.color || "Standard"} / ${variant.size || "Free Size"}" has been deleted successfully.`);
       loadData();
     } catch (err) {
       toast.error(err.message || "Failed to delete variant");
@@ -220,12 +224,15 @@ export default function VariantManagementPage() {
 
     const currentVariants = (targetProduct.variants || []).map((v) => ({
       id: v.id,
+      created_at: v.createdAt || v.created_at || undefined,
       size: v.size || "Free Size",
       color: v.color || "Standard",
       colorHex: v.colorHex,
       sku_suffix: v.skuSuffix || v.sku_suffix || null,
       stock_count: Number(v.stockCount ?? v.stock_count ?? 0),
+      sales_count: Number(v.salesCount ?? v.sales_count ?? 0),
       price_override: v.priceOverride ?? v.price_override ?? null,
+      original_price_override: v.originalPriceOverride ?? v.original_price_override ?? null,
       image_url: v.imageUrl || v.image_url || null,
       gallery_images: v.galleryImages || v.gallery_images || [],
     }));
@@ -241,6 +248,7 @@ export default function VariantManagementPage() {
             sku_suffix: formData.sku || null,
             stock_count: Number(formData.stockCount || 0),
             price_override: formData.price ? parseFloat(formData.price) : null,
+            original_price_override: formData.originalPrice ? parseFloat(formData.originalPrice) : null,
             image_url: formData.imageUrl || null,
             gallery_images: formData.galleryImages || [],
           };
@@ -251,7 +259,7 @@ export default function VariantManagementPage() {
       try {
         await productsApi.saveVariants(targetProduct.id, updatedVariants);
         toast.success(
-          `Variant "${formData.color} / ${formData.size}" updated successfully`
+          `Variant "${formData.color} / ${formData.size}" updated successfully!`
         );
         setIsModalOpen(false);
         loadData();
@@ -259,38 +267,35 @@ export default function VariantManagementPage() {
         toast.error(err.message || "Failed to update variant");
       }
     } else {
-      const isDuplicate = currentVariants.some(
-        (v) =>
-          v.size?.toLowerCase() === formData.size?.toLowerCase() &&
-          v.color?.toLowerCase() === formData.color?.toLowerCase()
-      );
-
-      if (isDuplicate) {
-        toast.error(
-          `Variant "${formData.color} / ${formData.size}" already exists for this product.`
-        );
+      const variantsToAdd = formData.variants?.length ? formData.variants : [formData];
+      const duplicates = variantsToAdd.filter((candidate) => currentVariants.some(
+        (variant) => variant.size?.toLowerCase() === candidate.size?.toLowerCase() &&
+          variant.color?.toLowerCase() === formData.color?.toLowerCase()
+      ));
+      if (duplicates.length) {
+        toast.error(`Already exists for ${formData.color}: ${duplicates.map((variant) => variant.size).join(", ")}.`);
         return;
       }
 
       const newVariants = [
         ...currentVariants,
-        {
-          size: formData.size,
+        ...variantsToAdd.map((variant) => ({
+          size: variant.size,
           color: formData.color,
           colorHex: formData.colorHex,
-          sku_suffix: formData.sku || null,
-          stock_count: Number(formData.stockCount || 0),
-          price_override: formData.price ? parseFloat(formData.price) : null,
-          image_url: formData.imageUrl || null,
-          gallery_images: formData.galleryImages || [],
-        },
+          sku_suffix: variant.sku || formData.sku || null,
+          stock_count: Number(variant.stockCount ?? formData.stockCount ?? 0),
+          sales_count: Number(variant.salesCount ?? variant.sales_count ?? 0),
+          price_override: variant.price ?? formData.price ?? null,
+          original_price_override: variant.originalPrice ?? formData.originalPrice ?? null,
+          image_url: variant.imageUrl || null,
+          gallery_images: variant.galleryImages || [],
+        })),
       ];
 
       try {
         await productsApi.saveVariants(targetProduct.id, newVariants);
-        toast.success(
-          `Variant "${formData.color} / ${formData.size}" created successfully`
-        );
+        toast.success(`${variantsToAdd.length} ${formData.color} size variant${variantsToAdd.length === 1 ? "" : "s"} added successfully!`);
         setIsModalOpen(false);
         loadData();
       } catch (err) {
@@ -346,7 +351,7 @@ export default function VariantManagementPage() {
             onClick={() => handleOpenAdd()}
           >
             <Plus size={16} />
-            <span>Add Variant</span>
+            <span>Add Color / Size</span>
           </button>
         </div>
       </div>
@@ -371,7 +376,9 @@ export default function VariantManagementPage() {
       <div className="v-cards-list">
         {paginatedProducts.length > 0 ? (
           paginatedProducts.map((prod, idx) => {
-            const variants = prod.variants || [];
+            const sourceVariants = prod.variants || [];
+            const defaultVariantId = sourceVariants[0]?.id;
+            const variants = sortNewestFirst(sourceVariants.map((variant, originalIndex) => ({ ...variant, originalIndex })));
             const expanded = isExpanded(prod.id, idx);
 
             return (
@@ -432,10 +439,10 @@ export default function VariantManagementPage() {
                         e.stopPropagation();
                         handleOpenAdd(prod);
                       }}
-                      title="Add variant to this product"
+                      title="Add a color and size combination to this product"
                     >
                       <Plus size={13} />
-                      <span>Add Variant</span>
+                      <span>Add Color / Size</span>
                     </button>
                     <span className="v-variants-count-badge">
                       {variants.length}{" "}
@@ -465,12 +472,12 @@ export default function VariantManagementPage() {
                           </tr>
                         </thead>
                         <tbody>
-                          {variants.map((v, vIdx) => {
-                            const isDefault = vIdx === 0;
+                          {variants.map(({ originalIndex, ...v }, vIdx) => {
+                            const isDefault = defaultVariantId ? v.id === defaultVariantId : originalIndex === 0;
                             const sellingPrice = Number(
                               v.priceOverride ?? prod.price
                             );
-                            const mrp = Number(prod.originalPrice ?? 0);
+                            const mrp = Number(v.originalPriceOverride ?? prod.originalPrice ?? 0);
                             const discountPct =
                               mrp > sellingPrice
                                 ? Math.round(
@@ -588,7 +595,7 @@ export default function VariantManagementPage() {
                                       type="button"
                                       className="v-btn-action-edit"
                                       onClick={() =>
-                                        handleOpenEdit(prod, v, vIdx)
+                                        handleOpenEdit(prod, v, originalIndex)
                                       }
                                       title="Edit Variant"
                                     >
@@ -599,7 +606,7 @@ export default function VariantManagementPage() {
                                       type="button"
                                       className="v-btn-action-delete"
                                       onClick={() =>
-                                        handleDeleteVariant(prod, v, vIdx)
+                                        handleDeleteVariant(prod, v, originalIndex)
                                       }
                                       title="Delete Variant"
                                     >
@@ -686,15 +693,16 @@ function VariantModal({ editingData, products, onClose, onSave }) {
   );
 
   const [colorName, setColorName] = useState(
-    editingData?.color || "Sunflower Yellow"
+    editingData?.color || ""
   );
   const [colorHex, setColorHex] = useState(
-    editingData?.colorHex || "#EAB308"
+    editingData?.colorHex || "#181715"
   );
-  const [showColorDropdown, setShowColorDropdown] = useState(false);
-  const colorDropdownRef = useRef(null);
 
-  const [size, setSize] = useState(editingData?.size || "Free Size");
+  const [selectedSizes, setSelectedSizes] = useState(editingData?.size ? [editingData.size] : []);
+  const [customSizeInput, setCustomSizeInput] = useState(editingData?.size || "");
+  const [samePriceAndStock, setSamePriceAndStock] = useState(isEdit);
+  const [sizeValues, setSizeValues] = useState({});
   const [sku, setSku] = useState(editingData?.sku || "");
   const [skuTouched, setSkuTouched] = useState(!!editingData?.sku);
   const [price, setPrice] = useState(
@@ -721,14 +729,19 @@ function VariantModal({ editingData, products, onClose, onSave }) {
   );
   const [gstRate, setGstRate] = useState(editingData?.gstRate || "5");
 
-  // Variant Image
-  const [imageUrl, setImageUrl] = useState(editingData?.imageUrl || "");
-  const [galleryImages, setGalleryImages] = useState(
-    editingData?.galleryImages || []
+  // Variant Images: Front View + Back View + Gallery Thumbnails
+  const [frontImage, setFrontImage] = useState(editingData?.imageUrl || "");
+  const [backImage, setBackImage] = useState(
+    (Array.isArray(editingData?.galleryImages) && editingData.galleryImages[0]) || ""
   );
-  const [isUploadingMain, setIsUploadingMain] = useState(false);
+  const [galleryImages, setGalleryImages] = useState(
+    (Array.isArray(editingData?.galleryImages) && editingData.galleryImages.slice(1)) || []
+  );
+  const [isUploadingFront, setIsUploadingFront] = useState(false);
+  const [isUploadingBack, setIsUploadingBack] = useState(false);
   const [isUploadingGallery, setIsUploadingGallery] = useState(false);
-  const mainImgRef = useRef(null);
+  const frontImgRef = useRef(null);
+  const backImgRef = useRef(null);
   const galleryImgRef = useRef(null);
 
   const [errors, setErrors] = useState({});
@@ -736,14 +749,14 @@ function VariantModal({ editingData, products, onClose, onSave }) {
 
   const toast = useToast();
 
-  // Auto-generate SKU when product/color/size changes
+  // Auto-generate a size-specific SKU preview when product/color/size changes
   useEffect(() => {
     if (!skuTouched && selectedProduct) {
       const colorShort = (colorName || "DEF").substring(0, 3).toUpperCase();
-      const sizeShort = (size || "FS").replace(/\s+/g, "").toUpperCase();
+      const sizeShort = (selectedSizes[0] || customSizeInput || "FS").replace(/\s+/g, "").toUpperCase();
       setSku(`${selectedProduct.sku}-${colorShort}-${sizeShort}`);
     }
-  }, [selectedProduct, colorName, size, skuTouched]);
+  }, [selectedProduct, colorName, selectedSizes, customSizeInput, skuTouched]);
 
   // Update price when product changes (add mode only)
   useEffect(() => {
@@ -753,55 +766,112 @@ function VariantModal({ editingData, products, onClose, onSave }) {
     }
   }, [selectedProduct, isEdit]);
 
-  // Close dropdown on outside click
-  useEffect(() => {
-    function handleClickOutside(e) {
-      if (
-        colorDropdownRef.current &&
-        !colorDropdownRef.current.contains(e.target)
-      ) {
-        setShowColorDropdown(false);
-      }
+  function toggleSize(sizeOption) {
+    if (errors.size) setErrors((previous) => ({ ...previous, size: undefined }));
+    if (isEdit) {
+      setSelectedSizes([sizeOption]);
+      setCustomSizeInput(sizeOption);
+      return;
     }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  function handleSelectColorPreset(preset) {
-    setColorName(preset.name);
-    setColorHex(preset.hex);
-    setShowColorDropdown(false);
+    setSelectedSizes((previous) => {
+      const isSelected = previous.includes(sizeOption);
+      let next = isSelected ? previous.filter((item) => item !== sizeOption) : [...previous, sizeOption];
+      if (!isSelected) {
+        if (sizeOption === "Free Size") next = ["Free Size"];
+        else next = next.filter((item) => item !== "Free Size");
+        setSizeValues((values) => ({ ...values, [sizeOption]: values[sizeOption] || { price, originalPrice, stockQty } }));
+      }
+      return next;
+    });
   }
 
-  // Upload main variant image
-  async function handleMainImageUpload(files) {
+  function addCustomSize() {
+    const value = customSizeInput.trim();
+    if (!value) return;
+    if (errors.size) setErrors((previous) => ({ ...previous, size: undefined }));
+    const existing = selectedSizes.some((item) => item.toLowerCase() === value.toLowerCase());
+    if (!existing) {
+      setSelectedSizes((previous) => isEdit ? [value] : [...previous.filter((item) => item !== "Free Size"), value]);
+      setSizeValues((previous) => ({ ...previous, [value]: previous[value] || { price, originalPrice, stockQty } }));
+    }
+    setCustomSizeInput("");
+  }
+
+  function toggleSamePriceAndStock() {
+    if (!samePriceAndStock) {
+      const first = sizeValues[selectedSizes[0]];
+      if (first) {
+        setPrice(first.price);
+        setOriginalPrice(first.originalPrice);
+        setStockQty(first.stockQty);
+      }
+      setSamePriceAndStock(true);
+      return;
+    }
+    setSizeValues((previous) => {
+      const next = { ...previous };
+      selectedSizes.forEach((item) => { next[item] = { price, originalPrice, stockQty }; });
+      return next;
+    });
+    setSamePriceAndStock(false);
+  }
+
+  function updateSizeValue(sizeOption, field, value) {
+    setSizeValues((previous) => ({
+      ...previous,
+      [sizeOption]: { ...(previous[sizeOption] || { price, originalPrice, stockQty }), [field]: value }
+    }));
+  }
+
+  // Upload Front View image
+  async function handleFrontImageUpload(files) {
     if (!files || files.length === 0) return;
-    const imageFiles = Array.from(files).filter((f) =>
-      f.type.startsWith("image/")
-    );
-    if (imageFiles.length === 0) {
+    const file = Array.from(files).find((f) => f.type.startsWith("image/"));
+    if (!file) {
       toast.error("Please select a valid image file (JPG, PNG, or WEBP).");
       return;
     }
-    if (imageFiles[0].size > 10 * 1024 * 1024) {
-      toast.error(`"${imageFiles[0].name}" exceeds 10MB. Please choose an image under 10MB.`);
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error(`"${file.name}" exceeds 10MB. Please choose an image under 10MB.`);
       return;
     }
-    if (!imageUrl && galleryImages.length >= 10) {
-      toast.error("Maximum 10 photos allowed for this variant. Please remove an existing photo first.");
-      return;
-    }
-    setIsUploadingMain(true);
+    setIsUploadingFront(true);
     try {
-      const { data } = await uploadApi.upload("variants", imageFiles.slice(0, 1));
+      const { data } = await uploadApi.upload("variants", [file]);
       const url = data.files?.[0]?.url || "";
-      setImageUrl(url);
-      toast.success("Variant photo uploaded successfully!");
+      setFrontImage(url);
+      toast.success("Variant Front View image uploaded!");
     } catch (err) {
-      toast.error(err.message || "Failed to upload image. Please try again.");
+      toast.error(err.message || "Failed to upload Front View image.");
     } finally {
-      setIsUploadingMain(false);
-      if (mainImgRef.current) mainImgRef.current.value = "";
+      setIsUploadingFront(false);
+      if (frontImgRef.current) frontImgRef.current.value = "";
+    }
+  }
+
+  // Upload Back View image
+  async function handleBackImageUpload(files) {
+    if (!files || files.length === 0) return;
+    const file = Array.from(files).find((f) => f.type.startsWith("image/"));
+    if (!file) {
+      toast.error("Please select a valid image file (JPG, PNG, or WEBP).");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error(`"${file.name}" exceeds 10MB. Please choose an image under 10MB.`);
+      return;
+    }
+    setIsUploadingBack(true);
+    try {
+      const { data } = await uploadApi.upload("variants", [file]);
+      const url = data.files?.[0]?.url || "";
+      setBackImage(url);
+      toast.success("Variant Back View image uploaded!");
+    } catch (err) {
+      toast.error(err.message || "Failed to upload Back View image.");
+    } finally {
+      setIsUploadingBack(false);
+      if (backImgRef.current) backImgRef.current.value = "";
     }
   }
 
@@ -812,13 +882,15 @@ function VariantModal({ editingData, products, onClose, onSave }) {
       f.type.startsWith("image/")
     );
     if (imageFiles.length === 0) return;
-    if (galleryImages.length + (imageUrl ? 1 : 0) + imageFiles.length > 10) {
-      toast.error("Maximum 10 images are allowed.");
+    const maxGallery = 10;
+    const remaining = maxGallery - galleryImages.length;
+    if (remaining <= 0) {
+      toast.error("Maximum 10 gallery thumbnails allowed.");
       return;
     }
     setIsUploadingGallery(true);
     try {
-      const { data } = await uploadApi.upload("variants", imageFiles);
+      const { data } = await uploadApi.upload("variants", imageFiles.slice(0, remaining));
       const urls = (data.files || []).map((f) => f.url);
       setGalleryImages((prev) => [...prev, ...urls]);
       toast.success(`${urls.length} gallery image(s) uploaded`);
@@ -832,40 +904,50 @@ function VariantModal({ editingData, products, onClose, onSave }) {
 
   function removeGalleryImage(idx) {
     setGalleryImages((prev) => prev.filter((_, i) => i !== idx));
+    toast.delete("Gallery thumbnail removed.");
   }
 
   function handleSubmit(e) {
     e.preventDefault();
     const newErrors = {};
-
     if (!productId) newErrors.productId = "Please select a product";
-    if (!colorName.trim()) newErrors.colorName = "Color name is required";
-    if (!size.trim()) newErrors.size = "Size is required";
-    const numPrice = parseFloat(price);
-    const numOriginal = parseFloat(originalPrice);
+    if (!colorName.trim()) newErrors.colorName = "Please enter the color name (e.g. Jet Black, Olive)";
+    if (!selectedSizes.length || selectedSizes.some((item) => !item.trim())) newErrors.size = "Select or add at least one size.";
 
-    if (!price || isNaN(numPrice) || numPrice < 500)
-      newErrors.price = "Selling price must be at least ₹500";
-    if (!originalPrice || isNaN(numOriginal) || numOriginal < 500)
-      newErrors.originalPrice = "Original / MRP price must be at least ₹500";
-    else if (Number.isFinite(numPrice) && numOriginal <= numPrice) {
-      newErrors.originalPrice = `Original / MRP price (₹${numOriginal}) must be higher than selling price (₹${numPrice})`;
-      if (!newErrors.price) {
-        newErrors.price = `Selling price (₹${numPrice}) must be lower than original price (₹${numOriginal})`;
-      }
-    }
-    if (
-      !stockQty ||
-      isNaN(parseInt(stockQty, 10)) ||
-      parseInt(stockQty, 10) < 0
-    )
-      newErrors.stockQty = "Enter a valid stock quantity";
+    const variantsToSave = selectedSizes.map((sizeOption) => {
+      const values = !isEdit && !samePriceAndStock
+        ? (sizeValues[sizeOption] || { price, originalPrice, stockQty })
+        : { price, originalPrice, stockQty };
+      const numPrice = Number(values.price);
+      const numOriginal = Number(values.originalPrice);
+      const numStock = Number(values.stockQty);
+      if (!Number.isFinite(numPrice) || numPrice <= 0) newErrors.pricing = `Enter a sale price greater than zero for size ${sizeOption}.`;
+      else if (!Number.isFinite(numOriginal) || numOriginal <= numPrice) newErrors.pricing = `MRP must be higher than sale price for size ${sizeOption}.`;
+      if (!Number.isInteger(numStock) || numStock < 0) newErrors.pricing = `Enter a whole stock quantity (0 or more) for size ${sizeOption}.`;
+      return { size: sizeOption, price: numPrice, originalPrice: numOriginal, stockCount: numStock };
+    });
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      // Scroll to first error
+      const firstErr = newErrors.productId || newErrors.colorName || newErrors.size || newErrors.pricing;
+      if (firstErr) toast.error(firstErr);
       const firstErrEl = document.querySelector(".v-field-error");
       if (firstErrEl) firstErrEl.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+
+    const colorShort = (colorName || "DEF").substring(0, 3).toUpperCase();
+    const variants = variantsToSave.map((variant) => {
+      const sizeShort = variant.size.replace(/\s+/g, "").toUpperCase();
+      const automaticSku = `${selectedProduct?.sku || "SKU"}-${colorShort}-${sizeShort}`;
+      const customSku = skuTouched
+        ? (variantsToSave.length > 1 ? `${sku.trim()}-${sizeShort}` : sku.trim())
+        : automaticSku;
+      return { ...variant, sku: customSku, imageUrl: frontImage || null, galleryImages: [backImage, ...galleryImages].filter(Boolean) };
+    });
+
+    if (variants.some((variant) => variant.galleryImages.length + (variant.imageUrl ? 1 : 0) > 12)) {
+      toast.error("Maximum 12 images are allowed per variant.");
       return;
     }
 
@@ -874,17 +956,17 @@ function VariantModal({ editingData, products, onClose, onSave }) {
       productId,
       color: colorName.trim(),
       colorHex: colorHex || "#181715",
-      size: size.trim(),
-      sku: sku.trim(),
-      price: parseFloat(price),
-      originalPrice: originalPrice ? parseFloat(originalPrice) : null,
-      stockCount: Math.max(0, parseInt(stockQty, 10) || 0),
+      size: variants[0]?.size || "",
+      sku: variants[0]?.sku || sku.trim(),
+      price: variants[0]?.price,
+      originalPrice: variants[0]?.originalPrice,
+      stockCount: variants[0]?.stockCount,
+      variants: isEdit ? undefined : variants,
       lowStockThreshold: parseInt(lowStockThreshold, 10) || 10,
       gstRate,
-      imageUrl: imageUrl || null,
-      galleryImages,
+      imageUrl: frontImage || null,
+      galleryImages: [backImage, ...galleryImages].filter(Boolean),
     });
-    // Note: modal is closed by parent after successful save
     setIsSaving(false);
   }
 
@@ -905,7 +987,7 @@ function VariantModal({ editingData, products, onClose, onSave }) {
       onClick={onClose}
       role="dialog"
       aria-modal="true"
-      aria-label={isEdit ? "Edit Variant" : "Add New Variant"}
+      aria-label={isEdit ? "Edit Variant" : "Add Color / Size Variant"}
     >
       <div
         className="v-modal-box"
@@ -915,7 +997,7 @@ function VariantModal({ editingData, products, onClose, onSave }) {
         <div className="v-modal-header">
           <div>
             <h2 className="v-modal-title">
-              {isEdit ? "Edit Variant" : "Add New Variant"}
+              {isEdit ? "Edit Variant" : "Add Color / Size Variant"}
             </h2>
             {selectedProduct && (
               <p className="v-modal-subtitle">{selectedProduct.name}</p>
@@ -977,16 +1059,12 @@ function VariantModal({ editingData, products, onClose, onSave }) {
 
             {/* Color Name + Color Hex */}
             <div className="v-form-row-2">
-              <div
-                className="v-field-group"
-                style={{ position: "relative" }}
-                ref={colorDropdownRef}
-              >
+              <div className="v-field-group">
                 <label className="v-label" htmlFor="v-color-name">
                   Color Name <span className="v-req">*</span>
                 </label>
                 <div className="v-input-with-toggle">
-                  {/* Color swatch preview in input */}
+                  {/* Live color swatch preview */}
                   <span
                     className="v-input-swatch"
                     style={{ backgroundColor: colorHex || "#181715" }}
@@ -994,52 +1072,18 @@ function VariantModal({ editingData, products, onClose, onSave }) {
                   <input
                     id="v-color-name"
                     type="text"
-                    placeholder="e.g. Cherry Red"
+                    placeholder="Type any color name e.g. Jet Black, Cream White"
                     value={colorName}
                     onChange={(e) => setColorName(e.target.value)}
                     className={`v-input v-input-with-swatch ${errors.colorName ? "is-invalid" : ""}`}
                     required
                     autoComplete="off"
                   />
-                  <button
-                    type="button"
-                    className="v-toggle-dropdown-btn"
-                    onClick={() => setShowColorDropdown(!showColorDropdown)}
-                    title="Choose from presets"
-                    aria-label="Show color presets"
-                  >
-                    <ChevronDown size={14} />
-                  </button>
                 </div>
                 {errors.colorName && (
                   <span className="v-field-error">
                     <AlertCircle size={12} /> {errors.colorName}
                   </span>
-                )}
-
-                {showColorDropdown && (
-                  <div className="v-color-presets-menu">
-                    <div className="v-color-presets-grid">
-                      {POPULAR_COLORS.map((c) => (
-                        <div
-                          key={c.name}
-                          className="v-color-preset-item"
-                          onClick={() => handleSelectColorPreset(c)}
-                          role="button"
-                          tabIndex={0}
-                          onKeyDown={(e) =>
-                            e.key === "Enter" && handleSelectColorPreset(c)
-                          }
-                        >
-                          <span
-                            className="v-swatch-circle"
-                            style={{ backgroundColor: c.hex }}
-                          />
-                          <span>{c.name}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
                 )}
               </div>
 
@@ -1069,30 +1113,45 @@ function VariantModal({ editingData, products, onClose, onSave }) {
               </div>
             </div>
 
-            {/* Size */}
+            {/* Size selection */}
             <div className="v-field-group">
               <label className="v-label">
-                Size <span className="v-req">*</span>
+                Size(s) <span className="v-req">*</span>
               </label>
               <div className="v-size-presets-bar">
                 {SIZE_PRESETS.map((s) => (
                   <button
                     key={s}
                     type="button"
-                    className={`v-size-pill-btn ${size === s ? "is-active" : ""}`}
-                    onClick={() => setSize(s)}
+                    className={`v-size-pill-btn ${selectedSizes.includes(s) ? "is-active" : ""}`}
+                    aria-pressed={selectedSizes.includes(s)}
+                    onClick={() => toggleSize(s)}
                   >
                     {s}
                   </button>
                 ))}
               </div>
-              <input
-                type="text"
-                placeholder="Or type a custom size (e.g. 32, 34, 2XL)"
-                value={size}
-                onChange={(e) => setSize(e.target.value)}
-                className={`v-input ${errors.size ? "is-invalid" : ""}`}
-              />
+              <div className="v-custom-size-row">
+                <input
+                  type="text"
+                  placeholder="Add custom size (e.g. 32, 34, 2XL)"
+                  value={customSizeInput}
+                  onChange={(e) => {
+                    setCustomSizeInput(e.target.value);
+                    if (isEdit) setSelectedSizes([e.target.value]);
+                  }}
+                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustomSize(); } }}
+                  className={`v-input ${errors.size ? "is-invalid" : ""}`}
+                />
+                <button type="button" className="v-btn-cancel" onClick={addCustomSize}>Add size</button>
+              </div>
+              {!!selectedSizes.length && <div className="v-selected-sizes">
+                {selectedSizes.map((selectedSize) => (
+                  <button key={selectedSize} type="button" onClick={() => toggleSize(selectedSize)} disabled={isEdit}>
+                    {selectedSize}{!isEdit && <span>×</span>}
+                  </button>
+                ))}
+              </div>}
               {errors.size && (
                 <span className="v-field-error">
                   <AlertCircle size={12} /> {errors.size}
@@ -1122,7 +1181,7 @@ function VariantModal({ editingData, products, onClose, onSave }) {
                 </span>
               )}
               <span className="v-field-hint">
-                Auto-generated from product SKU. Edit to customise.
+                {selectedSizes.length > 1 ? "A size suffix is added to each variant SKU." : "Auto-generated from product, color, and size. Edit to customise."}
               </span>
             </div>
           </div>
@@ -1131,259 +1190,104 @@ function VariantModal({ editingData, products, onClose, onSave }) {
           <div className="v-modal-section">
             <h3 className="v-section-title">Pricing & Inventory</h3>
 
-            <div className="v-form-row-2">
-              <div className="v-field-group">
-                <label className="v-label" htmlFor="v-input-price">
-                  Selling Price (₹) <span className="v-req">*</span>
-                </label>
-                <input
-                  id="v-input-price"
-                  type="number"
-                  step="1"
-                  min="0"
-                  placeholder="500"
-                  value={price}
-                  onChange={(e) => {
-                    setPrice(e.target.value);
-                    if (errors.price) setErrors((prev) => ({ ...prev, price: undefined }));
-                    if (errors.originalPrice) setErrors((prev) => ({ ...prev, originalPrice: undefined }));
-                  }}
-                  className={`v-input ${errors.price ? "is-invalid" : ""}`}
-                />
-                {errors.price && (
-                  <span className="v-field-error">
-                    <AlertCircle size={12} /> {errors.price}
-                  </span>
-                )}
-              </div>
+            {!isEdit && <label className="v-same-variant-check">
+              <input type="checkbox" checked={samePriceAndStock} onChange={toggleSamePriceAndStock} />
+              <span><strong>All selected sizes have the same MRP / Sale / Stock</strong><small>Uncheck to set price and stock for each size separately.</small></span>
+            </label>}
 
-              <div className="v-field-group">
-                <label className="v-label" htmlFor="v-input-mrp">
-                  MRP / Original Price (₹) <span className="v-req">*</span>
-                </label>
-                <input
-                  id="v-input-mrp"
-                  type="number"
-                  step="1"
-                  min="0"
-                  placeholder="600"
-                  value={originalPrice}
-                  onChange={(e) => {
-                    setOriginalPrice(e.target.value);
-                    if (errors.originalPrice) setErrors((prev) => ({ ...prev, originalPrice: undefined }));
-                    if (errors.price) setErrors((prev) => ({ ...prev, price: undefined }));
-                  }}
-                  className={`v-input ${errors.originalPrice ? "is-invalid" : ""}`}
-                />
-                {errors.originalPrice && (
-                  <span className="v-field-error">
-                    <AlertCircle size={12} /> {errors.originalPrice}
-                  </span>
-                )}
-                {discountPreview && (
-                  <span className="v-field-hint v-hint-success">
-                    {discountPreview}% off will be displayed
-                  </span>
-                )}
+            {(isEdit || samePriceAndStock) ? <>
+              <div className="v-form-row-2">
+                <div className="v-field-group">
+                  <label className="v-label" htmlFor="v-input-price">Selling Price (?) <span className="v-req">*</span></label>
+                  <input id="v-input-price" type="number" step="0.01" min="0.01" placeholder="Enter selling price" value={price}
+                    onChange={(e) => { setPrice(e.target.value); setErrors((prev) => ({ ...prev, pricing: undefined })); }} className="v-input" />
+                </div>
+                <div className="v-field-group">
+                  <label className="v-label" htmlFor="v-input-mrp">MRP / Original Price (?) <span className="v-req">*</span></label>
+                  <input id="v-input-mrp" type="number" step="0.01" min="0.01" placeholder="Enter MRP" value={originalPrice}
+                    onChange={(e) => { setOriginalPrice(e.target.value); setErrors((prev) => ({ ...prev, pricing: undefined })); }} className="v-input" />
+                  {discountPreview && <span className="v-field-hint v-hint-success">{discountPreview}% off will be displayed</span>}
+                </div>
               </div>
-            </div>
-
-            <div className="v-form-row-2">
-              <div className="v-field-group">
-                <label className="v-label" htmlFor="v-input-stock">
-                  Stock Quantity <span className="v-req">*</span>
-                </label>
-                <input
-                  id="v-input-stock"
-                  type="number"
-                  min="0"
-                  placeholder="0"
-                  value={stockQty}
-                  onChange={(e) => setStockQty(e.target.value)}
-                  className={`v-input ${errors.stockQty ? "is-invalid" : ""}`}
-                />
-                {errors.stockQty && (
-                  <span className="v-field-error">
-                    <AlertCircle size={12} /> {errors.stockQty}
-                  </span>
-                )}
+              <div className="v-form-row-2">
+                <div className="v-field-group">
+                  <label className="v-label" htmlFor="v-input-stock">Stock Quantity <span className="v-req">*</span></label>
+                  <input id="v-input-stock" type="number" min="0" step="1" placeholder="0" value={stockQty}
+                    onChange={(e) => { setStockQty(e.target.value); setErrors((prev) => ({ ...prev, pricing: undefined })); }} className="v-input" />
+                </div>
+                <div className="v-field-group">
+                  <label className="v-label" htmlFor="v-input-threshold">Low Stock Alert (Qty)</label>
+                  <input id="v-input-threshold" type="number" min="0" placeholder="10" value={lowStockThreshold}
+                    onChange={(e) => setLowStockThreshold(e.target.value)} className="v-input" />
+                  <span className="v-field-hint">Alert when stock falls below this number</span>
+                </div>
               </div>
+            </> : <div className="v-size-pricing-list">
+              {selectedSizes.map((sizeOption) => {
+                const values = sizeValues[sizeOption] || { price, originalPrice, stockQty };
+                const rowDiscount = Number(values.originalPrice) > Number(values.price)
+                  ? Math.round(((Number(values.originalPrice) - Number(values.price)) / Number(values.originalPrice)) * 100)
+                  : 0;
+                return <div className="v-size-pricing-row" key={sizeOption}>
+                  <strong>{sizeOption}</strong>
+                  <label>MRP<input type="number" min="0.01" step="0.01" value={values.originalPrice} onChange={(e) => { updateSizeValue(sizeOption, "originalPrice", e.target.value); setErrors((prev) => ({ ...prev, pricing: undefined })); }} /></label>
+                  <label>Sale price<input type="number" min="0.01" step="0.01" value={values.price} onChange={(e) => { updateSizeValue(sizeOption, "price", e.target.value); setErrors((prev) => ({ ...prev, pricing: undefined })); }} /></label>
+                  <label>Stock<input type="number" min="0" step="1" value={values.stockQty} onChange={(e) => { updateSizeValue(sizeOption, "stockQty", e.target.value); setErrors((prev) => ({ ...prev, pricing: undefined })); }} /></label>
+                  <span>{rowDiscount}% off</span>
+                </div>;
+              })}
+            </div>}
+            {errors.pricing && <span className="v-field-error v-pricing-error"><AlertCircle size={12} /> {errors.pricing}</span>}
 
-              <div className="v-field-group">
-                <label className="v-label" htmlFor="v-input-threshold">
-                  Low Stock Alert (Qty)
-                </label>
-                <input
-                  id="v-input-threshold"
-                  type="number"
-                  min="0"
-                  placeholder="10"
-                  value={lowStockThreshold}
-                  onChange={(e) => setLowStockThreshold(e.target.value)}
-                  className="v-input"
-                />
-                <span className="v-field-hint">
-                  Alert when stock falls below this number
-                </span>
-              </div>
-            </div>
-
-            <div className="v-field-group">
-              <label className="v-label" htmlFor="v-select-gst">
-                GST Rate
-              </label>
-              <select
-                id="v-select-gst"
-                value={gstRate}
-                onChange={(e) => setGstRate(e.target.value)}
-                className="v-input v-select"
-              >
-                {GST_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
+            <div className="v-field-group v-gst-field">
+              <label className="v-label" htmlFor="v-select-gst">GST Rate</label>
+              <select id="v-select-gst" value={gstRate} onChange={(e) => setGstRate(e.target.value)} className="v-input v-select">
+                {GST_OPTIONS.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
               </select>
             </div>
           </div>
 
-          {/* Section: Variant Images */}
           <div className="v-modal-section">
-            <h3 className="v-section-title">Variant Images</h3>
+            <h3 className="v-section-title">Product Images</h3>
             <p className="v-section-desc">
-              Upload a unique image for this color/variant. This will appear on
-              the product page when this variant is selected.
+              Upload photos for this color. The selected variant's front image, back image, and thumbnails appear on the product details page.
             </p>
-
-            <div className="v-images-row">
-              {/* Main Variant Image */}
-              <div className="v-main-img-block">
-                <label className="v-label">Main Variant Image</label>
-                <div
-                  className={`v-img-upload-box ${imageUrl ? "has-image" : ""}`}
-                  onClick={() => !isUploadingMain && mainImgRef.current?.click()}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) =>
-                    e.key === "Enter" &&
-                    !isUploadingMain &&
-                    mainImgRef.current?.click()
-                  }
-                  title="Click to upload variant image"
-                >
-                  {imageUrl ? (
-                    <>
-                      <img
-                        src={resolveImageUrl(imageUrl)}
-                        alt="Variant"
-                        className="v-img-preview"
-                        onError={(e) => {
-                          e.currentTarget.style.display = "none";
-                        }}
-                      />
-                      <button
-                        type="button"
-                        className="v-img-remove-btn"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setImageUrl("");
-                        }}
-                        title="Remove image"
-                      >
-                        <X size={12} />
-                      </button>
-                    </>
-                  ) : (
-                    <div className="v-img-placeholder">
-                      {isUploadingMain ? (
-                        <>
-                          <UploadCloud size={22} className="spin" />
-                          <span>Uploading...</span>
-                        </>
-                      ) : (
-                        <>
-                          <UploadCloud size={22} />
-                          <span>Select Image</span>
-                        </>
-                      )}
-                    </div>
-                  )}
-                </div>
-                <input
-                  ref={mainImgRef}
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  hidden
-                  onChange={(e) => handleMainImageUpload(e.target.files)}
-                  disabled={isUploadingMain}
-                />
+            <div className="v-dual-views-row">
+              <div className="v-view-card">
+                <div className="v-view-card-header"><strong>Front View</strong><span className="v-view-badge">Main image</span></div>
+                <input ref={frontImgRef} type="file" accept="image/*" hidden onChange={(e) => handleFrontImageUpload(e.target.files)} />
+                <button type="button" className={`v-img-upload-box ${frontImage ? "has-image" : ""}`} onClick={() => frontImgRef.current?.click()} disabled={isUploadingFront} aria-label="Upload variant front image">
+                  {frontImage ? <><img src={resolveImageUrl(frontImage)} alt="Variant front preview" className="v-img-preview" /> <span className="v-img-upload-overlay">{isUploadingFront ? "Uploading…" : "Change image"}</span></> : <span className="v-img-placeholder"><UploadCloud size={22} />{isUploadingFront ? "Uploading…" : "Upload Front View"}</span>}
+                </button>
+                {frontImage && <button type="button" className="v-image-clear" onClick={() => setFrontImage("")}>Remove front image</button>}
               </div>
-
-              {/* Gallery Images */}
-              <div className="v-gallery-block">
-                <div className="v-gallery-header">
-                  <label className="v-label">
-                    Gallery Images (Optional)
-                  </label>
-                  <button
-                    type="button"
-                    className="v-btn-add-gallery"
-                    onClick={() =>
-                      !isUploadingGallery && galleryImgRef.current?.click()
-                    }
-                    disabled={isUploadingGallery}
-                  >
-                    <Plus size={13} />
-                    {isUploadingGallery ? "Uploading..." : "Add Images"}
-                  </button>
-                </div>
-                <div className="v-gallery-grid">
-                  {galleryImages.map((url, idx) => (
-                    <div key={idx} className="v-gallery-thumb-wrap">
-                      <img
-                        src={resolveImageUrl(url)}
-                        alt={`Gallery ${idx + 1}`}
-                        className="v-gallery-thumb"
-                        onError={(e) => {
-                          e.currentTarget.style.display = "none";
-                        }}
-                      />
-                      <button
-                        type="button"
-                        className="v-gallery-remove-btn"
-                        onClick={() => removeGalleryImage(idx)}
-                      >
-                        <X size={10} />
-                      </button>
-                    </div>
-                  ))}
-                  {galleryImages.length === 0 && (
-                    <div className="v-gallery-empty">
-                      <ImageIcon size={20} color="var(--text-subtle)" />
-                      <span>No gallery images yet</span>
-                    </div>
-                  )}
-                </div>
-                <input
-                  ref={galleryImgRef}
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  multiple
-                  hidden
-                  onChange={(e) => handleGalleryUpload(e.target.files)}
-                  disabled={isUploadingGallery}
-                />
+              <div className="v-view-card">
+                <div className="v-view-card-header"><strong>Back View</strong><span className="v-view-badge secondary">Secondary image</span></div>
+                <input ref={backImgRef} type="file" accept="image/*" hidden onChange={(e) => handleBackImageUpload(e.target.files)} />
+                <button type="button" className={`v-img-upload-box ${backImage ? "has-image" : ""}`} onClick={() => backImgRef.current?.click()} disabled={isUploadingBack} aria-label="Upload variant back image">
+                  {backImage ? <><img src={resolveImageUrl(backImage)} alt="Variant back preview" className="v-img-preview" /> <span className="v-img-upload-overlay">{isUploadingBack ? "Uploading…" : "Change image"}</span></> : <span className="v-img-placeholder"><UploadCloud size={22} />{isUploadingBack ? "Uploading…" : "Upload Back View"}</span>}
+                </button>
+                {backImage && <button type="button" className="v-image-clear" onClick={() => setBackImage("")}>Remove back image</button>}
+              </div>
+            </div>
+            <div className="v-gallery-block">
+              <div className="v-gallery-header"><strong>Thumbnail Images</strong>
+                <input ref={galleryImgRef} type="file" accept="image/*" multiple hidden onChange={(e) => handleGalleryUpload(e.target.files)} />
+                <button type="button" className="v-btn-add-gallery" onClick={() => galleryImgRef.current?.click()} disabled={isUploadingGallery || galleryImages.length >= 10}><Plus size={13} />{isUploadingGallery ? "Uploading…" : "Add thumbnails"}</button>
+              </div>
+              <div className="v-gallery-grid">
+                {galleryImages.map((image, imageIdx) => <div className="v-gallery-thumb-wrap" key={`${image}-${imageIdx}`}><img src={resolveImageUrl(image)} alt={`Variant thumbnail ${imageIdx + 1}`} className="v-gallery-thumb" /><button type="button" className="v-gallery-remove-btn" aria-label={`Remove thumbnail ${imageIdx + 1}`} onClick={() => removeGalleryImage(imageIdx)}>×</button></div>)}
+                {!galleryImages.length && <div className="v-gallery-empty"><ImageIcon size={20} /><span>No extra thumbnails uploaded</span></div>}
               </div>
             </div>
           </div>
-
           {/* Modal Footer */}
           <div className="v-modal-footer">
             <button
               type="button"
               className="v-btn-cancel"
               onClick={onClose}
-              disabled={isSaving}
+              disabled={isSaving || isUploadingFront || isUploadingBack || isUploadingGallery}
             >
               Cancel
             </button>
@@ -1393,7 +1297,7 @@ function VariantModal({ editingData, products, onClose, onSave }) {
               disabled={isSaving}
             >
               <Check size={16} />
-              <span>{isEdit ? "Save Changes" : "Create Variant"}</span>
+              <span>{isEdit ? "Save Changes" : selectedSizes.length > 1 ? `Create ${selectedSizes.length} Variants` : "Create Variant"}</span>
             </button>
           </div>
         </form>

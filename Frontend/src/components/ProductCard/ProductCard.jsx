@@ -1,7 +1,8 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useShop } from "../../context/ShopContext";
 import { imageUrl } from "../../utils/imageUrl";
+import { getProductPricing } from "../../utils/pricing";
 import "./ProductCard.css";
 
 function getProductBadge(product) {
@@ -21,23 +22,29 @@ function getProductBadge(product) {
   return null;
 }
 
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, className = "", style = {} }) {
   const navigate = useNavigate();
   const { formatPrice, addToCart, wishlist, isInWishlist, toggleWishlist, setQuickViewProduct } = useShop();
 
   const isSaved = isInWishlist ? isInWishlist(product.id) : wishlist.some((id) => String(id) === String(product.id));
   const hasSecondaryImg = product.images && product.images.length > 1;
   const badgeInfo = getProductBadge(product);
+  const pricing = getProductPricing(product);
+  const shownPrice = pricing.price;
+  const displayOriginalPrice = pricing.originalPrice;
+  const isOfferActive = pricing.isOffer;
+  const isOutOfStock = !product.inStock || Number(product.stockCount ?? 0) <= 0 || product.stockStatus === "out_of_stock";
 
+  const productUrl = `/products/${product.slug || product.id}`;
   const handleCardClick = () => {
-    navigate(`/product/${product.id}`);
+    navigate(productUrl);
   };
 
   const primaryImg = (product.images && product.images[0]) || product.image || "/images/photo-1521572163474-6864f9cf17ab.jpg";
   const secondaryImg = (product.images && product.images[1]) || null;
 
   return (
-    <div className="product-card">
+    <div className={`product-card ${className}`.trim()} style={style}>
       {/* Image Box */}
       <div
         className="product-image-box"
@@ -53,7 +60,11 @@ export default function ProductCard({ product }) {
         }}
       >
         {/* Tasteful Brand Badges */}
-        {badgeInfo && (
+        {isOutOfStock ? (
+          <span className="product-badge badge-soldout">OUT OF STOCK</span>
+        ) : isOfferActive ? (
+          <span className="product-badge badge-sale">{pricing.offerBadge}</span>
+        ) : badgeInfo && (
           <span className={`product-badge badge-${badgeInfo.type}`}>
             {badgeInfo.text}
           </span>
@@ -62,7 +73,7 @@ export default function ProductCard({ product }) {
         {/* Primary & Secondary Images */}
         <img
           src={imageUrl(primaryImg)}
-          alt={product.name}
+          alt={product.name ? `${product.name} - ZMW Clothing` : "ZMW Clothing Product"}
           className="product-img-primary"
           loading="lazy"
           onError={(event) => {
@@ -73,7 +84,7 @@ export default function ProductCard({ product }) {
         {hasSecondaryImg && (
           <img
             src={imageUrl(secondaryImg)}
-            alt={`${product.name} alternate angle`}
+            alt={product.name ? `${product.name} - alternate view` : "ZMW Clothing alternate view"}
             className="product-img-secondary"
             loading="lazy"
             onError={(event) => {
@@ -128,17 +139,18 @@ export default function ProductCard({ product }) {
           {/* 3. Bag / Cart = Add to Cart */}
           <button
             type="button"
-            className="card-action-icon-btn card-cart-icon-btn"
+            className={`card-action-icon-btn card-cart-icon-btn ${isOutOfStock ? "is-disabled" : ""}`}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              addToCart(product);
+              if (!isOutOfStock) addToCart(product);
             }}
             onTouchEnd={(e) => {
               e.stopPropagation();
             }}
-            title="Add to Cart"
-            aria-label={`Add ${product.name} to cart`}
+            title={isOutOfStock ? "Out of Stock" : "Add to Cart"}
+            aria-label={isOutOfStock ? "Out of Stock" : `Add ${product.name} to cart`}
+            disabled={isOutOfStock}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
@@ -149,16 +161,34 @@ export default function ProductCard({ product }) {
         </div>
       </div>
 
-      {/* Card Info - Showing strictly Product name, Current price & MRP */}
+      {/* Card Info - Showing Product name, Rating (if reviewed), Current price & MRP */}
       <div className="product-info">
+        {Number(product.reviewCount || 0) > 0 && (
+          <div
+            className="product-card-rating"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              navigate(`${productUrl}#customer-reviews`);
+            }}
+            style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "12px", color: "#d97706", marginBottom: "4px" }}
+            title="Click to view verified customer reviews"
+          >
+            <span>★</span>
+            <span style={{ fontWeight: 600 }}>{Number(product.rating || 0).toFixed(1)}</span>
+            <span style={{ color: "#6b7280", fontSize: "11px" }}>({product.reviewCount})</span>
+          </div>
+        )}
         <h3 className="product-name" onClick={handleCardClick} title={product.name}>
-          {product.name}
+          <Link to={productUrl} style={{ color: "inherit", textDecoration: "none" }}>
+            {product.name}
+          </Link>
         </h3>
 
         <div className="product-pricing">
-          <span className="price-current">{formatPrice(product.price)}</span>
-          {product.originalPrice && product.originalPrice > product.price && (
-            <span className="price-original">{formatPrice(product.originalPrice)}</span>
+          <span className="price-current">{formatPrice(shownPrice)}</span>
+          {displayOriginalPrice && (
+            <span className="price-original">{formatPrice(displayOriginalPrice)}</span>
           )}
         </div>
       </div>

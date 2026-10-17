@@ -1,5 +1,6 @@
 import React from "react";
 import { useShop } from "../../context/ShopContext";
+import { imageUrl } from "../../utils/imageUrl";
 import "./InvoiceModal.css";
 
 export default function InvoiceModal({ order, onClose }) {
@@ -37,7 +38,7 @@ export default function InvoiceModal({ order, onClose }) {
         <div className="invoice-toolbar no-print">
           <div className="invoice-toolbar-title">
             <span>OFFICIAL TAX INVOICE</span>
-            <span className="invoice-pill">{order.order_number || `#${order.id}`}</span>
+            <span className="invoice-pill">{order.order_number || order.id}</span>
           </div>
           <div className="invoice-toolbar-actions">
             <button type="button" className="invoice-btn-print" onClick={handlePrint}>
@@ -82,7 +83,7 @@ export default function InvoiceModal({ order, onClose }) {
                   </tr>
                   <tr>
                     <td>Order No:</td>
-                    <td>{order.order_number || `#${order.id}`}</td>
+                    <td>{order.order_number || order.id}</td>
                   </tr>
                   <tr>
                     <td>Payment Status:</td>
@@ -131,7 +132,7 @@ export default function InvoiceModal({ order, onClose }) {
             <table className="invoice-items-table">
               <thead>
                 <tr>
-                  <th style={{ width: "8%" }}>#</th>
+                  <th style={{ width: "8%" }}>No.</th>
                   <th style={{ width: "47%" }}>Item Description</th>
                   <th style={{ width: "15%", textAlign: "center" }}>Qty</th>
                   <th style={{ width: "15%", textAlign: "right" }}>Unit Price</th>
@@ -147,11 +148,13 @@ export default function InvoiceModal({ order, onClose }) {
                     <tr key={index}>
                       <td>{index + 1}</td>
                       <td>
-                        <div className="item-title">{item.title || item.product_name || "ZMW Signature Piece"}</div>
-                        {(item.size || item.color) && (
+                        {item.image_url && <img src={imageUrl(item.image_url)} alt="" className="invoice-item-thumb" />}
+                        <div className="item-title">{item.title || item.product_name_snapshot || item.product_name || "ZMW Signature Piece"}</div>
+                        {(item.size || item.color || item.sku_snapshot) && (
                           <div className="item-variants">
                             {item.size && <span>Size: {item.size}</span>}
                             {item.color && <span> | Color: {item.color}</span>}
+                            {item.sku_snapshot && <span> | SKU: {item.sku_snapshot}</span>}
                           </div>
                         )}
                       </td>
@@ -179,6 +182,7 @@ export default function InvoiceModal({ order, onClose }) {
                 <span>Subtotal:</span>
                 <span>{formatPrice(subtotal)}</span>
               </div>
+              {order.coupon_code && <div className="calc-row"><span>Coupon Applied:</span><span>{order.coupon_code}</span></div>}
               {discount > 0 && (
                 <div className="calc-row discount-row">
                   <span>Privilege Savings:</span>

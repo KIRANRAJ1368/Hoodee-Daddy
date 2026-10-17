@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useShop } from "../../context/ShopContext";
+import { isValidEmail, isValidPhone, cleanPhoneInput, isNonEmpty } from "../../utils/validators";
 import "./AuthModal.css";
 
 const INITIAL_FORM_DATA = {
@@ -26,6 +27,7 @@ export default function AuthModal() {
     setIsCheckoutOpen,
     pendingCheckout,
     setPendingCheckout,
+    checkoutIntent,
     addToast
   } = useShop();
 
@@ -72,8 +74,10 @@ export default function AuthModal() {
       setActiveTab("register");
     } else if (authModalState === "forgot") {
       setActiveTab("forgot");
-    } else {
+    } else if (authModalState === "login") {
       setActiveTab("login");
+    } else {
+      setActiveTab("register");
     }
     setErrorMessage("");
     setForgotSubmitted(false);
@@ -88,7 +92,14 @@ export default function AuthModal() {
 
   const handleChange = (e) => {
     setErrorMessage("");
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    let nextVal = value;
+    if (name === "phone") {
+      nextVal = cleanPhoneInput(value);
+    } else if (name === "otp") {
+      nextVal = value.replace(/\D/g, "").slice(0, 6);
+    }
+    setFormData((prev) => ({ ...prev, [name]: nextVal }));
   };
 
   const handleClose = () => {
@@ -101,14 +112,6 @@ export default function AuthModal() {
     setAuthModalState(null);
     setPendingCheckout(false);
     setFormData(INITIAL_FORM_DATA);
-  };
-
-  const handleContinueAsGuest = () => {
-    setAuthModalState(null);
-    setPendingCheckout(false);
-    setFormData(INITIAL_FORM_DATA);
-    navigate("/checkout");
-    addToast("Continuing as Guest. No account required.", "info");
   };
 
   const handleResendOtp = async () => {
@@ -131,16 +134,36 @@ export default function AuthModal() {
     setErrorMessage("");
 
     if (activeTab === "register") {
-      if (formData.password.length < 6) {
+      if (!isNonEmpty(formData.name)) {
+        setErrorMessage("Please enter your full name.");
+        return;
+      }
+      if (!isNonEmpty(formData.phone)) {
+        setErrorMessage("Mobile number is required.");
+        return;
+      }
+      if (!isValidPhone(formData.phone)) {
+        setErrorMessage("Phone number must be exactly 10 digits.");
+        return;
+      }
+      if (!isNonEmpty(formData.email)) {
+        setErrorMessage("Email address is required.");
+        return;
+      }
+      if (!isValidEmail(formData.email)) {
+        setErrorMessage("Please enter a valid email address.");
+        return;
+      }
+      if (!formData.password || formData.password.length < 6) {
         setErrorMessage("Password must be at least 6 characters long.");
+        return;
+      }
+      if (!formData.confirmPassword) {
+        setErrorMessage("Please confirm your password.");
         return;
       }
       if (formData.password !== formData.confirmPassword) {
         setErrorMessage("Passwords do not match. Please verify and try again.");
-        return;
-      }
-      if (!formData.phone || formData.phone.trim().length < 7) {
-        setErrorMessage("Please enter a valid mobile number.");
         return;
       }
 
@@ -159,7 +182,7 @@ export default function AuthModal() {
         setAuthModalState(null);
         if (pendingCheckout) {
           setPendingCheckout(false);
-          navigate("/checkout");
+          navigate(checkoutIntent === "buy-now" ? "/checkout" : "/cart", { replace: true, state: checkoutIntent === "buy-now" ? { buyNow: true } : {} });
         }
       } catch (err) {
         setErrorMessage(err.message || "Failed to create account. Please try again.");
@@ -167,6 +190,19 @@ export default function AuthModal() {
         setIsSubmitting(false);
       }
     } else if (activeTab === "login") {
+      if (!isNonEmpty(formData.email)) {
+        setErrorMessage("Email address is required.");
+        return;
+      }
+      if (!isValidEmail(formData.email)) {
+        setErrorMessage("Please enter a valid email address.");
+        return;
+      }
+      if (!formData.password) {
+        setErrorMessage("Password is required.");
+        return;
+      }
+
       setIsSubmitting(true);
       try {
         await loginCustomer(formData.email.trim(), formData.password);
@@ -176,7 +212,7 @@ export default function AuthModal() {
         setAuthModalState(null);
         if (pendingCheckout) {
           setPendingCheckout(false);
-          navigate("/checkout");
+          navigate(checkoutIntent === "buy-now" ? "/checkout" : "/cart", { replace: true, state: checkoutIntent === "buy-now" ? { buyNow: true } : {} });
         }
       } catch (err) {
         setErrorMessage(err.message || "Invalid email or password.");
@@ -186,8 +222,12 @@ export default function AuthModal() {
     } else if (activeTab === "forgot") {
       if (forgotStep === "request") {
         const emailToVerify = (formData.email || "").trim();
-        if (!emailToVerify) {
+        if (!isNonEmpty(emailToVerify)) {
           setErrorMessage("Please enter your registered email address.");
+          return;
+        }
+        if (!isValidEmail(emailToVerify)) {
+          setErrorMessage("Please enter a valid email address.");
           return;
         }
 
@@ -207,8 +247,8 @@ export default function AuthModal() {
         }
       } else if (forgotStep === "otp") {
         const otpCode = (formData.otp || "").trim();
-        if (!otpCode || otpCode.length !== 6) {
-          setErrorMessage("Please enter the 6-digit verification code (OTP) sent to your email.");
+        if (!otpCode || otpCode.length !== 6 || !/^\d{6}$/.test(otpCode)) {
+          setErrorMessage("Please enter the 6-digit numeric verification code (OTP) sent to your email.");
           return;
         }
 
@@ -234,6 +274,10 @@ export default function AuthModal() {
         const newPwd = formData.newPassword || formData.password;
         if (!newPwd || newPwd.length < 6) {
           setErrorMessage("New password must be at least 6 characters long.");
+          return;
+        }
+        if (!formData.confirmPassword) {
+          setErrorMessage("Please confirm your new password.");
           return;
         }
         if (newPwd !== formData.confirmPassword) {
@@ -339,7 +383,7 @@ export default function AuthModal() {
               <p className="auth-desc">
                 {pendingCheckout && (
                   <span className="auth-checkout-hint">
-                    ✦ Sign in, register, or continue as guest to complete checkout
+                    ✦ Create an account or sign in to complete checkout
                   </span>
                 )}
                 {activeTab === "login" && "Sign in for express checkout, saved delivery details, and order tracking."}
@@ -390,7 +434,7 @@ export default function AuthModal() {
             )}
 
             {/* Auth Form */}
-            <form className="auth-form" onSubmit={handleSubmit}>
+            <form className="auth-form" onSubmit={handleSubmit} noValidate>
               {/* Register Extra Fields: Name & Mobile */}
               {activeTab === "register" && (
                 <div className="auth-form-row">
@@ -414,8 +458,9 @@ export default function AuthModal() {
                       id="reg-phone"
                       name="phone"
                       type="tel"
+                      inputMode="numeric"
                       required
-                      placeholder="e.g. 9876543210"
+                      placeholder="10-digit mobile number"
                       value={formData.phone}
                       onChange={handleChange}
                       className="auth-input"
@@ -616,24 +661,6 @@ export default function AuthModal() {
                 )}
               </button>
             </form>
-
-            {/* Guest Checkout Option (only for login/register) */}
-            {activeTab !== "forgot" && (
-              <>
-                <div className="auth-guest-divider">
-                  <span>OR CONTINUE WITHOUT ACCOUNT</span>
-                </div>
-
-                <button
-                  type="button"
-                  className="btn btn-secondary auth-guest-btn"
-                  onClick={handleContinueAsGuest}
-                >
-                  Continue as Guest →
-                </button>
-              </>
-            )}
-
             {/* Tab Switcher Footer */}
             <div className="auth-footer">
               {activeTab === "login" && (

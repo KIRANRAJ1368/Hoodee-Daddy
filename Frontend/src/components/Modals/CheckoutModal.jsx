@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useShop } from "../../context/ShopContext";
 import { storefrontApi } from "../../services/storefrontApi";
+import { isValidEmail, isValidPhone, cleanPhoneInput, cleanPincodeInput, isValidPincode, isNonEmpty } from "../../utils/validators";
 import "./CheckoutModal.css";
 
 const PAYMENT_METHODS = [
@@ -61,7 +62,7 @@ export default function CheckoutModal() {
         firstName: first || prev.firstName,
         lastName: last || prev.lastName,
         email: customerUser.email || prev.email,
-        phone: customerUser.phone || prev.phone
+        phone: customerUser.phone ? cleanPhoneInput(customerUser.phone) : prev.phone
       }));
     }
   }, [customerUser]);
@@ -69,12 +70,65 @@ export default function CheckoutModal() {
   if (!isCheckoutOpen) return null;
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setSubmitError("");
+    const { name, value } = e.target;
+    let nextVal = value;
+    if (name === "phone") {
+      nextVal = cleanPhoneInput(value);
+    } else if (name === "postalCode") {
+      nextVal = cleanPincodeInput(value);
+    }
+    setFormData((prev) => ({ ...prev, [name]: nextVal }));
   };
 
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
     if (!cart.length || isSubmitting) return;
+
+    if (!isNonEmpty(formData.firstName)) {
+      setSubmitError("First name is required.");
+      return;
+    }
+    if (!isNonEmpty(formData.lastName)) {
+      setSubmitError("Last name is required.");
+      return;
+    }
+    if (!isNonEmpty(formData.email)) {
+      setSubmitError("Email address is required.");
+      return;
+    }
+    if (!isValidEmail(formData.email)) {
+      setSubmitError("Please enter a valid email address.");
+      return;
+    }
+    if (!isNonEmpty(formData.phone)) {
+      setSubmitError("Phone number is required.");
+      return;
+    }
+    if (!isValidPhone(formData.phone)) {
+      setSubmitError("Phone number must be exactly 10 digits.");
+      return;
+    }
+    if (!isNonEmpty(formData.address)) {
+      setSubmitError("Street address is required.");
+      return;
+    }
+    if (!isNonEmpty(formData.city)) {
+      setSubmitError("City is required.");
+      return;
+    }
+    if (!isNonEmpty(formData.state)) {
+      setSubmitError("State is required.");
+      return;
+    }
+    if (!isNonEmpty(formData.postalCode)) {
+      setSubmitError("PIN code is required.");
+      return;
+    }
+    if (!isValidPincode(formData.postalCode)) {
+      setSubmitError("PIN code must be exactly 6 digits.");
+      return;
+    }
 
     const canSubmitToApi = cart.every((item) => Number.isInteger(Number(item.id)));
     setIsSubmitting(true);
@@ -210,7 +264,7 @@ export default function CheckoutModal() {
                 </div>
               )}
 
-              <form onSubmit={handlePlaceOrder} id="checkout-form">
+              <form onSubmit={handlePlaceOrder} id="checkout-form" noValidate>
                 <h3 className="form-subheading">1. Contact & Delivery Information</h3>
                 <div className="form-grid-2">
                   <div className="form-group">
@@ -257,8 +311,9 @@ export default function CheckoutModal() {
                     <input
                       name="phone"
                       type="tel"
+                      inputMode="numeric"
                       required
-                      placeholder="e.g. 9876543210"
+                      placeholder="10-digit mobile number"
                       value={formData.phone}
                       onChange={handleChange}
                       className="auth-input"
@@ -309,8 +364,9 @@ export default function CheckoutModal() {
                     <input
                       name="postalCode"
                       type="text"
+                      inputMode="numeric"
                       required
-                      placeholder="e.g. 641004"
+                      placeholder="6-digit PIN code"
                       value={formData.postalCode}
                       onChange={handleChange}
                       className="auth-input"

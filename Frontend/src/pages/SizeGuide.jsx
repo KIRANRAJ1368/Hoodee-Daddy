@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import SeoHead from "../components/Seo/SeoHead";
 import { SIZE_CHART } from "../components/Modals/SizeGuideModal";
 import "./SizeGuide.css";
 
@@ -16,6 +17,11 @@ export default function SizeGuide() {
 
   return (
     <div className="size-guide-page">
+      <SeoHead
+        title="Size & Fit Guide — Measurements & Sizing Charts | ZMW Clothing"
+        description="Find your perfect streetwear fit with our comprehensive ZMW Clothing size guide. Accurate flat-lay measurements in inches and cm for men, women, and kids."
+        canonicalPath="/size-guide"
+      />
       {/* ── Hero ─────────────────────────────────────────────────── */}
       <section className="size-guide-hero" aria-label="ZWMStore Sizing Guide">
         <div className="container">

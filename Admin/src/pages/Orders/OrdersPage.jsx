@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { ShoppingBag, Eye, Filter, IndianRupee, Clock, CheckCircle2, UserCheck, UserX, Truck } from "lucide-react";
 import { ordersApi } from "../../services/resources";
 import { useToast } from "../../context/ToastContext";
@@ -10,13 +10,47 @@ import Pagination from "../../components/Pagination/Pagination";
 const STATUSES = ["pending", "confirmed", "packed", "shipped", "delivered", "cancelled", "returned"];
 
 export default function OrdersPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [orders, setOrders] = useState([]);
   const [meta, setMeta] = useState({ page: 1, totalPages: 1, total: 0 });
-  const [status, setStatus] = useState("");
-  const [customerType, setCustomerType] = useState(""); // "" | "registered" | "guest"
-  const [page, setPage] = useState(1);
+
+  const statusParam = searchParams.get("status") || "";
+  const customerTypeParam = searchParams.get("customerType") || "";
+  const cancellationStatusParam = searchParams.get("cancellation_status") || "";
+  const refundStatusParam = searchParams.get("refund_status") || "";
+  const searchParam = searchParams.get("search") || "";
+  const pageParam = parseInt(searchParams.get("page") || "1", 10) || 1;
+
+  const [status, setStatus] = useState(statusParam);
+  const [customerType, setCustomerType] = useState(customerTypeParam);
+  const [cancellationStatus, setCancellationStatus] = useState(cancellationStatusParam);
+  const [refundStatus, setRefundStatus] = useState(refundStatusParam);
+  const [search, setSearch] = useState(searchParam);
+  const [page, setPage] = useState(pageParam);
   const [isLoading, setIsLoading] = useState(true);
   const toast = useToast();
+
+  // Sync internal state when URL search params change
+  useEffect(() => {
+    setStatus(searchParams.get("status") || "");
+    setCustomerType(searchParams.get("customerType") || "");
+    setCancellationStatus(searchParams.get("cancellation_status") || "");
+    setRefundStatus(searchParams.get("refund_status") || "");
+    setSearch(searchParams.get("search") || "");
+    setPage(parseInt(searchParams.get("page") || "1", 10) || 1);
+  }, [searchParams]);
+
+  function updateFilters(updates) {
+    const next = new URLSearchParams(searchParams);
+    Object.entries(updates).forEach(([key, val]) => {
+      if (val !== undefined && val !== null && val !== "") {
+        next.set(key, val);
+      } else {
+        next.delete(key);
+      }
+    });
+    setSearchParams(next);
+  }
 
   async function load() {
     setIsLoading(true);
@@ -26,14 +60,17 @@ export default function OrdersPage() {
 
       const { data, meta } = await ordersApi.list({
         status: status || undefined,
+        cancellation_status: cancellationStatus || undefined,
+        refund_status: refundStatus || undefined,
+        search: search.trim() || undefined,
         is_guest: isGuestParam,
         page,
-        limit: 15
+        limit: 10
       });
       setOrders(data || []);
       setMeta(meta || { page: 1, totalPages: 1, total: 0 });
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.message || "Failed to load orders");
     } finally {
       setIsLoading(false);
     }
@@ -42,7 +79,12 @@ export default function OrdersPage() {
   useEffect(() => {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, customerType, page]);
+  }, [status, customerType, cancellationStatus, refundStatus, page]);
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    updateFilters({ search: search.trim(), page: 1 });
+  };
 
   return (
     <div>
@@ -53,12 +95,85 @@ export default function OrdersPage() {
             <span className="pill-badge badge-gold">{meta.total} Order{meta.total === 1 ? "" : "s"}</span>
           </h1>
           <p className="page-subtitle">
-            Review customer orders, item details, payment status, and order invoices.
+            Move each order through the simple fulfillment flow. Open an order for shipment tracking, cancellations, and refunds.
           </p>
         </div>
       </div>
 
       <div className="card">
+        {/* Quick Filter Tabs for Cancellations & Returns */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "12px clamp(12px, 3vw, 22px)",
+            borderBottom: "1px solid var(--border)",
+            background: "var(--surface)",
+            overflowX: "auto",
+            WebkitOverflowScrolling: "touch",
+            maxWidth: "100%",
+            minWidth: 0
+          }}
+        >
+          {[
+            { label: "All Orders", key: "all" },
+            { label: "⚡ Pending Cancel/Return Requests", key: "cancellation_requested" },
+            { label: "💸 Pending Refunds (UPI)", key: "refund_pending" },
+            { label: "🚚 RTO In-Transit", key: "rto_in_transit" },
+            { label: "📦 Restocked / At Warehouse", key: "rto_delivered" },
+            { label: "✅ Completed Refunds", key: "refund_processed" },
+            { label: "All Cancellations & Returns", key: "cancellation_any" }
+          ].map((tab) => {
+            const isSelected =
+              (tab.key === "all" && !cancellationStatus && !refundStatus) ||
+              (tab.key === "cancellation_requested" && cancellationStatus === "requested") ||
+              (tab.key === "refund_pending" && refundStatus === "pending") ||
+              (tab.key === "rto_in_transit" && cancellationStatus === "rto_in_transit") ||
+              (tab.key === "rto_delivered" && cancellationStatus === "rto_delivered") ||
+              (tab.key === "refund_processed" && (refundStatus === "processed" || cancellationStatus === "completed")) ||
+              (tab.key === "cancellation_any" && cancellationStatus === "any");
+
+            return (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => {
+                  if (tab.key === "all") {
+                    updateFilters({ cancellation_status: "", refund_status: "", page: 1 });
+                  } else if (tab.key === "cancellation_requested") {
+                    updateFilters({ cancellation_status: "requested", refund_status: "", page: 1 });
+                  } else if (tab.key === "refund_pending") {
+                    updateFilters({ cancellation_status: "", refund_status: "pending", page: 1 });
+                  } else if (tab.key === "rto_in_transit") {
+                    updateFilters({ cancellation_status: "rto_in_transit", refund_status: "", page: 1 });
+                  } else if (tab.key === "rto_delivered") {
+                    updateFilters({ cancellation_status: "rto_delivered", refund_status: "", page: 1 });
+                  } else if (tab.key === "refund_processed") {
+                    updateFilters({ cancellation_status: "", refund_status: "processed", page: 1 });
+                  } else if (tab.key === "cancellation_any") {
+                    updateFilters({ cancellation_status: "any", refund_status: "", page: 1 });
+                  }
+                }}
+                style={{
+                  padding: "6px 14px",
+                  borderRadius: "20px",
+                  fontSize: "12px",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                  border: isSelected ? "1.5px solid var(--accent, #faa703)" : "1px solid var(--border)",
+                  background: isSelected ? "rgba(250, 167, 3, 0.12)" : "var(--surface-alt)",
+                  color: isSelected ? "var(--text-main)" : "var(--text-muted)",
+                  transition: "all 0.2s"
+                }}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+
         {/* Filter Toolbar */}
         <div
           style={{
@@ -66,16 +181,38 @@ export default function OrdersPage() {
             alignItems: "center",
             justifyContent: "space-between",
             gap: 12,
-            padding: "16px 22px",
+            padding: "14px clamp(12px, 3vw, 22px)",
             borderBottom: "1px solid var(--border)",
             flexWrap: "wrap",
             background: "var(--surface)"
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap", width: "100%", maxWidth: "100%" }}>
+            <form onSubmit={handleSearchSubmit} style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", flex: "1 1 200px", maxWidth: "100%" }}>
+              <input
+                type="text"
+                placeholder="Search order #, customer, phone..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                style={{
+                  padding: "7px 12px",
+                  border: "1.5px solid var(--border)",
+                  borderRadius: "var(--radius-sm)",
+                  background: "var(--surface)",
+                  fontSize: "13px",
+                  minWidth: 140,
+                  maxWidth: "100%",
+                  flex: "1 1 140px"
+                }}
+              />
+              <button type="submit" className="btn btn-secondary btn-sm" style={{ padding: "7px 12px" }}>
+                Search
+              </button>
+            </form>
+
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", maxWidth: "100%" }}>
               <Filter size={15} style={{ color: "var(--text-muted)" }} />
-              <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--text-main)" }}>Status:</span>
+              <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--text-main)", whiteSpace: "nowrap" }}>Status:</span>
               <select
                 value={status}
                 onChange={(e) => {
@@ -83,7 +220,9 @@ export default function OrdersPage() {
                   setStatus(e.target.value);
                 }}
                 style={{
-                  minWidth: 170,
+                  minWidth: 140,
+                  maxWidth: "100%",
+                  flex: "1 1 140px",
                   padding: "7px 10px",
                   border: "1.5px solid var(--border)",
                   borderRadius: "var(--radius-sm)",
@@ -267,9 +406,79 @@ export default function OrdersPage() {
             {
               key: "status",
               label: "Pipeline Status",
-              width: "135px",
+              width: "180px",
               align: "center",
-              render: (row) => <StatusBadge value={row.status} />
+              render: (row) => (
+                <div style={{ display: "flex", flexDirection: "column", gap: "5px", alignItems: "center" }}>
+                  <StatusBadge value={row.status} />
+
+                  {/* Cancellation / Return Pipeline Badge */}
+                  {row.cancellation_status && row.cancellation_status !== "none" && (
+                    <span
+                      style={{
+                        fontSize: "10.5px",
+                        fontWeight: 700,
+                        padding: "2px 7px",
+                        borderRadius: "4px",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.3px",
+                        whiteSpace: "nowrap",
+                        background:
+                          row.cancellation_status === "requested" ? "#fef3c7" :
+                          row.cancellation_status === "approved" ? "#e0f2fe" :
+                          row.cancellation_status === "rto_in_transit" ? "#f3e8ff" :
+                          row.cancellation_status === "rto_delivered" ? "#ccfbf1" :
+                          row.cancellation_status === "completed" ? "#dcfce7" : "#fee2e2",
+                        color:
+                          row.cancellation_status === "requested" ? "#b45309" :
+                          row.cancellation_status === "approved" ? "#0369a1" :
+                          row.cancellation_status === "rto_in_transit" ? "#7e22ce" :
+                          row.cancellation_status === "rto_delivered" ? "#0f766e" :
+                          row.cancellation_status === "completed" ? "#15803d" : "#b91c1c",
+                        border: `1px solid ${
+                          row.cancellation_status === "requested" ? "#fde68a" :
+                          row.cancellation_status === "approved" ? "#bae6fd" :
+                          row.cancellation_status === "rto_in_transit" ? "#e9d5ff" :
+                          row.cancellation_status === "rto_delivered" ? "#99f6e4" :
+                          row.cancellation_status === "completed" ? "#bbf7d0" : "#fecaca"
+                        }`
+                      }}
+                    >
+                      {row.cancellation_type === "post_delivery" ? "Return" : "Cancel"}: {row.cancellation_status.replace(/_/g, " ")}
+                    </span>
+                  )}
+
+                  {/* Customer UPI Refund Status Badge */}
+                  {row.refund_status && row.refund_status !== "not_required" && (
+                    <span
+                      style={{
+                        fontSize: "10.5px",
+                        fontWeight: 700,
+                        padding: "2px 7px",
+                        borderRadius: "4px",
+                        letterSpacing: "0.2px",
+                        whiteSpace: "nowrap",
+                        background:
+                          row.refund_status === "pending" ? "#fff7ed" :
+                          row.refund_status === "processed" ? "#ecfdf5" : "#fef2f2",
+                        color:
+                          row.refund_status === "pending" ? "#c2410c" :
+                          row.refund_status === "processed" ? "#047857" : "#b91c1c",
+                        border: `1px solid ${
+                          row.refund_status === "pending" ? "#ffedd5" :
+                          row.refund_status === "processed" ? "#a7f3d0" : "#fecaca"
+                        }`
+                      }}
+                    >
+                      {row.refund_status === "pending"
+                        ? `⚡ Refund Due: ₹${Number(row.refund_amount || row.total).toFixed(0)}`
+                        : row.refund_status === "processed"
+                        ? `✓ Refunded: ₹${Number(row.refund_amount || row.total).toFixed(0)}`
+                        : "Refund Failed"}
+                    </span>
+                  )}
+                </div>
+              )
             },
             {
               key: "created_at",
@@ -285,29 +494,46 @@ export default function OrdersPage() {
             {
               key: "actions",
               label: "Actions",
-              width: "150px",
+              width: "155px",
               align: "right",
-              render: (row) => (
-                <div className="table-actions" style={{ display: "flex", gap: "6px", justifyContent: "flex-end" }}>
-                  <Link
-                    to={`/orders/${row.id}`}
-                    className="btn btn-secondary btn-sm"
-                    title="View Order Details"
-                  >
-                    <Eye size={13} />
-                    <span>Order</span>
-                  </Link>
-                  <Link
-                    to={`/shipping/${row.id}`}
-                    className="btn btn-secondary btn-sm"
-                    title="View Shipping & Tracking"
-                    style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
-                  >
-                    <Truck size={13} />
-                    <span>Shipping</span>
-                  </Link>
-                </div>
-              )
+              render: (row) => {
+                const isActionNeeded =
+                  row.cancellation_status === "requested" ||
+                  row.refund_status === "pending" ||
+                  row.cancellation_status === "rto_delivered";
+
+                return (
+                  <div className="table-actions" style={{ display: "flex", gap: "6px", justifyContent: "flex-end" }}>
+                    <Link
+                      to={`/orders/${row.id}`}
+                      className="btn btn-secondary btn-sm"
+                      title={isActionNeeded ? "Action Required on this Order" : "View Order Details"}
+                      style={
+                        isActionNeeded
+                          ? {
+                              background: "#fffbeb",
+                              color: "#b45309",
+                              borderColor: "#f59e0b",
+                              fontWeight: 700
+                            }
+                          : undefined
+                      }
+                    >
+                      <Eye size={13} />
+                      <span>{isActionNeeded ? "Review" : "Order"}</span>
+                    </Link>
+                    <Link
+                      to={`/shipping/${row.id}`}
+                      className="btn btn-secondary btn-sm"
+                      title="View Shipping & Tracking"
+                      style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
+                    >
+                      <Truck size={13} />
+                      <span>Shipping</span>
+                    </Link>
+                  </div>
+                );
+              }
             }
           ]}
         />

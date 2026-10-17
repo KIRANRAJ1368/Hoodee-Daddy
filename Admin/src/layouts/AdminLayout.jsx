@@ -21,37 +21,44 @@ import {
   Boxes,
   Layers,
   Package2,
-  Truck
+  Truck,
+  Star,
+  Sparkles,
+  Percent,
+  Search,
+  Network
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import "./AdminLayout.css";
 
 const TOP_NAV_ITEMS = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
-  { to: "/banners", label: "Hero & Banners", icon: ImageIcon }
+  { to: "/banners", label: "Hero & Banners", icon: ImageIcon },
+  { to: "/offer-banners", label: "Offer Banners", icon: Sparkles },
+  { to: "/offers", label: "Product Offers", icon: Percent }
 ];
 
 const PRODUCT_SUB_ITEMS = [
   { to: "/categories", label: "Categories", icon: FolderTree },
   { to: "/subcategories", label: "Sub Categories", icon: Tags },
   { to: "/products", label: "Products", icon: Shirt },
-  { to: "/variants", label: "Variants", icon: Layers },
-  { to: "/stock", label: "Stock", icon: Package2 }
+  { to: "/variants", label: "Variants", icon: Layers }
 ];
 
 const BOTTOM_NAV_ITEMS = [
+  { to: "/stock", label: "Stock Management", icon: Package2 },
   { to: "/coupons", label: "Coupons & Discounts", icon: Tag },
   { to: "/reports", label: "Reports & Analytics", icon: TrendingUp },
   { to: "/orders", label: "Orders", icon: ShoppingBag },
+  { to: "/reviews", label: "Reviews", icon: Star },
   { to: "/shipping", label: "Shipping", icon: Truck },
   { to: "/customers", label: "Customers", icon: Users },
   { to: "/contact", label: "Customer Inquiries", icon: Mail }
 ];
 
-const ALL_NAV_ITEMS = [
-  ...TOP_NAV_ITEMS,
-  ...PRODUCT_SUB_ITEMS,
-  ...BOTTOM_NAV_ITEMS
+const SEO_NAV_ITEMS = [
+  { to: "/seo", label: "Meta Settings", icon: Tag, end: true },
+  { to: "/seo/sitemap", label: "Sitemap", icon: Network }
 ];
 
 export default function AdminLayout() {
@@ -83,7 +90,12 @@ export default function AdminLayout() {
   }, [location.pathname]);
 
   // Current section title for breadcrumb
-  const currentItem = ALL_NAV_ITEMS.find((item) =>
+  const currentItem = [
+    ...TOP_NAV_ITEMS,
+    ...PRODUCT_SUB_ITEMS,
+    ...BOTTOM_NAV_ITEMS,
+    ...SEO_NAV_ITEMS
+  ].find((item) =>
     item.end ? location.pathname === item.to : location.pathname.startsWith(item.to)
   );
 
@@ -194,6 +206,26 @@ export default function AdminLayout() {
 
           {/* Bottom navigation items */}
           {BOTTOM_NAV_ITEMS.map((item) => {
+            const Icon = item.icon;
+            return (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.end}
+                className={({ isActive }) => "admin-nav-link" + (isActive ? " active" : "")}
+              >
+                <span className="admin-nav-icon-wrap">
+                  <Icon size={18} className="admin-nav-icon" />
+                </span>
+                <span className="admin-nav-text">{item.label}</span>
+                <span className="admin-nav-active-pip" />
+              </NavLink>
+            );
+          })}
+
+          {/* SEO SETTINGS Section Heading & Links (House of KNP Reference) */}
+          <div className="admin-nav-section-title" style={{ marginTop: "12px" }}>SEO SETTINGS</div>
+          {SEO_NAV_ITEMS.map((item) => {
             const Icon = item.icon;
             return (
               <NavLink

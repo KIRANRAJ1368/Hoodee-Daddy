@@ -323,8 +323,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 5px;
   vertical-align: middle;
-  padding: 10px 14px;
+  padding: 8px 12px;
   border-radius: 12px;
   transition: color var(--dur-fast) var(--ease-smooth),
               background-color var(--dur-fast) var(--ease-smooth),
@@ -376,45 +377,19 @@
   position: relative;
 }
 
-.nav-item .nav-link {
-  gap: 4px;
-}
-
-.nav-item-row {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-}
-
-.nav-caret-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: var(--color-grey-500);
-  cursor: pointer;
-  border-radius: 50%;
-  transition: color var(--dur-fast) var(--ease-smooth),
-              background-color var(--dur-fast) var(--ease-smooth),
-              transform var(--dur-fast) var(--ease-smooth);
-}
-
-.nav-caret-btn:hover {
-  color: var(--color-ink);
-  background-color: rgba(15, 23, 42, 0.04);
-  transform: translateY(-1px);
-}
-
 .nav-caret {
-  transition: transform var(--dur-fast) var(--ease-smooth);
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: middle;
+  margin-top: 1px;
+  opacity: 0.7;
+  transition: transform var(--dur-fast) var(--ease-smooth), opacity var(--dur-fast) var(--ease-smooth);
 }
 
+.nav-link:hover .nav-caret,
 .nav-item.has-dropdown:hover .nav-caret,
-.nav-item.has-dropdown .nav-caret-btn[aria-expanded="true"] .nav-caret {
+.nav-item.has-dropdown [aria-expanded="true"] .nav-caret {
+  opacity: 1;
   transform: rotate(180deg);
 }
 
@@ -443,6 +418,18 @@
   z-index: var(--z-sticky-nav);
   animation: dropdownOpen var(--dur-normal) var(--ease-smooth) both;
   transform-origin: top center;
+}
+
+/* Hover buffer bridge so moving cursor from nav item to dropdown never drops hover */
+.mega-dropdown::after {
+  content: "";
+  position: absolute;
+  top: -12px;
+  left: 0;
+  right: 0;
+  height: 12px;
+  background: transparent;
+  pointer-events: auto;
 }
 
 /* Small upward-pointing triangle that anchors the dropdown to the parent nav item */
@@ -653,8 +640,8 @@
   text-transform: uppercase;
 }
 
-/* --- Dropdown Panel Heading (left-side panel in Men menu) --- */
-.dropdown-heading {
+/* --- Dropdown Panel Heading (left-side panel accent) --- */
+.dropdown-panel-heading {
   display: flex;
   flex-direction: column;
   justify-content: center;

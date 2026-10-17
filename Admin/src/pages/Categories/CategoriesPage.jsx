@@ -1,12 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Plus, Edit2, Trash2, Eye } from "lucide-react";
 import { categoriesApi } from "../../services/resources";
 import { useToast } from "../../context/ToastContext";
 import { useConfirm } from "../../components/ConfirmDialog/ConfirmDialog";
-import DataTable from "../../components/DataTable/DataTable";
+import PaginatedDataTable from "../../components/PaginatedDataTable/PaginatedDataTable";
 import StatusBadge from "../../components/StatusBadge/StatusBadge";
 import CategoryFormModal from "./CategoryFormModal";
 import CategoryViewModal from "../../components/EntityViewModal/CategoryViewModal";
+import { broadcastCatalogUpdate } from "../../utils/broadcastCatalogUpdate";
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState([]);
@@ -23,7 +24,7 @@ export default function CategoriesPage() {
       const { data } = await categoriesApi.list();
       setCategories(data || []);
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.message || "Failed to load categories");
     } finally {
       setIsLoading(false);
     }
@@ -34,6 +35,21 @@ export default function CategoriesPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const sortedCategories = useMemo(() => {
+    return [...categories].sort((a, b) => {
+      const seqA = Number(a.sort_order ?? 0);
+      const seqB = Number(b.sort_order ?? 0);
+      if (seqA !== seqB) return seqA - seqB;
+      return (Number(a.id) || 0) - (Number(b.id) || 0);
+    });
+  }, [categories]);
+
+  const nextSortOrder = useMemo(() => {
+    if (categories.length === 0) return 0;
+    const max = Math.max(...categories.map((c) => Number(c.sort_order) || 0));
+    return max + 1;
+  }, [categories]);
+
   async function handleToggleHomepage(category, nextValue) {
     setTogglingId(category.id);
     setCategories((prev) =>
@@ -41,6 +57,7 @@ export default function CategoriesPage() {
     );
     try {
       await categoriesApi.update(category.id, { show_on_homepage: nextValue });
+      broadcastCatalogUpdate({ action: "CATEGORY_HOMEPAGE_TOGGLED", categoryId: category.id, slug: category.slug });
       toast.success(
         nextValue
           ? `☑ ${category.name} → Show on Homepage (Enabled)`
@@ -64,10 +81,11 @@ export default function CategoriesPage() {
     if (!ok) return;
     try {
       await categoriesApi.remove(category.id);
-      toast.success("Category successfully deleted");
+      broadcastCatalogUpdate({ action: "CATEGORY_DELETED", categoryId: category.id, slug: category.slug });
+      toast.delete(`Category "${category.name}" has been deleted successfully.`);
       load();
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.message || "Failed to delete category");
     }
   }
 
@@ -92,9 +110,9 @@ export default function CategoriesPage() {
       </div>
 
       <div className="card">
-        <DataTable
+        <PaginatedDataTable
           isLoading={isLoading}
-          rows={categories}
+          rows={sortedCategories}
           rowKey={(row) => row.id}
           emptyTitle="No categories found"
           emptyDescription="Create your first clothing category to organize your catalog."
@@ -128,6 +146,55 @@ export default function CategoriesPage() {
               label: "URL Slug",
               align: "left",
               render: (row) => <code>{row.slug}</code>
+            },
+            {
+              key: "banner",
+              label: "Collection Hero Banner",
+              align: "left",
+              render: (row) => (
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  {row.banner_image_url ? (
+                    <img
+                      src={row.banner_image_url}
+                      alt={row.banner_title || row.name}
+                      style={{
+                        width: 58,
+                        height: 34,
+                        objectFit: "cover",
+                        borderRadius: 4,
+                        border: "1px solid #e2e8f0"
+                      }}
+                      onError={(e) => { e.currentTarget.style.display = "none"; }}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        width: 58,
+                        height: 34,
+                        background: "#f1f5f9",
+                        borderRadius: 4,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 10,
+                        color: "#94a3b8"
+                      }}
+                    >
+                      Default
+                    </div>
+                  )}
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: 12.5, fontWeight: 700, color: "#1e293b", maxWidth: 220, textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
+                      {row.banner_title || `${row.name.toUpperCase()} COLLECTION`}
+                    </div>
+                    {row.banner_badge_promo && (
+                      <span style={{ fontSize: 10.5, fontWeight: 600, color: "#d97706" }}>
+                        {row.banner_badge_promo}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )
             },
             {
               key: "subcategories",
@@ -242,6 +309,7 @@ export default function CategoriesPage() {
       {editing && (
         <CategoryFormModal
           category={editing}
+          defaultSortOrder={nextSortOrder}
           onClose={() => setEditing(null)}
           onSaved={() => {
             setEditing(null);

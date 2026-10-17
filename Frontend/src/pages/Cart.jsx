@@ -41,21 +41,19 @@ export default function Cart() {
     cart,
     cartItemCount,
     cartSubtotal,
-    discountAmount,
     shippingCost,
-    cartTotal,
-    appliedCoupon,
-    couponError,
-    applyCoupon,
-    removeCoupon,
     updateQuantity,
     removeFromCart,
     clearCart,
     formatPrice,
     proceedToCheckout,
+    isCustomerAuthenticated,
+    setAuthModalState,
+    setPendingCheckout,
+    setCheckoutIntent,
+    beginCartCheckout,
+    findProduct,
   } = useShop();
-
-  const [couponInput, setCouponInput] = useState("");
 
   // Shiprocket Pincode Shipping Estimator State
   const [shippingPincode, setShippingPincode] = useState("");
@@ -109,19 +107,28 @@ export default function Cart() {
     }
   }, [shippingPincode]);
 
-  const handleCouponSubmit = (e) => {
-    e.preventDefault();
-    if (couponInput.trim()) {
-      applyCoupon(couponInput);
-      setCouponInput("");
-    }
-  };
-
   const handleProceedToCheckout = () => {
-    navigate("/checkout", {
-      state: {
-        pincode: shippingPincode.trim().length === 6 ? shippingPincode.trim() : undefined
-      }
+    const hasOutOfStock = cart.some((item) => {
+      const liveProd = findProduct ? findProduct(item.id) : null;
+      const liveVariant = liveProd?.variants?.find((v) =>
+        (!v.color || v.color.toLowerCase() === (item.color || "").toLowerCase()) &&
+        (!v.size || v.size.toLowerCase() === (item.size || "").toLowerCase())
+      );
+      const stock = liveVariant ? Number(liveVariant.stockCount ?? 0) : liveProd ? Number(liveProd.stockCount ?? 0) : item.maxStock ?? 99;
+      return stock <= 0;
+    });
+    if (hasOutOfStock) {
+      alert("Some items in your cart are currently out of stock. Please remove them before proceeding to checkout.");
+      return;
+    }
+    if (!isCustomerAuthenticated) {
+      setCheckoutIntent("cart");
+      setPendingCheckout(true);
+      setAuthModalState("register");
+      return;
+    }
+    beginCartCheckout(navigate, {
+      pincode: shippingPincode.trim().length === 6 ? shippingPincode.trim() : undefined
     });
   };
 
@@ -211,6 +218,14 @@ export default function Cart() {
                 const key = `${item.id}-${item.color}-${item.size}`;
                 const lineTotal = item.price * item.quantity;
                 const isLinkable = Boolean(item.id && !String(item.id).startsWith("zmw-"));
+                const liveProd = findProduct ? findProduct(item.id) : null;
+                const liveVariant = liveProd?.variants?.find((v) =>
+                  (!v.color || v.color.toLowerCase() === (item.color || "").toLowerCase()) &&
+                  (!v.size || v.size.toLowerCase() === (item.size || "").toLowerCase())
+                );
+                const currentStock = liveVariant ? Number(liveVariant.stockCount ?? 0) : liveProd ? Number(liveProd.stockCount ?? 0) : item.maxStock ?? 99;
+                const isOut = currentStock <= 0;
+                const isLow = !isOut && currentStock <= 5;
 
                 return (
                   <article className="cp-cart-card" key={key}>
@@ -272,11 +287,17 @@ export default function Cart() {
                         {item.size && item.size !== "Standard" && (
                           <span>Size: <strong>{item.size}</strong></span>
                         )}
+                        {item.sku && <span>SKU: <strong>{item.sku}</strong></span>}
                       </div>
 
                       {/* Stock Status */}
-                      <div className="cp-card-stock">
-                        <span className="cp-stock-dot">●</span> In stock
+                      <div className={`cp-card-stock ${isOut ? "cp-stock--out" : isLow ? "cp-stock--low" : ""}`}>
+                        <span className="cp-stock-dot">●</span>{" "}
+                        {isOut
+                          ? "Out of stock"
+                          : isLow
+                          ? `Low stock (${currentStock} left)`
+                          : "In stock"}
                       </div>
 
                       {/* Bottom row: Quantity Selector on left, Pricing on right */}
@@ -372,12 +393,6 @@ export default function Cart() {
                   <span className="cp-sr-value">Calculated at checkout</span>
                 </div>
 
-                {appliedCoupon && (
-                  <div className="cp-summary-row --coupon-row">
-                    <span className="cp-sr-label">Discount ({appliedCoupon.code})</span>
-                    <span className="cp-sr-value --discount-val">−{formatPrice(discountAmount)}</span>
-                  </div>
-                )}
               </div>
 
               {/* Shiprocket Pincode Shipping Estimator */}
@@ -420,40 +435,6 @@ export default function Cart() {
                 </form>
               </div>
 
-              {/* 4. Coupon Section Inside Order Summary */}
-              <div className="cp-coupon-box">
-                <div className="cp-coupon-box-title">HAVE A COUPON CODE?</div>
-                {appliedCoupon ? (
-                  <div className="cp-coupon-active">
-                    <span><strong>{appliedCoupon.code}</strong> applied ({appliedCoupon.discountPercent}% OFF)</span>
-                    <button
-                      type="button"
-                      className="cp-coupon-remove-btn"
-                      onClick={removeCoupon}
-                      aria-label="Remove coupon"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ) : (
-                  <form onSubmit={handleCouponSubmit} className="cp-coupon-form">
-                    <div className="cp-coupon-input-wrap">
-                      <input
-                        type="text"
-                        placeholder="ENTER CODE"
-                        value={couponInput}
-                        onChange={(e) => setCouponInput(e.target.value)}
-                        className="cp-coupon-input"
-                        aria-label="Coupon code"
-                        autoCapitalize="characters"
-                      />
-                      <button type="submit" className="cp-coupon-apply-btn">APPLY</button>
-                    </div>
-                    {couponError && <p className="cp-coupon-error">{couponError}</p>}
-                  </form>
-                )}
-              </div>
-
               {/* Divider */}
               <div className="cp-summary-divider" />
 
@@ -464,8 +445,7 @@ export default function Cart() {
                   {formatPrice(
                     Math.max(
                       0,
-                      cartSubtotal -
-                        discountAmount +
+                      cartSubtotal +
                         (shippingEstimate !== null
                           ? shippingEstimate.shipping_fee
                           : shippingCost)

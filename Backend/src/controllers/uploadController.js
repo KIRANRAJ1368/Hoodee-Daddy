@@ -2,7 +2,7 @@ const ApiError = require("../utils/ApiError");
 const { sendSuccess } = require("../utils/apiResponse");
 const { publicUrlFor } = require("../middleware/upload");
 
-const ALLOWED_FOLDERS = new Set(["products", "variants", "categories", "subcategories", "banners"]);
+const ALLOWED_FOLDERS = new Set(["products", "variants", "categories", "subcategories", "banners", "returns", "reviews"]);
 
 async function upload(req, res) {
   const { folder } = req.params;
@@ -18,7 +18,7 @@ async function upload(req, res) {
     size: f.size
   }));
 
-  return sendSuccess(res, { statusCode: 201, data: { files } });
+  return sendSuccess(res, { statusCode: 201, data: { files, urls: files.map((file) => file.url) } });
 }
 
 module.exports = { upload };

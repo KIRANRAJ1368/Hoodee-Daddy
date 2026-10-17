@@ -1,9 +1,15 @@
+import SeoHead from "../components/Seo/SeoHead";
 import React from "react";
 import "./PolicyPages.css";
 
 export default function ReturnRefundPolicy() {
   return (
     <div className="policy-page">
+      <SeoHead
+        title="Return & Refund Policy — 7-Day Easy Returns | ZMW Clothing"
+        description="Learn about the ZMW Clothing return, replacement, and refund policies. Easy 7-day doorstep pickup across India for unworn apparel."
+        canonicalPath="/return-refund-policy"
+      />
       <section className="policy-hero" aria-label="General Return and Refund Policy">
         <div className="container">
           <span className="policy-eyebrow">RETURNS & EXCHANGES</span>

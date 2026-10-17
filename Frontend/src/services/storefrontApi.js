@@ -1,4 +1,17 @@
-const RAW_API_URL = (process.env.REACT_APP_API_URL || process.env.VITE_API_URL || "http://localhost:5000").trim().replace(/\/+$/, "");
+const getDefaultApiUrl = () => {
+  if (typeof window !== "undefined" && window.location?.hostname) {
+    const host = window.location.hostname;
+    if (host && host !== "localhost" && host !== "127.0.0.1") {
+      return `http://${host}:5000`;
+    }
+  }
+  return "http://localhost:5000";
+};
+
+const RAW_API_URL = (
+  (typeof process !== "undefined" && (process.env?.REACT_APP_API_URL || process.env?.VITE_API_URL)) ||
+  getDefaultApiUrl()
+).trim().replace(/\/+$/, "");
 const API_URL = RAW_API_URL.replace(/\/api$/, "");
 
 async function request(path, options = {}, includeMeta = false) {
@@ -26,26 +39,45 @@ export const storefrontApi = {
   home: () => get("/home"),
   categories: () => get("/categories"),
   products: async () => {
-    // The public endpoint is paginated (at most 100 items per request).
-    // Fetch every page so new admin products are never silently omitted.
-    const first = await request("/products?limit=100", {}, true);
+    // Fetch up to 500 items per request, handling multi-page catalogs seamlessly
+    const first = await request("/products?limit=500", {}, true);
     const totalPages = first?.meta?.totalPages || 1;
     if (totalPages <= 1) return first?.data || [];
 
     const pages = await Promise.all(
       Array.from({ length: totalPages - 1 }, (_, index) =>
-        request(`/products?limit=100&page=${index + 2}`, {}, true)
+        request(`/products?limit=500&page=${index + 2}`, {}, true)
       )
     );
     return [first?.data || [], ...pages.map((page) => page?.data || [])].flat();
   },
   product: (idOrSlug) => get(`/products/${encodeURIComponent(idOrSlug)}`),
-  getProductReviews: (idOrSlug) => get(`/products/${encodeURIComponent(idOrSlug)}/reviews`),
-  submitProductReview: (idOrSlug, reviewData) =>
+  getProductReviews: (idOrSlug, token = null) => {
+    const headers = {};
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+    return request(`/products/${encodeURIComponent(idOrSlug)}/reviews`, { headers });
+  },
+  checkReviewEligibility: (idOrSlug, token = null) => {
+    const headers = {};
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+    return request(`/products/${encodeURIComponent(idOrSlug)}/reviews/eligibility`, { headers });
+  },
+  submitProductReview: (idOrSlug, reviewData, token) =>
     request(`/products/${encodeURIComponent(idOrSlug)}/reviews`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       body: JSON.stringify(reviewData)
+    }),
+  updateProductReview: (idOrSlug, reviewId, reviewData, token) =>
+    request(`/products/${encodeURIComponent(idOrSlug)}/reviews/${reviewId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify(reviewData)
+    }),
+  deleteProductReview: (idOrSlug, reviewId, token) =>
+    request(`/products/${encodeURIComponent(idOrSlug)}/reviews/${reviewId}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` }
     }),
   createOrder: (order, token = null) => {
     const headers = { "Content-Type": "application/json" };
@@ -100,6 +132,14 @@ export const storefrontApi = {
     request("/orders/my-orders", {
       headers: { Authorization: `Bearer ${token}` }
     }),
+  uploadReviewImages: async (files, token) => {
+    const formData = new FormData();
+    Array.from(files).slice(0, 4).forEach((file) => formData.append("files", file));
+    const response = await fetch(`${API_URL}/api/orders/upload-review-images`, { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: formData });
+    const payload = await response.json().catch(() => null);
+    if (!response.ok) throw new Error(payload?.error?.message || "Review image upload failed");
+    return payload?.data?.urls || [];
+  },
   forgotPassword: (email) =>
     request("/auth/customer/forgot-password", {
       method: "POST",
@@ -125,15 +165,44 @@ export const storefrontApi = {
   cancelOrder: (orderId, reason, token) =>
     request(`/orders/${orderId}/cancel`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ reason })
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      },
+      body: JSON.stringify(typeof reason === "object" ? reason : { reason })
     }),
+  requestCancellation: (orderId, payload, token = null) =>
+    request(`/orders/${orderId}/cancel`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      },
+      body: JSON.stringify(payload)
+    }),
+  uploadReturnProof: async (files, token = null) => {
+    const formData = new FormData();
+    Array.from(files).forEach((file) => formData.append("files", file));
+    const headers = {};
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+    const response = await fetch(`${API_URL}/api/orders/upload-proof`, {
+      method: "POST",
+      headers,
+      body: formData
+    });
+    const payload = await response.json().catch(() => null);
+    if (!response.ok) {
+      throw new Error(payload?.error?.message || payload?.message || "Proof upload failed");
+    }
+    return payload.data?.urls || payload.urls || [];
+  },
   validateCoupon: (code, subtotal) =>
     request("/coupons/validate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code, subtotal })
     }),
+  availableCoupons: () => get("/coupons/available"),
   submitContact: (payload) =>
     request("/contact", {
       method: "POST",
@@ -147,6 +216,7 @@ export const storefrontApi = {
       body: JSON.stringify(payload)
     });
     return res && typeof res === "object" ? { ...res, data: res } : res;
-  }
+  },
+  seoSettings: () => get("/seo/settings")
 };
 

@@ -6,7 +6,7 @@ const ApiError = require("../utils/ApiError");
 
 const router = express.Router();
 
-const ALLOWED_FOLDERS = new Set(["products", "variants", "categories", "subcategories", "banners"]);
+const ALLOWED_FOLDERS = new Set(["products", "variants", "categories", "subcategories", "banners", "seo"]);
 
 // :folder must be checked against a fixed allow-list *before* it ever
 // reaches multer's disk storage — passing it straight through would let a

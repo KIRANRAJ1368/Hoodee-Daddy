@@ -125,7 +125,7 @@ export default function SubcategoryViewModal({ subcategory, onEdit, onClose }) {
                 <span className="ev-stat-label">Sort Priority</span>
                 <span className="ev-stat-value">
                   <Hash size={14} style={{ color: "var(--indigo)" }} />
-                  <span>Sequence #{data.sort_order ?? 0}</span>
+                  <span>Sequence {data.sort_order ?? 0}</span>
                 </span>
               </div>
 
@@ -156,13 +156,13 @@ export default function SubcategoryViewModal({ subcategory, onEdit, onClose }) {
         <div className="ev-footer">
           <div className="ev-footer-meta">
             <span>
-              Subcategory ID: <strong>#{data.id}</strong>
+              Subcategory ID: <strong>{data.id}</strong>
             </span>
             {data.category_id && (
               <>
                 <span className="ev-sep">•</span>
                 <span>
-                  Department ID: <strong>#{data.category_id}</strong>
+                  Department ID: <strong>{data.category_id}</strong>
                 </span>
               </>
             )}

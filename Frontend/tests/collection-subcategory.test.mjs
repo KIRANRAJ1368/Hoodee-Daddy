@@ -77,23 +77,28 @@ describe("Category dropdown -> subcategory -> product listing", () => {
       root.render(buildNavbarTree({ homeData: HOME_DATA, allProducts: PRODUCTS }));
     });
 
-    // The dropdowns only render while open, so walk the carets in order.
-    const carets = [...container.querySelectorAll(".nav-caret-btn")];
-    assert.equal(carets.length, 5, "one dropdown caret per department");
+    // Walk the expandable category toggles in the mobile drawer
+    const toggles = [...container.querySelectorAll(".mobile-nav-expand-toggle")];
+    assert.equal(toggles.length, 5, "one dropdown/toggle per department with subcategories");
 
-    const hrefs = [];
-    for (const caret of carets) {
+    for (const toggle of toggles) {
       await act(async () => {
-        caret.dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true, cancelable: true }));
+        toggle.dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true, cancelable: true }));
       });
-      hrefs.push(
-        ...[...container.querySelectorAll('a[href*="type="]')].map((a) => a.getAttribute("href"))
-      );
     }
+
+    const subLinks = [...container.querySelectorAll(".mobile-nav-submenu a")].filter(
+      (a) => !a.textContent.includes("Shop all")
+    );
+    const hrefs = subLinks.map((a) => a.getAttribute("href"));
 
     assert.ok(hrefs.length > 0, "the header must render subcategory links");
     hrefs.forEach((href) => {
-      assert.match(href, /^\/collection\?category=[a-z]+&type=.+/, `bad subcategory link: ${href}`);
+      assert.match(
+        href,
+        /^\/(categories\/[a-z0-9_-]+\/[a-z0-9_-]+|collection\?category=[a-z]+&type=.+)/,
+        `bad subcategory link: ${href}`
+      );
     });
 
     // One link per subcategory per department, all unique.

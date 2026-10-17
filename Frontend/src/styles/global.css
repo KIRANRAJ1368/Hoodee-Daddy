@@ -549,3 +549,91 @@ ul, ol {
 .animate-fade-up {
   animation: fadeInUp var(--dur-normal) var(--ease-smooth) forwards;
 }
+
+/* ════════════════════════════════════════════════════════════════════════
+   UNIVERSAL SKELETON SHIMMER & STAGGERED FADE SYSTEM
+   Matches exact high-performance CSS sweep & stagger fin specifications
+════════════════════════════════════════════════════════════════════════ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --sk: #25213d;
+    --sh: rgba(255, 255, 255, 0.08);
+  }
+}
+
+.sk {
+  position: relative;
+  overflow: hidden;
+  background: var(--sk, #e8e6f4);
+  border-radius: 8px;
+}
+
+.sk::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(100deg, transparent 20%, var(--sh, rgba(255, 255, 255, 0.75)) 50%, transparent 80%);
+  animation: sweep 1.4s infinite;
+}
+
+@keyframes sweep {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.item {
+  display: flex;
+  gap: 12px;
+  padding: 10px 0;
+  align-items: center;
+}
+
+.av {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.t {
+  height: 12px;
+  margin: 6px 0;
+  border-radius: 4px;
+}
+
+.w1 { width: 55%; }
+.w2 { width: 35%; }
+.w3 { width: 75%; }
+.w4 { width: 90%; }
+.w-full { width: 100%; }
+
+.fade {
+  animation: fin 0.4s ease-out both;
+}
+
+@keyframes fin {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Screen reader only utility (accessible for SEO crawlers and assistive technology, visually hidden) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+

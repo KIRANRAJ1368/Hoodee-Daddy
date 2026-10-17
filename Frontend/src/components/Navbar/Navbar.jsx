@@ -17,6 +17,22 @@ function isCategoryMatching(catSlug, activeNav) {
   return false;
 }
 
+function sortCategoriesBySequence(cats) {
+  if (!Array.isArray(cats)) return [];
+  return [...cats]
+    .map((c) => ({
+      ...c,
+      subcategories: Array.isArray(c.subcategories)
+        ? [...c.subcategories].sort(
+            (a, b) => (Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0)) || ((Number(a.id) || 0) - (Number(b.id) || 0))
+          )
+        : []
+    }))
+    .sort(
+      (a, b) => (Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0)) || ((Number(a.id) || 0) - (Number(b.id) || 0))
+    );
+}
+
 export default function Navbar() {
   const {
     homeData,
@@ -45,12 +61,13 @@ export default function Navbar() {
   const navScrollRef = useRef(null);
   const dropdownRef = useRef(null);
   const itemRefs = useRef({});
+  const hoverTimeoutRef = useRef(null);
 
   // Dynamic Categories from Context / API / localStorage cache
   const [categories, setCategories] = useState(() => {
     try {
       const cached = localStorage.getItem("zmw_navbar_categories");
-      return cached ? JSON.parse(cached) : [];
+      return cached ? sortCategoriesBySequence(JSON.parse(cached)) : [];
     } catch {
       return [];
     }
@@ -58,13 +75,17 @@ export default function Navbar() {
 
   useEffect(() => {
     if (homeData) {
-      const activeCats = (homeData.categories || []).filter((c) => c.is_active !== false);
+      const activeCats = sortCategoriesBySequence(
+        (homeData.categories || []).filter((c) => c.is_active !== false)
+      );
       setCategories(activeCats);
       try {
         localStorage.setItem("zmw_navbar_categories", JSON.stringify(activeCats));
       } catch (e) {}
     } else if (Array.isArray(contextCategories) && contextCategories.length > 0) {
-      const activeCats = contextCategories.filter((c) => c.is_active !== false);
+      const activeCats = sortCategoriesBySequence(
+        contextCategories.filter((c) => c.is_active !== false)
+      );
       setCategories(activeCats);
       try {
         localStorage.setItem("zmw_navbar_categories", JSON.stringify(activeCats));
@@ -74,7 +95,9 @@ export default function Navbar() {
         .categories()
         .then((data) => {
           if (Array.isArray(data)) {
-            const activeCats = data.filter((c) => c.is_active !== false);
+            const activeCats = sortCategoriesBySequence(
+              data.filter((c) => c.is_active !== false)
+            );
             setCategories(activeCats);
             try {
               localStorage.setItem("zmw_navbar_categories", JSON.stringify(activeCats));
@@ -160,6 +183,9 @@ export default function Navbar() {
       const sp = new URLSearchParams(location.search);
       currentCat = sp.get("category")?.toLowerCase();
       currentCol = sp.get("collection")?.toLowerCase();
+    } else if (location.pathname.startsWith("/categories/")) {
+      const parts = location.pathname.split("/").filter(Boolean);
+      currentCat = parts[1]?.toLowerCase();
     } else {
       currentCat = pathWithoutSlash;
     }
@@ -182,22 +208,40 @@ export default function Navbar() {
     setUserDropdownOpen(false);
   }, []);
 
-  const toggleDesktopMenu = (slug) => {
+  const openDesktopMenuFor = useCallback((slug) => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    const el = itemRefs.current[slug];
+    if (el) {
+      const rect = el.getBoundingClientRect();
+      setDropdownCoords({
+        top: rect.bottom + 6,
+        left: rect.left + rect.width / 2
+      });
+    }
+    setOpenDesktopMenu(slug);
+  }, []);
+
+  const cancelClose = useCallback(() => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+  }, []);
+
+  const closeWithDelay = useCallback((delay = 160) => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    hoverTimeoutRef.current = setTimeout(() => {
+      setOpenDesktopMenu(null);
+      setDropdownCoords(null);
+    }, delay);
+  }, []);
+
+  // Also keep a click toggle for accessibility (keyboard users)
+  const toggleDesktopMenu = useCallback((slug) => {
     if (openDesktopMenu === slug) {
       setOpenDesktopMenu(null);
       setDropdownCoords(null);
     } else {
-      const el = itemRefs.current[slug];
-      if (el) {
-        const rect = el.getBoundingClientRect();
-        setDropdownCoords({
-          top: rect.bottom + 6,
-          left: rect.left + rect.width / 2
-        });
-      }
-      setOpenDesktopMenu(slug);
+      openDesktopMenuFor(slug);
     }
-  };
+  }, [openDesktopMenu, openDesktopMenuFor]);
 
   const activeMenuCategory = useMemo(() => {
     if (!openDesktopMenu) return null;
@@ -336,45 +380,38 @@ export default function Navbar() {
                         ref={(el) => {
                           if (el) itemRefs.current[cat.slug] = el;
                         }}
+                        onMouseEnter={() => hasSubcategories && openDesktopMenuFor(cat.slug)}
+                        onMouseLeave={() => hasSubcategories && closeWithDelay()}
                       >
-                        <div className="nav-item-row">
-                          <Link
-                            to={`/collection?category=${encodeURIComponent(cat.slug)}`}
-                            className={"nav-link" + (isCatActive ? " active" : "")}
-                            onClick={closeAllMenus}
-                          >
-                            {cat.name}
-                          </Link>
+                        <Link
+                          to={`/categories/${encodeURIComponent(cat.slug)}`}
+                          className={"nav-link" + (isCatActive ? " active" : "")}
+                          onClick={() => {
+                            closeAllMenus();
+                          }}
+                          aria-haspopup={hasSubcategories ? "true" : undefined}
+                          aria-expanded={hasSubcategories ? openDesktopMenu === cat.slug : undefined}
+                        >
+                          <span>{cat.name}</span>
                           {hasSubcategories && (
-                            <button
-                              type="button"
-                              className="nav-caret-btn"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleDesktopMenu(cat.slug);
+                            <svg
+                              className="nav-caret"
+                              width="10"
+                              height="10"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2.5"
+                              style={{
+                                transform: openDesktopMenu === cat.slug ? "rotate(180deg)" : "none",
+                                transition: "transform 0.2s ease"
                               }}
-                              aria-haspopup="true"
-                              aria-expanded={openDesktopMenu === cat.slug}
-                              aria-label={`Open ${cat.name} menu`}
+                              aria-hidden="true"
                             >
-                              <svg
-                                className="nav-caret"
-                                width="11"
-                                height="11"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2.4"
-                                style={{
-                                  transform: openDesktopMenu === cat.slug ? "rotate(180deg)" : "none",
-                                  transition: "transform 0.2s ease"
-                                }}
-                              >
-                                <polyline points="6 9 12 15 18 9"></polyline>
-                              </svg>
-                            </button>
+                              <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
                           )}
-                        </div>
+                        </Link>
                       </li>
                     );
                   })}
@@ -564,6 +601,8 @@ export default function Navbar() {
             <div
               ref={dropdownRef}
               className="mega-dropdown"
+              onMouseEnter={cancelClose}
+              onMouseLeave={() => closeWithDelay()}
               style={{
                 position: "fixed",
                 top: `${dropdownCoords.top}px`,
@@ -575,10 +614,18 @@ export default function Navbar() {
               <div className="mega-dropdown-inner">
                 <ul className="dropdown-col">
                   <li className="dropdown-heading">{activeMenuCategory.name}'s Apparel</li>
+                  <li>
+                    <Link
+                      to={`/categories/${encodeURIComponent(activeMenuCategory.slug)}`}
+                      onClick={closeAllMenus}
+                    >
+                      Shop all {activeMenuCategory.name}
+                    </Link>
+                  </li>
                   {activeMenuCategory.subcategories.map((sub) => (
                     <li key={sub.id || sub.name}>
                       <Link
-                        to={`/collection?category=${encodeURIComponent(activeMenuCategory.slug)}&type=${encodeURIComponent((sub.name || sub.slug).toLowerCase())}`}
+                        to={`/categories/${encodeURIComponent(activeMenuCategory.slug)}/${encodeURIComponent(sub.slug || sub.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"))}`}
                         onClick={closeAllMenus}
                       >
                         {sub.name}
@@ -640,9 +687,11 @@ export default function Navbar() {
                 <li key={cat.id || cat.slug} className={hasSubcategories ? "mobile-nav-expandable" : ""}>
                   <div className="mobile-nav-expand-row">
                     <Link
-                      to={`/collection?category=${encodeURIComponent(cat.slug)}`}
+                      to={`/categories/${encodeURIComponent(cat.slug)}`}
                       className={isCatActive ? "mobile-nav-active" : ""}
-                      onClick={() => setMobileMenuOpen(false)}
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                      }}
                     >
                       {cat.name}
                     </Link>
@@ -679,10 +728,18 @@ export default function Navbar() {
 
                   {hasSubcategories && isExpanded && (
                     <ul className="mobile-nav-submenu">
+                      <li>
+                        <Link
+                          to={`/categories/${encodeURIComponent(cat.slug)}`}
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          Shop all {cat.name}
+                        </Link>
+                      </li>
                       {cat.subcategories.map((sub) => (
                         <li key={sub.id || sub.name}>
                           <Link
-                            to={`/collection?category=${encodeURIComponent(cat.slug)}&type=${encodeURIComponent((sub.name || sub.slug).toLowerCase())}`}
+                            to={`/categories/${encodeURIComponent(cat.slug)}/${encodeURIComponent(sub.slug || sub.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"))}`}
                             onClick={() => setMobileMenuOpen(false)}
                           >
                             {sub.name}

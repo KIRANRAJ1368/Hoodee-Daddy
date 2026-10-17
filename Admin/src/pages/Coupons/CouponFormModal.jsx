@@ -26,6 +26,24 @@ export default function CouponFormModal({ coupon, onClose, onSaved }) {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    const errs = {};
+
+    if (!form.code || !form.code.trim()) {
+      errs.code = "Please enter the coupon code";
+    }
+    const val = Number(form.discount_value);
+    if (form.discount_value === "" || form.discount_value === null || !Number.isFinite(val) || val <= 0) {
+      errs.discount_value = "Please enter a valid discount value";
+    } else if (form.discount_type === "percentage" && val > 100) {
+      errs.discount_value = "Percentage discount cannot exceed 100%";
+    }
+
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
+      toast.error(Object.values(errs)[0]);
+      return;
+    }
+
     setErrors({});
     setIsSaving(true);
 
@@ -41,10 +59,10 @@ export default function CouponFormModal({ coupon, onClose, onSaved }) {
     try {
       if (isEdit) {
         await couponsApi.update(coupon.id, payload);
-        toast.success("Coupon code updated successfully");
+        toast.success(`Coupon code "${payload.code}" updated successfully!`);
       } else {
         await couponsApi.create(payload);
-        toast.success("New coupon code created successfully");
+        toast.success(`Coupon code "${payload.code}" created successfully!`);
       }
       if (typeof onSaved === "function") {
         await onSaved();
@@ -70,7 +88,7 @@ export default function CouponFormModal({ coupon, onClose, onSaved }) {
       onClose={onClose}
       width={580}
     >
-      <form onSubmit={handleSubmit}>
+      <form noValidate onSubmit={handleSubmit}>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
           <FormField
             label="Coupon Code *"

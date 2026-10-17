@@ -1,5 +1,5 @@
 const DEFAULT_LIMIT = 12;
-const MAX_LIMIT = 100;
+const MAX_LIMIT = 500;
 
 /**
  * Reads page/limit from a parsed query object and returns Sequelize-ready

@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useShop } from "../context/ShopContext";
+import { imageUrl } from "../utils/imageUrl";
+import { getProductPricing } from "../utils/pricing";
 import "./Wishlist.css";
 
 export default function Wishlist() {
@@ -54,104 +56,119 @@ export default function Wishlist() {
         ) : wishlistProducts.length > 0 ? (
           <>
             <div className="wishlist-grid">
-              {wishlistProducts.map((product) => (
-                <article className="wishlist-card" key={product.id}>
-                  {/* Image Box */}
-                  <div
-                    className="wishlist-card-img-box"
-                    onClick={() => navigate(`/product/${product.id}`)}
-                    role="button"
-                    tabIndex={0}
-                    aria-label={`View details for ${product.name}`}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        navigate(`/product/${product.id}`);
-                      }
-                    }}
-                  >
-                    {/* Badge */}
-                    {product.badge && (
-                      <span className={`wishlist-card-badge badge-${product.badgeType || "new"}`}>
-                        {product.badge}
-                      </span>
-                    )}
-
-                    <img
-                      src={product.images[0]}
-                      alt={product.name}
-                      className="wishlist-card-img"
-                      loading="lazy"
-                    />
-
-                    {/* Remove ❤️ Button */}
-                    <button
-                      type="button"
-                      className="wishlist-card-remove-btn"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        toggleWishlist(product.id);
-                      }}
-                      onTouchEnd={(e) => {
-                        e.stopPropagation();
-                      }}
-                      title="Remove from Wishlist"
-                      aria-label={`Remove ${product.name} from wishlist`}
-                    >
-                      <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        className="heart-icon-filled"
-                      >
-                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                      </svg>
-                    </button>
-                  </div>
-
-                  {/* Card Info */}
-                  <div className="wishlist-card-info">
-                    <span className="wishlist-card-category">{product.category}</span>
-
-                    <h2
-                      className="wishlist-card-name"
+              {wishlistProducts.map((product) => {
+                const isOutOfStock = !product.inStock || (product.stockCount !== undefined && Number(product.stockCount) <= 0) || product.stockStatus === "out_of_stock";
+                const pricing = getProductPricing(product);
+                return (
+                  <article className="wishlist-card" key={product.id}>
+                    {/* Image Box */}
+                    <div
+                      className="wishlist-card-img-box"
                       onClick={() => navigate(`/product/${product.id}`)}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`View details for ${product.name}`}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          navigate(`/product/${product.id}`);
+                        }
+                      }}
                     >
-                      {product.name}
-                    </h2>
-
-                    {/* Pricing */}
-                    <div className="wishlist-card-pricing">
-                      <span className="wishlist-card-price">
-                        {formatPrice(product.price)}
-                      </span>
-                      {product.originalPrice && product.originalPrice > product.price && (
-                        <span className="wishlist-card-original">
-                          {formatPrice(product.originalPrice)}
+                      {/* Badge */}
+                      {isOutOfStock ? (
+                        <span className="wishlist-card-badge badge-soldout">
+                          OUT OF STOCK
                         </span>
-                      )}
+                      ) : pricing.isOffer ? (
+                        <span className="wishlist-card-badge badge-sale">
+                          {pricing.offerBadge}
+                        </span>
+                      ) : product.badge ? (
+                        <span className={`wishlist-card-badge badge-${product.badgeType || "new"}`}>
+                          {product.badge}
+                        </span>
+                      ) : null}
+
+                      <img
+                        src={imageUrl(product.images?.[0] || product.image)}
+                        alt={product.name}
+                        className="wishlist-card-img"
+                        loading="lazy"
+                        onError={(e) => { e.currentTarget.src = "/images/zmw-logo-transparent.png"; }}
+                      />
+
+                      {/* Remove ❤️ Button */}
+                      <button
+                        type="button"
+                        className="wishlist-card-remove-btn"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          toggleWishlist(product.id);
+                        }}
+                        onTouchEnd={(e) => {
+                          e.stopPropagation();
+                        }}
+                        title="Remove from Wishlist"
+                        aria-label={`Remove ${product.name} from wishlist`}
+                      >
+                        <svg
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          className="heart-icon-filled"
+                        >
+                          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                        </svg>
+                      </button>
                     </div>
 
-                    {/* Action Button */}
-                    <button
-                      type="button"
-                      className="wishlist-card-add-btn"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        addToCart(product);
-                      }}
-                      aria-label={`Add ${product.name} to bag`}
-                    >
-                      Add to Bag
-                    </button>
-                  </div>
-                </article>
-              ))}
+                    {/* Card Info */}
+                    <div className="wishlist-card-info">
+                      <span className="wishlist-card-category">{product.category}</span>
+
+                      <h2
+                        className="wishlist-card-name"
+                        onClick={() => navigate(`/product/${product.id}`)}
+                      >
+                        {product.name}
+                      </h2>
+
+                      {/* Pricing */}
+                      <div className="wishlist-card-pricing">
+                        <span className="wishlist-card-price">
+                          {formatPrice(pricing.price)}
+                        </span>
+                        {pricing.originalPrice && (
+                          <span className="wishlist-card-original">
+                            {formatPrice(pricing.originalPrice)}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Action Button */}
+                      <button
+                        type="button"
+                        className="wishlist-card-add-btn"
+                        disabled={isOutOfStock}
+                        onClick={(e) => {
+                          if (isOutOfStock) return;
+                          e.preventDefault();
+                          e.stopPropagation();
+                          addToCart(product);
+                        }}
+                        aria-label={isOutOfStock ? `${product.name} is out of stock` : `Add ${product.name} to bag`}
+                      >
+                        {isOutOfStock ? "Out of Stock" : "Add to Bag"}
+                      </button>
+                    </div>
+                  </article>
+                );
+              })}
             </div>
 
             {/* Bottom Continue Shopping Button */}

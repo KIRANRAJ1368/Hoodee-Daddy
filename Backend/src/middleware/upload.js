@@ -5,8 +5,25 @@ const fs = require("fs");
 const env = require("../config/env");
 const ApiError = require("../utils/ApiError");
 
-const ALLOWED_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
-const ALLOWED_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp", ".gif"]);
+const ALLOWED_MIME_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "video/mp4",
+  "video/webm",
+  "video/quicktime"
+]);
+const ALLOWED_EXTENSIONS = new Set([
+  ".jpg",
+  ".jpeg",
+  ".png",
+  ".webp",
+  ".gif",
+  ".mp4",
+  ".webm",
+  ".mov"
+]);
 
 const UPLOAD_ROOT = path.resolve(__dirname, "..", "..", "uploads");
 

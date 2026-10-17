@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { reportsApi } from "../../services/resources";
 import { useToast } from "../../context/ToastContext";
-import DataTable from "../../components/DataTable/DataTable";
+import PaginatedDataTable from "../../components/PaginatedDataTable/PaginatedDataTable";
 import StatusBadge from "../../components/StatusBadge/StatusBadge";
 import "./ReportsPage.css";
 
@@ -264,7 +264,7 @@ export default function ReportsPage() {
                 {dailyTrendList.length} Recorded {dailyTrendList.length === 1 ? "Day" : "Days"}
               </span>
             </div>
-            <DataTable
+            <PaginatedDataTable
               isLoading={isLoading}
               rows={dailyTrendList}
               rowKey={(row) => row.date}
@@ -325,7 +325,7 @@ export default function ReportsPage() {
               {productsData.length} Products
             </span>
           </div>
-          <DataTable
+          <PaginatedDataTable
             isLoading={isLoading}
             rows={productsData}
             rowKey={(row) => row.productId || row.product_id}
@@ -395,7 +395,7 @@ export default function ReportsPage() {
               {ordersData.length} Orders
             </span>
           </div>
-          <DataTable
+          <PaginatedDataTable
             isLoading={isLoading}
             rows={ordersData}
             rowKey={(row) => row.orderNumber || row.order_number}

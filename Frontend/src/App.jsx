@@ -1,6 +1,8 @@
-import { lazy, Suspense } from "react";
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { ShopProvider } from "./context/ShopContext";
+import { lazy, Suspense, useEffect } from "react";
+import { Routes, Route, Navigate, useLocation, useParams } from "react-router-dom";
+import { ShopProvider, useShop } from "./context/ShopContext";
+import { isCategoryMatch, resolveFallbackCategory } from "./utils/categoryFallback";
+import { imageUrl } from "./utils/imageUrl";
 import "./styles/global.css";
 
 import Navbar from "./components/Navbar/Navbar";
@@ -41,15 +43,42 @@ const ToastContainer = lazy(() => import("./components/Widgets/ToastContainer"))
  * CategoryRedirect preserves any existing query parameters when redirecting
  * from legacy paths like /men?category=Oversized%20T-Shirts to /collection?category=Oversized%20T-Shirts.
  */
+function CategoryAliasRedirect() {
+  const { categorySlug, subcategorySlug } = useParams();
+  const target = subcategorySlug
+    ? `/categories/${categorySlug}/${subcategorySlug}`
+    : `/categories/${categorySlug}`;
+  return <Navigate to={target} replace />;
+}
+
 function CategoryRedirect({ defaultCategory, defaultCollection }) {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
+  const { homeData } = useShop();
 
-  if (defaultCategory && !searchParams.has("category")) {
-    searchParams.set("category", defaultCategory);
+  const homeCategories = homeData?.categories || [];
+  let resolvedCategory = defaultCategory;
+
+  if (defaultCategory && homeCategories.length > 0) {
+    const exists = homeCategories.some((c) => isCategoryMatch(c.slug, defaultCategory));
+    if (!exists) {
+      const fallbackCat = resolveFallbackCategory(defaultCategory, homeCategories);
+      if (fallbackCat?.slug) {
+        resolvedCategory = fallbackCat.slug === "men" ? "mens" : fallbackCat.slug;
+      }
+    }
+  }
+
+  if (resolvedCategory && !searchParams.has("category")) {
+    searchParams.set("category", resolvedCategory);
   }
   if (defaultCollection && !searchParams.has("collection")) {
     searchParams.set("collection", defaultCollection);
+  }
+
+  // If redirecting a standard category without other query filters, send to clean canonical URL
+  if (resolvedCategory && !defaultCollection && Array.from(searchParams.keys()).length === 1 && searchParams.get("category") === resolvedCategory) {
+    return <Navigate to={`/categories/${resolvedCategory}`} replace />;
   }
 
   const query = searchParams.toString();
@@ -71,9 +100,84 @@ function CollectionEntry() {
   return <Collection />;
 }
 
+function AuthRouteHandler({ state }) {
+  const { setAuthModalState } = useShop();
+  useEffect(() => {
+    setAuthModalState(state);
+  }, [state, setAuthModalState]);
+  return <Navigate to="/" replace />;
+}
+
+function AppLoadingManager() {
+  const { storefrontStatus, homeData } = useShop();
+
+  useEffect(() => {
+    if (storefrontStatus === "loading") return;
+
+    let isCancelled = false;
+
+    // Failsafe timer so the user is never kept waiting longer than 1.8s once status is ready
+    const fallbackTimer = setTimeout(() => {
+      performDismiss();
+    }, 1800);
+
+    const performDismiss = () => {
+      if (isCancelled) return;
+      clearTimeout(fallbackTimer);
+      // Double rAF ensures the browser DOM updates and styles have rendered
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (!isCancelled && typeof window.__dismissZmwLoader === "function") {
+            window.__dismissZmwLoader();
+          }
+        });
+      });
+    };
+
+    const checkFullPageReady = () => {
+      if (isCancelled) return;
+
+      if (document.readyState !== "complete") {
+        window.addEventListener("load", checkFullPageReady, { once: true });
+        return;
+      }
+
+      // Check critical above-the-fold hero image if available
+      const heroBanner =
+        homeData?.banners?.hero?.[0] ||
+        homeData?.banners?.home_hero?.[0];
+      const heroRawImg = heroBanner?.image_url || "/images/dept-family-banner.jpg";
+      const resolvedHeroUrl = heroRawImg ? imageUrl(heroRawImg) : null;
+
+      if (resolvedHeroUrl && typeof window !== "undefined") {
+        const img = new Image();
+        img.src = resolvedHeroUrl;
+        if (img.complete) {
+          performDismiss();
+        } else {
+          img.onload = performDismiss;
+          img.onerror = performDismiss;
+        }
+      } else {
+        performDismiss();
+      }
+    };
+
+    checkFullPageReady();
+
+    return () => {
+      isCancelled = true;
+      clearTimeout(fallbackTimer);
+    };
+  }, [storefrontStatus, homeData]);
+
+  return null;
+}
+
 export default function App() {
   return (
     <ShopProvider>
+      <AppLoadingManager />
       <ScrollToTop />
       <Navbar />
 
@@ -81,7 +185,13 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/collection" element={<CollectionEntry />} />
-          <Route path="/shop-all" element={<Navigate to="/collection?category=mens" replace />} />
+          <Route path="/shop-all" element={<Navigate to="/categories/mens" replace />} />
+
+          {/* Clean SEO-friendly Category URLs & Subcategories */}
+          <Route path="/categories/:categorySlug" element={<Collection />} />
+          <Route path="/categories/:categorySlug/:subcategorySlug" element={<Collection />} />
+          <Route path="/category/:categorySlug" element={<CategoryAliasRedirect />} />
+          <Route path="/category/:categorySlug/:subcategorySlug" element={<CategoryAliasRedirect />} />
 
           {/* Query-preserving category redirects */}
           <Route path="/men" element={<CategoryRedirect defaultCategory="mens" />} />
@@ -114,6 +224,8 @@ export default function App() {
           <Route path="/size-guide" element={<SizeGuide />} />
           <Route path="/size-chart" element={<SizeGuide />} />
 
+          {/* SEO-friendly Product URLs */}
+          <Route path="/products/:slug" element={<ProductDetail />} />
           <Route path="/product/:productId" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
@@ -121,6 +233,11 @@ export default function App() {
           <Route path="/account" element={<CustomerProfile />} />
           <Route path="/profile" element={<CustomerProfile />} />
           <Route path="/my-orders" element={<CustomerProfile />} />
+          <Route path="/login" element={<AuthRouteHandler state="login" />} />
+          <Route path="/register" element={<AuthRouteHandler state="register" />} />
+          <Route path="/signup" element={<AuthRouteHandler state="register" />} />
+          <Route path="/forgot-password" element={<AuthRouteHandler state="forgot" />} />
+          <Route path="/reset-password" element={<AuthRouteHandler state="forgot" />} />
           <Route path="*" element={<ComingSoon title="Page Not Found" />} />
         </Routes>
       </main>

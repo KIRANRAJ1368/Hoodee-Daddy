@@ -35,12 +35,12 @@ export default function ShippingPage() {
         shipping_status: shippingStatus || undefined,
         search: search.trim() || undefined,
         page,
-        limit: 15
+        limit: 10
       });
       setShipments(data || []);
       setMeta(meta || { page: 1, totalPages: 1, total: 0 });
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.message || "Failed to load shipments");
     } finally {
       setIsLoading(false);
     }
@@ -98,8 +98,8 @@ export default function ShippingPage() {
             background: "var(--surface)"
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap", minWidth: 0, maxWidth: "100%" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", minWidth: 0, maxWidth: "100%" }}>
               <Filter size={15} style={{ color: "var(--text-muted)" }} />
               <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--text-main)" }}>Logistics Status:</span>
               <select
@@ -109,7 +109,9 @@ export default function ShippingPage() {
                   setShippingStatus(e.target.value);
                 }}
                 style={{
-                  minWidth: 180,
+                  minWidth: 150,
+                  maxWidth: "100%",
+                  flex: "1 1 150px",
                   padding: "7px 10px",
                   border: "1.5px solid var(--border)",
                   borderRadius: "var(--radius-sm)",
@@ -128,7 +130,7 @@ export default function ShippingPage() {
             </div>
           </div>
 
-          <form onSubmit={handleSearchSubmit} style={{ display: "flex", gap: "8px" }}>
+          <form onSubmit={handleSearchSubmit} style={{ display: "flex", gap: "8px", flexWrap: "wrap", maxWidth: "100%", minWidth: 0, flex: "1 1 auto" }}>
             <input
               type="text"
               placeholder="Search Order, AWB, Pincode..."
@@ -140,10 +142,12 @@ export default function ShippingPage() {
                 border: "1.5px solid var(--border)",
                 borderRadius: "var(--radius-sm)",
                 background: "var(--surface)",
-                minWidth: "220px"
+                minWidth: "140px",
+                maxWidth: "100%",
+                flex: "1 1 160px"
               }}
             />
-            <button type="submit" className="btn btn-secondary btn-sm">
+            <button type="submit" className="btn btn-secondary btn-sm" style={{ whiteSpace: "nowrap" }}>
               <Search size={14} />
               <span>Search</span>
             </button>

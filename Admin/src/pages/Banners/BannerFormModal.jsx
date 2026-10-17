@@ -14,23 +14,24 @@ const CORE_PLACEMENTS = [
   { value: "default", label: "Default Fallback Banner" }
 ];
 
-export default function BannerFormModal({ banner, heroCount = 0, onClose, onSaved }) {
+export default function BannerFormModal({ banner, heroCount = 0, offerCount = 0, onClose, onSaved }) {
   const isEdit = !!banner.id;
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     categoriesApi
       .list({ includeInactive: "false" })
-      .then((res) => {
-        if (Array.isArray(res?.data)) setCategories(res.data);
+      .then((catRes) => {
+        if (Array.isArray(catRes?.data)) setCategories(catRes.data);
       })
-      .catch(() => {});
+      .catch(() => setCategories([]));
   }, []);
 
   const dynamicPlacements = useMemo(() => {
     const list = [
       { value: "hero", label: "Hero Carousel (Storefront Homepage Top)" }
     ];
+    list.push({ value: "offers", label: "Offer Banners (Storefront Offers Row)" });
     categories.forEach((cat) => {
       list.push({
         value: cat.slug,
@@ -51,17 +52,6 @@ export default function BannerFormModal({ banner, heroCount = 0, onClose, onSave
     }
     return list;
   }, [categories, banner]);
-
-  const dynamicCtaDepartments = useMemo(() => {
-    return categories.map((cat) => ({
-      value: `/collection?category=${encodeURIComponent(cat.slug)}`,
-      label: cat.name
-    }));
-  }, [categories]);
-
-  const dynamicCtaDepartmentValues = useMemo(() => {
-    return dynamicCtaDepartments.map((d) => d.value);
-  }, [dynamicCtaDepartments]);
 
   function defaultPlacement() {
     if (banner.placement) return banner.placement;
@@ -106,26 +96,35 @@ export default function BannerFormModal({ banner, heroCount = 0, onClose, onSave
       setErrors((prev) => ({ ...prev, placement: "Maximum 3 Hero Banners can be added." }));
       return;
     }
+    if (form.placement === "offers" && (!isEdit || banner.placement !== "offers") && offerCount >= 10) {
+      toast.error("Maximum 10 offer banners can be added.");
+      setErrors((prev) => ({ ...prev, placement: "Maximum 10 offer banners can be added." }));
+      return;
+    }
 
     if (!form.image_url) {
-      toast.error("Please upload a banner image.");
+      toast.error("Please upload a banner image");
       setErrors((prev) => ({ ...prev, image_url: "Please upload a banner image" }));
+      return;
+    }
+
+    if (!form.title || !form.title.trim()) {
+      toast.error("Please enter the headline title");
+      setErrors((prev) => ({ ...prev, title: "Please enter the headline title" }));
       return;
     }
 
     setErrors({});
     setIsSaving(true);
     try {
-      // Keep an existing non-department link unless the admin actively chose a
-      // department, so simply opening and saving cannot drop it.
-      const payload = ctaLinkChanged ? form : { ...form, primary_cta_link: storedCtaLink };
+      const payload = { ...form };
 
       if (isEdit) {
         await bannersApi.update(banner.id, payload);
-        toast.success("Banner updated successfully");
+        toast.success(`Banner "${payload.title}" updated successfully!`);
       } else {
         await bannersApi.create(payload);
-        toast.success("Banner created successfully");
+        toast.success(`Banner "${payload.title}" created successfully!`);
       }
       onSaved();
     } catch (err) {
@@ -141,24 +140,13 @@ export default function BannerFormModal({ banner, heroCount = 0, onClose, onSave
   const currentIsHeroCapped =
     form.placement === "hero" && (!isEdit || banner.placement !== "hero") && heroCount >= 3;
 
-  // Banners saved before the dropdown existed may point somewhere that is not a
-  // department (e.g. the seeded "#collection-catalog"). Those have no matching
-  // <option>, so the select falls back to the placeholder for display and the
-  // stored value is preserved on save unless the admin actually picks one.
-  const storedCtaLink = banner.primary_cta_link || "";
-  const ctaLinkValue = form.primary_cta_link || "";
-  const ctaLinkSelectValue = dynamicCtaDepartmentValues.includes(ctaLinkValue) ? ctaLinkValue : "";
-  const ctaLinkIsUnmapped =
-    isEdit && ctaLinkValue !== "" && !dynamicCtaDepartmentValues.includes(ctaLinkValue);
-  const ctaLinkChanged = ctaLinkValue !== storedCtaLink;
-
   return (
     <Modal
       title={isEdit ? "Edit Banner" : "Create New Banner"}
       onClose={onClose}
       width={700}
     >
-      <form onSubmit={handleSubmit}>
+      <form noValidate onSubmit={handleSubmit}>
         {currentIsHeroCapped && (
           <div
             style={{
@@ -302,26 +290,45 @@ export default function BannerFormModal({ banner, heroCount = 0, onClose, onSave
           <FormField
             label="Primary CTA Link"
             htmlFor="b-cta1-link"
-            hint="Department the Explore Now button opens"
-            error={
-              errors.primary_cta_link ||
-              (ctaLinkIsUnmapped
-                ? `Currently set to "${ctaLinkValue}" — pick a department to change it.`
-                : null)
-            }
+            hint="Choose where visitors go when clicking this banner"
+            error={errors.primary_cta_link}
           >
             <select
               id="b-cta1-link"
-              value={ctaLinkSelectValue}
-              onChange={(e) => update("primary_cta_link", e.target.value)}
+              value={form.primary_cta_link || ""}
+              onChange={(e) => {
+                const val = e.target.value;
+                update("primary_cta_link", val);
+                if (!form.primary_cta_text && val) {
+                  const matchedCat = categories.find(
+                    (c) => `/collection?category=${encodeURIComponent(c.slug)}` === val
+                  );
+                  if (matchedCat) update("primary_cta_text", `Shop ${matchedCat.name}`);
+                  else if (val === "/collection") update("primary_cta_text", "Shop All");
+                }
+              }}
             >
-              <option value="">— Select department —</option>
-              {dynamicCtaDepartments.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
+              <option value="">-- Select Category --</option>
+              <option value="/collection">All Categories (Shop All)</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={`/collection?category=${encodeURIComponent(cat.slug)}`}>
+                  {cat.name}
                 </option>
               ))}
+              {form.primary_cta_link &&
+                form.primary_cta_link !== "/collection" &&
+                !categories.some((c) => `/collection?category=${encodeURIComponent(c.slug)}` === form.primary_cta_link) && (
+                  <option value={form.primary_cta_link}>{form.primary_cta_link}</option>
+              )}
             </select>
+            {form.primary_cta_link && (
+              <div style={{ fontSize: 11.5, color: "#64748b", marginTop: 5, display: "flex", alignItems: "center", gap: 5 }}>
+                <span>Target:</span>
+                <code style={{ background: "#f1f5f9", padding: "1px 6px", borderRadius: 4, color: "#334155", fontSize: 11 }}>
+                  {form.primary_cta_link}
+                </code>
+              </div>
+            )}
           </FormField>
         </div>
 

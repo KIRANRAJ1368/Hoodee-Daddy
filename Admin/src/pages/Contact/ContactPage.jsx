@@ -20,11 +20,11 @@ export default function ContactPage() {
   async function load() {
     setIsLoading(true);
     try {
-      const { data, meta } = await contactApi.list({ page, limit: 15 });
+      const { data, meta } = await contactApi.list({ page, limit: 10 });
       setSubmissions(data || []);
       setMeta(meta || { page: 1, totalPages: 1, total: 0 });
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.message || "Failed to load customer inquiries");
     } finally {
       setIsLoading(false);
     }
@@ -41,7 +41,7 @@ export default function ContactPage() {
       setViewing(data);
       setSubmissions((prev) => prev.map((s) => (s.id === row.id ? { ...s, status: data.status } : s)));
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.message || "Failed to load inquiry details");
     }
   }
 
@@ -52,7 +52,7 @@ export default function ContactPage() {
       setSubmissions((prev) => prev.map((s) => (s.id === data.id ? data : s)));
       toast.success("Inquiry status updated");
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.message || "Failed to update inquiry status");
     }
   }
 
@@ -64,11 +64,11 @@ export default function ContactPage() {
     if (!ok) return;
     try {
       await contactApi.remove(row.id);
-      toast.success("Message deleted");
+      toast.delete(`Inquiry message from "${row.name}" has been deleted successfully.`);
       setViewing(null);
       load();
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.message || "Failed to delete customer inquiry");
     }
   }
 

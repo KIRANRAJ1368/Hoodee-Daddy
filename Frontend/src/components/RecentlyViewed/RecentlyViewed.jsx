@@ -5,7 +5,9 @@ import "./RecentlyViewed.css";
 export default function RecentlyViewed() {
   const { recentlyViewed } = useShop();
 
-  if (recentlyViewed.length === 0) return null;
+  const displayItems = recentlyViewed.slice(0, 4);
+
+  if (displayItems.length === 0) return null;
 
   return (
     <section className="recently-viewed-section" aria-labelledby="recently-viewed-title">
@@ -18,8 +20,8 @@ export default function RecentlyViewed() {
           </p>
         </div>
         <div className="recently-viewed-grid">
-          {recentlyViewed.map((product) => (
-            <ProductCard key={`recent-${product.id}`} product={product} showMeta />
+          {displayItems.map((product) => (
+            <ProductCard key={`recent-${product.id}`} product={product} />
           ))}
         </div>
       </div>

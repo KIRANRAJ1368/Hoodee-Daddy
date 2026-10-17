@@ -6,6 +6,7 @@ import { subcategoriesApi } from "../../services/resources";
 import { useToast } from "../../context/ToastContext";
 import { ApiError } from "../../services/api";
 import { slugify } from "../../utils/slugify";
+import { broadcastCatalogUpdate } from "../../utils/broadcastCatalogUpdate";
 
 export default function SubcategoryFormModal({ subcategory, categories, onClose, onSaved }) {
   const isEdit = !!subcategory.id;
@@ -50,13 +51,13 @@ export default function SubcategoryFormModal({ subcategory, categories, onClose,
     }
 
     if (!trimmedName) {
-      errs.name = "Subcategory title is required";
+      errs.name = "Please enter the subcategory title";
     } else if (trimmedName.length > 80) {
       errs.name = "Subcategory title must be under 80 characters";
     }
 
     if (!trimmedSlug) {
-      errs.slug = "URL slug is required";
+      errs.slug = "Please enter the URL slug";
     } else if (!/^[a-z0-9-]+$/.test(trimmedSlug)) {
       errs.slug = "Slug may only contain lowercase letters, numbers, and hyphens";
     }
@@ -89,10 +90,12 @@ export default function SubcategoryFormModal({ subcategory, categories, onClose,
 
       if (isEdit) {
         await subcategoriesApi.update(subcategory.id, payload);
-        toast.success("Subcategory updated successfully");
+        broadcastCatalogUpdate({ action: "SUBCATEGORY_UPDATED", subcategoryId: subcategory.id, slug: payload.slug });
+        toast.success(`Subcategory "${payload.name}" updated successfully!`);
       } else {
-        await subcategoriesApi.create(payload);
-        toast.success("Subcategory created successfully");
+        const res = await subcategoriesApi.create(payload);
+        broadcastCatalogUpdate({ action: "SUBCATEGORY_CREATED", subcategoryId: res?.data?.id, slug: payload.slug });
+        toast.success(`Subcategory "${payload.name}" created successfully!`);
       }
       onSaved();
     } catch (err) {
@@ -111,7 +114,7 @@ export default function SubcategoryFormModal({ subcategory, categories, onClose,
       onClose={onClose}
       width={600}
     >
-      <form onSubmit={handleSubmit}>
+      <form noValidate onSubmit={handleSubmit}>
         <FormField label="Parent Category *" htmlFor="sub-category" error={errors.category_id}>
           <select
             id="sub-category"

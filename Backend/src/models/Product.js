@@ -25,6 +25,7 @@ module.exports = (sequelize, DataTypes) => {
 
       in_stock: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
       stock_count: { type: DataTypes.INTEGER.UNSIGNED, allowNull: false, defaultValue: 0 },
+      sales_count: { type: DataTypes.INTEGER.UNSIGNED, allowNull: false, defaultValue: 0 },
 
       is_best_seller: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
       is_new_arrival: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
@@ -36,7 +37,16 @@ module.exports = (sequelize, DataTypes) => {
 
       // Publish toggle — inactive products are hidden from public APIs but
       // kept for admin/order history.
-      is_active: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true }
+      is_active: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
+
+      // Dynamic Specifications array: [{ title: "SILHOUETTE", value: "Relaxed Regular Fit" }]
+      specifications: { type: DataTypes.JSON, allowNull: true },
+
+      // On-page SEO Metadata fields
+      meta_title: { type: DataTypes.STRING(255), allowNull: true },
+      meta_description: { type: DataTypes.TEXT, allowNull: true },
+      meta_keywords: { type: DataTypes.STRING(500), allowNull: true },
+      canonical_url: { type: DataTypes.STRING(255), allowNull: true }
     },
     {
       tableName: "products",

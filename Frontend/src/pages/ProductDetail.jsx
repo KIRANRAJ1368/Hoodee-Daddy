@@ -1,9 +1,12 @@
-import { useState, useMemo, useEffect } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
+import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
+import SeoHead from "../components/Seo/SeoHead";
+import { buildProductSchema, buildBreadcrumbSchema } from "../utils/seoSchemas";
 import { useShop } from "../context/ShopContext";
 import ProductCard from "../components/ProductCard/ProductCard";
 import SizeGuideModal from "../components/Modals/SizeGuideModal";
 import { imageUrl } from "../utils/imageUrl";
+import { getProductPricing } from "../utils/pricing";
 import { storefrontApi } from "../services/storefrontApi";
 import "./ProductDetail.css";
 
@@ -55,11 +58,14 @@ function getDefaultSelection(prod) {
 }
 
 export default function ProductDetail() {
-  const { productId } = useParams();
+  const { productId, slug } = useParams();
+  const productIdentifier = slug || productId;
+  const location = useLocation();
   const navigate = useNavigate();
   const {
     formatPrice,
     addToCart,
+    beginBuyNow,
     wishlist,
     isInWishlist,
     toggleWishlist,
@@ -68,12 +74,117 @@ export default function ProductDetail() {
     findProduct,
     recentlyViewed,
     trackRecentlyViewed,
-    categories
+    categories,
+    seoSettings,
+    customerUser,
+    customerToken,
+    isCustomerAuthenticated,
+    setAuthModalState,
+    setPendingCheckout,
+    setCheckoutIntent,
+    addToast
   } = useShop();
 
-  const [product, setProduct] = useState(() => findProduct(productId));
+  const [product, setProduct] = useState(() => findProduct(productIdentifier));
   const [isLoading, setIsLoading] = useState(!product);
   const [loadError, setLoadError] = useState(null);
+  const [reviewsData, setReviewsData] = useState(null);
+  const [isLoadingReviews, setIsLoadingReviews] = useState(false);
+
+  // Review Form States
+  const [isWritingReview, setIsWritingReview] = useState(false);
+  const [reviewFormRating, setReviewFormRating] = useState(5);
+  const [reviewFormHoverRating, setReviewFormHoverRating] = useState(0);
+  const [reviewFormName, setReviewFormName] = useState("");
+  const [reviewFormTitle, setReviewFormTitle] = useState("");
+  const [reviewFormComment, setReviewFormComment] = useState("");
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [reviewSuccessMsg, setReviewSuccessMsg] = useState("");
+  const [reviewErrorMsg, setReviewErrorMsg] = useState("");
+
+  const handleReviewSubmit = async (e) => {
+    if (e) e.preventDefault();
+    setReviewErrorMsg("");
+    if (!customerUser && (!reviewFormName || !reviewFormName.trim())) {
+      setReviewErrorMsg("Please enter your name.");
+      return;
+    }
+    if (!reviewFormComment || reviewFormComment.trim().length < 5) {
+      setReviewErrorMsg("Please enter a review comment of at least 5 characters.");
+      return;
+    }
+    if (!reviewFormRating || reviewFormRating < 1 || reviewFormRating > 5) {
+      setReviewErrorMsg("Please select a rating between 1 and 5 stars.");
+      return;
+    }
+    const name = (customerUser?.name || reviewFormName || "Verified Patron").trim();
+    setReviewSubmitting(true);
+    try {
+      const payload = {
+        rating: Number(reviewFormRating || 5),
+        title: reviewFormTitle ? reviewFormTitle.trim() : null,
+        comment: reviewFormComment.trim(),
+        customer_name: name,
+        customer_email: customerUser?.email || null
+      };
+      const res = await storefrontApi.submitProductReview(productIdentifier, payload, customerToken);
+
+      const createdReview = res?.data || res || {
+        id: Date.now(),
+        customerName: name,
+        rating: Number(reviewFormRating || 5),
+        title: reviewFormTitle ? reviewFormTitle.trim() : null,
+        comment: reviewFormComment.trim(),
+        verifiedPurchase: true,
+        createdAt: new Date().toISOString()
+      };
+
+      setReviewsData((prev) => {
+        const existingReviews = prev?.reviews ? [...prev.reviews] : [];
+        const updatedList = [createdReview, ...existingReviews];
+        const newTotal = updatedList.length;
+        const newAvg = Number(
+          (updatedList.reduce((sum, r) => sum + Number(r.rating || 5), 0) / newTotal).toFixed(1)
+        );
+        const newBreakdown = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+        updatedList.forEach((r) => {
+          const score = Math.min(5, Math.max(1, Math.round(Number(r.rating || 5))));
+          newBreakdown[score] = (newBreakdown[score] || 0) + 1;
+        });
+        const newBreakdownPct = {};
+        for (let s = 1; s <= 5; s++) {
+          newBreakdownPct[s] = Math.round((newBreakdown[s] / newTotal) * 100);
+        }
+
+        return {
+          productId: product?.id,
+          productName: product?.name,
+          averageRating: newAvg,
+          totalReviews: newTotal,
+          breakdown: newBreakdown,
+          breakdownPercentages: newBreakdownPct,
+          reviews: updatedList,
+          userEligibility: {
+            ...(prev?.userEligibility || {}),
+            canReview: false,
+            alreadyReviewed: true,
+            reason: "already_reviewed",
+            message: "You have already reviewed this product."
+          }
+        };
+      });
+
+      setReviewSuccessMsg("Thank you! Your review has been added.");
+      setReviewFormTitle("");
+      setReviewFormComment("");
+      setIsWritingReview(false);
+      if (addToast) addToast("Review submitted successfully!", "success");
+    } catch (err) {
+      setReviewErrorMsg(err.message || "Could not submit review. Please try again.");
+    } finally {
+      setReviewSubmitting(false);
+    }
+  };
 
   const [selectedColor, setSelectedColor] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
@@ -82,6 +193,8 @@ export default function ProductDetail() {
   const [copiedCoupon, setCopiedCoupon] = useState(null);
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [isDualView, setIsDualView] = useState(true);
 
   // Accordions state
   const [openAccordions, setOpenAccordions] = useState({
@@ -105,10 +218,12 @@ export default function ProductDetail() {
     setQuantity(1);
     setAddedToCart(false);
     setPreviewImage(null);
+    setActiveImageIndex(0);
+    setIsDualView(true);
     setLoadError(null);
 
     let isMounted = true;
-    const initialMatch = findProduct(productId);
+    const initialMatch = findProduct(productIdentifier);
 
     if (initialMatch) {
       setProduct(initialMatch);
@@ -124,7 +239,7 @@ export default function ProductDetail() {
 
     // Always fetch fresh dynamic data for this specific product
     storefrontApi
-      .product(productId)
+      .product(productIdentifier)
       .then((data) => {
         if (!isMounted || !data) return;
         setProduct(data);
@@ -151,12 +266,64 @@ export default function ProductDetail() {
     return () => {
       isMounted = false;
     };
-  }, [productId, findProduct, trackRecentlyViewed]);
+  }, [productIdentifier]);
+
+  // Always fetch fresh dynamic reviews & purchase eligibility for this product
+  useEffect(() => {
+    let isMounted = true;
+    const targetProductKey = product?.id || productIdentifier;
+    if (!targetProductKey) return;
+    setIsLoadingReviews(true);
+    storefrontApi
+      .getProductReviews(targetProductKey, customerToken)
+      .then((reviewsRes) => {
+        if (!isMounted || !reviewsRes) return;
+        setReviewsData(reviewsRes);
+      })
+      .catch((err) => {
+        console.warn("Could not load product reviews:", err);
+      })
+      .finally(() => {
+        if (isMounted) setIsLoadingReviews(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [product?.id, productIdentifier, customerToken]);
+
+  const scrollToReviews = useCallback(() => {
+    const el = document.getElementById("customer-reviews");
+    if (el) {
+      const yOffset = -90;
+      const targetY = Math.max(0, el.getBoundingClientRect().top + window.pageYOffset + yOffset);
+      window.scrollTo({ top: targetY, behavior: "smooth" });
+      el.classList.add("pd-reviews-highlight");
+      setTimeout(() => el.classList.remove("pd-reviews-highlight"), 1600);
+    }
+  }, []);
+
+  // Canonical 301-equivalent redirect: When accessed via legacy /product/:id, redirect to canonical /products/:slug
+  useEffect(() => {
+    if (product?.slug && location.pathname.startsWith("/product/")) {
+      navigate(`/products/${product.slug}${location.hash || ""}`, { replace: true });
+    }
+  }, [product?.slug, location.pathname, location.hash, navigate]);
+
+  // Smoothly scroll to customer reviews section when hash is #customer-reviews
+  useEffect(() => {
+    if (location.hash === "#customer-reviews") {
+      const timer = setTimeout(() => {
+        scrollToReviews();
+      }, 350);
+      return () => clearTimeout(timer);
+    }
+  }, [location.hash, product?.id, reviewsData, scrollToReviews]);
 
   useEffect(() => {
-    const latestProduct = findProduct(productId);
+    const latestProduct = findProduct(productIdentifier);
     if (latestProduct) setProduct(latestProduct);
-  }, [allProducts, findProduct, productId]);
+  }, [allProducts, findProduct, productIdentifier]);
 
   // Close Lightbox preview modal on Escape key
   useEffect(() => {
@@ -178,27 +345,38 @@ export default function ProductDetail() {
     });
   }, [product, selectedColor, selectedSize]);
 
-  // Put the active variant's images first so the selected color/size is visible immediately.
+  // Resolve all product images dynamically: variant images first, then product-level images (front, back, thumbnails).
   const galleryImages = useMemo(() => {
     if (!product) return [];
     const productImages = [];
     if (Array.isArray(product.images) && product.images.length > 0) {
       product.images.forEach((img) => {
-        if (img && typeof img === "string") productImages.push(img);
-        else if (img && typeof img.url === "string") productImages.push(img.url);
+        if (img && typeof img === "string") productImages.push(img.trim());
+        else if (img && typeof img.url === "string") productImages.push(img.url.trim());
       });
     } else if (product.image) {
-      productImages.push(product.image);
+      productImages.push(typeof product.image === "string" ? product.image.trim() : "");
     }
 
-    const variantImages = [currentVariant?.imageUrl, ...(currentVariant?.galleryImages || [])]
-      .filter((image) => typeof image === "string" && image);
-    const unique = [...new Set([...variantImages, ...productImages])];
+    const variantImages = [
+      currentVariant?.imageUrl,
+      ...(Array.isArray(currentVariant?.galleryImages) ? currentVariant.galleryImages : [])
+    ]
+      .filter((image) => typeof image === "string" && image.trim().length > 0)
+      .map((image) => image.trim());
+
+    if (variantImages.length > 0) return variantImages;
+
+    const combined = [...variantImages, ...productImages].filter(Boolean);
+    const unique = [...new Set(combined)];
     return unique.length > 0 ? unique : ["/images/photo-1521572163474-6864f9cf17ab.jpg"];
   }, [product, currentVariant]);
 
+  const safeActiveIndex = activeImageIndex >= 0 && activeImageIndex < galleryImages.length ? activeImageIndex : 0;
+  const showDualView = isDualView && galleryImages.length >= 2;
+
   const recentlyViewedProducts = useMemo(
-    () => recentlyViewed.filter((p) => String(p.id) !== String(product?.id)).slice(0, 8),
+    () => recentlyViewed.filter((p) => String(p.id) !== String(product?.id)).slice(0, 4),
     [recentlyViewed, product]
   );
 
@@ -209,11 +387,25 @@ export default function ProductDetail() {
   const isOutOfStock = hasVariants
     ? !currentVariant || Number(currentVariant.stockCount ?? 0) <= 0
     : !product?.inStock;
-  const activePrice = Number(currentVariant?.priceOverride ?? product?.price ?? 0);
-  const displayOriginalPrice = Number(product?.originalPrice ?? 0) > activePrice
-    ? Number(product.originalPrice)
-    : null;
+  const pricing = useMemo(
+    () => getProductPricing(product, currentVariant),
+    [product, currentVariant, currentVariant?.priceOverride]
+  );
+  const activePrice = pricing.price;
+  const displayOriginalPrice = pricing.originalPrice;
+  const isOffer = pricing.isOffer;
   const isLowStock = !isOutOfStock && activeStockCount > 0 && activeStockCount <= 5;
+  const totalReviewsCount = Number(
+    reviewsData?.totalReviews ??
+    reviewsData?.reviews?.length ??
+    product?.reviewCount ??
+    0
+  );
+  const averageRatingScore = Number(
+    reviewsData?.averageRating ??
+    (totalReviewsCount > 0 ? product?.rating : 0) ??
+    0
+  );
 
   // Clamp quantity if active stock changes or becomes lower
   useEffect(() => {
@@ -238,6 +430,60 @@ export default function ProductDetail() {
     });
     return set;
   }, [product, selectedColor]);
+
+  // Determine category page navigation dynamically from real categories
+  const catKey = (product?.category || "").toLowerCase();
+  const matchedCategory = (categories || []).find(
+    (c) => c.slug?.toLowerCase() === catKey || (catKey === "mens" && c.slug?.toLowerCase() === "men") || (catKey === "men" && c.slug?.toLowerCase() === "mens")
+  );
+  const categorySlug = matchedCategory?.slug || catKey || "mens";
+  const collectionPath = `/categories/${encodeURIComponent(categorySlug)}`;
+  const canonicalPath = product?.slug ? `/products/${product.slug}` : `/products/${productIdentifier}`;
+  const baseUrl = (seoSettings?.canonical_base_url || "https://zmwclothing.com").replace(/\/+$/, "");
+
+  const formatCollectionLabel = (name) => {
+    if (!name) return "Collection";
+    const trimmed = name.trim();
+    if (trimmed.toLowerCase().endsWith("s")) return `${trimmed}' Collection`;
+    return `${trimmed}'s Collection`;
+  };
+  const collectionLabel = formatCollectionLabel(matchedCategory?.name || (catKey ? catKey.charAt(0).toUpperCase() + catKey.slice(1) : ""));
+
+  const seoTitle = useMemo(() => {
+    if (!product) return "Product Details | ZMW Clothing";
+    if (product.metaTitle) return product.metaTitle;
+    const format = seoSettings?.product_title_format || "{name} | ZMW Clothing";
+    return format
+      .replace("{name}", product.name || "")
+      .replace("{category}", matchedCategory?.name || catKey || "")
+      .replace("{price}", product.price ? `₹${product.price}` : "");
+  }, [product, seoSettings, matchedCategory, catKey]);
+
+  const seoDescription = useMemo(() => {
+    if (!product) return "Handcrafted luxury apparel from ZMW Clothing.";
+    if (product.metaDescription) return product.metaDescription;
+    if (seoSettings?.product_description_format && seoSettings.product_description_format.includes("{name}")) {
+      return seoSettings.product_description_format
+        .replace("{name}", product.name || "")
+        .replace("{description}", product.description || "");
+    }
+    return product ? (product.description || `Buy ${product.name} online at ZMW Clothing. Premium luxury fabrics, considered tailoring, and pan-India delivery.`) : "Handcrafted luxury apparel from ZMW Clothing.";
+  }, [product, seoSettings]);
+
+  const productSchemas = useMemo(() => {
+    if (!product) return null;
+    const prodSchema = buildProductSchema(product, baseUrl, activePrice);
+    const breadcrumbSchema = buildBreadcrumbSchema(
+      [
+        { name: "Home", path: "/" },
+        { name: collectionLabel || "Collection", path: collectionPath },
+        ...(product.subCategory ? [{ name: product.subCategory, path: `/categories/${encodeURIComponent(categorySlug)}/${encodeURIComponent(product.subCategory.toLowerCase().replace(/[^a-z0-9]+/g, "-"))}` }] : []),
+        { name: product.name, path: canonicalPath }
+      ],
+      baseUrl
+    );
+    return [prodSchema, breadcrumbSchema].filter(Boolean);
+  }, [product, baseUrl, activePrice, collectionLabel, collectionPath, categorySlug, canonicalPath]);
 
   if (isLoading && !product) {
     return (
@@ -274,20 +520,6 @@ export default function ProductDetail() {
     ? Math.round(((displayOriginalPrice - activePrice) / displayOriginalPrice) * 100)
     : null;
 
-  // Determine category page navigation dynamically from real categories
-  const catKey = (product.category || "").toLowerCase();
-  const matchedCategory = (categories || []).find(
-    (c) => c.slug?.toLowerCase() === catKey || (catKey === "mens" && c.slug?.toLowerCase() === "men") || (catKey === "men" && c.slug?.toLowerCase() === "mens")
-  );
-  const collectionPath = `/collection?category=${encodeURIComponent(matchedCategory?.slug || catKey || "all")}`;
-  const formatCollectionLabel = (name) => {
-    if (!name) return "Collection";
-    const trimmed = name.trim();
-    if (trimmed.toLowerCase().endsWith("s")) return `${trimmed}' Collection`;
-    return `${trimmed}'s Collection`;
-  };
-  const collectionLabel = formatCollectionLabel(matchedCategory?.name || (catKey ? catKey.charAt(0).toUpperCase() + catKey.slice(1) : ""));
-
   const isWomensProduct = catKey === "women" || catKey === "womens";
   const isKidsProduct = ["kids", "boys", "girls", "babies"].includes(catKey);
   const isBabiesProduct = catKey === "babies";
@@ -295,6 +527,8 @@ export default function ProductDetail() {
   // Intelligent Color Select: switches to in-stock size if current size isn't available in new color
   const handleColorSelect = (colorName) => {
     setSelectedColor(colorName);
+    setActiveImageIndex(0);
+    setIsDualView(true);
     if (product?.variants?.length) {
       const variantsForColor = product.variants.filter(
         (v) => v.color && v.color.toLowerCase() === colorName.toLowerCase()
@@ -315,7 +549,7 @@ export default function ProductDetail() {
     }
   };
 
-  // Add to Cart handler
+  // Add to Cart handler — adds to bag and opens cart drawer
   const handleAddToCart = () => {
     if (isOutOfStock) return;
     addToCart(product, selectedColor, selectedSize, quantity);
@@ -326,11 +560,23 @@ export default function ProductDetail() {
     }, 500);
   };
 
-  // Instant Buy Now handler
+  // Instant Buy Now handler — goes directly to checkout, never opens cart drawer
   const handleBuyNow = () => {
     if (isOutOfStock) return;
-    addToCart(product, selectedColor, selectedSize, quantity);
-    navigate("/checkout");
+    const ok = beginBuyNow(product, selectedColor, selectedSize, quantity);
+    if (!ok) return;
+
+    // Explicitly guarantee cart drawer stays closed
+    setIsCartOpen(false);
+
+    if (!isCustomerAuthenticated) {
+      setCheckoutIntent("buy-now");
+      setPendingCheckout(true);
+      setAuthModalState("register");
+      return;
+    }
+
+    navigate("/checkout", { state: { buyNow: true } });
   };
 
   // Copy coupon handler
@@ -406,8 +652,31 @@ export default function ProductDetail() {
     }
   ];
 
+  const specificationsList = (() => {
+    let list = [];
+    if (product?.specifications) {
+      if (Array.isArray(product.specifications)) list = product.specifications;
+      else if (typeof product.specifications === "string") {
+        try {
+          const parsed = JSON.parse(product.specifications);
+          if (Array.isArray(parsed)) list = parsed;
+        } catch {}
+      }
+    }
+    if (list.length > 0) return list;
+    return highlights.slice(0, 4).map((h) => ({ title: h.label, value: h.value }));
+  })();
+
   return (
     <div className="product-detail-page">
+      <SeoHead
+        title={seoTitle}
+        description={seoDescription}
+        canonicalPath={canonicalPath}
+        ogImage={previewImage || (product.images && product.images[0]) || product.image}
+        schemas={productSchemas}
+        keywords={product.metaKeywords || `${product.name}, ${matchedCategory?.name || "apparel"}, streetwear, ZMW Clothing`}
+      />
       {/* ── Breadcrumb Navigation ─────────────────────────────────── */}
       <div className="pd-breadcrumb-bar">
         <div className="container">
@@ -418,7 +687,7 @@ export default function ProductDetail() {
             {product.subCategory && (
               <>
                 <span className="pd-sep">/</span>
-                <Link to={`/collection?category=${encodeURIComponent(catKey)}&type=${encodeURIComponent(product.subCategory.toLowerCase())}`}>
+                <Link to={`/categories/${encodeURIComponent(categorySlug)}/${encodeURIComponent(product.subCategory.toLowerCase().replace(/[^a-z0-9]+/g, "-"))}`}>
                   {product.subCategory}
                 </Link>
               </>
@@ -436,38 +705,91 @@ export default function ProductDetail() {
             {/* ── Left: Dual-Image (Two Side-by-Side) Fashion Grid ── */}
             <div className="pd-gallery-col">
               <div className="pd-dual-images-grid">
-                {galleryImages.map((img, idx) => (
+                {showDualView ? (
+                  galleryImages.slice(0, 2).map((img, idx) => (
+                    <div
+                      key={`${img}-${idx}`}
+                      className="pd-grid-image-item"
+                      onClick={() => setPreviewImage(img)}
+                      title="Click to view full resolution"
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => e.key === "Enter" && setPreviewImage(img)}
+                    >
+                      {idx === 0 && (
+                        <>
+                          <span className="pd-overlay-badge-top">
+                            {product.badge || ((product.subCategory || product.name || "").toLowerCase().includes("oversized") ? "OVERSIZED FIT" : "PREMIUM FIT")}
+                          </span>
+                          <span className="pd-overlay-badge-bottom">
+                            {isBabiesProduct
+                              ? "100% ORGANIC COTTON"
+                              : isKidsProduct
+                              ? "SUPER-SOFT ORGANIC"
+                              : isWomensProduct
+                              ? "COMBED PURE COTTON"
+                              : "240 GSM COMBED COTTON"}
+                          </span>
+                        </>
+                      )}
+                      {idx === 1 && (
+                        <span className="pd-overlay-badge-top" style={{ background: "rgba(15, 23, 42, 0.75)" }}>
+                          BACK VIEW
+                        </span>
+                      )}
+
+                      <img
+                        src={imageUrl(img)}
+                        alt={`${product.name} - ${idx === 0 ? "front view" : "back view"}`}
+                        className="pd-grid-img"
+                        loading={idx < 2 ? "eager" : "lazy"}
+                        onError={(event) => { event.currentTarget.src = "/images/zmw-logo-transparent.png"; }}
+                      />
+
+                      <div className="pd-zoom-hint">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <circle cx="11" cy="11" r="8" />
+                          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                          <line x1="11" y1="8" x2="11" y2="14" />
+                          <line x1="8" y1="11" x2="14" y2="11" />
+                        </svg>
+                        <span>Enlarge</span>
+                      </div>
+                    </div>
+                  ))
+                ) : (
                   <div
-                    key={`${img}-${idx}`}
-                    className={`pd-grid-image-item ${galleryImages.length === 1 ? "is-single" : ""}`}
-                    onClick={() => setPreviewImage(img)}
+                    className="pd-grid-image-item is-single"
+                    onClick={() => setPreviewImage(galleryImages[safeActiveIndex] || galleryImages[0])}
                     title="Click to view full resolution"
                     role="button"
                     tabIndex={0}
-                    onKeyDown={(e) => e.key === "Enter" && setPreviewImage(img)}
+                    onKeyDown={(e) => e.key === "Enter" && setPreviewImage(galleryImages[safeActiveIndex] || galleryImages[0])}
                   >
-                    {idx === 0 && (
-                      <>
-                        <span className="pd-overlay-badge-top">
-                          {product.badge || ((product.subCategory || product.name || "").toLowerCase().includes("oversized") ? "OVERSIZED FIT" : "PREMIUM FIT")}
-                        </span>
-                        <span className="pd-overlay-badge-bottom">
-                          {isBabiesProduct
-                            ? "100% ORGANIC COTTON"
-                            : isKidsProduct
-                            ? "SUPER-SOFT ORGANIC"
-                            : isWomensProduct
-                            ? "COMBED PURE COTTON"
-                            : "240 GSM COMBED COTTON"}
-                        </span>
-                      </>
+                    <span className="pd-overlay-badge-top">
+                      {safeActiveIndex === 0
+                        ? (product.badge || ((product.subCategory || product.name || "").toLowerCase().includes("oversized") ? "OVERSIZED FIT" : "PREMIUM FIT"))
+                        : safeActiveIndex === 1
+                        ? "BACK VIEW"
+                        : `VIEW ${safeActiveIndex + 1}`}
+                    </span>
+                    {safeActiveIndex === 0 && (
+                      <span className="pd-overlay-badge-bottom">
+                        {isBabiesProduct
+                          ? "100% ORGANIC COTTON"
+                          : isKidsProduct
+                          ? "SUPER-SOFT ORGANIC"
+                          : isWomensProduct
+                          ? "COMBED PURE COTTON"
+                          : "240 GSM COMBED COTTON"}
+                      </span>
                     )}
 
                     <img
-                      src={imageUrl(img)}
-                      alt={`${product.name} - view ${idx + 1}`}
+                      src={imageUrl(galleryImages[safeActiveIndex] || galleryImages[0])}
+                      alt={`${product.name} - view ${safeActiveIndex + 1}`}
                       className="pd-grid-img"
-                      loading={idx < 2 ? "eager" : "lazy"}
+                      loading="eager"
                       onError={(event) => { event.currentTarget.src = "/images/zmw-logo-transparent.png"; }}
                     />
 
@@ -481,8 +803,64 @@ export default function ProductDetail() {
                       <span>Enlarge</span>
                     </div>
                   </div>
-                ))}
+                )}
               </div>
+
+              {/* ── Small Thumbnails Strip (Front, Back & All Additional Views) ── */}
+              {galleryImages.length > 1 && (
+                <div className="pd-thumbnails-strip" aria-label="Product image gallery thumbnails">
+                  <div className="pd-thumbnails-header">
+                    <div className="pd-thumbnails-header-left">
+                      <span className="pd-thumbnails-label">All Views</span>
+                      <span className="pd-thumbnails-count-badge">{galleryImages.length} images</span>
+                    </div>
+                    {galleryImages.length >= 2 && (
+                      <button
+                        type="button"
+                        className="pd-thumbnails-reset-btn"
+                        onClick={() => {
+                          setIsDualView((prev) => !prev);
+                          if (!showDualView) {
+                            setActiveImageIndex(0);
+                          }
+                        }}
+                        title={showDualView ? "Switch to single view" : "Switch to dual front and back view"}
+                      >
+                        {showDualView ? "Focus Single View" : "Dual View (Front & Back)"}
+                      </button>
+                    )}
+                  </div>
+                  <div className="pd-thumbnails-grid" role="tablist" aria-label="Product thumbnails">
+                    {galleryImages.map((img, idx) => {
+                      const isActive = showDualView ? (idx === 0 || idx === 1) : idx === safeActiveIndex;
+                      const label = idx === 0 ? "Front" : idx === 1 ? "Back" : `${idx + 1}`;
+                      return (
+                        <button
+                          key={`thumb-${img}-${idx}`}
+                          type="button"
+                          role="tab"
+                          aria-selected={isActive}
+                          className={`pd-thumbnail-item ${isActive ? "is-active" : ""}`}
+                          onClick={() => {
+                            setActiveImageIndex(idx);
+                            setIsDualView(false);
+                          }}
+                          title={`View ${label} image`}
+                        >
+                          <img
+                            src={imageUrl(img)}
+                            alt={`${product.name} thumbnail ${label}`}
+                            className="pd-thumbnail-img"
+                            loading="lazy"
+                            onError={(e) => { e.currentTarget.src = "/images/zmw-logo-transparent.png"; }}
+                          />
+                          <span className="pd-thumbnail-num">{label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* ── Right: Product Info & Purchase Form ── */}
@@ -514,20 +892,38 @@ export default function ProductDetail() {
 
                 {/* Rating & SKU */}
                 <div className="pd-rating-sku-row">
-                  <div className="pd-stars-wrap">
-                    <div className="pd-stars">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <svg key={star} width="15" height="15" viewBox="0 0 24 24" fill={star <= Math.round(Number(product.rating || 5)) ? "var(--color-accent)" : "none"} stroke="var(--color-accent)" strokeWidth="1.5">
-                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                        </svg>
-                      ))}
-                    </div>
-                    <span className="pd-rating-val">{product.rating && Number(product.rating) > 0 ? product.rating : "5.0"}</span>
-                    <span className="pd-rating-count">({product.reviewCount && Number(product.reviewCount) > 0 ? `${product.reviewCount} customer reviews` : "Verified Collection"})</span>
-                  </div>
+                  {totalReviewsCount > 0 && (
+                    <button
+                      type="button"
+                      className="pd-star-rating-pill"
+                      onClick={scrollToReviews}
+                      title="Click to view verified customer reviews"
+                      aria-label={`View ${totalReviewsCount} customer reviews`}
+                    >
+                      <span className="pd-star-icon">★</span>
+                      <span className="pd-star-score">{averageRatingScore.toFixed(1)}</span>
+                      <span className="pd-star-count">
+                        ({totalReviewsCount} {totalReviewsCount === 1 ? "review" : "reviews"})
+                      </span>
+                    </button>
+                  )}
                   <span className="pd-sku-label">SKU: <strong>{currentVariant?.skuSuffix ? `${product.sku}-${currentVariant.skuSuffix}` : product.sku}</strong></span>
+                  <span className="pd-genuine-badge">100% GENUINE APPAREL</span>
                 </div>
               </div>
+
+              {/* Active Offer Banner Alert when offer is live */}
+              {isOffer && (
+                <div className="pd-offer-alert">
+                  <span className="pd-offer-alert-badge">⚡ OFFER ACTIVE</span>
+                  <span className="pd-offer-alert-title">{product?.offer?.name || "Special Deal"}</span>
+                  <span className="pd-offer-alert-value">
+                    {pricing.discountType === "flat"
+                      ? `Flat ₹${pricing.discountValue} OFF applied on MRP`
+                      : `${pricing.savingsPercent}% OFF applied on MRP`}
+                  </span>
+                </div>
+              )}
 
               {/* Price & Savings Badge */}
               <div className="pd-price-row">
@@ -535,47 +931,15 @@ export default function ProductDetail() {
                 {displayOriginalPrice && (
                   <>
                     <span className="pd-price-original">{formatPrice(displayOriginalPrice)}</span>
-                    <span className="pd-discount-chip">SAVE {discountPct}%</span>
+                    <span className="pd-discount-chip">
+                      {isOffer
+                        ? (pricing.discountType === "flat" ? `FLAT ₹${pricing.discountValue} OFF` : `SAVE ${pricing.savingsPercent}%`)
+                        : `SAVE ${discountPct}%`}
+                    </span>
                   </>
                 )}
               </div>
               <p className="pd-tax-caption">Price inclusive of all taxes. Free express shipping available across India.</p>
-
-              {/* Essential Product Description (Directly Visible) */}
-              <div className="pd-main-description-box">
-                <p className="pd-main-description-text">{product.description}</p>
-              </div>
-
-              {/* Promo Privilege Offers (ZMW Luxury Style) */}
-              <div className="pd-offers-wrap">
-                <div className="pd-offer-card">
-                  <div className="pd-offer-text">
-                    <span className="pd-offer-badge">MEMBERS PRIVILEGE</span>
-                    <p className="pd-offer-detail">Get ₹830 off on orders over ₹6,225 with coupon</p>
-                  </div>
-                  <button
-                    type="button"
-                    className="pd-copy-btn"
-                    onClick={() => handleCopyCoupon("ZMW10")}
-                  >
-                    {copiedCoupon === "ZMW10" ? "COPIED ✓" : "CODE: ZMW10"}
-                  </button>
-                </div>
-
-                <div className="pd-offer-card">
-                  <div className="pd-offer-text">
-                    <span className="pd-offer-badge">ATELIER TIER REWARD</span>
-                    <p className="pd-offer-detail">Get 15% off on orders over ₹9,960 with coupon</p>
-                  </div>
-                  <button
-                    type="button"
-                    className="pd-copy-btn"
-                    onClick={() => handleCopyCoupon("ZMW15")}
-                  >
-                    {copiedCoupon === "ZMW15" ? "COPIED ✓" : "CODE: ZMW15"}
-                  </button>
-                </div>
-              </div>
 
               {/* Color Selector */}
               {availableColors(product).length > 0 && (
@@ -697,7 +1061,7 @@ export default function ProductDetail() {
                   >
                     {isOutOfStock
                       ? "Currently Sold Out"
-                      : `Buy It Now • ${formatPrice(activePrice * quantity)}`}
+                      : `Buy Now ${formatPrice(activePrice * quantity)}`}
                   </button>
                 </div>
               </div>
@@ -738,94 +1102,31 @@ export default function ProductDetail() {
                 </div>
               </div>
 
+              {/* Product Description */}
+              {product.description && (
+                <div className="pd-description-card">
+                  <h3 className="pd-description-title">Product Description</h3>
+                  <p className="pd-main-description-text">{product.description}</p>
+                </div>
+              )}
+
               {/* Product Specifications Table */}
-              <div className="pd-specifications-card">
-                <h3 className="pd-spec-title">Product Details & Specifications</h3>
-                <div className="pd-spec-grid">
-                  {highlights.map((h) => (
-                    <div key={h.label} className="pd-spec-cell">
-                      <span className="pd-spec-key">{h.label}</span>
-                      <span className="pd-spec-val">{h.value}</span>
-                    </div>
-                  ))}
+              {specificationsList.length > 0 && (
+                <div className="pd-specifications-card">
+                  <div className="pd-spec-header-row">
+                    <h3 className="pd-spec-title">PRODUCT SPECIFICATIONS</h3>
+                    <span className="pd-spec-count-tag">{specificationsList.length} Specifications</span>
+                  </div>
+                  <div className="pd-spec-table">
+                    {specificationsList.map((spec, idx) => (
+                      <div key={idx} className="pd-spec-table-cell">
+                        <span className="pd-spec-key">{spec.title || spec.key || spec.label || spec.name}</span>
+                        <span className="pd-spec-val">{spec.value || spec.val}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-
-              {/* Expandable Accordion Tabs */}
-              <div className="pd-accordion-container">
-                {/* Details & Cut */}
-                <div className={`pd-acc-row ${openAccordions.desc ? "open" : ""}`}>
-                  <button
-                    type="button"
-                    className="pd-acc-btn"
-                    onClick={() => toggleAccordion("desc")}
-                    aria-expanded={openAccordions.desc}
-                  >
-                    <span>Detailed Garment Cut & Fit</span>
-                    <svg className="pd-acc-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <polyline points="6 9 12 15 18 9" />
-                    </svg>
-                  </button>
-                  {openAccordions.desc && (
-                    <div className="pd-acc-content">
-                      <p>
-                        Engineered with drop-shoulder tailoring, generous chest allowance, and reinforced
-                        ribbed crewneck collar. Cut boxy through the torso to provide structured modern streetwear
-                        drape without clinging.
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Fabric & Care */}
-                <div className={`pd-acc-row ${openAccordions.care ? "open" : ""}`}>
-                  <button
-                    type="button"
-                    className="pd-acc-btn"
-                    onClick={() => toggleAccordion("care")}
-                    aria-expanded={openAccordions.care}
-                  >
-                    <span>Fabric Composition & Washing Care</span>
-                    <svg className="pd-acc-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <polyline points="6 9 12 15 18 9" />
-                    </svg>
-                  </button>
-                  {openAccordions.care && (
-                    <div className="pd-acc-content">
-                      <ul className="pd-care-checklist">
-                        <li>100% Combed Long-Staple Cotton, 240 GSM double-jersey knit.</li>
-                        <li>Machine wash cold (below 30°C / 85°F) inside-out on gentle cycle.</li>
-                        <li>Do not bleach or tumble dry on high heat. Line dry in shade.</li>
-                        <li>Iron inside-out on medium heat; avoid direct contact with graphics.</li>
-                      </ul>
-                    </div>
-                  )}
-                </div>
-
-                {/* Shipping & Delivery */}
-                <div className={`pd-acc-row ${openAccordions.shipping ? "open" : ""}`}>
-                  <button
-                    type="button"
-                    className="pd-acc-btn"
-                    onClick={() => toggleAccordion("shipping")}
-                    aria-expanded={openAccordions.shipping}
-                  >
-                    <span>Shipping, Delivery & Returns Policy</span>
-                    <svg className="pd-acc-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <polyline points="6 9 12 15 18 9" />
-                    </svg>
-                  </button>
-                  {openAccordions.shipping && (
-                    <div className="pd-acc-content">
-                      <p>
-                        All orders are carefully inspected and dispatched within 24 hours from our atelier.
-                        We offer a 14-day return and exchange policy on unwashed, unworn items with tags intact.
-                        Reverse pickup is automatically scheduled at your address.
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
+              )}
 
               {/* Luxury Trust Pillars */}
               <div className="pd-trust-pillars-row">
@@ -869,6 +1170,288 @@ export default function ProductDetail() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* ── Customer Ratings & Reviews Section ─────────────────────── */}
+      <section id="customer-reviews" className="pd-reviews-section">
+        <div className="container">
+          <div className="section-header" style={{ textAlign: "center" }}>
+            <div>
+              <span className="section-eyebrow">AUTHENTIC FEEDBACK</span>
+            </div>
+            <h2 className="section-title">Customer Ratings &amp; Reviews</h2>
+            <p className="section-subtitle">
+              Real opinions from verified buyers on fabric GSM, silhouette drape, and craftsmanship.
+            </p>
+          </div>
+
+          {/* Rating Summary Card */}
+          <div className="pd-reviews-summary-card">
+            <div className="pd-reviews-score-col">
+              <div className="pd-reviews-big-score">
+                {totalReviewsCount > 0 ? averageRatingScore.toFixed(1) : "—"}
+                <span className="pd-reviews-score-star">{totalReviewsCount > 0 ? "★" : "☆"}</span>
+              </div>
+              <div className="pd-reviews-stars-visual">
+                {totalReviewsCount > 0
+                  ? "★".repeat(Math.min(5, Math.max(1, Math.round(averageRatingScore)))) +
+                    "☆".repeat(5 - Math.min(5, Math.max(1, Math.round(averageRatingScore))))
+                  : "☆☆☆☆☆"}
+              </div>
+              <p className="pd-reviews-count-caption">
+                {totalReviewsCount > 0
+                  ? `Based on ${totalReviewsCount} ${totalReviewsCount === 1 ? "verified patron rating" : "verified patron ratings"}`
+                  : "No customer ratings yet"}
+              </p>
+            </div>
+
+            <div className="pd-reviews-breakdown-col">
+              {[5, 4, 3, 2, 1].map((star) => {
+                const pct = totalReviewsCount > 0 ? (reviewsData?.breakdownPercentages?.[star] ?? 0) : 0;
+                const count = totalReviewsCount > 0 ? (reviewsData?.breakdown?.[star] ?? 0) : 0;
+                return (
+                  <div key={star} className="pd-breakdown-row">
+                    <span className="pd-breakdown-label">{star}★</span>
+                    <div className="pd-breakdown-track">
+                      <div className="pd-breakdown-fill" style={{ width: `${pct}%` }} />
+                    </div>
+                    <span className="pd-breakdown-pct" title={`${count} reviews`}>{pct}%</span>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="pd-reviews-cta-col">
+              <p className="pd-reviews-cta-text">
+                {reviewsData?.userEligibility?.alreadyReviewed
+                  ? "✓ You have already reviewed this piece."
+                  : reviewsData?.userEligibility?.reason === "not_logged_in"
+                  ? "Sign in to share your experience with this piece."
+                  : "Share your experience and feedback with the community."}
+              </p>
+              {reviewsData?.userEligibility?.canReview ? (
+                <button
+                  type="button"
+                  className="pd-write-review-btn"
+                  onClick={() => {
+                    setIsWritingReview((prev) => !prev);
+                    setReviewSuccessMsg("");
+                    setReviewErrorMsg("");
+                  }}
+                >
+                  {isWritingReview ? "CLOSE FORM" : "WRITE A REVIEW"}
+                </button>
+              ) : reviewsData?.userEligibility?.reason === "not_logged_in" ? (
+                <Link
+                  to="/account"
+                  className="pd-write-review-btn"
+                  style={{ textDecoration: "none", textAlign: "center", display: "inline-block" }}
+                >
+                  SIGN IN TO REVIEW
+                </Link>
+              ) : null}
+            </div>
+          </div>
+
+          {/* Interactive Review Form Card */}
+          {isWritingReview && (
+            <form className="pd-review-form-card" onSubmit={handleReviewSubmit} noValidate>
+              <h3 style={{ fontSize: "16px", fontWeight: "700", marginBottom: "16px", color: "var(--color-ink)" }}>
+                Write a Verified Review
+              </h3>
+
+              <div style={{ marginBottom: "16px" }}>
+                <label style={{ display: "block", fontSize: "12px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "8px", color: "var(--color-ink)" }}>
+                  Overall Rating:
+                </label>
+                <div className="pd-star-picker">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      className={`pd-star-pick-btn ${star <= (reviewFormHoverRating || reviewFormRating) ? "active" : ""}`}
+                      onClick={() => setReviewFormRating(star)}
+                      onMouseEnter={() => setReviewFormHoverRating(star)}
+                      onMouseLeave={() => setReviewFormHoverRating(0)}
+                      aria-label={`Rate ${star} stars`}
+                    >
+                      ★
+                    </button>
+                  ))}
+                  <span style={{ fontSize: "13px", fontWeight: "600", color: "var(--color-ink)", marginLeft: "10px" }}>
+                    {reviewFormHoverRating || reviewFormRating} of 5 Stars
+                  </span>
+                </div>
+              </div>
+
+              {!customerUser && (
+                <div style={{ marginBottom: "14px" }}>
+                  <label style={{ display: "block", fontSize: "12px", fontWeight: "600", marginBottom: "5px", color: "var(--color-ink)" }}>
+                    Your Name:
+                  </label>
+                  <input
+                    type="text"
+                    className="pd-review-input"
+                    placeholder="e.g. Rahul S."
+                    value={reviewFormName}
+                    onChange={(e) => setReviewFormName(e.target.value)}
+                  />
+                </div>
+              )}
+
+              <div style={{ marginBottom: "14px" }}>
+                <label style={{ display: "block", fontSize: "12px", fontWeight: "600", marginBottom: "5px", color: "var(--color-ink)" }}>
+                  Review Headline (Optional):
+                </label>
+                <input
+                  type="text"
+                  className="pd-review-input"
+                  placeholder="e.g. Sublime drape and premium feel"
+                  value={reviewFormTitle}
+                  onChange={(e) => setReviewFormTitle(e.target.value)}
+                />
+              </div>
+
+              <div style={{ marginBottom: "14px" }}>
+                <label style={{ display: "block", fontSize: "12px", fontWeight: "600", marginBottom: "5px", color: "var(--color-ink)" }}>
+                  Detailed Review:
+                </label>
+                <textarea
+                  className="pd-review-textarea"
+                  rows="4"
+                  placeholder="Share details on fabric GSM, silhouette drape, sizing, and craftsmanship..."
+                  value={reviewFormComment}
+                  onChange={(e) => setReviewFormComment(e.target.value)}
+                  required
+                />
+              </div>
+
+              {reviewErrorMsg && (
+                <p style={{ color: "#dc2626", fontSize: "12.5px", marginBottom: "12px", fontWeight: "500" }}>
+                  {reviewErrorMsg}
+                </p>
+              )}
+
+              <div className="pd-review-form-actions">
+                <button
+                  type="submit"
+                  className="pd-write-review-btn"
+                  disabled={reviewSubmitting}
+                >
+                  {reviewSubmitting ? "SUBMITTING..." : "SUBMIT REVIEW"}
+                </button>
+                <button
+                  type="button"
+                  className="pd-write-review-btn pd-write-review-btn-secondary"
+                  style={{ marginTop: 0 }}
+                  onClick={() => setIsWritingReview(false)}
+                >
+                  CANCEL
+                </button>
+              </div>
+            </form>
+          )}
+
+          {/* Success Banner */}
+          {reviewSuccessMsg && (
+            <div className="pd-review-success-banner">
+              ✓ {reviewSuccessMsg}
+            </div>
+          )}
+
+          {/* Individual Reviews List or Empty Card */}
+          {isLoadingReviews && !reviewsData ? (
+            <div className="pd-reviews-list" aria-busy="true">
+              {[1, 2].map((i) => (
+                <div key={i} className="pd-review-item-card" style={{ opacity: 0.6 }}>
+                  <div className="pd-review-item-header">
+                    <div style={{ height: "16px", width: "100px", background: "var(--color-grey-200)", borderRadius: "4px" }} />
+                  </div>
+                  <div style={{ height: "32px", width: "75%", background: "var(--color-grey-100)", borderRadius: "4px", margin: "10px 0" }} />
+                  <div style={{ height: "18px", width: "120px", background: "var(--color-grey-200)", borderRadius: "4px" }} />
+                </div>
+              ))}
+            </div>
+          ) : reviewsData?.reviews && reviewsData.reviews.length > 0 ? (
+            <div className="pd-reviews-list">
+              {reviewsData.reviews.map((rev) => {
+                const ratingNum = Math.min(5, Math.max(1, Math.round(Number(rev.rating) || 5)));
+                const dateStr = rev.createdAt
+                  ? new Date(rev.createdAt).toLocaleDateString("en-IN", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric"
+                    })
+                  : null;
+                const authorInitial = (rev.customerName || "V").charAt(0).toUpperCase();
+
+                return (
+                  <div key={rev.id} className="pd-review-item-card">
+                    <div className="pd-review-item-header">
+                      <div>
+                        <div className="pd-review-item-stars">
+                          {"★".repeat(ratingNum)}
+                          {"☆".repeat(5 - ratingNum)}
+                        </div>
+                        {rev.title && <h4 className="pd-review-item-title">{rev.title}</h4>}
+                      </div>
+                      {dateStr && <span className="pd-review-item-date">{dateStr}</span>}
+                    </div>
+
+                    <p className="pd-review-item-comment">{rev.comment}</p>
+
+                    <div className="pd-review-item-author">
+                      <span className="pd-author-avatar">{authorInitial}</span>
+                      <span className="pd-author-name">{rev.customerName || "Verified Customer"}</span>
+                      {rev.verifiedPurchase && (
+                        <span className="pd-verified-badge">✓ Verified Buyer</span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="pd-reviews-empty-card">
+              <div className="pd-empty-diamond">✦</div>
+              <h4 className="pd-empty-title">No Customer Reviews Yet</h4>
+              <p className="pd-empty-subtitle">
+                Be the first to share your thoughts on this atelier piece.
+              </p>
+              {!isWritingReview && (
+                reviewsData?.userEligibility?.canReview ? (
+                  <button
+                    type="button"
+                    className="pd-write-review-btn pd-write-review-btn-secondary"
+                    onClick={() => setIsWritingReview(true)}
+                  >
+                    WRITE THE FIRST REVIEW
+                  </button>
+                ) : reviewsData?.userEligibility?.reason === "not_logged_in" ? (
+                  <Link
+                    to="/account"
+                    className="pd-write-review-btn pd-write-review-btn-secondary"
+                    style={{ textDecoration: "none", textAlign: "center", display: "inline-block" }}
+                  >
+                    SIGN IN TO REVIEW
+                  </Link>
+                ) : reviewsData?.userEligibility?.alreadyReviewed ? (
+                  <span style={{ fontSize: "13px", color: "var(--color-ink-light)", fontWeight: 500 }}>
+                    ✓ You have already reviewed this piece.
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    className="pd-write-review-btn pd-write-review-btn-secondary"
+                    onClick={() => setIsWritingReview(true)}
+                  >
+                    WRITE THE FIRST REVIEW
+                  </button>
+                )
+              )}
+            </div>
+          )}
         </div>
       </section>
 

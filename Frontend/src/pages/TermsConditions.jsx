@@ -1,14 +1,20 @@
+import SeoHead from "../components/Seo/SeoHead";
 import React from "react";
 import "./PolicyPages.css";
 
 export default function TermsConditions() {
   return (
     <div className="policy-page">
+      <SeoHead
+        title="Terms & Conditions — User Agreement & Shopping Terms | ZMW Clothing"
+        description="Review the terms of service, purchasing policies, and legal agreements governing the use of the ZMW Clothing e-commerce platform."
+        canonicalPath="/terms-conditions"
+      />
       <section className="policy-hero" aria-label="Terms and Conditions">
         <div className="container">
           <span className="policy-eyebrow">TERMS OF SERVICE</span>
           <h1 className="policy-title">Terms & Conditions</h1>
-          <p className="policy-updated">Last Updated: September 2026</p>
+          {/* <p className="policy-updated">Last Updated: September 2026</p> */}
         </div>
       </section>
 

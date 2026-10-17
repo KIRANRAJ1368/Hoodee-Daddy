@@ -1,3 +1,4 @@
+import SeoHead from "../components/Seo/SeoHead";
 import React from "react";
 import { SHIPPING_FEE } from "../utils/shopConfig";
 import { formatPrice } from "../utils/formatPrice";
@@ -6,11 +7,16 @@ import "./PolicyPages.css";
 export default function ShippingPolicy() {
   return (
     <div className="policy-page">
+      <SeoHead
+        title="Shipping Policy — Pan-India Express Delivery Timelines | ZMW Clothing"
+        description="Review ZMW Clothing shipping rates, delivery timelines, and order tracking across Tier-1 metros and regional pin codes in India."
+        canonicalPath="/shipping-policy"
+      />
       <section className="policy-hero" aria-label="Shipping Policy">
         <div className="container">
           <span className="policy-eyebrow">DELIVERY & LOGISTICS</span>
           <h1 className="policy-title">Shipping Policy</h1>
-          <p className="policy-updated">Last Updated: September 2026</p>
+          {/* <p className="policy-updated">Last Updated: September 2026</p> */}
         </div>
       </section>
 

@@ -1,13 +1,15 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import "./Pagination.css";
 
-export default function Pagination({ page, totalPages, total, onChange }) {
+export default function Pagination({ page, totalPages, total, onChange, pageSize = 10 }) {
   if (!totalPages || totalPages <= 1) return null;
+  const start = (page - 1) * pageSize + 1;
+  const end = Math.min(page * pageSize, total);
 
   return (
     <div className="pagination">
       <span className="pagination-total">
-        Showing <strong>{total}</strong> result{total === 1 ? "" : "s"}
+        Showing <strong>{start}–{end}</strong> of <strong>{total}</strong> results
       </span>
       <div className="pagination-controls">
         <button

@@ -132,3 +132,43 @@
   align-items: center;
   gap: 5px;
 }
+
+/* ── DataTable Skeleton Shimmer Rows ── */
+@keyframes dt-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.data-table-skeleton-cell {
+  height: 18px;
+  border-radius: 5px;
+  position: relative;
+  overflow: hidden;
+  background: var(--sk, #e8e6f4);
+  display: block;
+}
+
+.data-table-skeleton-cell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(100deg, transparent 20%, var(--sh, rgba(255, 255, 255, 0.75)) 50%, transparent 80%);
+  animation: sweep 1.4s infinite;
+}
+
+.data-table-skeleton-cell--short {
+  width: 45%;
+}
+
+.data-table-skeleton-cell--medium {
+  width: 70%;
+}
+
+.data-table-skeleton-cell--long {
+  width: 90%;
+}

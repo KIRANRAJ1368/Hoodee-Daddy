@@ -3,6 +3,9 @@
 .product-card {
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  width: 100%;
+  height: 100%;
   font-family: var(--font-primary, "Plus Jakarta Sans", sans-serif);
   background-color: transparent;
   border: 0;
@@ -78,9 +81,9 @@
   pointer-events: none;
 }
 
-/* 1. NEW DROP — Modern Emerald */
+/* 1. NEW DROP — Modern Teal */
 .product-badge.badge-newdrop {
-  background-color: #059669;
+  background-color: #0F766E;
   color: #FFFFFF;
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
@@ -106,11 +109,31 @@
   border: 1px solid rgba(250, 167, 3, 0.4);
 }
 
-/* 5. SALE — Sleek Crimson */
+/* 5. SALE / OFFER — Standard E-Commerce Emerald Green */
 .product-badge.badge-sale {
-  background-color: #DC2626;
+  background-color: #059669;
   color: #FFFFFF;
   border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* 6. SOLD OUT — Slate Neutral */
+.product-badge.badge-soldout {
+  background-color: #475569;
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.card-action-icon-btn.is-disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.card-action-icon-btn.is-disabled:hover {
+  background-color: #FFFFFF;
+  color: #0F172A;
+  border-color: rgba(226, 232, 240, 0.95);
+  transform: none;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.09);
 }
 
 /* ── Vertical Action Stack (Matching Reference Image: Eye, Heart, Bag) ── */
@@ -191,25 +214,28 @@
 .product-info {
   display: flex;
   flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
   padding: 0 2px;
   background: transparent;
 }
 
 .product-name {
-  font-family: var(--font-primary, "Plus Jakarta Sans", sans-serif);
-  font-size: 14.5px;
-  font-weight: 500;
-  line-height: 1.35;
+  font-family: var(--font-poppins, "Poppins", sans-serif);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
   color: #0F172A;
-  margin: 0 0 6px 0;
+  margin: 0 0 8px 0;
   cursor: pointer;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  overflow-wrap: anywhere;
   text-overflow: ellipsis;
   transition: color 180ms ease;
-  min-height: 2.7em;
+  min-height: 2.8em;
 }
 
 .product-name:hover {
@@ -225,22 +251,30 @@
 }
 
 .price-current {
-  font-family: var(--font-primary, "Plus Jakarta Sans", sans-serif);
-  font-size: 15.5px;
-  font-weight: 600;
+  font-family: var(--font-poppins, "Poppins", sans-serif);
+  font-size: 16.5px;
+  font-weight: 700;
   color: #0F172A;
   letter-spacing: -0.01em;
   font-variant-numeric: tabular-nums;
 }
 
 .price-original {
-  font-family: var(--font-primary, "Plus Jakarta Sans", sans-serif);
-  font-size: 13px;
+  font-family: var(--font-poppins, "Poppins", sans-serif);
+  font-size: 13.5px;
   font-weight: 400;
   color: #94A3B8;
   text-decoration: line-through;
   text-decoration-thickness: 1px;
   font-variant-numeric: tabular-nums;
+}
+
+.price-discount {
+  font-family: var(--font-poppins, "Poppins", sans-serif);
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #059669;
+  letter-spacing: -0.01em;
 }
 
 /* ── Responsiveness ── */

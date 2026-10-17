@@ -1,4 +1,5 @@
 const { ValidationError, UniqueConstraintError, ForeignKeyConstraintError } = require("sequelize");
+const { randomUUID } = require("crypto");
 const ApiError = require("../utils/ApiError");
 
 function notFoundHandler(req, res, next) {
@@ -36,6 +37,17 @@ function normalizeError(err) {
   if (err.code === "LIMIT_FILE_SIZE") return ApiError.badRequest("Uploaded file is too large");
   if (err.code === "LIMIT_UNEXPECTED_FILE") return ApiError.badRequest("Unexpected file field");
 
+  const databaseCode = err.original?.code || err.parent?.code;
+  if (["ECONNREFUSED", "ETIMEDOUT", "ECONNRESET", "PROTOCOL_CONNECTION_LOST", "ER_DBACCESS_DENIED_ERROR", "ER_ACCESS_DENIED_ERROR"].includes(databaseCode)) {
+    return new ApiError(503, "Database is temporarily unavailable. Please try again.", "SERVICE_UNAVAILABLE");
+  }
+
+  // Common database connection failures are operational: the caller can retry,
+  // and the UI should receive a useful service message rather than a generic 500.
+  if (["ECONNREFUSED", "ETIMEDOUT", "ECONNRESET", "PROTOCOL_CONNECTION_LOST", "ER_DBACCESS_DENIED_ERROR", "ER_ACCESS_DENIED_ERROR"].includes(err.code || databaseCode)) {
+    return new ApiError(503, "Database is temporarily unavailable. Please try again.", "SERVICE_UNAVAILABLE");
+  }
+
   return null;
 }
 
@@ -49,14 +61,24 @@ function errorHandler(err, req, res, next) {
     // Unexpected/programmer error — log the full thing server-side, never
     // leak internals (stack traces, SQL, file paths) to the client.
     // eslint-disable-next-line no-console
-    console.error("[UNHANDLED ERROR]", err);
+    const requestId = req.requestId || randomUUID();
+    console.error(`[UNHANDLED ERROR ${requestId}] ${req.method} ${req.originalUrl}`, err);
+    res.status(statusCode).json({
+      success: false,
+      error: {
+        code: apiError.code || "INTERNAL_ERROR",
+        message: `An unexpected server error occurred. Reference: ${requestId}`,
+        requestId
+      }
+    });
+    return;
   }
 
   res.status(statusCode).json({
     success: false,
     error: {
       code: apiError.code || "INTERNAL_ERROR",
-      message: isOperational ? apiError.message : "Something went wrong. Please try again.",
+      message: isOperational ? apiError.message : "An unexpected server error occurred. Please try again or contact support if it continues.",
       details: isOperational ? apiError.details || undefined : undefined
     }
   });

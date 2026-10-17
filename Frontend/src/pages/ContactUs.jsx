@@ -1,5 +1,8 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { storefrontApi } from "../services/storefrontApi";
+import SeoHead from "../components/Seo/SeoHead";
+import { buildBreadcrumbSchema } from "../utils/seoSchemas";
+import { isValidEmail, isValidPhone, cleanPhoneInput, isNonEmpty } from "../utils/validators";
 import "./ContactUs.css";
 
 const CATEGORY_OPTIONS = [
@@ -19,6 +22,7 @@ export default function ContactUs() {
     category: "general",
     message: ""
   });
+  const [fieldErrors, setFieldErrors] = useState({});
   const [submittedData, setSubmittedData] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -49,7 +53,12 @@ export default function ContactUs() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const nextVal = name === "phone" ? cleanPhoneInput(value) : value;
+    setFormData((prev) => ({ ...prev, [name]: nextVal }));
+    if (fieldErrors[name]) {
+      setFieldErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+    if (submitError) setSubmitError("");
   };
 
   const handleSelectCategory = (val) => {
@@ -68,7 +77,32 @@ export default function ContactUs() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.email || !formData.message || isSubmitting) return;
+    if (isSubmitting) return;
+
+    const errors = {};
+    if (!isNonEmpty(formData.name)) {
+      errors.name = "Full Name is required.";
+    }
+    if (!isNonEmpty(formData.email)) {
+      errors.email = "Email Address is required.";
+    } else if (!isValidEmail(formData.email)) {
+      errors.email = "Please enter a valid email address.";
+    }
+    if (!isNonEmpty(formData.phone)) {
+      errors.phone = "Phone number is required.";
+    } else if (!isValidPhone(formData.phone)) {
+      errors.phone = "Phone number must be exactly 10 digits.";
+    }
+    if (!isNonEmpty(formData.message)) {
+      errors.message = "Message is required.";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      return;
+    }
+
+    setFieldErrors({});
     setIsSubmitting(true);
     setSubmitError("");
 
@@ -80,7 +114,7 @@ export default function ContactUs() {
       await storefrontApi.submitContact({
         name: formData.name.trim(),
         email: formData.email.trim(),
-        phone: formData.phone.trim() || undefined,
+        phone: formData.phone.trim(),
         subject: fullSubject,
         message: formData.message.trim()
       });
@@ -98,6 +132,8 @@ export default function ContactUs() {
   const handleReset = () => {
     setSubmittedData(null);
     setIsCategoryOpen(false);
+    setFieldErrors({});
+    setSubmitError("");
     setFormData({
       name: "",
       email: "",
@@ -108,12 +144,49 @@ export default function ContactUs() {
     });
   };
 
+  const contactSchemas = useMemo(() => {
+    const breadcrumb = buildBreadcrumbSchema([
+      { name: "Home", path: "/" },
+      { name: "Contact Us", path: "/contact" }
+    ]);
+    const contactPageSchema = {
+      "@context": "https://schema.org",
+      "@type": "ContactPage",
+      name: "Contact ZMW Clothing — Customer Care & Atelier",
+      description: "Get in touch with ZMW Clothing. Reach customer support for order assistance, size recommendations, returns, and wholesale queries.",
+      url: "https://zmwclothing.com/contact",
+      mainEntity: {
+        "@type": "ClothingStore",
+        name: "ZMW Clothing",
+        telephone: "+919876543210",
+        email: "zmw@gmail.com",
+        address: {
+          "@type": "PostalAddress",
+          streetAddress: "123, Avinashi Road, Peelamedu",
+          addressLocality: "Coimbatore",
+          addressRegion: "Tamil Nadu",
+          postalCode: "641004",
+          addressCountry: "IN"
+        }
+      }
+    };
+    return [contactPageSchema, breadcrumb];
+  }, []);
+
   return (
     <div className="contact-page">
+      <SeoHead
+        title="Contact Us — Atelier Support & Customer Helpline | ZMW Clothing"
+        description="Get in touch with ZMW Clothing in Coimbatore. Customer support helpline, sizing advice, delivery tracking, and returns assistance."
+        keywords="contact ZMW clothing, customer support, Coimbatore apparel atelier, ZMW helpline, luxury fashion inquiries"
+        canonicalPath="/contact"
+        schema={contactSchemas}
+      />
+
       {/* Header */}
       <section className="contact-hero" aria-label="Contact ZMW Support">
         <div className="container">
-          <span className="contact-eyebrow">CUSTOMER CARE & ASSISTANCE</span>
+          <span className="contact-eyebrow">CUSTOMER CARE &amp; ASSISTANCE</span>
           <h1 className="contact-title">Contact Us</h1>
           <p className="contact-subtitle">
             Have a question about your order, sizing, or delivery? Reach out to the ZMW / ZWMStore team and we'll get back to you promptly.
@@ -123,6 +196,7 @@ export default function ContactUs() {
 
       {/* Main Form & Info Section */}
       <section className="contact-section">
+        <h2 className="sr-only">Customer Care Inquiries &amp; Atelier Help Desk</h2>
         <div className="container">
           <div className="contact-layout">
             {/* Info Cards Column */}
@@ -186,83 +260,7 @@ export default function ContactUs() {
                 </div>
               </div>
 
-              {/* Social Media Links */}
-              <div className="contact-info-card">
-                <h3>Connect With Us</h3>
-                <p style={{ fontSize: "0.86rem", color: "#6B7280", marginBottom: "14px" }}>
-                  Follow our official channels for drop announcements and lookbooks:
-                </p>
-                <div className="contact-social-links">
-                  <a
-                    href="#facebook-placeholder"
-                    className="contact-social-btn"
-                    title="Facebook (Placeholder Link - Official Account Pending)"
-                    aria-label="Facebook"
-                    onClick={(e) => e.preventDefault()}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
-                    </svg>
-                    <span>Facebook (Placeholder)</span>
-                  </a>
-                  <a
-                    href="#instagram-placeholder"
-                    className="contact-social-btn"
-                    title="Instagram (Placeholder Link - Official Account Pending)"
-                    aria-label="Instagram"
-                    onClick={(e) => e.preventDefault()}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-                    </svg>
-                    <span>Instagram (Placeholder)</span>
-                  </a>
-                  <a
-                    href="#twitter-placeholder"
-                    className="contact-social-btn"
-                    title="Twitter/X (Placeholder Link - Official Account Pending)"
-                    aria-label="Twitter / X"
-                    onClick={(e) => e.preventDefault()}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M4 4l16 16m0-16L4 20"></path>
-                    </svg>
-                    <span>Twitter / X (Placeholder)</span>
-                  </a>
-                </div>
-              </div>
-
-              {/* WhatsApp Support CTA Card */}
-              <div className="contact-info-card contact-whatsapp-card">
-                <div className="contact-whatsapp-header">
-                  <div className="contact-whatsapp-icon">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2z"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="contact-whatsapp-title">WhatsApp Instant Support</h3>
-                    <span className="contact-whatsapp-status">● Online • 10 AM – 5 PM IST</span>
-                  </div>
-                </div>
-                <p className="contact-whatsapp-desc">
-                  Need direct assistance with sizing, delivery timelines, or COD? Chat directly with us on WhatsApp.
-                </p>
-                <a
-                  href={`https://api.whatsapp.com/send?phone=919876543210&text=${encodeURIComponent("Hello ZWMStore! I would like to inquire about products and orders.")}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="contact-whatsapp-btn"
-                >
-                  <span>Chat on WhatsApp (+91 9876543210)</span>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                    <polyline points="12 5 19 12 12 19"></polyline>
-                  </svg>
-                </a>
-              </div>
+            
             </div>
 
             {/* Form Column */}
@@ -336,7 +334,7 @@ export default function ContactUs() {
                   </div>
                 </div>
               ) : (
-                <form className="contact-form" onSubmit={handleSubmit}>
+                <form className="contact-form" onSubmit={handleSubmit} noValidate>
                   <div className="contact-form-row">
                     <div className="contact-input-group">
                       <label htmlFor="contact-name">Full Name *</label>
@@ -348,7 +346,13 @@ export default function ContactUs() {
                         placeholder="Enter your name"
                         value={formData.name}
                         onChange={handleChange}
+                        style={fieldErrors.name ? { borderColor: "#DC2626" } : {}}
                       />
+                      {fieldErrors.name && (
+                        <span className="contact-field-error" style={{ color: "#DC2626", fontSize: "0.82rem", marginTop: "2px" }}>
+                          {fieldErrors.name}
+                        </span>
+                      )}
                     </div>
                     <div className="contact-input-group">
                       <label htmlFor="contact-email">Email Address *</label>
@@ -360,21 +364,35 @@ export default function ContactUs() {
                         placeholder="Enter your email"
                         value={formData.email}
                         onChange={handleChange}
+                        style={fieldErrors.email ? { borderColor: "#DC2626" } : {}}
                       />
+                      {fieldErrors.email && (
+                        <span className="contact-field-error" style={{ color: "#DC2626", fontSize: "0.82rem", marginTop: "2px" }}>
+                          {fieldErrors.email}
+                        </span>
+                      )}
                     </div>
                   </div>
 
                   <div className="contact-form-row">
                     <div className="contact-input-group">
-                      <label htmlFor="contact-phone">Phone Number</label>
+                      <label htmlFor="contact-phone">Phone Number *</label>
                       <input
                         id="contact-phone"
                         name="phone"
                         type="tel"
-                        placeholder="+91 XXXXX XXXXX"
+                        required
+                        inputMode="numeric"
+                        placeholder="10-digit mobile number"
                         value={formData.phone}
                         onChange={handleChange}
+                        style={fieldErrors.phone ? { borderColor: "#DC2626" } : {}}
                       />
+                      {fieldErrors.phone && (
+                        <span className="contact-field-error" style={{ color: "#DC2626", fontSize: "0.82rem", marginTop: "2px" }}>
+                          {fieldErrors.phone}
+                        </span>
+                      )}
                     </div>
                     <div className="contact-input-group contact-select-group" ref={categoryDropdownRef}>
                       <label id="contact-category-label" htmlFor="contact-category-trigger">
@@ -471,7 +489,13 @@ export default function ContactUs() {
                       placeholder="Type your message with any specific details..."
                       value={formData.message}
                       onChange={handleChange}
+                      style={fieldErrors.message ? { borderColor: "#DC2626" } : {}}
                     ></textarea>
+                    {fieldErrors.message && (
+                      <span className="contact-field-error" style={{ color: "#DC2626", fontSize: "0.82rem", marginTop: "2px" }}>
+                        {fieldErrors.message}
+                      </span>
+                    )}
                   </div>
 
                   {submitError && (

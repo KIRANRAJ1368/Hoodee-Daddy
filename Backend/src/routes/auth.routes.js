@@ -9,7 +9,8 @@ const {
   customerLogin,
   customerForgotPassword,
   customerVerifyOtp,
-  customerResetPassword
+  customerResetPassword,
+  customerUpdateProfile
 } = require("../validators/authValidators");
 
 const router = express.Router();
@@ -23,7 +24,7 @@ router.post("/register", authLimiter, customerRegister, validate, authController
 router.post("/customer/register", authLimiter, customerRegister, validate, authController.customerRegister);
 router.post("/customer/login", authLimiter, customerLogin, validate, authController.customerLogin);
 router.get("/customer/me", requireCustomerAuth, authController.customerMe);
-router.put("/customer/profile", requireCustomerAuth, authController.customerUpdateProfile);
+router.put("/customer/profile", requireCustomerAuth, customerUpdateProfile, validate, authController.customerUpdateProfile);
 router.post("/customer/forgot-password", authLimiter, customerForgotPassword, validate, authController.customerForgotPassword);
 router.post("/forgot-password", authLimiter, customerForgotPassword, validate, authController.customerForgotPassword);
 router.post("/customer/verify-otp", authLimiter, customerVerifyOtp, validate, authController.customerVerifyOtp);

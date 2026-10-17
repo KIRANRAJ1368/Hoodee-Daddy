@@ -23,3 +23,23 @@
     transform: rotate(360deg);
   }
 }
+
+.loading-skeleton-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px;
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: var(--radius-lg, 14px);
+  width: 100%;
+}
+
+.loading-skeleton-hint {
+  font-size: 13px;
+  color: var(--text-muted, #64748b);
+  margin-top: 8px;
+  text-align: center;
+  font-weight: 500;
+}
+

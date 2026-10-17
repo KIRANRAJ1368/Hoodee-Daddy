@@ -659,3 +659,126 @@
     padding: 16px 12px;
   }
 }
+
+/* ════════════════════════════════════════════════════════════════════════
+   STOREFRONT ORDER SKELETON SHIMMER (Universal .sk sweep)
+════════════════════════════════════════════════════════════════════════ */
+.cp-skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+  background: var(--sk, #e8e6f4) !important;
+  border-radius: 6px;
+}
+
+.cp-skeleton-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(100deg, transparent 20%, var(--sh, rgba(255, 255, 255, 0.75)) 50%, transparent 80%);
+  animation: sweep 1.4s infinite;
+}
+
+.orders-skeleton-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.order-card--skeleton {
+  pointer-events: none;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.order-skeleton-bar {
+  border-radius: 6px;
+  background: #eef0f4;
+}
+
+.order-skeleton-bar--num {
+  width: 140px;
+  height: 18px;
+}
+
+.order-skeleton-bar--date {
+  width: 110px;
+  height: 14px;
+}
+
+.order-skeleton-bar--badge {
+  width: 90px;
+  height: 24px;
+  border-radius: 12px;
+}
+
+.order-skeleton-thumb {
+  width: 72px;
+  height: 72px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.order-skeleton-bar--title {
+  width: 75%;
+  height: 16px;
+  margin-bottom: 8px;
+}
+
+.order-skeleton-bar--meta {
+  width: 45%;
+  height: 12px;
+  margin-bottom: 8px;
+}
+
+.order-skeleton-bar--price {
+  width: 80px;
+  height: 16px;
+}
+
+.order-skeleton-bar--total-lbl {
+  width: 90px;
+  height: 12px;
+  margin-bottom: 6px;
+}
+
+.order-skeleton-bar--total-val {
+  width: 110px;
+  height: 22px;
+  margin-bottom: 14px;
+}
+
+.order-skeleton-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.order-skeleton-btn {
+  width: 96px;
+  height: 30px;
+  border-radius: 4px;
+}
+
+.pane-reload-btn {
+  background: transparent;
+  border: none;
+  color: var(--color-grey-500, #6B7280);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.78rem;
+  transition: all 0.15s ease;
+  margin-left: 8px;
+}
+
+.pane-reload-btn:hover {
+  color: var(--color-ink, #111827);
+  background: var(--color-sand-light, #F8F6F0);
+}

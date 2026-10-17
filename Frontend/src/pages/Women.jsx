@@ -1,7 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useShop } from "../context/ShopContext";
-import { WOMEN_SUBCATEGORIES } from "../data/products";
 import { CURRENCY_SYMBOL, formatINRNumber } from "../utils/formatPrice";
 import ProductCard from "../components/ProductCard/ProductCard";
 import RecentlyViewed from "../components/RecentlyViewed/RecentlyViewed";
@@ -38,9 +37,18 @@ export default function Women() {
     [WOMEN_PRODUCTS]
   );
 
+  // Dynamic Subcategories derived from real products
+  const dynamicSubCategories = useMemo(() => {
+    const set = new Set();
+    WOMEN_PRODUCTS.forEach((p) => {
+      if (p.subCategory) set.add(p.subCategory);
+    });
+    return Array.from(set);
+  }, [WOMEN_PRODUCTS]);
+
   // Filter States
   const [activeSubCategory, setActiveSubCategory] = useState(
-    categoryFromUrl && WOMEN_SUBCATEGORIES.includes(categoryFromUrl) ? categoryFromUrl : "All"
+    categoryFromUrl || "All"
   );
   const [selectedColors, setSelectedColors] = useState([]);
   const [selectedSizes, setSelectedSizes] = useState([]);
@@ -72,7 +80,7 @@ export default function Women() {
 
   // Sync active subcategory when URL param changes
   useEffect(() => {
-    if (categoryFromUrl && WOMEN_SUBCATEGORIES.includes(categoryFromUrl)) {
+    if (categoryFromUrl) {
       setActiveSubCategory(categoryFromUrl);
     }
   }, [categoryFromUrl]);
@@ -102,6 +110,11 @@ export default function Women() {
         if (!map.has(c.name)) map.set(c.name, { ...c, count: 0 });
         map.get(c.name).count += 1;
       });
+      (p.variants || []).forEach((v) => {
+        if (v.color && !map.has(v.color)) {
+          map.set(v.color, { name: v.color, hex: v.colorHex || "#181715", count: 1 });
+        }
+      });
     });
     return Array.from(map.values()).sort((a, b) => b.count - a.count);
   }, [WOMEN_PRODUCTS]);
@@ -109,7 +122,10 @@ export default function Women() {
   // Extract all available sizes
   const sizeOptions = useMemo(() => {
     const set = new Set();
-    WOMEN_PRODUCTS.forEach((p) => (p.sizes || []).forEach((s) => set.add(s)));
+    WOMEN_PRODUCTS.forEach((p) => {
+      (p.sizes || []).forEach((s) => set.add(s));
+      (p.variants || []).forEach((v) => { if (v.size) set.add(v.size); });
+    });
     return Array.from(set).sort((a, b) => {
       const order = ["XS", "S", "M", "L", "XL", "XXL", "3XL"];
       const iA = order.indexOf(a);
@@ -171,10 +187,15 @@ export default function Women() {
       if (activeSubCategory !== "All" && p.subCategory !== activeSubCategory) return false;
       if (
         selectedColors.length > 0 &&
-        !p.colors.some((c) => selectedColors.includes(c.name))
+        !p.colors?.some((c) => selectedColors.includes(c.name)) &&
+        !p.variants?.some((v) => v.color && selectedColors.includes(v.color))
       )
         return false;
-      if (selectedSizes.length > 0 && !p.sizes.some((s) => selectedSizes.includes(s)))
+      if (
+        selectedSizes.length > 0 &&
+        !p.sizes?.some((s) => selectedSizes.includes(s)) &&
+        !p.variants?.some((v) => v.size && selectedSizes.includes(v.size))
+      )
         return false;
       if (availability === "inStock" && !p.inStock) return false;
       if (availability === "outOfStock" && p.inStock) return false;
@@ -249,7 +270,7 @@ export default function Women() {
         {openFilters.category && (
           <div className="filter-accordion-content">
             <ul className="filter-category-list">
-              {["All", ...WOMEN_SUBCATEGORIES].map((cat) => {
+              {["All", ...dynamicSubCategories].map((cat) => {
                 const count = cat === "All"
                   ? WOMEN_PRODUCTS.length
                   : WOMEN_PRODUCTS.filter((p) => p.subCategory === cat).length;
@@ -811,11 +832,13 @@ export default function Women() {
                       <line x1="8" y1="11" x2="14" y2="11"></line>
                     </svg>
                   </div>
-                  <h3>No matching styles found</h3>
-                  <p>Try clearing some filters or selecting a different category to see more designs.</p>
-                  <button type="button" className="btn btn-secondary btn-sm" onClick={clearFilters}>
-                    Clear all filters
-                  </button>
+                  <h3>{WOMEN_PRODUCTS.length === 0 ? "No Products Found" : "No matching styles found"}</h3>
+                  <p>{WOMEN_PRODUCTS.length === 0 ? "No products have been added to this category yet." : "Try clearing some filters or selecting a different category to see more designs."}</p>
+                  {hasActiveFilters && (
+                    <button type="button" className="btn btn-secondary btn-sm" onClick={clearFilters}>
+                      Clear all filters
+                    </button>
+                  )}
                 </div>
               )}
             </div>

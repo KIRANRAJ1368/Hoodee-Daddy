@@ -6,10 +6,12 @@ const VIEWPORTS = [
   { name: "mobile_375", width: 375, height: 667 },
   { name: "mobile_390", width: 390, height: 844 },
   { name: "mobile_414", width: 414, height: 896 },
+  { name: "mobile_480", width: 480, height: 850 },
   { name: "tablet_768", width: 768, height: 1024 },
   { name: "tablet_1024", width: 1024, height: 768 },
   { name: "desktop_1280", width: 1280, height: 800 },
-  { name: "desktop_1440", width: 1440, height: 900 }
+  { name: "desktop_1440", width: 1440, height: 900 },
+  { name: "desktop_1920", width: 1920, height: 1080 }
 ];
 
 const PAGES = [

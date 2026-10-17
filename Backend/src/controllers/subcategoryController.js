@@ -13,7 +13,7 @@ async function list(req, res) {
 
   const subcategories = await Subcategory.findAll({
     where,
-    order: [["sort_order", "ASC"]],
+    order: [["sort_order", "ASC"], ["id", "ASC"]],
     include: [{ model: Category, as: "category", attributes: ["id", "name", "slug"] }]
   });
   const data = subcategories.map((s) => s.toJSON());
@@ -73,4 +73,12 @@ async function remove(req, res) {
   return sendSuccess(res, { message: "Subcategory deleted" });
 }
 
-module.exports = { list, create, update, remove };
+async function getById(req, res) {
+  const subcategory = await Subcategory.findByPk(req.params.id, {
+    include: [{ model: Category, as: "category", attributes: ["id", "name", "slug"] }]
+  });
+  if (!subcategory) throw ApiError.notFound("Subcategory not found");
+  return sendSuccess(res, { data: subcategory.toJSON() });
+}
+
+module.exports = { list, getById, create, update, remove };

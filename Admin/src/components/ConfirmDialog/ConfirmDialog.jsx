@@ -40,11 +40,29 @@ export function useConfirm() {
         >
           <AlertTriangle size={24} />
         </div>
-        <div>
-          {state.message && (
-            <p style={{ color: "var(--text-muted)", fontSize: "14px", lineHeight: 1.55 }}>
-              {state.message}
-            </p>
+        <div style={{ flex: 1 }}>
+          {state.danger ? (
+            <div
+              style={{
+                background: "#fef2f2",
+                border: "1px solid #fecaca",
+                borderRadius: "8px",
+                padding: "12px 14px"
+              }}
+            >
+              <p style={{ margin: 0, fontSize: "13.5px", fontWeight: 600, color: "#b91c1c", lineHeight: 1.5 }}>
+                {state.message}
+              </p>
+              <span style={{ display: "block", marginTop: "6px", fontSize: "12px", color: "#dc2626", fontWeight: 500 }}>
+                ⚠️ Warning: This deletion is permanent and cannot be undone.
+              </span>
+            </div>
+          ) : (
+            state.message && (
+              <p style={{ color: "var(--text-muted)", fontSize: "14px", lineHeight: 1.55 }}>
+                {state.message}
+              </p>
+            )
           )}
         </div>
       </div>
@@ -57,7 +75,7 @@ export function useConfirm() {
           className={state.danger ? "btn btn-danger" : "btn btn-accent"}
           onClick={() => handle(true)}
         >
-          Confirm
+          {state.danger ? (state.confirmText || "Delete") : (state.confirmText || "Confirm")}
         </button>
       </div>
     </Modal>

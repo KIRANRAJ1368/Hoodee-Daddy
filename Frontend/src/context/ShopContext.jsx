@@ -3,6 +3,8 @@ import { INSTAGRAM_SHOWCASE } from "../data/products";
 import { storefrontApi } from "../services/storefrontApi";
 import { formatPrice as formatINR, CURRENCY_SYMBOL, CURRENCY_LOCALE } from "../utils/formatPrice";
 import { FREE_SHIPPING_THRESHOLD, SHIPPING_FEE } from "../utils/shopConfig";
+import { getProductPricing } from "../utils/pricing";
+import { saveCategoryHistory } from "../utils/categoryFallback";
 
 const ShopContext = createContext();
 
@@ -12,7 +14,20 @@ const CURRENCIES = {
   INR: { symbol: CURRENCY_SYMBOL, rate: 1, name: "INR (₹)", locale: CURRENCY_LOCALE }
 };
 const RECENTLY_VIEWED_KEY = "zmw_recently_viewed";
-const MAX_RECENTLY_VIEWED = 5;
+const MAX_RECENTLY_VIEWED = 4;
+const HOME_CACHE_KEY = "zmw_home_data";
+
+const readCachedHomeData = () => {
+  try {
+    const cached = localStorage.getItem(HOME_CACHE_KEY);
+    if (!cached) return null;
+    const parsed = JSON.parse(cached);
+    // Never retain stale product lists across sessions so deleted/added products reflect immediately
+    return parsed ? { ...parsed, newArrivals: [], bestSellers: [] } : null;
+  } catch {
+    return null;
+  }
+};
 
 const readRecentlyViewedIds = () => {
   try {
@@ -30,24 +45,69 @@ export const ShopProvider = ({ children }) => {
   // panel / database and are only ever populated from the API, so a stale
   // hard-coded list can never be shown instead of an Admin-edited price.
   const [allProducts, setAllProducts] = useState([]);
-  const [homeData, setHomeData] = useState(null);
+  const [homeData, setHomeData] = useState(readCachedHomeData);
   const [storefrontStatus, setStorefrontStatus] = useState("loading");
+  const [seoSettings, setSeoSettings] = useState(null);
 
-  const refreshHomeData = useCallback(async () => {
-    const [homeResult, productResult] = await Promise.allSettled([
-      storefrontApi.home(),
-      storefrontApi.products()
-    ]);
-    if (homeResult.status === "fulfilled") setHomeData(homeResult.value);
-    if (productResult.status === "fulfilled" && Array.isArray(productResult.value)) {
-      setAllProducts(productResult.value);
+  const lastRefreshRef = useRef(0);
+  const isRefreshingRef = useRef(false);
+
+  const refreshHomeData = useCallback(async ({ force = false } = {}) => {
+    const now = Date.now();
+    if (!force && isRefreshingRef.current) return;
+    if (!force && now - lastRefreshRef.current < 2000) return; // 2s throttle to avoid duplicate calls
+    isRefreshingRef.current = true;
+    lastRefreshRef.current = now;
+
+    try {
+      const [homeResult, productResult, seoResult] = await Promise.allSettled([
+        storefrontApi.home(),
+        storefrontApi.products(),
+        storefrontApi.seoSettings()
+      ]);
+      if (homeResult.status === "fulfilled" && homeResult.value) {
+        setHomeData(homeResult.value);
+        if (Array.isArray(homeResult.value.categories)) {
+          saveCategoryHistory(homeResult.value.categories);
+        }
+        try {
+          localStorage.setItem(HOME_CACHE_KEY, JSON.stringify(homeResult.value));
+        } catch {
+          // Ignore quota errors
+        }
+      }
+      if (productResult.status === "fulfilled" && Array.isArray(productResult.value)) {
+        setAllProducts(productResult.value);
+      }
+      if (seoResult.status === "fulfilled" && seoResult.value) {
+        setSeoSettings(seoResult.value);
+      }
+      setStorefrontStatus(productResult.status === "fulfilled" ? "ready" : "fallback");
+      return homeResult.status === "fulfilled" ? homeResult.value : null;
+    } finally {
+      isRefreshingRef.current = false;
     }
-    setStorefrontStatus(productResult.status === "fulfilled" ? "ready" : "fallback");
-    return homeResult.status === "fulfilled" ? homeResult.value : null;
   }, []);
 
   useEffect(() => {
-    refreshHomeData();
+    refreshHomeData({ force: true });
+
+    let channel = null;
+    try {
+      channel = new BroadcastChannel("zmw_catalog_channel");
+      channel.onmessage = (e) => {
+        if (e?.data?.type === "CATALOG_UPDATED") {
+          refreshHomeData({ force: true });
+        }
+      };
+    } catch {}
+
+    const handleStorage = (e) => {
+      if (e.key === "zmw_catalog_updated_at") {
+        refreshHomeData({ force: true });
+      }
+    };
+    window.addEventListener("storage", handleStorage);
 
     const handleFocus = () => {
       refreshHomeData();
@@ -57,9 +117,11 @@ export const ShopProvider = ({ children }) => {
     document.addEventListener("visibilitychange", handleFocus);
     const refreshInterval = window.setInterval(() => {
       if (document.visibilityState === "visible") refreshHomeData();
-    }, 30000);
+    }, 15000);
 
     return () => {
+      if (channel) channel.close();
+      window.removeEventListener("storage", handleStorage);
       window.clearInterval(refreshInterval);
       window.removeEventListener("focus", handleFocus);
       document.removeEventListener("visibilitychange", handleFocus);
@@ -104,7 +166,12 @@ export const ShopProvider = ({ children }) => {
       const list = Array.isArray(categorySlug) ? categorySlug : [categorySlug];
       const wanted = list
         .map((s) => String(s || "").trim().toLowerCase())
-        .map((s) => (s === "men" ? "mens" : s === "woman" ? "women" : s))
+        .flatMap((s) => {
+          if (s === "men") return ["mens"];
+          if (s === "woman") return ["women"];
+          if (s === "kids") return ["kids", "boys", "girls", "babies"];
+          return [s];
+        })
         .filter(Boolean);
       if (!wanted.length) return allProducts || [];
       return (allProducts || []).filter((p) => wanted.includes(String(p?.category ?? "").trim().toLowerCase()));
@@ -147,6 +214,21 @@ export const ShopProvider = ({ children }) => {
       return Array.isArray(saved) ? saved : [];
     } catch {
       return [];
+    }
+  });
+  const [buyNowItems, setBuyNowItems] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem("zmw_buy_now_items");
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [checkoutIntent, setCheckoutIntent] = useState(() => {
+    try {
+      return sessionStorage.getItem("zmw_checkout_intent") || null;
+    } catch {
+      return null;
     }
   });
 
@@ -309,11 +391,70 @@ export const ShopProvider = ({ children }) => {
   const proceedToCheckout = (navigateFn) => {
     setIsCartOpen(false);
     setIsCheckoutOpen(false);
+    setCheckoutIntent("cart");
     if (typeof navigateFn === "function") {
       navigateFn("/checkout");
     } else if (typeof window !== "undefined" && window.location.pathname !== "/checkout") {
       window.location.href = "/checkout";
     }
+  };
+
+  const beginBuyNow = (product, color, size, quantity = 1) => {
+    const hasVariants = Array.isArray(product?.variants) && product.variants.length > 0;
+    const variant = hasVariants
+      ? product.variants.find((entry) =>
+          (!entry.color || entry.color.toLowerCase() === String(color || "").toLowerCase()) &&
+          (!entry.size || entry.size.toLowerCase() === String(size || "").toLowerCase())
+        )
+      : null;
+    if (hasVariants && !variant) {
+      addToast("That color and size combination is unavailable. Please choose another variant.", "warning");
+      return false;
+    }
+    const image = variant?.imageUrl || variant?.image_url || product.images?.[0] || product.image || "";
+    const skuSuffix = variant?.skuSuffix ?? variant?.sku_suffix;
+    const pricing = getProductPricing(product, variant);
+    const items = [{
+      id: product.id,
+      name: product.name,
+      sku: skuSuffix ? `${product.sku}-${skuSuffix}` : product.sku,
+      price: pricing.price,
+      originalPrice: pricing.originalPrice,
+      color: variant?.color || color || "",
+      size: variant?.size || size || "",
+      image,
+      variantImages: [variant?.imageUrl || variant?.image_url, ...(Array.isArray(variant?.galleryImages) ? variant.galleryImages : [])].filter(Boolean),
+      quantity: Math.max(1, Math.min(Number(quantity) || 1, Number(variant?.stockCount ?? variant?.stock_count ?? product.stockCount ?? quantity) || 1))
+    }];
+    setBuyNowItems(items);
+    try {
+      sessionStorage.setItem("zmw_buy_now_items", JSON.stringify(items));
+      sessionStorage.setItem("zmw_checkout_intent", "buy-now");
+    } catch {}
+    setCheckoutIntent("buy-now");
+    setAppliedCoupon(null);
+    setIsCartOpen(false);
+    setIsCheckoutOpen(false);
+    return true;
+  };
+
+  const beginCartCheckout = (navigateFn, state = {}) => {
+    setCheckoutIntent("cart");
+    try {
+      sessionStorage.setItem("zmw_checkout_intent", "cart");
+    } catch {}
+    setIsCartOpen(false);
+    setIsCheckoutOpen(false);
+    if (typeof navigateFn === "function") navigateFn("/checkout", { state });
+  };
+
+  const clearBuyNowItems = () => {
+    setBuyNowItems(null);
+    try {
+      sessionStorage.removeItem("zmw_buy_now_items");
+      sessionStorage.removeItem("zmw_checkout_intent");
+    } catch {}
+    setCheckoutIntent(null);
   };
 
   // Save Cart to LocalStorage
@@ -396,11 +537,13 @@ export const ShopProvider = ({ children }) => {
         match = product.variants.find(
           (v) =>
             (!v.color || v.color.toLowerCase() === color.toLowerCase()) &&
-            (!v.size || v.size.toLowerCase() === size.toLowerCase()) &&
-            Number(v.stockCount ?? v.stock_count ?? 0) > 0
+            (!v.size || v.size.toLowerCase() === size.toLowerCase())
         );
-      }
-      if (!match) {
+        if (!match) {
+          addToast("That color and size combination is unavailable. Please choose another variant.", "warning");
+          return;
+        }
+      } else {
         match =
           product.variants.find((v) => Number(v.stockCount ?? v.stock_count ?? 0) > 0) ||
           product.variants[0];
@@ -419,7 +562,9 @@ export const ShopProvider = ({ children }) => {
       addToast("This item is currently out of stock.", "warning");
       return;
     }
-    const price = Number(match?.priceOverride ?? match?.price_override ?? product.price);
+    const pricing = getProductPricing(product, match);
+    const price = pricing.price;
+    const originalPrice = pricing.originalPrice;
 
     setCart((prevCart) => {
       const existingIndex = prevCart.findIndex(
@@ -431,6 +576,10 @@ export const ShopProvider = ({ children }) => {
         const currentQty = updated[existingIndex].quantity;
         const availableMax = maxStock !== null ? maxStock : (updated[existingIndex].maxStock ?? 0);
         const newQty = Math.min(availableMax, currentQty + quantity);
+        if (newQty <= currentQty) {
+          addToast(`Only ${availableMax} units are available for this color and size.`, "warning");
+          return prevCart;
+        }
         updated[existingIndex] = {
           ...updated[existingIndex],
           quantity: newQty,
@@ -439,16 +588,19 @@ export const ShopProvider = ({ children }) => {
         return updated;
       } else {
         const initialQty = maxStock !== null ? Math.min(quantity, Math.max(1, maxStock)) : quantity;
+        const skuSuffix = match?.skuSuffix ?? match?.sku_suffix;
         return [
           ...prevCart,
           {
             id: product.id,
             name: product.name,
+            sku: skuSuffix ? `${product.sku}-${skuSuffix}` : product.sku,
             price,
-            originalPrice: product.originalPrice,
+            originalPrice,
             color,
             size,
             image,
+            variantImages: [match?.imageUrl || match?.image_url, ...(Array.isArray(match?.galleryImages) ? match.galleryImages : [])].filter(Boolean),
             quantity: initialQty,
             maxStock: maxStock !== null ? maxStock : undefined
           }
@@ -500,6 +652,8 @@ export const ShopProvider = ({ children }) => {
 
   const clearCart = () => {
     setCart([]);
+    setAppliedCoupon(null);
+    setCouponError("");
   };
 
   // Last action timestamp ref to shield against mobile double-tap / shifted-item ghost clicks
@@ -587,6 +741,8 @@ export const ShopProvider = ({ children }) => {
           discountType: res.discount_type,
           discountValue: res.discount_value,
           discountAmount: res.discount_amount,
+          minSpend: Number(res.min_spend) || 0,
+          maxDiscount: res.max_discount ? Number(res.max_discount) : null,
           discountPercent: res.discount_type === "percentage" ? res.discount_value : null
         });
         setCouponError("");
@@ -594,17 +750,6 @@ export const ShopProvider = ({ children }) => {
         return true;
       }
     } catch (err) {
-      if (cleanCode === "WELCOME10") {
-        setAppliedCoupon({ code: "WELCOME10", discountPercent: 10, discountType: "percentage" });
-        setCouponError("");
-        addToast("✨ Coupon WELCOME10 applied! 10% discount added.", "success");
-        return true;
-      } else if (cleanCode === "LUXURY20") {
-        setAppliedCoupon({ code: "LUXURY20", discountPercent: 20, discountType: "percentage" });
-        setCouponError("");
-        addToast("✨ VIP Coupon LUXURY20 applied! 20% discount added.", "success");
-        return true;
-      }
       setCouponError(err.message || "Invalid coupon code.");
       return false;
     }
@@ -635,36 +780,50 @@ export const ShopProvider = ({ children }) => {
               (!v.size || v.size.toLowerCase() === item.size.toLowerCase())
           )
         : null;
-      const price = Number(variant?.priceOverride ?? live.price);
+      const pricing = getProductPricing(live, variant);
+      const price = pricing.price;
+      const originalPrice = pricing.originalPrice;
       if (!Number.isFinite(price)) return item;
-      const originalPrice = Number(live.originalPrice) > price
-        ? Number(live.originalPrice)
-        : null;
       const maxStock = hasVariants
         ? Number(variant?.stockCount ?? variant?.stock_count ?? 0)
         : Number(live.stockCount ?? 0);
       if (maxStock <= 0) return null;
       const liveImage = variant?.imageUrl || variant?.image_url || (live.images && live.images[0]) || item.image;
+      const liveSkuSuffix = variant?.skuSuffix ?? variant?.sku_suffix;
+      const liveSku = liveSkuSuffix ? `${live.sku}-${liveSkuSuffix}` : live.sku;
+      const liveVariantImages = [variant?.imageUrl || variant?.image_url, ...(Array.isArray(variant?.galleryImages) ? variant.galleryImages : [])].filter(Boolean);
+      const imagesMatch = JSON.stringify(liveVariantImages) === JSON.stringify(item.variantImages || []);
       if (
         price === Number(item.price) &&
         originalPrice === Number(item.originalPrice) &&
         maxStock === Number(item.maxStock) &&
-        liveImage === item.image
+        liveImage === item.image &&
+        liveSku === item.sku &&
+        imagesMatch
       ) return item;
-      return { ...item, price, originalPrice, maxStock, image: liveImage, quantity: Math.min(item.quantity, maxStock) };
+      return { ...item, price, originalPrice, maxStock, image: liveImage, variantImages: liveVariantImages, sku: liveSku, quantity: Math.min(item.quantity, maxStock) };
     }).filter((item) => item && item.quantity > 0);
   }, [cart, allProductsMap]);
 
   // Cart Calculations
   const cartItemCount = cartLines.reduce((sum, item) => sum + item.quantity, 0);
   const cartSubtotal = cartLines.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const discountAmount = appliedCoupon
-    ? appliedCoupon.discountAmount !== undefined
-      ? appliedCoupon.discountAmount
-      : (cartSubtotal * (appliedCoupon.discountPercent || 0)) / 100
-    : 0;
   const isFreeShipping = false;
   const shippingCost = cartSubtotal === 0 ? 0 : SHIPPING_FEE;
+  useEffect(() => {
+    if (appliedCoupon && cartSubtotal < (Number(appliedCoupon.minSpend) || 0)) {
+      setAppliedCoupon(null);
+      setCouponError("Coupon removed because the order total is below its minimum spend.");
+    }
+  }, [cartSubtotal, appliedCoupon?.code, appliedCoupon?.minSpend]);
+  const discountAmount = appliedCoupon
+    ? appliedCoupon.discountType === "percentage"
+      ? Math.min(
+          (cartSubtotal * Number(appliedCoupon.discountValue || 0)) / 100,
+          Number(appliedCoupon.maxDiscount || Infinity)
+        )
+      : Math.min(cartSubtotal, Number(appliedCoupon.discountValue || 0))
+    : 0;
   const cartTotal = Math.max(0, cartSubtotal - discountAmount + shippingCost);
   const freeShippingRemaining = 0;
   const freeShippingPercent = 0;
@@ -683,6 +842,22 @@ export const ShopProvider = ({ children }) => {
     }
   };
 
+  const sortedCategories = useMemo(() => {
+    return (homeData?.categories || [])
+      .slice()
+      .map((c) => ({
+        ...c,
+        subcategories: Array.isArray(c.subcategories)
+          ? [...c.subcategories].sort(
+              (a, b) => (Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0)) || ((Number(a.id) || 0) - (Number(b.id) || 0))
+            )
+          : []
+      }))
+      .sort(
+        (a, b) => (Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0)) || ((Number(a.id) || 0) - (Number(b.id) || 0))
+      );
+  }, [homeData]);
+
   return (
     <ShopContext.Provider
       value={{
@@ -693,7 +868,7 @@ export const ShopProvider = ({ children }) => {
         productsByCategory,
         findProduct,
         homeData,
-        categories: homeData?.categories || [],
+        categories: sortedCategories,
         refreshHomeData,
         storefrontStatus,
         recentlyViewed,
@@ -701,6 +876,12 @@ export const ShopProvider = ({ children }) => {
         // Cart. `cart` carries the live Admin/DB price for every line; the
         // stored snapshot only survives for products missing from the catalogue.
         cart: cartLines,
+        buyNowItems,
+        beginBuyNow,
+        beginCartCheckout,
+        clearBuyNowItems,
+        checkoutIntent,
+        setCheckoutIntent,
         cartItemCount,
         cartSubtotal,
         discountAmount,
@@ -776,7 +957,9 @@ export const ShopProvider = ({ children }) => {
         // Toasts
         toasts,
         addToast,
-        removeToast
+        removeToast,
+        // SEO
+        seoSettings
       }}
     >
       {children}

@@ -8,10 +8,10 @@ const login = [
 const customerRegister = [
   body("name").trim().notEmpty().withMessage("Name is required").isLength({ max: 150 }),
   body("email").isEmail().withMessage("A valid email address is required").normalizeEmail(),
-  body("phone").trim().notEmpty().withMessage("Mobile number is required").isLength({ min: 7, max: 20 }).withMessage("Please enter a valid mobile number"),
+  body("phone").trim().notEmpty().withMessage("Mobile number is required").matches(/^\d{10}$/).withMessage("Phone number must contain exactly 10 digits"),
   body("password").isLength({ min: 6 }).withMessage("Password must be at least 6 characters"),
-  body("confirmPassword").optional().custom((val, { req }) => {
-    if (val && val !== req.body.password) {
+  body("confirmPassword").custom((val, { req }) => {
+    if (!val || val !== req.body.password) {
       throw new Error("Passwords do not match");
     }
     return true;
@@ -58,11 +58,17 @@ const customerResetPassword = [
   })
 ];
 
+const customerUpdateProfile = [
+  body("name").optional({ checkFalsy: true }).trim().notEmpty().withMessage("Name cannot be empty").isLength({ max: 150 }),
+  body("phone").optional({ checkFalsy: true }).trim().matches(/^\d{10}$/).withMessage("Phone number must contain exactly 10 digits")
+];
+
 module.exports = {
   login,
   customerRegister,
   customerLogin,
   customerForgotPassword,
   customerVerifyOtp,
-  customerResetPassword
+  customerResetPassword,
+  customerUpdateProfile
 };

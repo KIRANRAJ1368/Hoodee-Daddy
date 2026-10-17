@@ -120,8 +120,20 @@ export default function NewArrivals() {
     const map = new Map();
     genderCatalog.forEach((p) => {
       (p.colors || []).forEach((c) => {
-        if (!map.has(c.name)) map.set(c.name, { ...c, count: 0 });
-        map.get(c.name).count += 1;
+        const name = typeof c === "string" ? c : c?.name;
+        const hex = typeof c === "object" ? c?.hex || c?.hexCode : "#181715";
+        if (name) {
+          const key = name.toLowerCase();
+          if (!map.has(key)) map.set(key, { name, hex: hex || "#181715", count: 0 });
+          map.get(key).count += 1;
+        }
+      });
+      (p.variants || []).forEach((v) => {
+        if (v.color) {
+          const key = v.color.toLowerCase();
+          if (!map.has(key)) map.set(key, { name: v.color, hex: v.colorHex || "#181715", count: 0 });
+          map.get(key).count += 1;
+        }
       });
     });
     return Array.from(map.values()).sort((a, b) => b.count - a.count);
@@ -130,17 +142,31 @@ export default function NewArrivals() {
   // Size options from current gender catalog
   const sizeOptions = useMemo(() => {
     const set = new Set();
-    genderCatalog.forEach((p) => (p.sizes || []).forEach((s) => set.add(s)));
+    genderCatalog.forEach((p) => {
+      (p.sizes || []).forEach((s) => set.add(typeof s === "object" ? s.size || s.label : s));
+      (p.variants || []).forEach((v) => { if (v.size) set.add(v.size); });
+    });
+    const order = [
+      "0-3M", "3-6M", "6-9M", "9-12M", "12-18M", "18-24M",
+      "2-3Y", "3-4Y", "4-5Y", "5-6Y", "6-7Y", "7-8Y", "8-9Y", "9-10Y", "10-11Y", "11-12Y",
+      "XS", "S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL"
+    ];
     return Array.from(set).sort((a, b) => {
-      const order = ["XS", "S", "M", "L", "XL", "XXL", "3XL", "2-3Y", "3-4Y", "4-5Y", "5-6Y", "7-8Y", "38R", "40R", "42R", "44R"];
       const iA = order.indexOf(a);
       const iB = order.indexOf(b);
       if (iA !== -1 && iB !== -1) return iA - iB;
+      if (iA !== -1) return -1;
+      if (iB !== -1) return 1;
       return a.localeCompare(b);
     });
   }, [genderCatalog]);
 
-  const inStockCount = useMemo(() => genderCatalog.filter((p) => p.inStock).length, [genderCatalog]);
+  const isItemInStock = (p) => Boolean(
+    p.inStock &&
+    (p.stockCount === undefined || Number(p.stockCount) > 0) &&
+    p.stockStatus !== "out_of_stock"
+  );
+  const inStockCount = useMemo(() => genderCatalog.filter(isItemInStock).length, [genderCatalog]);
   const outOfStockCount = genderCatalog.length - inStockCount;
 
   // Toggle helpers
@@ -186,10 +212,20 @@ export default function NewArrivals() {
 
     let list = genderCatalog.filter((p) => {
       // Prefer to exclude best sellers; only include if that would leave fewer than 4
-      if (selectedColors.length > 0 && !p.colors.some((c) => selectedColors.includes(c.name))) return false;
-      if (selectedSizes.length > 0 && !p.sizes.some((s) => selectedSizes.includes(s))) return false;
-      if (availability === "inStock" && !p.inStock) return false;
-      if (availability === "outOfStock" && p.inStock) return false;
+      if (selectedColors.length > 0) {
+        const hasColor =
+          (p.colors || []).some((c) => selectedColors.some((sc) => sc.toLowerCase() === (typeof c === "string" ? c : c.name).toLowerCase())) ||
+          (p.variants || []).some((v) => selectedColors.some((sc) => sc.toLowerCase() === (v.color || "").toLowerCase()));
+        if (!hasColor) return false;
+      }
+      if (selectedSizes.length > 0) {
+        const hasSize =
+          (p.sizes || []).some((s) => selectedSizes.some((ss) => ss.toLowerCase() === (typeof s === "object" ? s.size || s.label : s).toLowerCase())) ||
+          (p.variants || []).some((v) => selectedSizes.some((ss) => ss.toLowerCase() === (v.size || "").toLowerCase()));
+        if (!hasSize) return false;
+      }
+      if (availability === "inStock" && !isItemInStock(p)) return false;
+      if (availability === "outOfStock" && isItemInStock(p)) return false;
       const pPrice = Number(p.price) || 0;
       if (pPrice < minPrice || pPrice > maxPrice) return false;
       return true;
@@ -720,8 +756,8 @@ export default function NewArrivals() {
                       <line x1="8" y1="11" x2="14" y2="11"></line>
                     </svg>
                   </div>
-                  <h3>No matching styles found</h3>
-                  <p>Try clearing some filters or selecting a different category.</p>
+                  <h3>{ALL_GENDER_PRODUCTS.length === 0 ? "No Products Found" : "No matching styles found"}</h3>
+                  <p>{ALL_GENDER_PRODUCTS.length === 0 ? "No new arrival products have been added yet." : "Try clearing some filters or selecting a different category."}</p>
                   <button type="button" className="btn btn-secondary btn-sm" onClick={clearFilters}>
                     Clear all filters
                   </button>

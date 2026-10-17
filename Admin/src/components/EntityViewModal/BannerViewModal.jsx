@@ -170,7 +170,7 @@ export default function BannerViewModal({ banner, onEdit, onClose }) {
         <div className="ev-footer">
           <div className="ev-footer-meta">
             <span>
-              Banner ID: <strong>#{data.id}</strong>
+              Banner ID: <strong>{data.id}</strong>
             </span>
             <span className="ev-sep">•</span>
             <span>Created {formatDate(data.createdAt || data.created_at)}</span>

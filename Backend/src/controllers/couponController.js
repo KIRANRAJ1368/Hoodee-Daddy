@@ -51,7 +51,9 @@ async function validate(req, res) {
       description: coupon.description,
       discount_type: coupon.discount_type,
       discount_value: discountVal,
-      discount_amount: Math.round(discountAmount * 100) / 100
+      discount_amount: Math.round(discountAmount * 100) / 100,
+      min_spend: minSpend,
+      max_discount: coupon.max_discount ? Number(coupon.max_discount) : null
     }
   });
 }
@@ -59,6 +61,20 @@ async function validate(req, res) {
 async function list(req, res) {
   const coupons = await Coupon.findAll({ order: [["created_at", "DESC"]] });
   return sendSuccess(res, { data: coupons });
+}
+
+async function listAvailable(req, res) {
+  const now = new Date();
+  const coupons = await Coupon.findAll({
+    where: { is_active: true },
+    attributes: ["code", "description", "discount_type", "discount_value", "min_spend", "max_discount", "expires_at", "usage_limit", "times_used"],
+    order: [["created_at", "DESC"]]
+  });
+  const available = coupons.filter((coupon) =>
+    (!coupon.expires_at || new Date(coupon.expires_at) >= now) &&
+    (!coupon.usage_limit || coupon.times_used < coupon.usage_limit)
+  );
+  return sendSuccess(res, { data: available });
 }
 
 async function create(req, res) {
@@ -143,6 +159,7 @@ async function remove(req, res) {
 
 module.exports = {
   validate,
+  listAvailable,
   list,
   getById,
   create,

@@ -20,11 +20,15 @@ async function getHomePayload(req, res) {
   const [categories, banners] = await Promise.all([
     Category.findAll({
       where: { is_active: true },
-      order: [
-        ["sort_order", "ASC"],
-        [{ model: Subcategory, as: "subcategories" }, "sort_order", "ASC"]
-      ],
-      include: [{ model: Subcategory, as: "subcategories", where: { is_active: true }, required: false }]
+      order: [["sort_order", "ASC"], ["id", "ASC"]],
+      include: [{
+        model: Subcategory,
+        as: "subcategories",
+        where: { is_active: true },
+        required: false,
+        separate: true,
+        order: [["sort_order", "ASC"], ["id", "ASC"]]
+      }]
     }),
     Banner.findAll({ where: { is_active: true }, order: [["sort_order", "ASC"], ["updated_at", "DESC"]] })
   ]);
@@ -48,6 +52,27 @@ async function getHomePayload(req, res) {
     bannersByPlacement["women"] = bannersByPlacement["womens"];
   }
 
+  // Ensure every active category with banner fields is represented in bannersByPlacement
+  categories.forEach((cat) => {
+    if (!bannersByPlacement[cat.slug] && (cat.banner_image_url || cat.banner_title)) {
+      bannersByPlacement[cat.slug] = [{
+        id: `cat-${cat.id}`,
+        placement: cat.slug,
+        title: cat.banner_title || `${cat.name.toUpperCase()} COLLECTION`,
+        subtitle: cat.banner_subtitle || cat.description || `Explore our premium ${cat.name.toLowerCase()} essentials.`,
+        tag: cat.banner_tag || cat.name,
+        badge_promo: cat.banner_badge_promo || "New Collection",
+        image_url: cat.banner_image_url || "/images/dept-family-banner.jpg",
+        image_position: cat.banner_image_position || "center center",
+        primary_cta_text: cat.banner_primary_cta_text || `Shop ${cat.name}`,
+        primary_cta_link: `/collection?category=${encodeURIComponent(cat.slug)}`,
+        secondary_cta_text: cat.banner_secondary_cta_text || "",
+        sort_order: cat.sort_order,
+        is_active: cat.is_active
+      }];
+    }
+  });
+
   const newArrivalsSection = sections.find((s) => s.section_key === "new_arrivals");
   const bestSellersSection = sections.find((s) => s.section_key === "best_sellers");
 
@@ -65,19 +90,10 @@ async function getHomePayload(req, res) {
     });
   } else {
     newArrivalsPromise = Product.findAll({
-      where: { is_active: true, is_new_arrival: true },
+      where: { is_active: true },
       include: PRODUCT_INCLUDES,
-      order: [["created_at", "DESC"]],
+      order: [["is_new_arrival", "DESC"], ["created_at", "DESC"], ["id", "DESC"]],
       limit: newArrivalsLimit
-    }).then(async (items) => {
-      if (items.length > 0) return items;
-      // Fallback to latest products if none explicitly marked as new arrival
-      return Product.findAll({
-        where: { is_active: true },
-        include: PRODUCT_INCLUDES,
-        order: [["created_at", "DESC"]],
-        limit: newArrivalsLimit
-      });
     });
   }
 
@@ -112,14 +128,23 @@ async function getHomePayload(req, res) {
   }
 
   const [newArrivals, bestSellers] = await Promise.all([newArrivalsPromise, bestSellersPromise]);
+  const offerController = require("./offerController");
+  const allHomeProducts = [...newArrivals, ...bestSellers];
+  const offersMap = await offerController.activeForProducts(allHomeProducts);
 
   return sendSuccess(res, {
     data: {
       sections,
       categories,
       banners: bannersByPlacement,
-      newArrivals: newArrivals.map(serializeProduct),
-      bestSellers: bestSellers.map(serializeProduct)
+      newArrivals: newArrivals.map((p) => ({
+        ...serializeProduct(p),
+        offer: offersMap.get(Number(p.id)) || null
+      })),
+      bestSellers: bestSellers.map((p) => ({
+        ...serializeProduct(p),
+        offer: offersMap.get(Number(p.id)) || null
+      }))
     }
   });
 }

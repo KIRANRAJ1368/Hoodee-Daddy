@@ -31,6 +31,7 @@ export default function SearchModal() {
     setIsSearchOpen,
     allProducts,
     products,
+    categories,
     formatPrice
   } = useShop();
 
@@ -38,6 +39,17 @@ export default function SearchModal() {
   const inputRef = useRef(null);
   const containerRef = useRef(null);
   const navigate = useNavigate();
+
+  // Dynamically derive popular search chips from real subcategories and categories
+  const dynamicPopularSearches = useMemo(() => {
+    const list = [];
+    (categories || []).forEach((c) => {
+      (c.subcategories || []).forEach((sub) => {
+        if (sub.name && !list.includes(sub.name)) list.push(sub.name);
+      });
+    });
+    return list.length > 0 ? list.slice(0, 8) : POPULAR_SEARCHES;
+  }, [categories]);
 
   // Combine products list safely
   const productCatalog = useMemo(() => {
@@ -67,14 +79,46 @@ export default function SearchModal() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isSearchOpen, setIsSearchOpen]);
 
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(query);
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  // Pre-index searchable text so keystrokes do not rebuild strings per product
+  const indexedCatalog = useMemo(() => {
+    return productCatalog.map((p) => {
+      const variantColors = (p.variants || []).map((v) => v.color).filter(Boolean);
+      const variantSizes = (p.variants || []).map((v) => v.size).filter(Boolean);
+      const text = [
+        p.name,
+        p.category,
+        p.subCategory,
+        p.description,
+        p.badge,
+        p.sku,
+        ...(p.colors || []).map((c) => (typeof c === "string" ? c : c?.name) || ""),
+        ...variantColors,
+        ...variantSizes
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return { product: p, text };
+    });
+  }, [productCatalog]);
+
   if (!isSearchOpen) return null;
 
-  const trimmed = query.trim().toLowerCase();
+  const trimmed = debouncedQuery.trim().toLowerCase();
 
   // Resolve chip-friendly terms to reliable match keys
   const searchTerm = CHIP_QUERIES[trimmed] || trimmed;
 
-  const matchesProduct = (p) => {
+  const matchesProduct = (entry) => {
+    const p = entry.product;
     if (searchTerm === "@new") {
       return (
         p.isNew ||
@@ -90,24 +134,11 @@ export default function SearchModal() {
       );
     }
 
-    const text = [
-      p.name,
-      p.category,
-      p.subCategory,
-      p.description,
-      p.badge,
-      p.sku,
-      ...(p.colors || []).map((c) => c.name || "")
-    ]
-      .filter(Boolean)
-      .join(" ")
-      .toLowerCase();
-
-    return text.includes(searchTerm);
+    return entry.text.includes(searchTerm);
   };
 
   const filteredProducts = trimmed
-    ? productCatalog.filter(matchesProduct).slice(0, 12)
+    ? indexedCatalog.filter(matchesProduct).map((e) => e.product).slice(0, 12)
     : [];
 
   const handleSelectProduct = (productId) => {
@@ -199,7 +230,7 @@ export default function SearchModal() {
             <div className="search-popular-section">
               <span className="search-popular-label">Popular Searches</span>
               <div className="search-popular-chips">
-                {POPULAR_SEARCHES.map((term) => (
+                {dynamicPopularSearches.map((term) => (
                   <button
                     key={term}
                     type="button"
@@ -234,51 +265,62 @@ export default function SearchModal() {
 
               {filteredProducts.length > 0 ? (
                 <div className="search-results-list">
-                  {filteredProducts.map((product) => (
-                    <div
-                      key={product.id}
-                      className="search-result-item"
-                      onClick={() => handleSelectProduct(product.id)}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault();
-                          handleSelectProduct(product.id);
-                        }
-                      }}
-                    >
-                      <div className="search-item-img-wrap">
-                        <img
-                          src={imageUrl(product.images?.[0])}
-                          alt={product.name}
-                          className="search-item-img"
-                          loading="lazy"
-                        />
-                      </div>
-
-                      <div className="search-item-details">
-                        <span className="search-item-category">
-                          {product.category}
-                        </span>
-                        <h4 className="search-item-name">{product.name}</h4>
-                        <div className="search-item-price-row">
-                          <span className="search-item-price">
-                            {formatPrice(product.price)}
-                          </span>
-                          {product.originalPrice && product.originalPrice > product.price && (
-                            <span className="search-item-original-price">
-                              {formatPrice(product.originalPrice)}
-                            </span>
-                          )}
+                  {filteredProducts.map((product) => {
+                    const isOutOfStock = !product.inStock || (product.stockCount !== undefined && Number(product.stockCount) <= 0) || product.stockStatus === "out_of_stock";
+                    return (
+                      <div
+                        key={product.id}
+                        className="search-result-item"
+                        onClick={() => handleSelectProduct(product.id)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            handleSelectProduct(product.id);
+                          }
+                        }}
+                      >
+                        <div className="search-item-img-wrap">
+                          <img
+                            src={imageUrl(product.images?.[0] || product.image)}
+                            alt={product.name}
+                            className="search-item-img"
+                            loading="lazy"
+                            onError={(e) => { e.currentTarget.src = "/images/zmw-logo-transparent.png"; }}
+                          />
                         </div>
-                      </div>
 
-                      <span className="search-item-arrow" aria-hidden="true">
-                        &rarr;
-                      </span>
-                    </div>
-                  ))}
+                        <div className="search-item-details">
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <span className="search-item-category">
+                              {product.category}
+                            </span>
+                            {isOutOfStock && (
+                              <span style={{ color: "#DC2626", fontSize: "0.7rem", fontWeight: 700 }}>
+                                OUT OF STOCK
+                              </span>
+                            )}
+                          </div>
+                          <h4 className="search-item-name">{product.name}</h4>
+                          <div className="search-item-price-row">
+                            <span className="search-item-price">
+                              {formatPrice(product.price)}
+                            </span>
+                            {product.originalPrice && product.originalPrice > product.price && (
+                              <span className="search-item-original-price">
+                                {formatPrice(product.originalPrice)}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        <span className="search-item-arrow" aria-hidden="true">
+                          &rarr;
+                        </span>
+                      </div>
+                    );
+                  })}
                   <div style={{ padding: "12px 16px", textAlign: "center", borderTop: "1px solid var(--color-border, #e5e7eb)" }}>
                     <button
                       type="button"
@@ -292,9 +334,11 @@ export default function SearchModal() {
                 </div>
               ) : (
                 <div className="search-no-results">
-                  <p>We couldn't find any products matching your search.</p>
+                  <p style={{ fontWeight: 600, fontSize: "16px", marginBottom: "4px" }}>No Products Found</p>
                   <span className="search-no-results-hint">
-                    Try checking for spelling errors or using more general terms like "Linen", "Dress", or "Shirt".
+                    {productCatalog.length === 0
+                      ? "No products have been added yet."
+                      : `We couldn't find any products matching "${trimmed}". Try checking for spelling errors or using general terms.`}
                   </span>
                 </div>
               )}

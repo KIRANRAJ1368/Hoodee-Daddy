@@ -377,6 +377,13 @@
   margin: 5px 0 0 0;
 }
 
+.cko-field-hint {
+  margin: 6px 0 0;
+  color: var(--text-muted, #64748b);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
 .cko-grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -963,6 +970,82 @@
   color: #DC2626;
   font-size: 0.74rem;
   margin: 6px 0 0 0;
+}
+
+.cko-available-coupons {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.cko-available-coupons-title {
+  margin: 0 0 2px;
+  color: #475569;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.cko-available-coupon {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px dashed #CBD5E1;
+  border-radius: 6px;
+  background: #F8FAFC;
+}
+
+.cko-available-coupon.is-locked {
+  opacity: 0.78;
+}
+
+.cko-available-coupon-info {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+  color: #334155;
+  font-size: 0.75rem;
+}
+
+.cko-available-coupon-info strong {
+  color: #0F172A;
+  letter-spacing: 0.06em;
+}
+
+.cko-available-coupon-info small {
+  color: #64748B;
+  font-size: 0.66rem;
+}
+
+.cko-available-coupon-action {
+  flex: 0 0 auto;
+  padding: 7px 10px;
+  border: 1px solid #0F172A;
+  border-radius: 4px;
+  background: #0F172A;
+  color: #FFFFFF;
+  font-size: 0.67rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cko-available-coupon-action:disabled {
+  border-color: #CBD5E1;
+  background: #E2E8F0;
+  color: #64748B;
+  cursor: not-allowed;
+}
+
+.cko-item-sku {
+  display: block;
+  margin-top: 3px;
+  color: #64748B;
+  font-size: 0.67rem;
+  overflow-wrap: anywhere;
 }
 
 /* Pricing Breakdown */

@@ -96,13 +96,13 @@ describe("formatPrice renders the stored Admin/database amount verbatim", () => 
    ══════════════════════════════════════════════════════════════ */
 describe("shipping amounts use the same unit as catalogue prices", () => {
   test("the thresholds are plain amounts, not FX rates", () => {
-    assert.equal(FREE_SHIPPING_THRESHOLD, 75);
-    assert.equal(SHIPPING_FEE, 15);
+    assert.equal(FREE_SHIPPING_THRESHOLD, Infinity);
+    assert.equal(SHIPPING_FEE, 60);
   });
 
   test("they render through the same formatter as product prices", () => {
-    assert.equal(formatPrice(FREE_SHIPPING_THRESHOLD), "₹75");
-    assert.equal(formatPrice(SHIPPING_FEE), "₹15");
+    assert.equal(formatPrice(FREE_SHIPPING_THRESHOLD), "");
+    assert.equal(formatPrice(SHIPPING_FEE), "₹60");
   });
 });
 

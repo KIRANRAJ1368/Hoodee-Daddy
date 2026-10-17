@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useShop } from "../../context/ShopContext";
 import "./TabbedShowcase.css";
 
@@ -9,6 +10,7 @@ const TABS = [
 ];
 
 export default function TabbedShowcase() {
+  const navigate = useNavigate();
   const {
     products,
     formatPrice,
@@ -118,10 +120,21 @@ export default function TabbedShowcase() {
                 <div className="tabbed-info">
                   <div className="tabbed-meta">
                     <span className="tabbed-category">{product.category}</span>
-                    <div className="star-rating">
-                      <span>★</span>
-                      <span>{Number(product.rating || 5).toFixed(1)}</span>
-                    </div>
+                    {Number(product.reviewCount || 0) > 0 && (
+                      <div
+                        className="star-rating"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          navigate(`/products/${product.slug || product.id}#customer-reviews`);
+                        }}
+                        style={{ cursor: "pointer" }}
+                        title="Click to view verified customer reviews"
+                      >
+                        <span>★</span>
+                        <span>{Number(product.rating || 0).toFixed(1)}</span>
+                      </div>
+                    )}
                   </div>
 
                   <h3
@@ -140,12 +153,19 @@ export default function TabbedShowcase() {
                     )}
                   </div>
 
-                  <button
-                    className="btn-quick-add"
-                    onClick={() => addToCart(product)}
-                  >
-                    <span>+ Quick Add to Bag</span>
-                  </button>
+                  {(() => {
+                    const isOutOfStock = !product.inStock || Number(product.stockCount ?? 0) <= 0 || product.stockStatus === "out_of_stock";
+                    return (
+                      <button
+                        className="btn-quick-add"
+                        onClick={() => !isOutOfStock && addToCart(product)}
+                        disabled={isOutOfStock}
+                        style={isOutOfStock ? { opacity: 0.55, cursor: "not-allowed" } : undefined}
+                      >
+                        <span>{isOutOfStock ? "Out of Stock" : "+ Quick Add to Bag"}</span>
+                      </button>
+                    );
+                  })()}
                 </div>
               </div>
             );

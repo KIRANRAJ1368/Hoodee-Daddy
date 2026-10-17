@@ -89,53 +89,66 @@ function ProductCarousel({
         )}
 
         {/* Carousel Viewport & Floating Arrows */}
-        <div className="carousel-container" {...containerProps}>
-          {/* Side arrow left */}
-          <button
-            type="button"
-            className="carousel-side-arrow left"
-            onClick={scrollPrev}
-            aria-label="Previous slide"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <polyline points="15 18 9 12 15 6"></polyline>
-            </svg>
-          </button>
+        {products && products.length > 0 ? (
+          <div className="carousel-container" {...containerProps}>
+            {/* Side arrow left */}
+            <button
+              type="button"
+              className="carousel-side-arrow left"
+              onClick={scrollPrev}
+              aria-label="Previous slide"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+            </button>
 
-          {/* Track Viewport */}
-          <div className="carousel-viewport" {...trackProps}>
-            <div className="carousel-slider-track">
-              {products.map((item) => (
-                <div
-                  key={item.id}
-                  className="carousel-slide-item"
-                  style={{
-                    flex: `0 0 ${100 / visibleCount}%`,
-                    maxWidth: `${100 / visibleCount}%`,
-                  }}
-                >
-                  <CuratedCard
-                    product={item}
-                    badgeLabel={item[badgeLabelKey] || defaultBadge}
-                    badgeTone={badgeTone}
-                  />
-                </div>
-              ))}
+            {/* Track Viewport */}
+            <div className="carousel-viewport" {...trackProps}>
+              <div className="carousel-slider-track">
+                {products.map((item, idx) => (
+                  <div
+                    key={item.id}
+                    className="carousel-slide-item fade"
+                    style={{
+                      flex: `0 0 ${100 / visibleCount}%`,
+                      maxWidth: `${100 / visibleCount}%`,
+                      animationDelay: `${Math.min(idx * 70, 420)}ms`
+                    }}
+                  >
+                    <CuratedCard
+                      product={item}
+                      badgeLabel={item[badgeLabelKey] || defaultBadge}
+                      badgeTone={badgeTone}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* Side arrow right */}
-          <button
-            type="button"
-            className="carousel-side-arrow right"
-            onClick={scrollNext}
-            aria-label="Next slide"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <polyline points="9 18 15 12 9 6"></polyline>
-            </svg>
-          </button>
-        </div>
+            {/* Side arrow right */}
+            <button
+              type="button"
+              className="carousel-side-arrow right"
+              onClick={scrollNext}
+              aria-label="Next slide"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+          </div>
+        ) : (
+          <div className="curated-empty-state" style={{ textAlign: "center", padding: "48px 20px 36px", color: "#64748b" }}>
+            <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "48px", height: "48px", borderRadius: "50%", background: "#f1f5f9", marginBottom: "12px", color: "#94a3b8" }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /><line x1="8" y1="11" x2="14" y2="11" />
+              </svg>
+            </div>
+            <h3 style={{ fontSize: "16px", fontWeight: 600, color: "#1e293b", margin: "0 0 4px" }}>No Products Found</h3>
+            <p style={{ fontSize: "14px", color: "#64748b", margin: 0 }}>Products will appear here once added from the Admin Panel.</p>
+          </div>
+        )}
       </div>
     </section>
   );
@@ -193,7 +206,9 @@ export function NewArrivalsSection() {
   const deptPills = useMemo(() => {
     const defaultPills = [{ id: "all", label: "All Items" }];
     if (homeData?.categories && homeData.categories.length > 0) {
-      const activeCats = homeData.categories.filter((c) => c.is_active !== false);
+      const activeCats = [...homeData.categories]
+        .filter((c) => c.is_active !== false)
+        .sort((a, b) => (Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0)) || ((Number(a.id) || 0) - (Number(b.id) || 0)));
       const catPills = activeCats.map((c) => ({
         id: c.slug,
         label: c.name

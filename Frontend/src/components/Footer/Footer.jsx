@@ -5,6 +5,8 @@ import SizeGuideModal from "../Modals/SizeGuideModal";
 import "./Footer.css";
 
 const QUICK_LINKS = [
+  { label: "Men's Collection", href: "/categories/mens" },
+  { label: "Women's Collection", href: "/categories/women" },
   { label: "Best Sellers", href: "/collection?collection=best-sellers" },
   { label: "New Arrivals", href: "/collection?collection=new-arrivals" }
 ];

@@ -68,16 +68,16 @@ function renderHeroIcon(name) {
 
 const HERO_BANNERS = [
   {
-    id: 1,
+    id: 8,
     badge: "Limited Time",
     badgeIcon: "bolt",
-    subBadge: "Mega Drop",
+    subBadge: "",
     offer: "UP TO 50% OFF",
-    offerTag: "CODE: ZMW50",
+    offerTag: "Selling Out Fast",
     headline: "Mega Fashion Sale",
-    support: "Premium streetwear drops & oversized graphic tees marked down. Pure cotton essentials with zero compromise.",
+    support: "Premium streetwear drops and oversized graphic tees marked down. Pure cotton essentials with zero compromise.",
     cta: "Shop Now",
-    link: "/collection",
+    link: "/collection?category=mens",
     urgencyTag: "⚡ Selling Out Fast",
     perks: [
       { icon: "truck", label: SHIPPING_LABEL },
@@ -86,21 +86,21 @@ const HERO_BANNERS = [
     ],
     image: "/images/hero-mens-oversized-tee.jpg",
     imagePosition: "72% 10%",
-    alt: "ZMW oversized streetwear graphic tee model",
-    slideLabel: "Up to 50% Off",
-    themeClass: "hero-theme-sale"
+    alt: "Mega Fashion Sale",
+    slideLabel: "Mega Fashion Sale",
+    themeClass: "hero-theme-1"
   },
   {
-    id: 2,
+    id: 9,
     badge: "New Arrivals",
     badgeIcon: "sparkle",
-    subBadge: "Season 2026",
+    subBadge: "",
     offer: "FLAT 25% OFF",
-    offerTag: "AUTO-APPLIED AT CHECKOUT",
+    offerTag: "Fresh Drop",
     headline: "New Season Styles",
     support: "Heavyweight 240 GSM drops with relaxed silhouettes, modern street aesthetics, and all-day comfort.",
     cta: "Explore Now",
-    link: "/collection?collection=new-arrivals",
+    link: "/collection?category=mens",
     urgencyTag: "✨ Fresh Drop",
     perks: [
       { icon: "shield", label: "240 GSM Heavyweight" },
@@ -109,21 +109,21 @@ const HERO_BANNERS = [
     ],
     image: "/images/hero-mens-tshirt-banner-2.jpg",
     imagePosition: "80% 10%",
-    alt: "ZMW heavyweight graphic streetwear drop model",
-    slideLabel: "Flat 25% Off",
-    themeClass: "hero-theme-season"
+    alt: "New Season Styles",
+    slideLabel: "New Season Styles",
+    themeClass: "hero-theme-2"
   },
   {
-    id: 3,
+    id: 10,
     badge: "Best Deals",
     badgeIcon: "flame",
-    subBadge: "Winter Special",
+    subBadge: "",
     offer: "WINTER SALE",
-    offerTag: "STYLES STARTING {{MIN_PRICE}}",
-    headline: "Styles Starting {{MIN_PRICE}}",
-    support: "Brushed fleece hoodies, ribbed high-necks & signature winter layering essentials built for the cold.",
+    offerTag: "Limited Winter Stock",
+    headline: "Styles Starting at Great Prices",
+    support: "Brushed fleece hoodies, ribbed high-necks and signature winter layering essentials built for the cold.",
     cta: "Shop Now",
-    link: "/collection",
+    link: "/collection?category=women",
     urgencyTag: "🔥 Limited Winter Stock",
     perks: [
       { icon: "shield", label: "Fleece Lined Comfort" },
@@ -132,28 +132,18 @@ const HERO_BANNERS = [
     ],
     image: "/images/cat-banner-womens.jpg",
     imagePosition: "75% 8%",
-    alt: "ZMW women's signature oversized graphic tee fashion model",
-    slideLabel: "Winter Sale",
-    themeClass: "hero-theme-winter"
+    alt: "Styles Starting at Great Prices",
+    slideLabel: "Styles Starting at Great Prices",
+    themeClass: "hero-theme-3"
   }
 ];
 
 export default function Hero() {
-  const { homeData, allProducts } = useShop();
+  const { homeData } = useShop();
   const managedBanners = [
     ...(homeData?.banners?.hero || []),
     ...(homeData?.banners?.home_hero || [])
   ].filter((banner) => banner?.is_active !== false);
-
-  // Any "starting at" claim is generated from the real Admin catalog minimum so
-  // it can never advertise an amount the storefront does not actually charge.
-  const minPrice = useMemo(() => {
-    const prices = (allProducts || [])
-      .map((p) => Number(p?.price))
-      .filter((n) => Number.isFinite(n) && n > 0);
-    return prices.length ? formatPrice(Math.min(...prices)) : "";
-  }, [allProducts]);
-  const withMinPrice = (text) => (text || "").replace(/\{\{MIN_PRICE\}\}/g, minPrice);
 
   const banners = managedBanners.length
     ? managedBanners.map((banner, index) => {
@@ -162,22 +152,32 @@ export default function Hero() {
         const title = banner.title?.trim() || "ZMW Clothing";
         const subtitle = banner.subtitle?.trim() || "";
         const offer = promo || title;
-        const subBadge = promo && promo.toLowerCase() !== tag.toLowerCase() && promo.toLowerCase() !== offer.toLowerCase() ? promo : "";
         const offerTag = banner.secondary_cta_text && banner.secondary_cta_text.toLowerCase() !== tag.toLowerCase() ? banner.secondary_cta_text : "";
+        const urgencyTag = banner.secondary_cta_text
+          ? (banner.secondary_cta_text.includes("Fast") ? `⚡ ${banner.secondary_cta_text}` : banner.secondary_cta_text.includes("Stock") ? `🔥 ${banner.secondary_cta_text}` : `✨ ${banner.secondary_cta_text}`)
+          : "✨ Fresh Drop";
 
         return {
           id: banner.id,
           badge: tag || "ZMW",
-          badgeIcon: "sparkle",
-          subBadge,
+          badgeIcon: index === 0 ? "bolt" : index === 1 ? "sparkle" : "flame",
+          subBadge: "",
           offer,
           offerTag,
           headline: promo && promo.toLowerCase() === title.toLowerCase() ? (tag || "Special Edition") : title,
           support: subtitle,
           cta: banner.primary_cta_text?.trim() || "Shop Now",
           link: (banner.primary_cta_link && !banner.primary_cta_link.startsWith("#")) ? banner.primary_cta_link : "/collection",
-          urgencyTag: banner.secondary_cta_text || "✨ Fresh Drop",
-          perks: [
+          urgencyTag,
+          perks: index === 1 ? [
+            { icon: "shield", label: "240 GSM Heavyweight" },
+            { icon: "star", label: "4.9★ Customer Rating" },
+            { icon: "tag", label: "100% Combed Cotton" }
+          ] : index === 2 ? [
+            { icon: "shield", label: "Fleece Lined Comfort" },
+            { icon: "truck", label: "Cash on Delivery Available" },
+            { icon: "bolt", label: "Same-Day Dispatch" }
+          ] : [
             { icon: "truck", label: SHIPPING_LABEL },
             { icon: "refresh", label: "7-Day Easy Returns" },
             { icon: "shield", label: "100% Quality Checked" }
@@ -189,11 +189,7 @@ export default function Hero() {
           themeClass: `hero-theme-${(index % 3) + 1}`
         };
       })
-    : HERO_BANNERS.map((banner) => ({
-        ...banner,
-        offerTag: withMinPrice(banner.offerTag),
-        headline: withMinPrice(banner.headline)
-      }));
+    : HERO_BANNERS;
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const touchStartX = useRef(null);
@@ -207,7 +203,9 @@ export default function Hero() {
     setCurrentSlide((prev) => (prev - 1 + banners.length) % banners.length);
   }, [banners.length]);
 
-  useEffect(() => setCurrentSlide(0), [banners.length]);
+  useEffect(() => {
+    setCurrentSlide((prev) => (prev >= banners.length ? 0 : prev));
+  }, [banners.length]);
 
   // 5-second automatic slide transition
   useEffect(() => {

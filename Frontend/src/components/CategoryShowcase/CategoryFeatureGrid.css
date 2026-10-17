@@ -28,11 +28,89 @@
   background-color: #FFFFFF;
 }
 
-/* ── Unified Left-Aligned Section Header ── */
-.section-header-left {
+/* ── Unified Left-Aligned Section Header & View All Products Row ── */
+.cat-feature-header-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: clamp(20px, 2.8vw, 32px);
+  flex-wrap: wrap;
+}
+
+.cat-feature-header-row .section-header-left {
   text-align: left;
   max-width: 720px;
-  margin-bottom: clamp(20px, 2.8vw, 32px);
+  margin-bottom: 0;
+  flex: 1 1 480px;
+}
+
+.cat-feature-view-all-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px;
+  background: #0F172A;
+  color: #FFFFFF;
+  border: 1.5px solid #0F172A;
+  border-radius: 9999px;
+  font-family: var(--font-primary, "Plus Jakarta Sans", sans-serif);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.12);
+  transition: all 220ms cubic-bezier(0.16, 1, 0.3, 1);
+  margin-bottom: 4px;
+}
+
+.cat-feature-view-all-btn svg {
+  transition: transform 220ms ease;
+  color: #FAA703;
+}
+
+.cat-feature-view-all-btn:hover {
+  background: #FAA703;
+  color: #0F172A;
+  border-color: #FAA703;
+  box-shadow: 0 6px 20px rgba(250, 167, 3, 0.35);
+  transform: translateY(-2px);
+}
+
+.cat-feature-view-all-btn:hover svg {
+  color: #0F172A;
+  transform: translateX(4px);
+}
+
+@media (max-width: 640px) {
+  .cat-feature-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .cat-feature-header-row .section-header-left {
+    flex: none;
+    width: 100%;
+    max-width: 100%;
+  }
+  .cat-feature-view-all-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 18px;
+    font-size: 0.74rem;
+    font-weight: 700;
+    width: auto;
+    align-self: flex-start;
+    border-radius: 9999px;
+  }
+  .cat-feature-view-all-btn svg {
+    width: 14px;
+    height: 14px;
+  }
 }
 
 .section-eyebrow-badge {
@@ -395,6 +473,16 @@
 }
 
 @media (max-width: 480px) {
+  .cat-feature-name {
+    font-size: 0.92rem;
+    line-height: 1.25;
+    word-break: break-word;
+  }
+
+  .cat-feature-caption {
+    padding: 12px 6px;
+  }
+
   .cat-feature-arrow {
     width: 32px;
     height: 32px;
@@ -408,15 +496,36 @@
     right: -4px;
   }
 
+  .cat-feature-view-all-btn {
+    padding: 7px 15px;
+    font-size: 0.70rem;
+    gap: 6px;
+    width: auto;
+    align-self: flex-start;
+  }
+
+  .cat-feature-view-all-btn svg {
+    width: 13px;
+    height: 13px;
+  }
+
   .zmw-primary-cta {
-    padding: 11px 22px;
-    font-size: 0.78rem;
+    padding: 8px 16px;
+    font-size: 0.72rem;
+    width: auto;
+    align-self: flex-start;
   }
 }
 
-@media (max-width: 340px) {
+@media (max-width: 360px) {
   .cat-feature-name {
-    font-size: 1rem;
+    font-size: 0.82rem;
+    line-height: 1.2;
+    word-break: break-word;
+  }
+
+  .cat-feature-caption {
+    padding: 10px 4px;
   }
 
   .cat-feature-arrow {
@@ -424,11 +533,147 @@
     height: 28px;
   }
 
+  .cat-feature-view-all-btn {
+    padding: 6px 13px;
+    font-size: 0.66rem;
+    gap: 5px;
+    width: auto;
+    align-self: flex-start;
+  }
+
+  .cat-feature-view-all-btn svg {
+    width: 12px;
+    height: 12px;
+  }
+
   .zmw-primary-cta {
-    padding: 10px 18px;
-    font-size: 0.74rem;
-    width: 100%;
-    justify-content: center;
+    padding: 7px 14px;
+    font-size: 0.68rem;
+    width: auto;
+    align-self: flex-start;
   }
 }
+
+/* ── Category Hero Banner within each Section ── */
+.cat-feature-hero-banner {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  min-height: 380px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.08);
+  margin-bottom: 24px;
+  background: #111827;
+}
+
+.cat-feature-banner-img-wrap {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.cat-feature-banner-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.cat-feature-banner-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(17, 24, 39, 0.92) 0%,
+    rgba(17, 24, 39, 0.8) 45%,
+    rgba(17, 24, 39, 0.3) 100%
+  );
+}
+
+.cat-feature-banner-content {
+  position: relative;
+  z-index: 2;
+  max-width: 620px;
+  padding: clamp(32px, 5vw, 56px);
+  color: #FFFFFF;
+}
+
+.cat-feature-banner-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-primary);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: #FAA703;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.cat-feature-banner-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+  font-weight: 900;
+  color: #FFFFFF;
+  margin: 0 0 12px 0;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.cat-feature-banner-sub {
+  font-family: var(--font-primary);
+  font-size: clamp(0.92rem, 1.2vw, 1.05rem);
+  line-height: 1.6;
+  color: #E2E8F0;
+  margin: 0 0 20px 0;
+}
+
+.cat-feature-banner-badge {
+  display: inline-block;
+  padding: 5px 14px;
+  border-radius: var(--radius-pill);
+  background: rgba(250, 167, 3, 0.18);
+  border: 1px solid rgba(250, 167, 3, 0.4);
+  color: #FAA703;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  margin-bottom: 24px;
+}
+
+.cat-feature-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.cat-feature-secondary-pill {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #CBD5E1;
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 768px) {
+  .cat-feature-hero-banner {
+    min-height: 320px;
+  }
+  .cat-feature-banner-overlay {
+    background: linear-gradient(
+      180deg,
+      rgba(17, 24, 39, 0.4) 0%,
+      rgba(17, 24, 39, 0.88) 60%,
+      rgba(17, 24, 39, 0.95) 100%
+    );
+  }
+  .cat-feature-banner-content {
+    padding: 24px 20px;
+  }
+}
+
 

@@ -282,6 +282,14 @@
   margin-bottom: 12px;
 }
 
+.cp-card-stock.cp-stock--out {
+  color: #DC2626;
+}
+
+.cp-card-stock.cp-stock--low {
+  color: #D97706;
+}
+
 .cp-stock-dot {
   font-size: 0.6rem;
   line-height: 1;

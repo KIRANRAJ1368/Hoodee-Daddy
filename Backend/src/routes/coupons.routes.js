@@ -6,6 +6,7 @@ const router = express.Router();
 
 // Public storefront coupon validation
 router.post("/validate", couponController.validate);
+router.get("/available", couponController.listAvailable);
 
 // Admin Coupon Management
 router.get("/", requireAuth, couponController.list);

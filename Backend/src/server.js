@@ -6,11 +6,13 @@ if (dns.setDefaultResultOrder) {
 
 const env = require("./config/env");
 const app = require("./app");
-const { sequelize } = require("./models");
+const { sequelize, Offer, OrderStatusHistory } = require("./models");
 
 async function start() {
   try {
     await sequelize.authenticate();
+    if (Offer) await Offer.sync();
+    if (OrderStatusHistory) await OrderStatusHistory.sync();
     // eslint-disable-next-line no-console
     console.log(`[db] Connected to ${env.db.dialect}://${env.db.host}:${env.db.port}/${env.db.name}`);
   } catch (err) {

@@ -1,5 +1,6 @@
-const { Order, OrderItem, Product, User } = require("../models");
+const { Order, OrderItem, OrderStatusHistory, Product, User } = require("../models");
 const shiprocketService = require("../services/shiprocketService");
+const mailer = require("../utils/mailer");
 const ApiError = require("../utils/ApiError");
 const { sendSuccess } = require("../utils/apiResponse");
 const { getPagination, buildMeta } = require("../utils/pagination");
@@ -95,17 +96,33 @@ async function generateAwb(req, res) {
     throw ApiError.notFound("Order not found");
   }
 
+  if (order.status === "cancelled" || order.status === "returned") {
+    throw ApiError.badRequest("Cancelled or returned orders cannot be shipped.");
+  }
+
+  if (order.shipment_id && order.awb_code) throw ApiError.conflict("This order already has a Shiprocket AWB.");
   const shipmentResult = await shiprocketService.createShipment(order);
 
   order.shipping_status = "manifested";
   order.status = "packed";
   order.shipment_id = shipmentResult.shipment_id;
+  order.shiprocket_order_id = shipmentResult.shiprocket_order_id || shipmentResult.order_id || null;
   order.awb_code = shipmentResult.awb_code;
   order.tracking_number = shipmentResult.awb_code;
   order.courier_name = shipmentResult.courier_name;
+  order.shipment_error = null;
   order.estimated_delivery = order.estimated_delivery || "3–5 Business Days";
 
   await order.save();
+
+  await OrderStatusHistory.create({ order_id: order.id, status: order.status, shipping_status: order.shipping_status, source: "admin", note: "Shiprocket shipment and AWB generated" });
+
+  if (order.email) {
+    mailer.sendOrderStatusUpdateEmail(order.email, order, "packed", "confirmed", {
+      courier_name: shipmentResult.courier_name,
+      awb_code: shipmentResult.awb_code
+    }).catch((err) => console.warn("[ZMW NODEMAILER] AWB status email notice:", err.message));
+  }
 
   return sendSuccess(res, {
     message: `Shiprocket AWB ${shipmentResult.awb_code} generated successfully!`,
@@ -130,7 +147,11 @@ async function updateShippingStatus(req, res) {
     throw ApiError.notFound("Order not found");
   }
 
+  const previousStatus = order.status;
+  const previousShippingStatus = order.shipping_status;
+
   if (shipping_status) {
+    if (!req.admin) throw ApiError.forbidden("Admin access is required to set a manual shipping status.");
     order.shipping_status = shipping_status;
 
     // Sync order fulfillment status
@@ -150,6 +171,18 @@ async function updateShippingStatus(req, res) {
   if (estimated_delivery) order.estimated_delivery = estimated_delivery;
 
   await order.save();
+  if (previousStatus !== order.status && ["cancelled", "returned"].includes(order.status) && !["cancelled", "returned"].includes(previousStatus)) {
+    const { adjustItemStockForOrder } = require("./orderController");
+    await adjustItemStockForOrder(order, order.items);
+  }
+  if (previousShippingStatus !== order.shipping_status || previousStatus !== order.status) {
+    await OrderStatusHistory.create({ order_id: order.id, status: order.status, shipping_status: order.shipping_status, source: "admin", note: "Shipping status updated manually" });
+  }
+
+  if (previousStatus !== order.status && order.email) {
+    mailer.sendOrderStatusUpdateEmail(order.email, order, order.status, previousStatus)
+      .catch((err) => console.warn("[ZMW NODEMAILER] Shipping status update email notice:", err.message));
+  }
 
   return sendSuccess(res, {
     message: `Shipping status updated to "${order.shipping_status}"`,
@@ -181,25 +214,10 @@ async function syncTracking(req, res) {
       newOrderStatus = tracking.order_status;
       syncMessage = `Live Shiprocket update: ${tracking.message || tracking.status}`;
     } else {
-      // Auto-advance sequentially along pipeline for simulated AWBs / before courier physical scans
-      const sequence = [
-        { ship: "pending_dispatch", ord: "confirmed" },
-        { ship: "manifested", ord: "packed" },
-        { ship: "in_transit", ord: "shipped" },
-        { ship: "out_for_delivery", ord: "shipped" },
-        { ship: "delivered", ord: "delivered" }
-      ];
-      const curIndex = sequence.findIndex((s) => s.ship === order.shipping_status);
-      if (curIndex !== -1 && curIndex < sequence.length - 1) {
-        newShippingStatus = sequence[curIndex + 1].ship;
-        newOrderStatus = sequence[curIndex + 1].ord;
-        syncMessage = `Auto-advanced to "${newShippingStatus.replace(/_/g, " ")}" via Shiprocket tracking sync.`;
-      } else if (order.shipping_status === "delivered") {
-        syncMessage = "Parcel has already been successfully delivered.";
-      }
+      syncMessage = "Shiprocket has no new scan yet. The current shipment status was kept unchanged.";
     }
   } else {
-    // Automatically generate Shiprocket shipment if not yet manifested
+    // Retry shipment creation when tracking was requested before a shipment existed.
     const shipmentResult = await shiprocketService.createShipment(order);
     order.shipment_id = shipmentResult.shipment_id;
     order.awb_code = shipmentResult.awb_code;
@@ -210,9 +228,19 @@ async function syncTracking(req, res) {
     syncMessage = `Shiprocket AWB ${shipmentResult.awb_code} generated & status moved to Manifested.`;
   }
 
+  const previousShippingStatus = order.shipping_status;
+  const previousOrderStatus = order.status;
   order.shipping_status = newShippingStatus;
   order.status = newOrderStatus;
   await order.save();
+  if (previousShippingStatus !== order.shipping_status || previousOrderStatus !== order.status) {
+    await OrderStatusHistory.create({ order_id: order.id, status: order.status, shipping_status: order.shipping_status, source: "shiprocket", note: syncMessage });
+  }
+
+  if (previousOrderStatus !== order.status && order.email) {
+    mailer.sendOrderStatusUpdateEmail(order.email, order, order.status, previousOrderStatus)
+      .catch((err) => console.warn("[ZMW NODEMAILER] Sync tracking status update email notice:", err.message));
+  }
 
   return sendSuccess(res, {
     message: syncMessage,
@@ -230,15 +258,25 @@ async function handleWebhook(req, res) {
   const order = await Order.findOne({
     where: {
       [Op.or]: [{ awb_code: awb }, { tracking_number: awb }]
-    }
+    },
+    include: [{ model: OrderItem, as: "items" }]
   });
 
   if (order) {
+    const previousStatus = order.status;
+    const previousShippingStatus = order.shipping_status;
     const mapped = shiprocketService.mapShiprocketStatus(current_status || shipment_status);
     if (mapped) {
       order.shipping_status = mapped.shipping_status;
       order.status = mapped.order_status;
       await order.save();
+      if (previousStatus !== order.status || previousShippingStatus !== order.shipping_status) {
+        await OrderStatusHistory.create({ order_id: order.id, status: order.status, shipping_status: order.shipping_status, source: "shiprocket", note: mapped.message });
+      }
+      if (previousStatus !== order.status && order.email) {
+        mailer.sendOrderStatusUpdateEmail(order.email, order, order.status, previousStatus)
+          .catch((err) => console.warn("[ZMW NODEMAILER] Webhook status update email notice:", err.message));
+      }
     }
   }
 

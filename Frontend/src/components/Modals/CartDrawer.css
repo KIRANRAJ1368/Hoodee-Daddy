@@ -176,6 +176,13 @@
   margin: 4px 0;
 }
 
+.cart-item-sku {
+  margin-top: 2px;
+  color: var(--color-grey-400);
+  font-size: 10px;
+  overflow-wrap: anywhere;
+}
+
 .cart-item-bottom {
   display: flex;
   align-items: center;

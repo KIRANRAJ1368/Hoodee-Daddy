@@ -17,16 +17,17 @@ function productRules() {
     body("subcategory_id").optional({ values: "null" }).isInt(),
     body("product_type").optional({ values: "null" }).isString().isLength({ max: 60 }),
     body("description").optional({ values: "null" }).isString(),
-    body("price").isFloat({ min: 500 }).withMessage("Selling price must be at least ₹500"),
+    body("price").isFloat({ min: 0.01 }).withMessage("Selling price must be greater than zero"),
     body("original_price")
       .optional({ values: "null" })
-      .isFloat({ min: 500 })
-      .withMessage("Original / MRP price must be at least ₹500")
+      .isFloat({ min: 0.01 })
+      .withMessage("Original / MRP price must be greater than zero")
       .custom((value, { req }) =>
         req.body.price === undefined || req.body.price === null || req.body.price === "" || Number(value) > Number(req.body.price)
       )
       .withMessage("Original / MRP price must be higher than selling price"),
     body("stock_count").optional().isInt({ min: 0 }),
+    body("sales_count").optional().isInt({ min: 0 }),
     body("in_stock").optional().isBoolean(),
     body("is_best_seller").optional().isBoolean(),
     body("is_new_arrival").optional().isBoolean(),
@@ -34,8 +35,8 @@ function productRules() {
     body("badge_label").optional({ values: "null" }).isString().isLength({ max: 40 }),
     body("badge_type").optional({ values: "null" }).isIn(["hot", "new", "sale"]),
     body("images")
-      .isArray({ min: 2, max: 10 })
-      .withMessage("At least 2 product images are required (1 Main product image + at least 1 gallery photo). Maximum 10 images allowed."),
+      .isArray({ min: 1, max: 12 })
+      .withMessage("At least 1 product image (Front View) is required. Maximum 12 images allowed."),
     body("images.*")
       .custom((val) => {
         if (typeof val === "string" && val.trim().length > 0) return true;
@@ -43,18 +44,46 @@ function productRules() {
         throw new Error("Invalid image entry");
       })
       .withMessage("Each image must have a valid URL"),
-    body("colors").optional().isArray(),
-    body("colors.*.name").optional().isString().notEmpty(),
+    body("specifications").isArray({ min: 3, max: 10 }).withMessage("Specifications must contain between 3 and 10 items"),
+    body("specifications.*.title").isString().trim().notEmpty().withMessage("Specification title cannot be empty"),
+    body("specifications.*.value").isString().trim().notEmpty().withMessage("Specification value cannot be empty"),
+    body("colors").isArray({ min: 1 }).withMessage("At least one product color is required"),
+    body("colors.*.name").isString().trim().notEmpty().withMessage("Color name is required"),
     body("colors.*.hex").optional().isString(),
     body("colors.*.hex_code").optional().isString(),
-    body("sizes").optional().isArray(),
+    body("sizes").isArray({ min: 1 }).withMessage("At least one size is required"),
     body("sizes.*").optional(),
-    body("variants").optional().isArray(),
+    body("variants").isArray({ min: 1 }).withMessage("At least one color and size variant is required"),
     body("variants.*.size").optional({ values: "null" }),
     body("variants.*.color").optional({ values: "null" }),
     body("variants.*.stock_count").optional().isInt({ min: 0 }),
+    body("variants.*.low_stock_threshold").optional().isInt({ min: 0 }),
+    body("variants.*.gst_rate").optional().isFloat({ min: 0, max: 100 }),
+    body("variants.*.sales_count").optional().isInt({ min: 0 }),
     body("variants.*.sku_suffix").optional({ values: "null" }),
-    body("variants.*.price_override").optional({ values: "null" })
+    body("variants.*.price_override").optional({ values: "null" }).isFloat({ min: 0.01 }),
+    body("variants.*.original_price_override").optional({ values: "null" }).isFloat({ min: 0.01 }),
+    body("variants.*.image_url").optional({ values: "null" }).isString().isLength({ max: 2048 }),
+    body("variants.*.gallery_images").optional({ values: "null" }).custom((val) => {
+      if (Array.isArray(val)) return val.length <= 12;
+      if (typeof val === "string") {
+        try {
+          const parsed = JSON.parse(val);
+          return !Array.isArray(parsed) || parsed.length <= 12;
+        } catch {
+          return true;
+        }
+      }
+      return true;
+    }).withMessage("Gallery images must have at most 12 images"),
+    body("meta_title").optional({ values: "null" }).isString().isLength({ max: 255 }),
+    body("metaTitle").optional({ values: "null" }).isString().isLength({ max: 255 }),
+    body("meta_description").optional({ values: "null" }).isString(),
+    body("metaDescription").optional({ values: "null" }).isString(),
+    body("meta_keywords").optional({ values: "null" }).isString().isLength({ max: 500 }),
+    body("metaKeywords").optional({ values: "null" }).isString().isLength({ max: 500 }),
+    body("canonical_url").optional({ values: "null" }).isString().isLength({ max: 255 }),
+    body("canonicalUrl").optional({ values: "null" }).isString().isLength({ max: 255 })
   ];
 }
 
@@ -63,5 +92,11 @@ const create = productRules();
 const update = [param("id").isInt(), ...productRules().map((rule) => rule.optional({ values: "null" }))];
 
 const idParam = [param("id").isInt().withMessage("Invalid product id")];
+const stock = [
+  ...idParam,
+  body("stock_count").optional().isInt({ min: 0 }),
+  body("sales_count").optional().isInt({ min: 0 }),
+  body("in_stock").optional().isBoolean()
+];
 
-module.exports = { create, update, idParam };
+module.exports = { create, update, idParam, stock };

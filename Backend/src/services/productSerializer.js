@@ -23,6 +23,7 @@ function serializeProduct(product) {
     reviewCount: p.review_count,
     inStock: Boolean(p.in_stock && Number(p.stock_count ?? 0) > 0),
     stockCount: Number(p.stock_count ?? 0),
+    salesCount: Number(p.sales_count ?? 0),
     stockStatus:
       !p.in_stock || Number(p.stock_count ?? 0) === 0
         ? "out_of_stock"
@@ -37,6 +38,17 @@ function serializeProduct(product) {
     badgeType: p.badge_type,
     isActive: p.is_active,
     description: p.description,
+    metaTitle: p.meta_title || null,
+    metaDescription: p.meta_description || null,
+    metaKeywords: p.meta_keywords || null,
+    canonicalUrl: p.canonical_url || null,
+    specifications: p.specifications
+      ? Array.isArray(p.specifications)
+        ? p.specifications
+        : typeof p.specifications === "string"
+        ? (() => { try { return JSON.parse(p.specifications); } catch { return []; } })()
+        : []
+      : [],
     images: (p.images || []).sort((a, b) => a.sort_order - b.sort_order).map((i) => i.url),
     colors: (p.colors || [])
       .sort((a, b) => a.sort_order - b.sort_order)
@@ -53,9 +65,23 @@ function serializeProduct(product) {
         colorHex: v.color ? v.color.hex_code : null,
         skuSuffix: v.sku_suffix,
         stockCount: vStock,
+        salesCount: Number(v.sales_count ?? 0),
         priceOverride: v.price_override !== null && v.price_override !== undefined ? Number(v.price_override) : null,
+        originalPriceOverride: v.original_price_override !== null && v.original_price_override !== undefined ? Number(v.original_price_override) : null,
+        createdAt: v.created_at || v.createdAt || null,
         imageUrl: v.image_url || null,
-        galleryImages: Array.isArray(v.gallery_images) ? v.gallery_images : [],
+        galleryImages: (() => {
+          if (Array.isArray(v.gallery_images)) return v.gallery_images;
+          if (typeof v.gallery_images === "string") {
+            try {
+              const parsed = JSON.parse(v.gallery_images);
+              return Array.isArray(parsed) ? parsed : [];
+            } catch {
+              return [];
+            }
+          }
+          return [];
+        })(),
         inStock: vStock > 0,
         stockStatus: vStock === 0 ? "out_of_stock" : vStock <= 5 ? "low_stock" : "in_stock"
       };

@@ -1,14 +1,45 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Link } from "react-router-dom";
+import SeoHead from "../components/Seo/SeoHead";
+import { buildBreadcrumbSchema } from "../utils/seoSchemas";
 import "./AboutUs.css";
 
 export default function AboutUs() {
+  const breadcrumbSchema = useMemo(() => {
+    return buildBreadcrumbSchema([
+      { name: "Home", path: "/" },
+      { name: "About Us", path: "/about" }
+    ]);
+  }, []);
+
+  const aboutSchema = useMemo(() => {
+    return {
+      "@context": "https://schema.org",
+      "@type": "AboutPage",
+      name: "About ZMW Clothing — Atelier & Manufacturing",
+      description: "ZMW is an Indian apparel brand dedicated to redefining modern everyday wear through superior 240+ GSM fabric weight, relaxed street silhouettes, and lasting quality.",
+      publisher: {
+        "@type": "Organization",
+        name: "ZMW Clothing",
+        url: "https://zmwclothing.com"
+      }
+    };
+  }, []);
+
   return (
     <div className="about-page">
+      <SeoHead
+        title="About Us — Rooted in Craft, Built for Modern Daily Life | ZMW Clothing"
+        description="Learn about ZMW Clothing Atelier in Coimbatore. Handcrafted 240+ GSM pure combed cotton, relaxed streetwear silhouettes, in-house knitting, and nationwide delivery."
+        keywords="about ZMW, luxury fashion atelier, Coimbatore clothing manufacturer, 240 GSM cotton t-shirts, heavyweight streetwear India"
+        canonicalPath="/about"
+        schema={[aboutSchema, breadcrumbSchema]}
+      />
+
       {/* ── 1. Hero Header Banner (Matching Contact Us Style) ─────── */}
       <section className="about-hero" aria-label="About ZMW Support & Overview">
         <div className="container">
-          <span className="about-eyebrow">COMPANY OVERVIEW & FACTORY</span>
+          <span className="about-eyebrow">COMPANY OVERVIEW &amp; FACTORY</span>
           <h1 className="about-title">About Us</h1>
           <p className="about-subtitle">
             Crafted for substance, fit, and longevity. Built for modern daily life and Indian streetwear culture — from yarn selection to the final stitch.
@@ -41,7 +72,7 @@ export default function AboutUs() {
                 </p>
               </div>
 
-              {/* 3 Core Highlights */}
+              {/* 3 Core Highlights with proper H3 heading hierarchy */}
               <div className="about-overview-highlights">
                 <div className="about-highlight-card">
                   <div className="about-highlight-icon">
@@ -50,7 +81,7 @@ export default function AboutUs() {
                     </svg>
                   </div>
                   <div>
-                    <h4>Heavyweight Fabrics</h4>
+                    <h3 style={{ margin: "0 0 4px 0", fontSize: "0.95rem", fontWeight: 700 }}>Heavyweight Fabrics</h3>
                     <p>Long-staple combed cotton, bio-softened and pre-shrunk for premium handfeel.</p>
                   </div>
                 </div>
@@ -62,7 +93,7 @@ export default function AboutUs() {
                     </svg>
                   </div>
                   <div>
-                    <h4>Architectural Silhouettes</h4>
+                    <h3 style={{ margin: "0 0 4px 0", fontSize: "0.95rem", fontWeight: 700 }}>Architectural Silhouettes</h3>
                     <p>Carefully balanced proportions engineered for comfort, structure, and style.</p>
                   </div>
                 </div>
@@ -75,7 +106,7 @@ export default function AboutUs() {
                     </svg>
                   </div>
                   <div>
-                    <h4>Direct-to-Consumer Integrity</h4>
+                    <h3 style={{ margin: "0 0 4px 0", fontSize: "0.95rem", fontWeight: 700 }}>Direct-to-Consumer Integrity</h3>
                     <p>Ethical in-house production bypassing unnecessary middleman markups.</p>
                   </div>
                 </div>
@@ -86,7 +117,7 @@ export default function AboutUs() {
               <div className="about-image-card">
                 <img
                   src={process.env.PUBLIC_URL + "/images/photo-1521572163474-6864f9cf17ab.jpg"}
-                  alt="ZMW Premium Combed Cotton Garments"
+                  alt="ZMW Premium Combed Cotton Garments Tailoring Atelier"
                   className="about-card-img"
                   loading="lazy"
                 />
@@ -105,10 +136,10 @@ export default function AboutUs() {
           <div className="section-header-left">
             <div className="section-eyebrow-badge">
               <span className="eyebrow-dot"></span>
-              MANUFACTURING & OPERATIONS
+              MANUFACTURING &amp; OPERATIONS
             </div>
             <h2 className="section-heading-title">
-              Factory & Operational Headquarters
+              Factory &amp; Operational Headquarters
             </h2>
             <p className="section-heading-subtitle">
               Direct, transparent operations anchored in Tamil Nadu’s renowned textile corridor, ensuring end-to-end quality control from raw yarn to final dispatch.
@@ -126,12 +157,12 @@ export default function AboutUs() {
                   </svg>
                 </div>
                 <div className="about-tile-body">
-                  <span className="about-tile-tag">Factory & Dispatch Facility</span>
+                  <span className="about-tile-tag">Factory &amp; Dispatch Facility</span>
                   <p className="about-tile-main">
                     123, Avinashi Road, Peelamedu, Coimbatore, Tamil Nadu – 641004, India
                   </p>
                   <span className="about-tile-subtext">
-                    Central Manufacturing & Distribution Hub
+                    Central Manufacturing &amp; Distribution Hub
                   </span>
                 </div>
               </div>
@@ -144,7 +175,7 @@ export default function AboutUs() {
                   </svg>
                 </div>
                 <div className="about-tile-body">
-                  <span className="about-tile-tag">Operating & Dispatch Hours</span>
+                  <span className="about-tile-tag">Operating &amp; Dispatch Hours</span>
                   <p className="about-tile-main">
                     10:00 AM to 5:00 PM IST
                   </p>
@@ -162,12 +193,12 @@ export default function AboutUs() {
                   </svg>
                 </div>
                 <div className="about-tile-body">
-                  <span className="about-tile-tag">Official Inquiries & Support</span>
+                  <span className="about-tile-tag">Official Inquiries &amp; Support</span>
                   <a href="mailto:zmw@gmail.com" className="about-tile-main about-tile-link">
                     zmw@gmail.com
                   </a>
                   <span className="about-tile-subtext">
-                    Customer assistance, orders & wholesale queries
+                    Customer assistance, orders &amp; wholesale queries
                   </span>
                 </div>
               </div>
@@ -179,7 +210,7 @@ export default function AboutUs() {
                   </svg>
                 </div>
                 <div className="about-tile-body">
-                  <span className="about-tile-tag">Customer Helpline & WhatsApp</span>
+                  <span className="about-tile-tag">Customer Helpline &amp; WhatsApp</span>
                   <a href="tel:+919876543210" className="about-tile-main about-tile-link">
                     +91 9876543210
                   </a>
@@ -194,7 +225,7 @@ export default function AboutUs() {
             <div className="about-factory-badges">
               <div className="about-factory-badge-item">
                 <span className="about-factory-badge-dot"></span>
-                <span>Coimbatore & Tiruppur Knitting Belt</span>
+                <span>Coimbatore &amp; Tiruppur Knitting Belt</span>
               </div>
               <div className="about-factory-badge-item">
                 <span className="about-factory-badge-dot"></span>
@@ -202,7 +233,7 @@ export default function AboutUs() {
               </div>
               <div className="about-factory-badge-item">
                 <span className="about-factory-badge-dot"></span>
-                <span>Ethical & Fair-Trade Labor Standards</span>
+                <span>Ethical &amp; Fair-Trade Labor Standards</span>
               </div>
               <div className="about-factory-badge-item">
                 <span className="about-factory-badge-dot"></span>

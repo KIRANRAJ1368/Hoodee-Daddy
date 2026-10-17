@@ -1,4 +1,17 @@
-const RAW_API_URL = (process.env.REACT_APP_API_URL || process.env.VITE_API_URL || "http://localhost:5000").trim().replace(/\/+$/, "");
+const getDefaultApiUrl = () => {
+  if (typeof window !== "undefined" && window.location?.hostname) {
+    const host = window.location.hostname;
+    if (host && host !== "localhost" && host !== "127.0.0.1") {
+      return `http://${host}:5000`;
+    }
+  }
+  return "http://localhost:5000";
+};
+
+const RAW_API_URL = (
+  (typeof process !== "undefined" && (process.env?.REACT_APP_API_URL || process.env?.VITE_API_URL)) ||
+  getDefaultApiUrl()
+).trim().replace(/\/+$/, "");
 const API_URL = RAW_API_URL.replace(/\/api$/, "");
 
 /**

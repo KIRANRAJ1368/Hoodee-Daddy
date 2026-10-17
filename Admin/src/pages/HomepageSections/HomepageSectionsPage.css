@@ -274,6 +274,8 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .preview-banner-thumbnails {
@@ -281,6 +283,9 @@
   gap: 12px;
   overflow-x: auto;
   padding-bottom: 4px;
+  max-width: 100%;
+  min-width: 0;
+  -webkit-overflow-scrolling: touch;
 }
 
 .preview-banner-thumb {
@@ -619,6 +624,21 @@
 }
 
 @media (max-width: 640px) {
+  .section-manage-card {
+    padding: 16px 14px;
+  }
+  .card-top-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .card-top-left {
+    width: 100%;
+  }
+  .card-top-right {
+    width: 100%;
+    justify-content: space-between;
+  }
   .dept-card-form-grid {
     grid-template-columns: 1fr;
   }

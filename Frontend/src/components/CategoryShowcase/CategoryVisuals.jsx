@@ -86,7 +86,10 @@ export default function CategoryVisuals() {
   const categories =
     customDepts ||
     (homeData?.categories?.length
-      ? homeData.categories.map((category) => {
+      ? [...homeData.categories]
+          .filter((c) => c.is_active !== false)
+          .sort((a, b) => (Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0)) || ((Number(a.id) || 0) - (Number(b.id) || 0)))
+          .map((category) => {
           const existingCategory = CATEGORIES_DATA.find(
             (item) => item.title.toLowerCase() === category.name.toLowerCase()
           );

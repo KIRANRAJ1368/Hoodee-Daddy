@@ -55,6 +55,8 @@ export default function Checkout() {
 
   const {
     cart,
+    buyNowItems,
+    clearBuyNowItems,
     cartTotal,
     cartSubtotal,
     cartItemCount,
@@ -69,13 +71,31 @@ export default function Checkout() {
     addToast,
     customerUser,
     customerToken,
+    isCustomerAuthenticated,
+    setPendingCheckout,
+    checkoutIntent,
+    setCheckoutIntent,
     setAuthModalState,
     logoutCustomer,
-    setIsOrderTrackOpen
+    setIsOrderTrackOpen,
+    findProduct
   } = useShop();
 
+  const isBuyNowCheckout = Boolean((location.state?.buyNow || checkoutIntent === "buy-now") && buyNowItems?.length);
+  const checkoutItems = isBuyNowCheckout ? buyNowItems : cart;
+  const checkoutSubtotal = checkoutItems.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 1), 0);
+  const checkoutCount = checkoutItems.reduce((sum, item) => sum + Number(item.quantity || 1), 0);
+
+  useEffect(() => {
+    if (isCustomerAuthenticated) return;
+    setCheckoutIntent((location.state?.buyNow || checkoutIntent === "buy-now") ? "buy-now" : "cart");
+    setPendingCheckout(true);
+    setAuthModalState("register");
+    navigate(-1, { replace: true });
+  }, [isCustomerAuthenticated, location.state?.buyNow, checkoutIntent, navigate, setAuthModalState, setCheckoutIntent, setPendingCheckout]);
+
   // Progress Step: 1 = Contact, 2 = Delivery, 3 = Payment
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(2);
 
   // Form Fields
   const [formData, setFormData] = useState({
@@ -96,6 +116,7 @@ export default function Checkout() {
 
   const [paymentMethod, setPaymentMethod] = useState("razorpay");
   const [couponInput, setCouponInput] = useState("");
+  const [availableCoupons, setAvailableCoupons] = useState([]);
   const [stepErrors, setStepErrors] = useState({});
 
   // Submission / Confirmation State
@@ -105,6 +126,14 @@ export default function Checkout() {
   const [orderReceipt, setOrderReceipt] = useState(null);
   const [copiedOrder, setCopiedOrder] = useState(false);
 
+  useEffect(() => {
+    let active = true;
+    storefrontApi.availableCoupons()
+      .then((coupons) => { if (active) setAvailableCoupons(Array.isArray(coupons) ? coupons : []); })
+      .catch(() => { if (active) setAvailableCoupons([]); });
+    return () => { active = false; };
+  }, []);
+
   // Auto-populate customer fields if signed in
   useEffect(() => {
     if (customerUser) {
@@ -112,26 +141,71 @@ export default function Checkout() {
         ...prev,
         fullName: customerUser.name || prev.fullName,
         email: customerUser.email || prev.email,
-        phone: customerUser.phone || prev.phone
+        phone: customerUser.phone ? customerUser.phone.replace(/\D/g, "").slice(-10) : prev.phone
       }));
     }
   }, [customerUser]);
 
   // Shiprocket Shipping Rate State
   const [shippingRateData, setShippingRateData] = useState(null);
+  const [selectedCourier, setSelectedCourier] = useState(null);
   const [isCalculatingShipping, setIsCalculatingShipping] = useState(false);
   const [calculatedShippingCost, setCalculatedShippingCost] = useState(null);
+
+  const [postOffices, setPostOffices] = useState([]);
+  const [selectedPostOffice, setSelectedPostOffice] = useState("");
+  const [isLookingUpPincode, setIsLookingUpPincode] = useState(false);
+  const [pincodeLookupMessage, setPincodeLookupMessage] = useState("");
+
+  useEffect(() => {
+    const pin = (formData.postalCode || "").replace(/\D/g, "");
+    if (pin.length !== 6) {
+      setPostOffices([]);
+      setSelectedPostOffice("");
+      setIsLookingUpPincode(false);
+      setPincodeLookupMessage("");
+      return undefined;
+    }
+    const controller = new AbortController();
+    const timer = setTimeout(async () => {
+      setIsLookingUpPincode(true);
+      setPincodeLookupMessage("");
+      try {
+        const response = await fetch(`https://api.postalpincode.in/pincode/${pin}`, { signal: controller.signal });
+        const result = await response.json();
+        const offices = result?.[0]?.Status === "Success" ? result[0].PostOffice || [] : [];
+        if (!offices.length) {
+          setPostOffices([]);
+          setPincodeLookupMessage("No post offices found for this PIN code.");
+          return;
+        }
+        setPostOffices(offices);
+        setSelectedPostOffice((previous) => offices.some((office) => office.Name === previous) ? previous : offices[0].Name);
+        setFormData((prev) => prev.postalCode.replace(/\D/g, "") === pin
+          ? { ...prev, city: offices[0].District || "", state: offices[0].State || "" }
+          : prev);
+      } catch (error) {
+        if (error.name !== "AbortError") setPincodeLookupMessage("Could not look up this PIN code. You can still enter the address manually.");
+      } finally {
+        if (!controller.signal.aborted) setIsLookingUpPincode(false);
+      }
+    }, 300);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [formData.postalCode]);
 
   // Dynamic Shiprocket shipping calculation when postal code is entered
   useEffect(() => {
     const pin = (formData.postalCode || "").trim().replace(/\D/g, "");
-    if (pin.length === 6 && cart.length > 0) {
+    if (pin.length === 6 && checkoutItems.length > 0) {
       let isMounted = true;
       setIsCalculatingShipping(true);
       storefrontApi
         .calculateShippingRate({
           pincode: pin,
-          address: formData.address,
+          address: [formData.address, selectedPostOffice].filter(Boolean).join(", "),
           city: formData.city,
           state: formData.state
         })
@@ -140,12 +214,25 @@ export default function Checkout() {
           const rate = res?.data?.is_serviceable !== undefined ? res.data : (res?.data || res);
           if (rate && rate.is_serviceable && rate.shipping_fee !== null) {
             setShippingRateData(rate);
-            setCalculatedShippingCost(rate.shipping_fee);
+            if (rate.available_couriers && rate.available_couriers.length > 0) {
+              const preferred = rate.available_couriers.find((c) => c.recommended) || rate.available_couriers[0];
+              setSelectedCourier(preferred);
+              setCalculatedShippingCost(preferred.shipping_fee);
+            } else {
+              setSelectedCourier({
+                courier_name: rate.courier_name || "Shiprocket Express",
+                courier_company_id: rate.courier_company_id || null,
+                shipping_fee: rate.shipping_fee,
+                estimated_delivery: rate.estimated_delivery
+              });
+              setCalculatedShippingCost(rate.shipping_fee);
+            }
             if (stepErrors.postalCode) {
               setStepErrors((prev) => ({ ...prev, postalCode: null }));
             }
           } else {
             setShippingRateData(rate || { is_serviceable: false, message: "PIN code is not serviceable by Shiprocket." });
+            setSelectedCourier(null);
             setCalculatedShippingCost(null);
             setStepErrors((prev) => ({
               ...prev,
@@ -164,22 +251,33 @@ export default function Checkout() {
       };
     } else if (pin.length !== 6) {
       setShippingRateData(null);
+      setSelectedCourier(null);
       setCalculatedShippingCost(null);
     }
-  }, [formData.postalCode, cart]);
+  }, [formData.postalCode, checkoutItems]);
 
   const hasValidPincode = (formData.postalCode || "").trim().replace(/\D/g, "").length === 6;
   const effectiveShippingCost = calculatedShippingCost !== null
     ? calculatedShippingCost
     : shippingCost;
-  const effectiveTotal = Math.max(0, cartSubtotal - discountAmount + effectiveShippingCost);
+  const activeSubtotal = isBuyNowCheckout ? checkoutSubtotal : cartSubtotal;
+  const activeCount = isBuyNowCheckout ? checkoutCount : cartItemCount;
+  const activeDiscount = isBuyNowCheckout ? 0 : discountAmount;
+  const effectiveTotal = Math.max(0, activeSubtotal - activeDiscount + effectiveShippingCost);
 
   // Form change handler
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
+    const nextValue = name === "phone"
+      ? value.replace(/\D/g, "").slice(0, 10)
+      : name === "postalCode"
+      ? value.replace(/\D/g, "").slice(0, 6)
+      : value;
+    if (name === "postalCode" && nextValue !== formData.postalCode) setSelectedPostOffice("");
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value
+      ...(name === "postalCode" && nextValue !== prev.postalCode ? { city: "", state: "" } : {}),
+      [name]: type === "checkbox" ? checked : nextValue
     }));
     if (stepErrors[name]) {
       setStepErrors((prev) => ({ ...prev, [name]: null }));
@@ -201,7 +299,7 @@ export default function Checkout() {
     const trimmedPhone = (formData.phone || "").trim();
     if (!trimmedPhone) {
       errors.phone = "Phone number is required";
-    } else if (trimmedPhone.replace(/\D/g, "").length < 10) {
+    } else if (!/^\d{10}$/.test(trimmedPhone)) {
       errors.phone = "Please enter a valid 10-digit phone number";
     }
 
@@ -220,20 +318,24 @@ export default function Checkout() {
     e.preventDefault();
     const errors = {};
 
-    if (!formData.fullName.trim()) {
-      errors.fullName = "Full name is required";
+    const trimmedEmail = (formData.email || "").trim();
+    if (!trimmedEmail) {
+      errors.email = "Email address is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      errors.email = "Please enter a valid email address";
     }
-    if (!formData.phone.trim()) {
-      errors.phone = "Phone number is required";
+
+    if (formData.fullName.trim().length < 3 || formData.fullName.trim().length > 30) {
+      errors.fullName = "Name must be between 3 and 30 characters";
+    }
+    if (!/^\d{10}$/.test(formData.phone.trim())) {
+      errors.phone = "Phone number must be exactly 10 digits";
     }
     if (!formData.address.trim()) {
       errors.address = "Street address is required";
     }
-    if (!formData.city.trim()) {
-      errors.city = "City is required";
-    }
-    if (!formData.state.trim()) {
-      errors.state = "State is required";
+    if (!formData.city.trim() || !formData.state.trim()) {
+      errors.postalCode = "Enter a valid PIN code to load district and state";
     }
     const cleanPin = (formData.postalCode || "").trim().replace(/\D/g, "");
     if (!cleanPin) {
@@ -255,7 +357,7 @@ export default function Checkout() {
       try {
         const res = await storefrontApi.calculateShippingRate({
           pincode: cleanPin,
-          address: formData.address,
+          address: [formData.address, selectedPostOffice].filter(Boolean).join(", "),
           city: formData.city,
           state: formData.state
         });
@@ -286,38 +388,87 @@ export default function Checkout() {
   };
 
   /* ── Coupon Submission ── */
-  const handleCouponSubmit = (e) => {
+  const handleCouponSubmit = async (e) => {
     e.preventDefault();
     if (couponInput.trim()) {
-      applyCoupon(couponInput.trim());
-      setCouponInput("");
+      const wasApplied = await applyCoupon(couponInput.trim());
+      if (wasApplied) setCouponInput("");
     }
   };
 
   /* ── Step 3 Order Placement ── */
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
-    if (!cart.length || isSubmitting) return;
+    if (!checkoutItems.length || isSubmitting) return;
+
+    // Check dynamic live stock across all lines
+    const outOfStockLine = checkoutItems.find((item) => {
+      const prod = findProduct ? findProduct(item.id) : null;
+      if (!prod) return false;
+      const variant = prod.variants?.find((v) =>
+        (!v.color || v.color.toLowerCase() === (item.color || "").toLowerCase()) &&
+        (!v.size || v.size.toLowerCase() === (item.size || "").toLowerCase())
+      );
+      const stock = variant ? Number(variant.stockCount ?? 0) : Number(prod.stockCount ?? 0);
+      return stock <= 0 || !prod.inStock;
+    });
+
+    if (outOfStockLine) {
+      setSubmitError(`"${outOfStockLine.name}" (${outOfStockLine.color}/${outOfStockLine.size}) is currently out of stock. Please return to your bag to update.`);
+      return;
+    }
+
+    const trimmedEmail = (formData.email || "").trim();
+    const trimmedPhone = (formData.phone || "").trim();
+    const cleanPin = (formData.postalCode || "").trim().replace(/\D/g, "");
+
+    if (!formData.fullName.trim() || formData.fullName.trim().length < 3 || formData.fullName.trim().length > 30) {
+      setSubmitError("Please provide a valid recipient name (3–30 characters).");
+      setCurrentStep(2);
+      return;
+    }
+    if (!trimmedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      setSubmitError("Please provide a valid email address.");
+      setCurrentStep(1);
+      return;
+    }
+    if (!trimmedPhone || !/^\d{10}$/.test(trimmedPhone)) {
+      setSubmitError("Phone number must be exactly 10 digits.");
+      setCurrentStep(2);
+      return;
+    }
+    if (!formData.address.trim()) {
+      setSubmitError("Please enter your street address.");
+      setCurrentStep(2);
+      return;
+    }
+    if (!cleanPin || cleanPin.length !== 6) {
+      setSubmitError("Please enter a valid 6-digit PIN code.");
+      setCurrentStep(2);
+      return;
+    }
 
     setIsSubmitting(true);
     setSubmitError("");
 
-    const fullAddress = formData.apartment
-      ? `${formData.address}, ${formData.apartment}`
-      : formData.address;
+    const streetAndOffice = [formData.address.trim(), selectedPostOffice]
+      .filter((value, index, list) => value && (index === 0 || !list[0].toLowerCase().includes(value.toLowerCase())))
+      .join(", ");
+    const fullAddress = [streetAndOffice, formData.apartment.trim()].filter(Boolean).join(", ");
 
-    const orderItems = cart.map((item) => ({
+    const orderItems = checkoutItems.map((item) => ({
       product_id: Number(item.id),
       quantity: item.quantity,
       size: item.size || null,
       color: item.color || null
     }));
 
-    const itemsSnapshot = cart.map((item) => ({
+    const itemsSnapshot = checkoutItems.map((item) => ({
       id: item.id,
       name: item.name,
       image: item.image,
       price: item.price,
+      sku: item.sku,
       quantity: item.quantity,
       size: item.size,
       color: item.color,
@@ -335,7 +486,7 @@ export default function Checkout() {
     // ─────────────────────────────────────────────
     if (paymentMethod === "cod") {
       try {
-        const canSubmitToApi = cart.every((item) => Number.isInteger(Number(item.id)));
+        const canSubmitToApi = checkoutItems.every((item) => Number.isInteger(Number(item.id)));
         let orderNumber;
 
         if (canSubmitToApi) {
@@ -349,10 +500,11 @@ export default function Checkout() {
               state: formData.state.trim() || null,
               pincode: formData.postalCode.trim(),
               payment_method: "COD",
-              discount_amount: discountAmount,
+              discount_amount: activeDiscount,
               shipping_fee: effectiveShippingCost,
-              courier_name: shippingRateData?.courier_name || "Shiprocket Express",
-              estimated_delivery: shippingRateData?.estimated_delivery || "3–5 Business Days",
+              courier_name: selectedCourier?.courier_name || shippingRateData?.courier_name || "Shiprocket Express",
+              courier_company_id: selectedCourier?.courier_company_id || shippingRateData?.courier_company_id || null,
+              estimated_delivery: selectedCourier?.estimated_delivery || shippingRateData?.estimated_delivery || "3–5 Business Days",
               items: orderItems
             },
             customerToken
@@ -371,18 +523,18 @@ export default function Checkout() {
           address: `${fullAddress}, ${formData.city.trim()}, ${formData.state.trim()} - ${formData.postalCode.trim()}`,
           paymentMethod: "Cash on Delivery",
           paymentStatus: "Payment Due on Delivery",
-          subtotal: cartSubtotal,
-          discountAmount,
+          subtotal: activeSubtotal,
+          discountAmount: activeDiscount,
           shippingFee: effectiveShippingCost,
           totalAmount: effectiveTotal,
-          itemsCount: cartItemCount,
+          itemsCount: activeCount,
           items: itemsSnapshot,
           orderDate: orderDateFormatted
         };
 
         setOrderReceipt(receipt);
         setIsOrdered(true);
-        clearCart();
+        if (isBuyNowCheckout) clearBuyNowItems(); else clearCart();
         addToast(`Order ${orderNumber} placed successfully!`, "success");
         window.scrollTo({ top: 0, behavior: "smooth" });
       } catch (err) {
@@ -413,8 +565,9 @@ export default function Checkout() {
           phone: formData.phone.trim(),
           pincode: formData.postalCode.trim(),
           shipping_fee: effectiveShippingCost,
-          courier_name: shippingRateData?.courier_name || "Shiprocket Express",
-          estimated_delivery: shippingRateData?.estimated_delivery || "3–5 Business Days"
+          courier_name: selectedCourier?.courier_name || shippingRateData?.courier_name || "Shiprocket Express",
+          courier_company_id: selectedCourier?.courier_company_id || shippingRateData?.courier_company_id || null,
+          estimated_delivery: selectedCourier?.estimated_delivery || shippingRateData?.estimated_delivery || "3–5 Business Days"
         },
         customerToken
       );
@@ -431,8 +584,8 @@ export default function Checkout() {
         amount: rzpData.amount, // in paise calculated securely by backend
         currency: rzpData.currency || "INR",
         name: "ZMW Clothing",
-        description: `Order Checkout (${cartItemCount} ${cartItemCount === 1 ? "item" : "items"})`,
-        image: typeof window !== "undefined" ? `${window.location.origin}/favicon-48x48.png` : "",
+        description: `Order Checkout (${activeCount} ${activeCount === 1 ? "item" : "items"})`,
+        image: ZMW_LOGO_DATA_URI || (typeof window !== "undefined" ? `${window.location.origin}/images/zmw-logo.png` : ""),
         order_id: rzpData.razorpay_order_id,
         prefill: {
           name: formData.fullName.trim(),
@@ -470,8 +623,9 @@ export default function Checkout() {
                 pincode: formData.postalCode.trim(),
                 coupon_code: appliedCoupon?.code || null,
                 shipping_fee: effectiveShippingCost,
-                courier_name: shippingRateData?.courier_name || "Shiprocket Express",
-                estimated_delivery: shippingRateData?.estimated_delivery || "3–5 Business Days",
+                courier_name: selectedCourier?.courier_name || shippingRateData?.courier_name || "Shiprocket Express",
+                courier_company_id: selectedCourier?.courier_company_id || shippingRateData?.courier_company_id || null,
+                estimated_delivery: selectedCourier?.estimated_delivery || shippingRateData?.estimated_delivery || "3–5 Business Days",
                 items: orderItems
               }
             };
@@ -487,18 +641,18 @@ export default function Checkout() {
               paymentMethod: PAYMENT_METHODS.find((p) => p.id === paymentMethod)?.name || "Online (Razorpay)",
               paymentId: response.razorpay_payment_id,
               paymentStatus: "Paid",
-              subtotal: confirmedOrder.subtotal ?? rzpData.subtotal ?? cartSubtotal,
-              discountAmount: confirmedOrder.discount_amount ?? rzpData.discount_amount ?? discountAmount,
+              subtotal: confirmedOrder.subtotal ?? rzpData.subtotal ?? activeSubtotal,
+              discountAmount: confirmedOrder.discount_amount ?? rzpData.discount_amount ?? activeDiscount,
               shippingFee: confirmedOrder.shipping_fee ?? rzpData.shipping_fee ?? effectiveShippingCost,
               totalAmount: confirmedOrder.total ?? rzpData.calculated_total ?? effectiveTotal,
-              itemsCount: cartItemCount,
+              itemsCount: activeCount,
               items: itemsSnapshot,
               orderDate: orderDateFormatted
             };
 
             setOrderReceipt(receipt);
             setIsOrdered(true);
-            clearCart();
+            if (isBuyNowCheckout) clearBuyNowItems(); else clearCart();
             addToast(`Payment verified! Order ${confirmedOrder.order_number} confirmed.`, "success");
             window.scrollTo({ top: 0, behavior: "smooth" });
           } catch (verifyErr) {
@@ -542,7 +696,7 @@ export default function Checkout() {
             <span className="cko-kicker">SECURE ORDER CONFIRMED</span>
             <h1 className="cko-success-title">Thank You For Your Order!</h1>
             <p className="cko-success-subtitle">
-              Your order <strong className="cko-highlight">#{orderReceipt.orderNumber}</strong> has been received and routed to our central dispatch hub.
+              Your order <strong className="cko-highlight">{orderReceipt.orderNumber}</strong> has been received and routed to our central dispatch hub.
             </p>
 
             {/* Quick Summary Strip */}
@@ -550,7 +704,7 @@ export default function Checkout() {
               <div className="cko-oqs-item">
                 <span className="cko-oqs-label">Order Number</span>
                 <span className="cko-oqs-value font-mono">
-                  #{orderReceipt.orderNumber}
+                  {orderReceipt.orderNumber}
                   <button
                     type="button"
                     className="cko-copy-btn"
@@ -602,6 +756,7 @@ export default function Checkout() {
                         <div className="cko-receipt-item-meta">
                           {item.size && <span>Size: <strong>{item.size}</strong></span>}
                           {item.color && <span>Color: <strong>{item.color}</strong></span>}
+                          {item.sku && <span>SKU: <strong>{item.sku}</strong></span>}
                           <span>Qty: <strong>{item.quantity}</strong></span>
                         </div>
                       </div>
@@ -692,7 +847,7 @@ export default function Checkout() {
   /* ─────────────────────────────────────────────
      RENDER: EMPTY CART GUARD (Redirects to /cart)
   ───────────────────────────────────────────── */
-  if (cart.length === 0) {
+  if (!checkoutItems.length) {
     return (
       <div className="cko-page">
         <div className="container">
@@ -730,8 +885,6 @@ export default function Checkout() {
           <h1 className="cko-page-title">SECURE DISPATCH CHECKOUT</h1>
           <p className="cko-page-subtitle">Shipping & Payment</p>
           <div className="cko-trust-pill">
-            <span>🔒 256-Bit Bank-Grade SSL Secured Checkout</span>
-            <span className="cko-trust-dot">•</span>
             <span>Fast Insured Dispatch</span>
             <span className="cko-trust-dot">•</span>
             <span>100% Quality Inspected</span>
@@ -828,7 +981,7 @@ export default function Checkout() {
                     </div>
                   )}
 
-                  <form onSubmit={handleContinueToDelivery} className="cko-form">
+                  <form onSubmit={handleContinueToDelivery} className="cko-form" noValidate>
                     <div className="cko-form-group">
                       <label htmlFor="email" className="cko-label">
                         EMAIL ADDRESS <span className="cko-req">*</span>
@@ -855,6 +1008,7 @@ export default function Checkout() {
                         id="phone"
                         name="phone"
                         type="tel"
+                        inputMode="numeric"
                         placeholder="e.g. 9876543210"
                         value={formData.phone}
                         onChange={handleInputChange}
@@ -920,7 +1074,7 @@ export default function Checkout() {
                     <h2 id="step-2-heading" className="cko-section-title">Delivery Address</h2>
                   </div>
 
-                  <form onSubmit={handleContinueToPayment} className="cko-form">
+                  <form onSubmit={handleContinueToPayment} className="cko-form" noValidate>
                     <div className="cko-grid-2">
                       <div className="cko-form-group">
                         <label htmlFor="fullName" className="cko-label">
@@ -930,6 +1084,8 @@ export default function Checkout() {
                           id="fullName"
                           name="fullName"
                           type="text"
+                          minLength={3}
+                          maxLength={30}
                           placeholder="e.g. Rahul Sharma"
                           value={formData.fullName}
                           onChange={handleInputChange}
@@ -948,6 +1104,7 @@ export default function Checkout() {
                           id="deliveryPhone"
                           name="phone"
                           type="tel"
+                          inputMode="numeric"
                           placeholder="e.g. 9876543210"
                           value={formData.phone}
                           onChange={handleInputChange}
@@ -973,8 +1130,27 @@ export default function Checkout() {
                         required
                         autoComplete="street-address"
                       />
+                      {isLookingUpPincode && <p className="cko-field-hint">Looking up PIN code locations…</p>}
+                      {pincodeLookupMessage && <p className="cko-field-hint">{pincodeLookupMessage}</p>}
                       {stepErrors.address && <p className="cko-field-error">{stepErrors.address}</p>}
                     </div>
+
+                    {postOffices.length > 0 && (
+                      <div className="cko-form-group">
+                        <label htmlFor="postOffice" className="cko-label">POST OFFICE / LOCALITY</label>
+                        <select
+                          id="postOffice"
+                          value={selectedPostOffice}
+                          onChange={(e) => setSelectedPostOffice(e.target.value)}
+                          className="cko-input"
+                        >
+                          {postOffices.map((office) => (
+                            <option key={`${office.Name}-${office.Pincode}`} value={office.Name}>{office.Name}</option>
+                          ))}
+                        </select>
+                        <p className="cko-field-hint">Select the matching locality. You can edit the street address above.</p>
+                      </div>
+                    )}
 
                     <div className="cko-form-group">
                       <label htmlFor="apartment" className="cko-label">
@@ -994,19 +1170,18 @@ export default function Checkout() {
                     <div className="cko-grid-3">
                       <div className="cko-form-group">
                         <label htmlFor="city" className="cko-label">
-                          CITY <span className="cko-req">*</span>
+                          DISTRICT <span className="cko-req">*</span>
                         </label>
                         <input
                           id="city"
                           name="city"
                           type="text"
-                          placeholder="e.g. Coimbatore"
+                          placeholder="Filled from PIN code"
                           value={formData.city}
-                          onChange={handleInputChange}
-                          className={`cko-input ${stepErrors.city ? "--error" : ""}`}
+                          readOnly={postOffices.length > 0}
+                          className="cko-input"
                           required
                         />
-                        {stepErrors.city && <p className="cko-field-error">{stepErrors.city}</p>}
                       </div>
 
                       <div className="cko-form-group">
@@ -1017,13 +1192,12 @@ export default function Checkout() {
                           id="state"
                           name="state"
                           type="text"
-                          placeholder="e.g. Tamil Nadu"
+                          placeholder="Filled from PIN code"
                           value={formData.state}
-                          onChange={handleInputChange}
-                          className={`cko-input ${stepErrors.state ? "--error" : ""}`}
+                          readOnly={postOffices.length > 0}
+                          className="cko-input"
                           required
                         />
-                        {stepErrors.state && <p className="cko-field-error">{stepErrors.state}</p>}
                       </div>
 
                       <div className="cko-form-group">
@@ -1034,6 +1208,7 @@ export default function Checkout() {
                           id="postalCode"
                           name="postalCode"
                           type="text"
+                          inputMode="numeric"
                           placeholder="e.g. 641004"
                           value={formData.postalCode}
                           onChange={handleInputChange}
@@ -1044,39 +1219,101 @@ export default function Checkout() {
                       </div>
                     </div>
 
-                    {/* Delivery Method Option Card */}
-                    <div className="cko-delivery-option-box">
-                      <div className="cko-dob-left">
-                        <span className="cko-dob-radio">●</span>
-                        <div>
-                          <strong className="cko-dob-title">
-                            {shippingRateData?.courier_name
-                              ? shippingRateData.courier_name
-                              : "Shiprocket Express Logistics"}
-                          </strong>
-                          <span className="cko-dob-sub">
-                            {isCalculatingShipping
-                              ? "Calculating real-time Shiprocket freight rates for your PIN code..."
-                              : shippingRateData && !shippingRateData.is_serviceable
-                              ? (shippingRateData.message || "Delivery PIN code is not serviceable by Shiprocket.")
-                              : shippingRateData
-                              ? `Delivery to ${shippingRateData.delivery_pincode} via Shiprocket (${shippingRateData.estimated_delivery || '3–5 Days'})`
-                              : "Enter 6-digit PIN code above to calculate real-time Shiprocket rates"}
+                    {/* Multi-Courier Partner Selection or Default Delivery Box */}
+                    {shippingRateData?.is_serviceable && shippingRateData?.available_couriers?.length > 0 ? (
+                      <div className="cko-couriers-group" style={{ margin: "16px 0" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                          <label style={{ fontSize: "0.82rem", fontWeight: 700, color: "#1e293b", textTransform: "uppercase", letterSpacing: "0.4px" }}>
+                            Select Courier Partner (Shiprocket)
+                          </label>
+                          <span style={{ fontSize: "0.75rem", color: "#64748b" }}>
+                            Delivery to PIN {shippingRateData.delivery_pincode}
                           </span>
                         </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                          {shippingRateData.available_couriers.map((courier) => {
+                            const isSelected =
+                              (selectedCourier?.courier_company_id && selectedCourier.courier_company_id === courier.courier_company_id) ||
+                              (!selectedCourier?.courier_company_id && selectedCourier?.courier_name === courier.courier_name);
+                            return (
+                              <div
+                                key={courier.courier_company_id || courier.courier_name}
+                                onClick={() => {
+                                  setSelectedCourier(courier);
+                                  setCalculatedShippingCost(courier.shipping_fee);
+                                }}
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                  padding: "12px 16px",
+                                  borderRadius: "8px",
+                                  border: isSelected ? "2px solid #faa703" : "1.5px solid #e2e8f0",
+                                  background: isSelected ? "#fffdf5" : "#fff",
+                                  cursor: "pointer",
+                                  transition: "all 0.15s ease-in-out"
+                                }}
+                              >
+                                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                  <span style={{ color: isSelected ? "#faa703" : "#cbd5e1", fontSize: "1.1rem" }}>
+                                    {isSelected ? "●" : "○"}
+                                  </span>
+                                  <div>
+                                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                      <strong style={{ fontSize: "0.92rem", color: "#0f172a" }}>{courier.courier_name}</strong>
+                                      {courier.recommended && (
+                                        <span style={{ fontSize: "0.68rem", fontWeight: 700, padding: "2px 6px", borderRadius: 4, background: "#ecfdf5", color: "#059669", border: "1px solid #a7f3d0" }}>
+                                          RECOMMENDED
+                                        </span>
+                                      )}
+                                    </div>
+                                    <span style={{ fontSize: "0.78rem", color: "#64748b" }}>
+                                      Est. Delivery: {courier.estimated_delivery || "3–5 Days"}
+                                    </span>
+                                  </div>
+                                </div>
+                                <strong style={{ fontSize: "0.95rem", color: isSelected ? "#b45309" : "#334155" }}>
+                                  {courier.shipping_fee === 0 ? "FREE" : formatPrice(courier.shipping_fee)}
+                                </strong>
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
-                      <span className="cko-dob-price">
-                        {isCalculatingShipping ? (
-                          "..."
-                        ) : shippingRateData && !shippingRateData.is_serviceable ? (
-                          <span style={{ fontSize: "0.82rem", color: "#EF4444" }}>Not Serviceable</span>
-                        ) : !hasValidPincode ? (
-                          <span style={{ fontSize: "0.85rem", color: "#64748B" }}>By PIN Code</span>
-                        ) : (
-                          formatPrice(effectiveShippingCost)
-                        )}
-                      </span>
-                    </div>
+                    ) : (
+                      <div className="cko-delivery-option-box">
+                        <div className="cko-dob-left">
+                          <span className="cko-dob-radio">●</span>
+                          <div>
+                            <strong className="cko-dob-title">
+                              {shippingRateData?.courier_name
+                                ? shippingRateData.courier_name
+                                : "Shiprocket Express Logistics"}
+                            </strong>
+                            <span className="cko-dob-sub">
+                              {isCalculatingShipping
+                                ? "Calculating real-time Shiprocket freight rates for your PIN code..."
+                                : shippingRateData && !shippingRateData.is_serviceable
+                                ? (shippingRateData.message || "Delivery PIN code is not serviceable by Shiprocket.")
+                                : shippingRateData
+                                ? `Delivery to ${shippingRateData.delivery_pincode} via Shiprocket (${shippingRateData.estimated_delivery || '3–5 Days'})`
+                                : "Enter 6-digit PIN code above to calculate real-time Shiprocket rates"}
+                            </span>
+                          </div>
+                        </div>
+                        <span className="cko-dob-price">
+                          {isCalculatingShipping ? (
+                            "..."
+                          ) : shippingRateData && !shippingRateData.is_serviceable ? (
+                            <span style={{ fontSize: "0.82rem", color: "#EF4444" }}>Not Serviceable</span>
+                          ) : !hasValidPincode ? (
+                            <span style={{ fontSize: "0.85rem", color: "#64748B" }}>By PIN Code</span>
+                          ) : (
+                            formatPrice(effectiveShippingCost)
+                          )}
+                        </span>
+                      </div>
+                    )}
 
                     <div className="cko-step-btn-row">
                       <button
@@ -1207,7 +1444,7 @@ export default function Checkout() {
                       <button
                         type="submit"
                         className="cko-btn-primary"
-                        disabled={isSubmitting || !cart.length}
+                        disabled={isSubmitting || !checkoutItems.length}
                       >
                         {isSubmitting
                           ? paymentMethod === "cod"
@@ -1234,15 +1471,23 @@ export default function Checkout() {
               <div className="cko-summary-top">
                 <h2 className="cko-summary-heading">ORDER SUMMARY</h2>
                 <span className="cko-item-badge">
-                  {cartItemCount} {cartItemCount === 1 ? "item" : "items"}
+                  {activeCount} {activeCount === 1 ? "item" : "items"}
                 </span>
               </div>
 
               {/* Compact Cart Product Items */}
               <div className="cko-items-list">
-                {cart.map((item) => {
+                {checkoutItems.map((item) => {
                   const itemKey = `${item.id}-${item.color}-${item.size}`;
                   const lineTotal = item.price * item.quantity;
+                  const liveProd = findProduct ? findProduct(item.id) : null;
+                  const liveVariant = liveProd?.variants?.find((v) =>
+                    (!v.color || v.color.toLowerCase() === (item.color || "").toLowerCase()) &&
+                    (!v.size || v.size.toLowerCase() === (item.size || "").toLowerCase())
+                  );
+                  const currentStock = liveVariant ? Number(liveVariant.stockCount ?? 0) : liveProd ? Number(liveProd.stockCount ?? 0) : 99;
+                  const isOut = currentStock <= 0;
+
                   return (
                     <div key={itemKey} className="cko-item-row">
                       <div className="cko-item-img-wrap">
@@ -1263,7 +1508,9 @@ export default function Checkout() {
                         <p className="cko-item-variants">
                           {item.color && item.color !== "Standard" ? item.color : "Default"}
                           {item.size && item.size !== "Standard" ? ` • ${item.size}` : ""}
+                          {isOut && <span style={{ color: "#DC2626", fontWeight: 700, marginLeft: "8px" }}>• Out of stock</span>}
                         </p>
+                        {item.sku && <span className="cko-item-sku">SKU: {item.sku}</span>}
                         <span className="cko-item-price">{formatPrice(lineTotal)}</span>
                       </div>
                     </div>
@@ -1272,12 +1519,12 @@ export default function Checkout() {
               </div>
 
               {/* Coupon Box */}
-              <div className="cko-coupon-section">
+              {!isBuyNowCheckout && <div className="cko-coupon-section">
                 <div className="cko-coupon-label">HAVE A COUPON CODE?</div>
                 {appliedCoupon ? (
                   <div className="cko-coupon-active-badge">
                     <span>
-                      <strong>{appliedCoupon.code}</strong> applied ({appliedCoupon.discountPercent}% OFF)
+                      <strong>{appliedCoupon.code}</strong> applied ({appliedCoupon.discountType === "percentage" ? `${appliedCoupon.discountValue}% OFF` : `${formatPrice(appliedCoupon.discountValue)} OFF`})
                     </span>
                     <button
                       type="button"
@@ -1307,13 +1554,38 @@ export default function Checkout() {
                     {couponError && <p className="cko-coupon-error">{couponError}</p>}
                   </form>
                 )}
-              </div>
+                {availableCoupons.length > 0 && !appliedCoupon && (
+                  <div className="cko-available-coupons">
+                    <p className="cko-available-coupons-title">Available coupons for this order</p>
+                    {availableCoupons.map((coupon) => {
+                      const minSpend = Number(coupon.min_spend) || 0;
+                      const amountRemaining = Math.max(0, minSpend - activeSubtotal);
+                      const maxDiscount = Number(coupon.max_discount) || 0;
+                      const offer = coupon.discount_type === "percentage"
+                        ? `${Number(coupon.discount_value)}% off${maxDiscount > 0 ? ` up to ${formatPrice(maxDiscount)}` : ""}`
+                        : `${formatPrice(coupon.discount_value)} off`;
+                      return (
+                        <div className={`cko-available-coupon ${amountRemaining > 0 ? "is-locked" : ""}`} key={coupon.code}>
+                          <div className="cko-available-coupon-info">
+                            <strong>{coupon.code}</strong>
+                            <span>{coupon.description || offer}</span>
+                            <small>{minSpend > 0 ? `Minimum order ${formatPrice(minSpend)}` : "No minimum order"}{maxDiscount > 0 && coupon.discount_type === "percentage" ? ` · Maximum discount ${formatPrice(maxDiscount)}` : ""}</small>
+                          </div>
+                          <button type="button" className="cko-available-coupon-action" disabled={amountRemaining > 0} onClick={() => applyCoupon(coupon.code)}>
+                            {amountRemaining > 0 ? `Add ${formatPrice(amountRemaining)}` : "Apply"}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>}
 
               {/* Price Details Breakdown */}
               <div className="cko-pricing-rows">
                 <div className="cko-price-row">
                   <span className="cko-pr-label">Subtotal</span>
-                  <span className="cko-pr-value">{formatPrice(cartSubtotal)}</span>
+                  <span className="cko-pr-value">{formatPrice(activeSubtotal)}</span>
                 </div>
 
                 <div className="cko-price-row">
@@ -1329,10 +1601,10 @@ export default function Checkout() {
                   </span>
                 </div>
 
-                {appliedCoupon && (
+                {!isBuyNowCheckout && appliedCoupon && (
                   <div className="cko-price-row --discount">
                     <span className="cko-pr-label">Discount ({appliedCoupon.code})</span>
-                    <span className="cko-pr-value cko-pr-green">−{formatPrice(discountAmount)}</span>
+                    <span className="cko-pr-value cko-pr-green">−{formatPrice(activeDiscount)}</span>
                   </div>
                 )}
               </div>
@@ -1348,10 +1620,6 @@ export default function Checkout() {
 
               {/* Trust Features */}
               <div className="cko-trust-footer">
-                <div className="cko-tf-item">
-                  <span className="cko-tf-icon">🔒</span>
-                  <span>256-Bit Bank-Grade SSL Secured Checkout</span>
-                </div>
                 <div className="cko-tf-item">
                   <span className="cko-tf-icon">🛡️</span>
                   <span>100% Genuine Quality Guaranteed</span>

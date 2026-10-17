@@ -17,7 +17,7 @@ export default function ImageShowcase() {
           </div>
           <h2 className="section-heading-title">ZMW on Instagram</h2>
           <p className="section-heading-subtitle">
-            Tag #ZMWStyle and #ZMWSummer on Instagram for a chance to be featured in our seasonal editorial gallery.
+            Tag ZMWStyle and ZMWSummer on Instagram for a chance to be featured in our seasonal editorial gallery.
           </p>
         </div>
 

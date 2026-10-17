@@ -106,7 +106,7 @@ export default function ShippingDetailPage() {
             style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-              <h1 className="page-title">Shipment #{order.order_number}</h1>
+              <h1 className="page-title">Shipment {order.order_number}</h1>
               {awb && <span className="awb-badge">AWB: {awb}</span>}
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -116,7 +116,7 @@ export default function ShippingDetailPage() {
                 style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
               >
                 <Package size={16} />
-                <span>View Full Order #{order.order_number}</span>
+                <span>View Full Order {order.order_number}</span>
               </Link>
             </div>
           </div>
@@ -245,10 +245,15 @@ export default function ShippingDetailPage() {
             </div>
 
             <p style={{ fontSize: 11.5, color: "var(--text-muted)", marginBottom: 14, lineHeight: 1.4 }}>
-              Milestones advance automatically via live courier checkpoints. Manual changing is disabled.
+              Shiprocket checkpoints update these milestones. If a scan is missing, set the latest confirmed status manually.
             </p>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <label style={{ fontSize: 12, fontWeight: 600 }}>Set status manually
+                <select value={currentStatus} disabled={isUpdating} onChange={(e) => handleStatusChange(e.target.value)} style={{ display: "block", width: "100%", marginTop: 5, padding: 9 }}>
+                  {SHIPPING_STAGES.map((stage) => <option key={stage.value} value={stage.value}>{stage.label}</option>)}
+                </select>
+              </label>
               {awb && (
                 <button
                   type="button"

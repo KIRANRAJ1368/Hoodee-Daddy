@@ -27,7 +27,7 @@ export default function CustomersPage() {
       const { data, meta } = await customersApi.list({
         search: search.trim() || undefined,
         page,
-        limit: 15
+        limit: 10
       });
       setCustomers(data || []);
       setMeta(meta || { page: 1, totalPages: 1, total: 0 });
@@ -92,8 +92,8 @@ export default function CustomersPage() {
             background: "var(--surface)"
           }}
         >
-          <form onSubmit={handleSearchSubmit} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={{ position: "relative", minWidth: 260 }}>
+          <form onSubmit={handleSearchSubmit} style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", width: "100%", maxWidth: 400 }}>
+            <div style={{ position: "relative", flex: "1 1 180px", minWidth: 0, maxWidth: "100%" }}>
               <Search
                 size={15}
                 style={{
@@ -175,7 +175,7 @@ export default function CustomersPage() {
                   <div>
                     <span className="cell-title">{row.name}</span>
                     <div className="cell-muted" style={{ fontSize: 11.5 }}>
-                      ID: #{row.id}
+                      ID: {row.id}
                     </div>
                   </div>
                 </div>

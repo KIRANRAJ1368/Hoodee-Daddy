@@ -3,10 +3,12 @@ const ApiError = require("../utils/ApiError");
 const { sendSuccess } = require("../utils/apiResponse");
 const { serializeProduct } = require("../services/productSerializer");
 const productService = require("../services/productService");
+const offerController = require("./offerController");
 
 async function list(req, res) {
   const { rows, meta } = await productService.listProducts(req.query);
-  return sendSuccess(res, { data: rows.map(serializeProduct), meta });
+  const offers = await offerController.activeForProducts(rows);
+  return sendSuccess(res, { data: rows.map((row) => ({ ...serializeProduct(row), offer: offers.get(Number(row.id)) || null })), meta });
 }
 
 const { Op } = require("sequelize");
@@ -24,7 +26,8 @@ async function getBySlug(req, res) {
     include: productService.PRODUCT_INCLUDES
   });
   if (!product) throw ApiError.notFound("Product not found");
-  return sendSuccess(res, { data: serializeProduct(product) });
+  const offers = await offerController.activeForProducts([product]);
+  return sendSuccess(res, { data: { ...serializeProduct(product), offer: offers.get(Number(product.id)) || null } });
 }
 
 async function getById(req, res) {
@@ -32,7 +35,8 @@ async function getById(req, res) {
     include: productService.PRODUCT_INCLUDES
   });
   if (!product) throw ApiError.notFound("Product not found");
-  return sendSuccess(res, { data: serializeProduct(product) });
+  const offers = await offerController.activeForProducts([product]);
+  return sendSuccess(res, { data: { ...serializeProduct(product), offer: offers.get(Number(product.id)) || null } });
 }
 
 async function create(req, res) {
@@ -76,6 +80,7 @@ async function updateStock(req, res) {
   const product = await Product.findByPk(req.params.id);
   if (!product) throw ApiError.notFound("Product not found");
   if (req.body.stock_count !== undefined) product.stock_count = req.body.stock_count;
+  if (req.body.sales_count !== undefined) product.sales_count = req.body.sales_count;
   if (req.body.in_stock !== undefined) {
     product.in_stock = req.body.in_stock;
   } else if (req.body.stock_count !== undefined) {
@@ -83,7 +88,7 @@ async function updateStock(req, res) {
   }
   await product.save();
   return sendSuccess(res, {
-    data: { id: product.id, stock_count: product.stock_count, in_stock: product.in_stock }
+    data: { id: product.id, stock_count: product.stock_count, sales_count: product.sales_count, in_stock: product.in_stock }
   });
 }
 
@@ -104,8 +109,10 @@ async function createVariant(req, res) {
   const product = await Product.findByPk(req.params.id);
   if (!product) throw ApiError.notFound("Product not found");
 
-  if (req.body.price_override !== undefined && req.body.price_override !== null) {
-    productService.assertVariantPriceOverride(req.body.price_override, product.original_price);
+  const variantSalePrice = req.body.price_override ?? product.price;
+  const variantMrp = req.body.original_price_override ?? product.original_price;
+  if (req.body.price_override != null || req.body.original_price_override != null) {
+    productService.assertVariantPriceOverride(variantSalePrice, variantMrp);
   }
   const variant = await ProductVariant.create({
     product_id: product.id,
@@ -113,7 +120,8 @@ async function createVariant(req, res) {
     color_id: req.body.color_id || null,
     sku_suffix: req.body.sku_suffix || null,
     stock_count: req.body.stock_count ?? 0,
-    price_override: req.body.price_override ?? null
+    price_override: req.body.price_override ?? null,
+    original_price_override: req.body.original_price_override ?? null
   });
   return sendSuccess(res, { statusCode: 201, data: variant });
 }
@@ -144,12 +152,14 @@ async function updateVariant(req, res) {
     where: { id: req.params.variantId, product_id: req.params.id }
   });
   if (!variant) throw ApiError.notFound("Variant not found");
-  if (req.body.price_override !== undefined && req.body.price_override !== null) {
+  if (req.body.price_override != null || req.body.original_price_override != null) {
     const product = await Product.findByPk(req.params.id);
-    productService.assertVariantPriceOverride(req.body.price_override, product.original_price);
+    const salePrice = req.body.price_override ?? variant.price_override ?? product.price;
+    const mrp = req.body.original_price_override ?? variant.original_price_override ?? product.original_price;
+    productService.assertVariantPriceOverride(salePrice, mrp);
   }
 
-  const fields = ["size_id", "color_id", "sku_suffix", "stock_count", "price_override"];
+  const fields = ["size_id", "color_id", "sku_suffix", "stock_count", "price_override", "original_price_override", "image_url", "gallery_images"];
   fields.forEach((f) => {
     if (req.body[f] !== undefined) variant[f] = req.body[f];
   });

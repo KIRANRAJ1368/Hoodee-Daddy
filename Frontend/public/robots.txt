@@ -1,7 +1,9 @@
+# ZMW Clothing Robots Configuration
+User-agent: *
+Allow: /
 User-agent: *
 Allow: /
 Disallow: /admin
-Disallow: /checkout
-Disallow: /profile
+Sitemap: https://zmwclothing.com/sitemap.xml
 
 Sitemap: https://zmwclothing.com/sitemap.xml

@@ -61,6 +61,18 @@ async function customerRegister(req, res) {
     is_active: true
   });
 
+  // Asynchronously dispatch luxury welcome email to the newly registered customer
+  if (user && user.email) {
+    mailer.sendWelcomeEmail(user.email, {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone
+    }).catch((err) => {
+      console.warn("[ZMW NODEMAILER] Welcome email notification notice:", err.message);
+    });
+  }
+
   const token = jwt.sign({ sub: user.id, role: "customer" }, env.jwt.secret, {
     expiresIn: env.jwt.expiresIn
   });

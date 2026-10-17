@@ -20,9 +20,10 @@ import { useToast } from "../../context/ToastContext";
 import { resolveImageUrl } from "../../utils/imageUrl";
 import LoadingState from "../../components/LoadingState/LoadingState";
 import Pagination from "../../components/Pagination/Pagination";
+import { sortNewestFirst } from "../../utils/sortNewestFirst";
 import "./StockManagementPage.css";
 
-const PRODUCTS_PER_PAGE = 20;
+const PRODUCTS_PER_PAGE = 10;
 
 export default function StockManagementPage() {
   const [searchParams] = useSearchParams();
@@ -48,9 +49,16 @@ export default function StockManagementPage() {
       if (!silent) setIsLoading(true);
       else setIsRefreshing(true);
       try {
-        const res = await productsApi.list({ limit: 200 });
-        setProducts(res.data || []);
+        const firstPage = await productsApi.list({ page: 1, limit: 100 });
+        const pageCount = Number(firstPage.meta?.totalPages) || 1;
+        const remainingPages = await Promise.all(
+          Array.from({ length: Math.max(0, pageCount - 1) }, (_, index) =>
+            productsApi.list({ page: index + 2, limit: 100 })
+          )
+        );
+        setProducts([...(firstPage.data || []), ...remainingPages.flatMap((page) => page.data || [])]);
       } catch (err) {
+        setProducts([]);
         toast.error(err.message || "Failed to load stock data");
       } finally {
         setIsLoading(false);
@@ -140,29 +148,42 @@ export default function StockManagementPage() {
     let outOfStock = 0;
     let lowStock = 0;
     let totalStock = 0;
+    let totalSales = 0;
     products.forEach((prod) => {
       (prod.variants || []).forEach((v) => {
         totalVariants++;
         const qty = Number(v.stockCount ?? v.stock_count ?? 0);
         totalStock += qty;
+        totalSales += Number(v.salesCount ?? v.sales_count ?? 0);
         if (qty === 0) outOfStock++;
         else if (qty <= 5) lowStock++;
       });
+      if (!(prod.variants || []).length) {
+        totalStock += Number(prod.stockCount ?? prod.stock_count ?? 0);
+        totalSales += Number(prod.salesCount ?? prod.sales_count ?? 0);
+      }
     });
-    return { totalVariants, outOfStock, lowStock, totalStock };
+    return { totalVariants, outOfStock, lowStock, totalStock, totalSales };
   }, [products]);
 
   // Update stock quantity for a variant
-  async function handleUpdateVariantStock(product, variantIdx, newQty) {
+  async function handleUpdateVariantStock(product, variantIdx, newQty, newSalesQty = null) {
     const validQty = Math.max(0, parseInt(newQty, 10) || 0);
+    const validSalesQty = newSalesQty === null
+      ? Number(product.variants?.[variantIdx]?.salesCount ?? product.variants?.[variantIdx]?.sales_count ?? 0)
+      : Math.max(0, parseInt(newSalesQty, 10) || 0);
 
     const updatedVariants = (product.variants || []).map((v, idx) => ({
+      id: v.id,
       size: v.size,
       color: v.color,
       colorHex: v.colorHex,
       sku_suffix: v.skuSuffix || v.sku_suffix || null,
       stock_count: idx === variantIdx ? validQty : Number(v.stockCount ?? v.stock_count ?? 0),
+      sales_count: idx === variantIdx ? validSalesQty : Number(v.salesCount ?? v.sales_count ?? 0),
       price_override: v.priceOverride ?? v.price_override ?? null,
+      original_price_override: v.originalPriceOverride ?? v.original_price_override ?? null,
+      created_at: v.createdAt || v.created_at || undefined,
       image_url: v.imageUrl || v.image_url || null,
       gallery_images: v.galleryImages || v.gallery_images || [],
     }));
@@ -177,6 +198,8 @@ export default function StockManagementPage() {
             ...v,
             stockCount: validQty,
             stock_count: validQty,
+            salesCount: validSalesQty,
+            sales_count: validSalesQty,
           };
         });
         const totalStock = updatedVars.reduce(
@@ -187,6 +210,7 @@ export default function StockManagementPage() {
           ...p,
           variants: updatedVars,
           stockCount: totalStock,
+          salesCount: updatedVars.reduce((sum, v) => sum + Number(v.salesCount ?? v.sales_count ?? 0), 0),
           inStock: totalStock > 0,
         };
       })
@@ -206,7 +230,8 @@ export default function StockManagementPage() {
     const currentStock = Number(
       variant.stockCount ?? variant.stock_count ?? 0
     );
-    setAdjustingItem({ product, variant, variantIdx, currentQty: currentStock });
+    const currentSales = Number(variant.salesCount ?? variant.sales_count ?? 0);
+    setAdjustingItem({ product, variant, variantIdx, currentQty: currentStock, currentSales });
     setAdjustQtyInput(String(currentStock));
     setAdjustNote("");
   }
@@ -223,6 +248,20 @@ export default function StockManagementPage() {
     );
     setIsSavingAdjust(false);
     setAdjustingItem(null);
+  }
+
+  async function handleUpdateProductStock(product, quantity) {
+    const nextStock = Math.max(0, Number.parseInt(quantity, 10) || 0);
+    setProducts((previous) => previous.map((item) => item.id === product.id
+      ? { ...item, stockCount: nextStock, stock_count: nextStock, inStock: nextStock > 0 }
+      : item));
+    try {
+      await productsApi.updateStock(product.id, { stock_count: nextStock, in_stock: nextStock > 0 });
+      toast.success("Available stock updated");
+    } catch (err) {
+      toast.error(err.message || "Failed to update stock");
+      loadData(true);
+    }
   }
 
   if (isLoading && products.length === 0) {
@@ -296,7 +335,11 @@ export default function StockManagementPage() {
         </div>
         <div className="s-stat-card">
           <span className="s-stat-value">{stats.totalStock.toLocaleString("en-IN")}</span>
-          <span className="s-stat-label">Total Units</span>
+          <span className="s-stat-label">Available Units</span>
+        </div>
+        <div className="s-stat-card">
+          <span className="s-stat-value">{stats.totalSales.toLocaleString("en-IN")}</span>
+          <span className="s-stat-label">Units Sold</span>
         </div>
         {stats.lowStock > 0 && (
           <div className="s-stat-card s-stat-warning">
@@ -334,7 +377,9 @@ export default function StockManagementPage() {
       <div className="s-cards-list">
         {paginatedProducts.length > 0 ? (
           paginatedProducts.map((prod, idx) => {
-            const variants = prod.variants || [];
+            const sourceVariants = prod.variants || [];
+            const defaultVariantId = sourceVariants[0]?.id;
+            const variants = sortNewestFirst(sourceVariants.map((variant, originalIndex) => ({ ...variant, originalIndex })));
             const expanded = isExpanded(prod.id, idx);
 
             return (
@@ -409,20 +454,19 @@ export default function StockManagementPage() {
                             <th className="s-th-variant">VARIANT</th>
                             <th className="s-th-colorsize">COLOR / SIZE</th>
                             <th className="s-th-sku">SKU</th>
-                            <th className="s-th-stock">STOCK QTY</th>
-                            <th className="s-th-sales">SALES STOCK</th>
-                            <th className="s-th-threshold">LOW STOCK THRESHOLD</th>
+                            <th className="s-th-stock">AVAILABLE</th>
+                            <th className="s-th-sales">SOLD</th>
                             <th className="s-th-actions">ACTIONS</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {variants.map((v, vIdx) => {
-                            const isDefault = vIdx === 0;
+                          {variants.map(({ originalIndex, ...v }, vIdx) => {
+                            const isDefault = defaultVariantId ? v.id === defaultVariantId : originalIndex === 0;
                             const stockCount = Number(
                               v.stockCount ?? v.stock_count ?? 0
                             );
-                            const threshold = Number(v.lowStockThreshold ?? 2);
-                            const isLow = stockCount > 0 && stockCount <= threshold;
+                            const lowThreshold = Number(v.lowStockThreshold ?? v.low_stock_threshold ?? 5);
+                            const isLow = stockCount > 0 && stockCount <= lowThreshold;
                             const isOut = stockCount === 0;
                             const fullSku =
                               v.skuSuffix || v.sku_suffix
@@ -503,6 +547,7 @@ export default function StockManagementPage() {
                                 {/* STOCK QTY */}
                                 <td style={{ textAlign: "center" }}>
                                   <div className="s-stock-qty-wrap">
+                                    <button type="button" className="s-stepper-btn s-inline-stepper" onClick={(event) => { event.stopPropagation(); handleUpdateVariantStock(prod, originalIndex, stockCount - 1); }} disabled={stockCount <= 0} aria-label={`Decrease available stock for ${variantTitle}`}><Minus size={13} /></button>
                                     <input
                                       type="number"
                                       min="0"
@@ -514,7 +559,7 @@ export default function StockManagementPage() {
                                             if (p.id !== prod.id) return p;
                                             const updatedVars = (p.variants || []).map(
                                               (vv, ii) => {
-                                                if (ii !== vIdx) return vv;
+                                                if (ii !== originalIndex) return vv;
                                                 return {
                                                   ...vv,
                                                   stockCount: newQty,
@@ -529,31 +574,20 @@ export default function StockManagementPage() {
                                       onBlur={(e) => {
                                         handleUpdateVariantStock(
                                           prod,
-                                          vIdx,
+                                          originalIndex,
                                           e.target.value
                                         );
                                       }}
                                       className="s-stock-qty-input"
                                       aria-label={`Stock for ${prod.name} ${variantTitle}`}
                                     />
+                                    <button type="button" className="s-stepper-btn s-inline-stepper" onClick={(event) => { event.stopPropagation(); handleUpdateVariantStock(prod, originalIndex, stockCount + 1); }} aria-label={`Increase available stock for ${variantTitle}`}><Plus size={13} /></button>
                                   </div>
                                 </td>
 
                                 {/* SALES STOCK */}
                                 <td style={{ textAlign: "center" }}>
-                                  <span className="s-sales-stock-val">{salesStock}</span>
-                                </td>
-
-                                {/* LOW STOCK THRESHOLD */}
-                                <td style={{ textAlign: "center" }}>
-                                  <input
-                                    type="number"
-                                    min="0"
-                                    defaultValue={threshold}
-                                    className="s-threshold-input"
-                                    aria-label="Low stock threshold"
-                                    title="Alert when stock falls below this number"
-                                  />
+                                  <span className="s-sales-stock-val" title="Updated automatically from completed orders">{salesStock.toLocaleString("en-IN")}</span>
                                 </td>
 
                                 {/* ACTIONS */}
@@ -562,7 +596,7 @@ export default function StockManagementPage() {
                                     type="button"
                                     className="s-btn-adjust"
                                     onClick={() =>
-                                      handleOpenAdjust(prod, v, vIdx)
+                                      handleOpenAdjust(prod, v, originalIndex)
                                     }
                                     title="Adjust stock quantity"
                                   >
@@ -575,16 +609,22 @@ export default function StockManagementPage() {
                         </tbody>
                       </table>
                     ) : (
-                      <div className="s-empty-card">
-                        <p>No variants configured for this product.</p>
-                        <Link
-                          to={`/variants?productId=${prod.id}`}
-                          className="s-btn-secondary"
-                        >
-                          <Layers size={13} />
-                          <span>Configure Variants</span>
-                          <ArrowRight size={12} />
-                        </Link>
+                      <div className="s-simple-stock-row">
+                        <div className="s-simple-stock-product">
+                          <strong>Single product stock</strong>
+                          <span>Sales count increases automatically when orders are placed.</span>
+                        </div>
+                        <div className="s-simple-stock-control">
+                          <span>Available</span>
+                          <button type="button" className="s-stepper-btn" onClick={() => handleUpdateProductStock(prod, Number(prod.stockCount ?? prod.stock_count ?? 0) - 1)} aria-label="Decrease available stock"><Minus size={14} /></button>
+                          <input type="number" min="0" value={Number(prod.stockCount ?? prod.stock_count ?? 0)} onChange={(event) => {
+                            const nextStock = Math.max(0, Number.parseInt(event.target.value, 10) || 0);
+                            setProducts((previous) => previous.map((item) => item.id === prod.id ? { ...item, stockCount: nextStock, stock_count: nextStock } : item));
+                          }} onBlur={(event) => handleUpdateProductStock(prod, event.target.value)} className="s-stock-qty-input" aria-label={`Available stock for ${prod.name}`} />
+                          <button type="button" className="s-stepper-btn" onClick={() => handleUpdateProductStock(prod, Number(prod.stockCount ?? prod.stock_count ?? 0) + 1)} aria-label="Increase available stock"><Plus size={14} /></button>
+                        </div>
+                        <div className="s-simple-sales"><span>Units sold</span><strong>{Number(prod.salesCount ?? prod.sales_count ?? 0).toLocaleString("en-IN")}</strong></div>
+                        <Link to={`/variants?productId=${prod.id}`} className="s-btn-secondary"><Layers size={13} /><span>Add variants</span></Link>
                       </div>
                     )}
                   </div>
@@ -673,10 +713,11 @@ export default function StockManagementPage() {
                     {adjustingItem.variant.size || "Free Size"}
                   </div>
                   <div className="s-modal-item-current">
-                    Current stock:{" "}
-                    <strong>{adjustingItem.currentQty} units</strong>
+                    Available stock: <strong>{adjustingItem.currentQty} units</strong>
+                    <span> · Sales stock: <strong>{adjustingItem.currentSales} units</strong></span>
                   </div>
                 </div>
+
               </div>
 
               {/* Quantity Stepper */}

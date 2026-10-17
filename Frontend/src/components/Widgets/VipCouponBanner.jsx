@@ -5,6 +5,7 @@ export default function VipCouponBanner() {
   const [copied, setCopied] = useState(false);
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const [emailError, setEmailError] = useState("");
 
   const couponCode = "ZMW10";
 
@@ -16,11 +17,19 @@ export default function VipCouponBanner() {
 
   const handleSubscribe = (e) => {
     e.preventDefault();
-    if (email.trim()) {
-      setSubscribed(true);
-      setTimeout(() => setSubscribed(false), 4000);
-      setEmail("");
+    setEmailError("");
+    const trimmed = (email || "").trim();
+    if (!trimmed) {
+      setEmailError("Please enter your email address.");
+      return;
     }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      setEmailError("Please enter a valid email address.");
+      return;
+    }
+    setSubscribed(true);
+    setTimeout(() => setSubscribed(false), 4000);
+    setEmail("");
   };
 
   return (
@@ -52,15 +61,26 @@ export default function VipCouponBanner() {
               </div>
 
               {/* Email Subscription */}
-              <form className="vip-email-form" onSubmit={handleSubscribe}>
-                <input
-                  type="email"
-                  placeholder="Enter your email for drop alerts..."
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="vip-input"
-                />
+              <form className="vip-email-form" onSubmit={handleSubscribe} noValidate>
+                <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                  <input
+                    type="email"
+                    placeholder="Enter your email for drop alerts..."
+                    value={email}
+                    onChange={(e) => {
+                      setEmailError("");
+                      setEmail(e.target.value);
+                    }}
+                    required
+                    className="vip-input"
+                    style={emailError ? { borderColor: "#DC2626" } : {}}
+                  />
+                  {emailError && (
+                    <span style={{ color: "#DC2626", fontSize: "0.78rem", marginTop: "4px", textAlign: "left" }}>
+                      {emailError}
+                    </span>
+                  )}
+                </div>
                 <button type="submit" className="vip-submit-btn">
                   {subscribed ? "YOU'RE IN! 🎉" : "CLAIM OFFER"}
                 </button>

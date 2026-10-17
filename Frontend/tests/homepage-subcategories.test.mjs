@@ -248,10 +248,10 @@ describe("Mobile behaviour", () => {
     const subs = makeSubcategories("women", 6);
     const view = await mount({ section: "women", subcategories: subs, visibleCount: 4 });
 
-    // 1 visible on mobile -> 4 items overflow and become a carousel.
+    // 2 visible on mobile -> 4 items overflow and become a carousel.
     assert.equal(view.isCarousel(), true);
-    assert.equal(visibleCountForWidth(MOBILE), 1);
-    assert.equal(view.arrows().length, 2, "arrows required so items 2-4 are reachable");
+    assert.equal(visibleCountForWidth(MOBILE), 2);
+    assert.equal(view.arrows().length, 2, "arrows required so items 3-4 are reachable");
   });
 
   test("case 6b: a single item is never a carousel on any width", async () => {
@@ -268,15 +268,15 @@ describe("Mobile behaviour", () => {
     setWidth(MOBILE);
     const subs = makeSubcategories("women", 5);
     const view = await mount({ section: "women", subcategories: subs, visibleCount: 5 });
-    const maxIndex = maxIndexFor(5, 1);
-    assert.equal(maxIndex, 4);
+    const maxIndex = maxIndexFor(5, 2);
+    assert.equal(maxIndex, 3);
 
     const seen = [];
     for (let i = 0; i <= maxIndex; i += 1) {
       seen.push(offsetOf(view));
       await clickArrow("right");
     }
-    assert.deepEqual(seen, [0, 100, 200, 300, 400], "one full item per click on mobile");
+    assert.deepEqual(seen, [0, 50, 100, 150], "one full item per click on mobile");
     assert.equal(offsetOf(view), 0, "wraps back to the first item");
   });
 
@@ -302,11 +302,11 @@ describe("carouselCore", () => {
     assert.equal(visibleCountForWidth(1920), 4);
     assert.equal(visibleCountForWidth(1440), 4);
     assert.equal(visibleCountForWidth(1201), 4);
-    assert.equal(visibleCountForWidth(1200), 2);
-    assert.equal(visibleCountForWidth(1024), 2);
+    assert.equal(visibleCountForWidth(1200), 4);
+    assert.equal(visibleCountForWidth(1024), 3);
     assert.equal(visibleCountForWidth(769), 2);
-    assert.equal(visibleCountForWidth(768), 1);
-    assert.equal(visibleCountForWidth(390), 1);
+    assert.equal(visibleCountForWidth(768), 2);
+    assert.equal(visibleCountForWidth(390), 2);
   });
 
   test("maxIndexFor never goes negative", () => {

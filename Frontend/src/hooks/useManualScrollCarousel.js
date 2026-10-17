@@ -31,9 +31,17 @@ export default function useManualScrollCarousel({ autoDelayMs = 0 } = {}) {
     const step = getStepWidth();
     const maxScroll = el.scrollWidth - el.clientWidth;
     if (el.scrollLeft >= maxScroll - 15) {
-      el.scrollTo({ left: 0, behavior: "smooth" });
+      if (typeof el.scrollTo === "function") {
+        el.scrollTo({ left: 0, behavior: "smooth" });
+      } else {
+        el.scrollLeft = 0;
+      }
     } else {
-      el.scrollBy({ left: step, behavior: "smooth" });
+      if (typeof el.scrollBy === "function") {
+        el.scrollBy({ left: step, behavior: "smooth" });
+      } else {
+        el.scrollLeft = (el.scrollLeft || 0) + step;
+      }
     }
   }, [getStepWidth]);
 
@@ -42,9 +50,17 @@ export default function useManualScrollCarousel({ autoDelayMs = 0 } = {}) {
     if (!el) return;
     const step = getStepWidth();
     if (el.scrollLeft <= 15) {
-      el.scrollTo({ left: el.scrollWidth, behavior: "smooth" });
+      if (typeof el.scrollTo === "function") {
+        el.scrollTo({ left: el.scrollWidth, behavior: "smooth" });
+      } else {
+        el.scrollLeft = el.scrollWidth || 0;
+      }
     } else {
-      el.scrollBy({ left: -step, behavior: "smooth" });
+      if (typeof el.scrollBy === "function") {
+        el.scrollBy({ left: -step, behavior: "smooth" });
+      } else {
+        el.scrollLeft = Math.max(0, (el.scrollLeft || 0) - step);
+      }
     }
   }, [getStepWidth]);
 

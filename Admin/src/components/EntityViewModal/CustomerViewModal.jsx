@@ -40,7 +40,7 @@ export default function CustomerViewModal({ customer, customerDetail, loadingDet
               </span>
             </div>
             <div className="ev-meta-line">
-              <code>ID: #{data.id}</code>
+              <code>ID: {data.id}</code>
               <span className="ev-sep">•</span>
               <span>Member since {formatDate(data.created_at || data.createdAt)}</span>
             </div>
@@ -195,7 +195,7 @@ export default function CustomerViewModal({ customer, customerDetail, loadingDet
         {/* Footer Meta & Actions */}
         <div className="ev-footer">
           <div className="ev-footer-meta">
-            <span>Customer UID: <strong>#{data.id}</strong></span>
+            <span>Customer UID: <strong>{data.id}</strong></span>
           </div>
 
           <div className="ev-footer-actions">

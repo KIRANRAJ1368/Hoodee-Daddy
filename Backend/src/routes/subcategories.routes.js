@@ -7,6 +7,7 @@ const v = require("../validators/subcategoryValidators");
 const router = express.Router();
 
 router.get("/", subcategoryController.list);
+router.get("/:id", v.idParam, validate, subcategoryController.getById);
 
 router.post("/", requireAuth, v.create, validate, subcategoryController.create);
 router.put("/:id", requireAuth, v.update, validate, subcategoryController.update);

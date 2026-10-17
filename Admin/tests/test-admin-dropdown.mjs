@@ -80,24 +80,24 @@ async function runAdminDropdownTest() {
       `Menu open: ${isOpenAfterClick} | URL remains: ${currentUrlAfterClick}`
     );
 
-    // Verify 5 options inside dropdown in exact order requested
+    // Verify product catalog options inside the dropdown.
     const subOptionTexts = await page.locator('.admin-nav-sub-link .admin-nav-sub-text').allInnerTexts();
     console.log('Sub-options found:', subOptionTexts);
 
-    const expectedOptions = ['Categories', 'Sub Categories', 'Products', 'Variants', 'Stock'];
+    const expectedOptions = ['Categories', 'Sub Categories', 'Products', 'Variants'];
     const orderMatches = JSON.stringify(subOptionTexts) === JSON.stringify(expectedOptions);
 
     assert(
       orderMatches,
-      'Dropdown Options Match Exact Required Order',
+      'Product Dropdown Options Match Exact Required Order',
       `Expected: ${expectedOptions.join(' → ')}\n   Found:    ${subOptionTexts.join(' → ')}`
     );
 
     // Verify icons exist for each sub-option
     const subIconsCount = await page.locator('.admin-nav-sub-link .admin-nav-sub-icon').count();
     assert(
-      subIconsCount === 5,
-      'All 5 Sub-options Render Their Respective Icons',
+      subIconsCount === 4,
+      'All 4 Product Sub-options Render Their Respective Icons',
       `Found ${subIconsCount} sub-icons`
     );
 
@@ -125,6 +125,27 @@ async function runAdminDropdownTest() {
         `Option "${opt}" Navigates to /${targetSlug} & Highlights Active State`,
         `URL: ${newUrl} | Active: ${isActive} | Menu Expanded: ${isParentExpanded}`
       );
+    }
+
+    for (const { label, path } of [
+      { label: 'Dashboard', path: '/' },
+      { label: 'Hero & Banners', path: '/banners' },
+      { label: 'Stock Management', path: '/stock' },
+      { label: 'Coupons & Discounts', path: '/coupons' },
+      { label: 'Reports & Analytics', path: '/reports' },
+      { label: 'Orders', path: '/orders' },
+      { label: 'Reviews', path: '/reviews' },
+      { label: 'Shipping', path: '/shipping' },
+      { label: 'Customers', path: '/customers' },
+      { label: 'Customer Inquiries', path: '/contact' }
+    ]) {
+      const link = page.locator(`.admin-nav-link[href="${path}"]`).first();
+      await link.click();
+      await page.waitForTimeout(250);
+      assert(page.url().endsWith(path) || (path === '/' && page.url().endsWith(':5173/')),
+        `Sidebar option "${label}" navigates to ${path}`, `URL: ${page.url()}`);
+      assert(await link.evaluate((el) => el.classList.contains('active')),
+        `Sidebar option "${label}" shows active state`);
     }
 
     // Test collapsing the dropdown when clicking Product toggle again
@@ -172,8 +193,8 @@ async function runAdminDropdownTest() {
     const isMobileMenuOpen = await mobilePage.locator('#admin-product-dropdown-menu').isVisible();
     assert(isMobileMenuOpen, 'Product Dropdown Successfully Expands Inside Mobile Drawer');
 
-    // Click Stock inside mobile dropdown
-    const stockMobileLink = mobilePage.locator('.admin-nav-sub-link:has-text("Stock")').first();
+    // Click Stock in the bottom navigation.
+    const stockMobileLink = mobilePage.locator('.admin-nav-link[href="/stock"]').first();
     await stockMobileLink.click();
     await mobilePage.waitForTimeout(500);
 

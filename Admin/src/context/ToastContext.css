@@ -50,16 +50,69 @@
   flex-shrink: 0;
 }
 
+.toast-success {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  color: #14532d;
+  box-shadow: 0 4px 14px rgba(22, 101, 52, 0.08);
+}
+
 .toast-success .toast-icon {
-  color: var(--primary);
+  color: #16a34a;
+}
+
+.toast-success .toast-message {
+  color: #166534;
+  font-weight: 600;
+}
+
+.toast-error {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #7f1d1d;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.1);
 }
 
 .toast-error .toast-icon {
-  color: #f87171;
+  color: #dc2626;
+}
+
+.toast-error .toast-message {
+  color: #991b1b;
+  font-weight: 600;
+}
+
+/* Red Delete Notification for Clear Visibility */
+.toast-delete {
+  background: #fef2f2;
+  border: 1.5px solid #f87171;
+  color: #7f1d1d;
+  box-shadow: 0 4px 18px rgba(220, 38, 38, 0.18);
+}
+
+.toast-delete .toast-icon {
+  color: #dc2626;
+}
+
+.toast-delete .toast-message {
+  color: #991b1b;
+  font-weight: 600;
+}
+
+.toast-info {
+  background: #eff6ff;
+  border: 1px solid #93c5fd;
+  color: #1e3a8a;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.08);
 }
 
 .toast-info .toast-icon {
-  color: #60a5fa;
+  color: #2563eb;
+}
+
+.toast-info .toast-message {
+  color: #1e40af;
+  font-weight: 500;
 }
 
 .toast-message {

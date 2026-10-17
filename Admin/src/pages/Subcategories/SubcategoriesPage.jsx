@@ -1,14 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Plus, Edit2, Trash2, Eye, Filter } from "lucide-react";
 import { subcategoriesApi, categoriesApi } from "../../services/resources";
 import { useToast } from "../../context/ToastContext";
 import { useConfirm } from "../../components/ConfirmDialog/ConfirmDialog";
-import DataTable from "../../components/DataTable/DataTable";
+import PaginatedDataTable from "../../components/PaginatedDataTable/PaginatedDataTable";
 import StatusBadge from "../../components/StatusBadge/StatusBadge";
 import SubcategoryFormModal from "./SubcategoryFormModal";
 import SubcategoryViewModal from "../../components/EntityViewModal/SubcategoryViewModal";
 import ImageLightboxModal from "../../components/ImageLightboxModal/ImageLightboxModal";
 import { resolveImageUrl } from "../../utils/imageUrl";
+import { broadcastCatalogUpdate } from "../../utils/broadcastCatalogUpdate";
 
 export default function SubcategoriesPage() {
   const [subcategories, setSubcategories] = useState([]);
@@ -26,7 +27,7 @@ export default function SubcategoriesPage() {
       const { data } = await categoriesApi.list();
       setCategories(data || []);
     } catch (err) {
-      toast.error("Failed to load categories");
+      toast.error(err.message || "Failed to load categories for subcategories");
     }
   }
 
@@ -36,7 +37,7 @@ export default function SubcategoriesPage() {
       const { data } = await subcategoriesApi.list(categoryFilter ? { category: categoryFilter } : {});
       setSubcategories(data || []);
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.message || "Failed to load subcategories");
     } finally {
       setIsLoading(false);
     }
@@ -52,6 +53,15 @@ export default function SubcategoriesPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categoryFilter]);
 
+  const sortedSubcategories = useMemo(() => {
+    return [...subcategories].sort((a, b) => {
+      const seqA = Number(a.sort_order ?? 0);
+      const seqB = Number(b.sort_order ?? 0);
+      if (seqA !== seqB) return seqA - seqB;
+      return (Number(a.id) || 0) - (Number(b.id) || 0);
+    });
+  }, [subcategories]);
+
   async function handleDelete(subcategory) {
     const ok = await confirm({
       title: "Delete Subcategory?",
@@ -60,10 +70,11 @@ export default function SubcategoriesPage() {
     if (!ok) return;
     try {
       await subcategoriesApi.remove(subcategory.id);
-      toast.success("Subcategory deleted successfully");
+      broadcastCatalogUpdate({ action: "SUBCATEGORY_DELETED", subcategoryId: subcategory.id, slug: subcategory.slug });
+      toast.delete(`Subcategory "${subcategory.name}" has been deleted successfully.`);
       load();
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.message || "Failed to delete subcategory");
     }
   }
 
@@ -106,14 +117,18 @@ export default function SubcategoriesPage() {
             background: "var(--surface)"
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <Filter size={15} style={{ color: "var(--text-muted)" }} />
-            <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--text-main)" }}>Filter by Category:</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", maxWidth: "100%" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <Filter size={15} style={{ color: "var(--text-muted)" }} />
+              <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--text-main)", whiteSpace: "nowrap" }}>Filter by Category:</span>
+            </div>
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
               style={{
-                minWidth: 220,
+                minWidth: 150,
+                maxWidth: "100%",
+                flex: "1 1 160px",
                 padding: "8px 12px",
                 border: "1.5px solid var(--border)",
                 borderRadius: "var(--radius-sm)",
@@ -135,9 +150,9 @@ export default function SubcategoriesPage() {
           </span>
         </div>
 
-        <DataTable
+        <PaginatedDataTable
           isLoading={isLoading}
-          rows={subcategories}
+          rows={sortedSubcategories}
           rowKey={(row) => row.id}
           emptyTitle="No subcategories found"
           emptyDescription={

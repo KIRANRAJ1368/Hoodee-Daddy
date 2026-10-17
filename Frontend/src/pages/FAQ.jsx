@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
+import SeoHead from "../components/Seo/SeoHead";
+import { buildFaqSchema, buildBreadcrumbSchema } from "../utils/seoSchemas";
+import { useShop } from "../context/ShopContext";
 import { Link } from "react-router-dom";
 import { SHIPPING_FEE } from "../utils/shopConfig";
 import { formatPrice } from "../utils/formatPrice";
@@ -175,8 +178,23 @@ const FAQ_DATA = [
 ];
 
 export default function FAQ() {
+  const { seoSettings } = useShop();
+  const baseUrl = (seoSettings?.canonical_base_url || "https://zmwclothing.com").replace(/\/+$/, "");
   const [activeCategory, setActiveCategory] = useState("all");
   const [openIds, setOpenIds] = useState(["ord-1"]);
+
+  const schemas = useMemo(() => {
+    return [
+      buildFaqSchema(FAQ_DATA),
+      buildBreadcrumbSchema(
+        [
+          { name: "Home", path: "/" },
+          { name: "FAQ", path: "/faq" }
+        ],
+        baseUrl
+      )
+    ].filter(Boolean);
+  }, [baseUrl]);
 
   const toggleItem = (id) => {
     setOpenIds((prev) =>
@@ -191,6 +209,12 @@ export default function FAQ() {
 
   return (
     <div className="faq-page">
+      <SeoHead
+        title="Frequently Asked Questions (FAQ) — Orders, Shipping & Returns | ZMW Clothing"
+        description="Find prompt answers regarding our premium streetwear fits, nationwide Indian logistics, easy returns, and payment options at ZMW Clothing."
+        canonicalPath="/faq"
+        schemas={schemas}
+      />
       {/* ── Hero ─────────────────────────────────────────────────── */}
       <section className="faq-hero" aria-label="Frequently Asked Questions">
         <div className="container">

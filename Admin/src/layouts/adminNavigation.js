@@ -1,0 +1,20 @@
+export const ADMIN_NAVIGATION = [
+  { to: "/", label: "Dashboard", end: true },
+  { to: "/banners", label: "Hero & Banners" },
+  { to: "/offer-banners", label: "Offer Banners" },
+  { to: "/offers", label: "Product Offers" },
+  { to: "/categories", label: "Categories" },
+  { to: "/subcategories", label: "Sub Categories" },
+  { to: "/products", label: "Products" },
+  { to: "/variants", label: "Variants" },
+  { to: "/stock", label: "Stock Management" },
+  { to: "/coupons", label: "Coupons & Discounts" },
+  { to: "/reports", label: "Reports & Analytics" },
+  { to: "/orders", label: "Orders" },
+  { to: "/reviews", label: "Reviews" },
+  { to: "/shipping", label: "Shipping" },
+  { to: "/customers", label: "Customers" },
+  { to: "/contact", label: "Customer Inquiries" },
+  { to: "/seo", label: "Meta Settings" },
+  { to: "/seo/sitemap", label: "Sitemap" }
+];

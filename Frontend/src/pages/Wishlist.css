@@ -164,9 +164,8 @@
   box-shadow: var(--shadow-sm);
 }
 
-.wishlist-card-badge.badge-hot,
 .wishlist-card-badge.badge-sale {
-  background-color: #da3f3f;
+  background-color: #059669;
 }
 
 /* Remove ❤️ Button */

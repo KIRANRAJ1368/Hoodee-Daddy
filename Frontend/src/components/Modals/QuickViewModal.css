@@ -157,6 +157,19 @@
   font-variant-numeric: tabular-nums;
 }
 
+.quickview-offer-chip {
+  font-family: var(--font-poppins);
+  font-size: 11px;
+  font-weight: 700;
+  color: #059669;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 .quickview-description {
   font-size: var(--text-small);
   color: var(--color-grey-600);
@@ -311,6 +324,38 @@
   background-color: var(--color-success);
   display: inline-block;
   animation: pulseGlow 2s infinite;
+}
+
+.size-pill.sold-out {
+  opacity: 0.5;
+  text-decoration: line-through;
+  cursor: not-allowed;
+  background: var(--color-sand-light);
+  border-style: dashed;
+}
+
+.stock-indicator.out-of-stock {
+  color: #DC2626;
+}
+
+.stock-indicator.out-of-stock .stock-dot {
+  background-color: #DC2626;
+  animation: none;
+}
+
+.stock-indicator.low-stock {
+  color: #D97706;
+}
+
+.stock-indicator.low-stock .stock-dot {
+  background-color: #D97706;
+}
+
+.btn-add-bag:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: #94A3B8;
+  border-color: #94A3B8;
 }
 
 @media (max-width: 768px) {

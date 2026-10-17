@@ -1,4 +1,14 @@
-const RAW_API_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000").trim().replace(/\/+$/, "");
+const getDefaultApiUrl = () => {
+  if (typeof window !== "undefined" && window.location?.hostname) {
+    const host = window.location.hostname;
+    if (host && host !== "localhost" && host !== "127.0.0.1") {
+      return `http://${host}:5000`;
+    }
+  }
+  return "http://localhost:5000";
+};
+
+const RAW_API_URL = ((import.meta.env?.VITE_API_URL) || getDefaultApiUrl()).trim().replace(/\/+$/, "");
 const API_URL = RAW_API_URL.replace(/\/api$/, "");
 const TOKEN_KEY = "zmw_admin_token";
 
@@ -47,7 +57,10 @@ async function request(path, { method = "GET", body, isFormData = false, params 
       body: body === undefined ? undefined : isFormData ? body : JSON.stringify(body)
     });
   } catch (err) {
-    throw new ApiError("Could not reach the server. Is the backend running?", { status: 0 });
+    throw new ApiError(
+      err?.message ? `Could not reach the server: ${err.message}` : "Could not reach the server. Check your connection and try again.",
+      { status: 0, code: "NETWORK_ERROR" }
+    );
   }
 
   let payload = null;
@@ -60,7 +73,7 @@ async function request(path, { method = "GET", body, isFormData = false, params 
   if (!res.ok) {
     const err = payload?.error || {};
     if (res.status === 401) setToken(null);
-    throw new ApiError(err.message || `Request failed (${res.status})`, {
+    throw new ApiError(err.message || payload?.message || `The request failed with status ${res.status}. Please try again.`, {
       status: res.status,
       code: err.code,
       details: err.details

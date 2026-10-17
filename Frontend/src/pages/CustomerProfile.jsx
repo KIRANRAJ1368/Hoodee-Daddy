@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useShop } from "../context/ShopContext";
 import { storefrontApi } from "../services/storefrontApi";
 import InvoiceModal from "../components/Modals/InvoiceModal";
+import { imageUrl } from "../utils/imageUrl";
+import { isValidPhone, cleanPhoneInput, isNonEmpty } from "../utils/validators";
 import "./CustomerProfile.css";
 
 const STATUS_BADGES = {
@@ -14,6 +16,24 @@ const STATUS_BADGES = {
   cancelled: { label: "Cancelled", color: "#DC2626", bg: "#FEF2F2" },
   returned: { label: "Returned", color: "#4B5563", bg: "#F3F4F6" }
 };
+
+const RETURN_REASONS = [
+  "Defective / Damaged Piece",
+  "Size Mismatch",
+  "Fabric Quality",
+  "Defective Print",
+  "Color Different",
+  "Other"
+];
+
+const CANCEL_REASONS = [
+  "Ordered by mistake",
+  "Found better price / alternative",
+  "Changed mind",
+  "Delivery time too long",
+  "Incorrect shipping address",
+  "Other"
+];
 
 export default function CustomerProfile() {
   const {
@@ -32,8 +52,20 @@ export default function CustomerProfile() {
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [ordersError, setOrdersError] = useState("");
   const [selectedInvoiceOrder, setSelectedInvoiceOrder] = useState(null);
+  const [reviewTarget, setReviewTarget] = useState(null);
+  const [reviewForm, setReviewForm] = useState({ rating: 5, title: "", comment: "" });
+  const [reviewImages, setReviewImages] = useState([]);
+  const [reviewSaving, setReviewSaving] = useState(false);
+
+  // Cancellation & Return workflow states
   const [cancelModalOrder, setCancelModalOrder] = useState(null);
+  const [actionType, setActionType] = useState("pre_pack"); // pre_pack | in_transit | post_delivery
   const [cancelReason, setCancelReason] = useState("");
+  const [cancelComments, setCancelComments] = useState("");
+  const [upiId, setUpiId] = useState("");
+  const [accountHolder, setAccountHolder] = useState("");
+  const [photoFiles, setPhotoFiles] = useState([]);
+  const [videoFile, setVideoFile] = useState(null);
   const [isCancelling, setIsCancelling] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -41,6 +73,7 @@ export default function CustomerProfile() {
     email: "",
     phone: ""
   });
+  const [profileError, setProfileError] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
@@ -48,35 +81,64 @@ export default function CustomerProfile() {
       setFormData({
         name: customerUser.name || "",
         email: customerUser.email || "",
-        phone: customerUser.phone || ""
+        phone: customerUser.phone ? cleanPhoneInput(customerUser.phone) : ""
       });
+      if (!accountHolder) {
+        setAccountHolder(customerUser.name || "");
+      }
     }
   }, [customerUser]);
 
-  useEffect(() => {
+  const loadOrders = async (isSilent = false) => {
     if (!customerToken) {
       setLoadingOrders(false);
       return;
     }
 
-    setLoadingOrders(true);
+    if (!isSilent) setLoadingOrders(true);
     setOrdersError("");
-    storefrontApi
-      .getMyOrders(customerToken)
-      .then((data) => {
-        setOrders(data || []);
-      })
-      .catch((err) => {
-        setOrdersError(err.message || "Failed to load orders");
-      })
-      .finally(() => {
-        setLoadingOrders(false);
-      });
+    try {
+      const data = await storefrontApi.getMyOrders(customerToken);
+      setOrders(Array.isArray(data) ? data : []);
+      setOrdersError("");
+    } catch (err) {
+      console.warn("Orders fetch notice:", err.message);
+      // Auto-retry silently once after 1.2s to handle any transient delay
+      setTimeout(async () => {
+        try {
+          const retryData = await storefrontApi.getMyOrders(customerToken);
+          setOrders(Array.isArray(retryData) ? retryData : []);
+          setOrdersError("");
+        } catch (_) {
+          // Gracefully maintain state without crashing
+        }
+      }, 1200);
+    } finally {
+      setLoadingOrders(false);
+    }
+  };
+
+  useEffect(() => {
+    loadOrders();
   }, [customerToken]);
 
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
     if (!customerToken) return;
+    setProfileError("");
+
+    if (!isNonEmpty(formData.name)) {
+      setProfileError("Full Name is required.");
+      return;
+    }
+    if (!isNonEmpty(formData.phone)) {
+      setProfileError("Mobile Phone is required.");
+      return;
+    }
+    if (!isValidPhone(formData.phone)) {
+      setProfileError("Phone number must be exactly 10 digits.");
+      return;
+    }
 
     setIsUpdating(true);
     try {
@@ -92,28 +154,147 @@ export default function CustomerProfile() {
         addToast("Profile updated successfully ✨", "success");
       }
     } catch (err) {
-      addToast(err.message || "Failed to update profile", "error");
+      const msg = err.message || "Failed to update profile";
+      setProfileError(msg);
+      addToast(msg, "error");
     } finally {
       setIsUpdating(false);
     }
   };
 
-  const handleConfirmCancel = async () => {
+  const reloadOrders = async () => {
+    const data = await storefrontApi.getMyOrders(customerToken);
+    setOrders(data || []);
+  };
+
+  const saveItemReview = async (e) => {
+    e.preventDefault();
+    if (!reviewTarget || !customerToken) return;
+    if (!reviewForm.comment || reviewForm.comment.trim().length < 5) {
+      addToast("Review comment must be at least 5 characters.", "error");
+      return;
+    }
+    setReviewSaving(true);
+    try {
+      const imageUrls = reviewImages.length ? await storefrontApi.uploadReviewImages(reviewImages, customerToken) : [];
+      await storefrontApi.submitProductReview(reviewTarget.product_id, {
+        order_item_id: reviewTarget.id,
+        rating: Number(reviewForm.rating),
+        title: reviewForm.title,
+        comment: reviewForm.comment.trim(),
+        image_urls: imageUrls
+      }, customerToken);
+      await reloadOrders();
+      setReviewTarget(null);
+      setReviewImages([]);
+      addToast("Review submitted. It will appear after admin approval.", "success");
+    } catch (err) {
+      addToast(err.message || "Could not submit review", "error");
+    } finally {
+      setReviewSaving(false);
+    }
+  };
+
+  const editItemReview = async (item) => {
+    if (!item.review) return;
+    const rating = window.prompt("Rating (1–5)", String(item.review.rating));
+    if (rating === null) return;
+    const comment = window.prompt("Review", item.review.comment || "");
+    if (comment === null) return;
+    try {
+      await storefrontApi.updateProductReview(item.product_id, item.review.id, { rating: Number(rating), title: item.review.title || "", comment, image_urls: item.review.image_urls || [] }, customerToken);
+      await reloadOrders();
+      addToast("Review updated and sent for approval.", "success");
+    } catch (err) {
+      addToast(err.message || "Could not update review", "error");
+    }
+  };
+
+  const deleteItemReview = async (item) => {
+    if (!item.review || !window.confirm("Delete this review?")) return;
+    try {
+      await storefrontApi.deleteProductReview(item.product_id, item.review.id, customerToken);
+      await reloadOrders();
+      addToast("Review deleted.", "success");
+    } catch (err) {
+      addToast(err.message || "Could not delete review", "error");
+    }
+  };
+
+  const openActionModal = (order, type) => {
+    setCancelModalOrder(order);
+    setActionType(type);
+    setCancelReason(type === "post_delivery" ? RETURN_REASONS[0] : CANCEL_REASONS[0]);
+    setCancelComments("");
+    setPhotoFiles([]);
+    setVideoFile(null);
+    setAccountHolder(customerUser?.name || order.customer_name || "");
+    setUpiId(order.refund_upi_id || "");
+  };
+
+  const handleConfirmCancel = async (e) => {
+    if (e) e.preventDefault();
     if (!cancelModalOrder || !customerToken) return;
+    if (!cancelReason) {
+      addToast("Please select a reason.", "error");
+      return;
+    }
+    if (actionType === "post_delivery" && (!cancelComments || !cancelComments.trim())) {
+      addToast("Detailed explanation is required for returns.", "error");
+      return;
+    }
     setIsCancelling(true);
     try {
-      const res = await storefrontApi.cancelOrder(
+      let return_images = [];
+      let return_video_url = null;
+
+      // If post_delivery, upload media files first
+      if (actionType === "post_delivery") {
+        const uploadQueue = [];
+        if (photoFiles.length > 0) uploadQueue.push(...photoFiles);
+        if (videoFile) uploadQueue.push(videoFile);
+
+        if (uploadQueue.length > 0) {
+          const uploadedUrls = await storefrontApi.uploadReturnProof(uploadQueue, customerToken);
+          if (videoFile && uploadedUrls.length > 0) {
+            return_video_url = uploadedUrls[uploadedUrls.length - 1];
+            return_images = uploadedUrls.slice(0, uploadedUrls.length - 1);
+          } else {
+            return_images = uploadedUrls;
+          }
+        }
+      }
+
+      const res = await storefrontApi.requestCancellation(
         cancelModalOrder.id,
-        cancelReason || "Cancelled by client",
+        {
+          cancellation_type: actionType,
+          reason: cancelReason,
+          comments: cancelComments.trim() || undefined,
+          refund_upi_id: upiId.trim() || undefined,
+          refund_account_holder: accountHolder.trim() || undefined,
+          return_images,
+          return_video_url
+        },
         customerToken
       );
-      addToast(res.message || "Order cancelled successfully.", "success");
+
+      addToast(
+        actionType === "post_delivery"
+          ? "Return request submitted! Reverse pickup will be scheduled."
+          : res.message || "Cancellation request submitted successfully.",
+        "success"
+      );
+
       const updated = await storefrontApi.getMyOrders(customerToken);
       setOrders(updated || []);
       setCancelModalOrder(null);
       setCancelReason("");
+      setCancelComments("");
+      setPhotoFiles([]);
+      setVideoFile(null);
     } catch (err) {
-      addToast(err.message || "Failed to cancel order.", "error");
+      addToast(err.message || "Failed to submit request.", "error");
     } finally {
       setIsCancelling(false);
     }
@@ -207,39 +388,78 @@ export default function CustomerProfile() {
             <div className="tab-pane">
               <div className="pane-header">
                 <h2>Order History</h2>
-                <span className="pane-subtitle">
-                  {orders.length} {orders.length === 1 ? "order" : "orders"} placed
-                </span>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <span className="pane-subtitle">
+                    {orders.length} {orders.length === 1 ? "order" : "orders"} placed
+                  </span>
+                  {!loadingOrders && (
+                    <button
+                      type="button"
+                      className="pane-reload-btn"
+                      onClick={() => loadOrders()}
+                      title="Refresh orders"
+                    >
+                      🔄 Refresh
+                    </button>
+                  )}
+                </div>
               </div>
 
               {loadingOrders ? (
-                <div className="account-loading">
-                  <div className="loading-spinner"></div>
-                  <p>Loading your orders...</p>
-                </div>
-              ) : ordersError ? (
-                <div className="account-error-box">
-                  <p>⚠️ {ordersError}</p>
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={() => window.location.reload()}
-                  >
-                    Try Again
-                  </button>
+                <div className="orders-skeleton-list" aria-busy="true">
+                  {[1, 2, 3].map((sKey) => (
+                    <div key={sKey} className="order-card order-card--skeleton">
+                      <div className="order-card-header">
+                        <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                          <div className="order-skeleton-bar order-skeleton-bar--num sk" />
+                          <div className="order-skeleton-bar order-skeleton-bar--date sk" />
+                        </div>
+                        <div className="order-skeleton-bar order-skeleton-bar--badge sk" />
+                      </div>
+                      <div className="order-card-body">
+                        <div className="order-items-col">
+                          <div className="order-item-row">
+                            <div className="order-skeleton-thumb sk" />
+                            <div className="order-item-details" style={{ flex: 1 }}>
+                              <div className="order-skeleton-bar order-skeleton-bar--title sk w3" />
+                              <div className="order-skeleton-bar order-skeleton-bar--meta sk w1" />
+                              <div className="order-skeleton-bar order-skeleton-bar--price sk w2" />
+                            </div>
+                          </div>
+                        </div>
+                        <div className="order-summary-col">
+                          <div className="order-skeleton-bar order-skeleton-bar--total-lbl sk" />
+                          <div className="order-skeleton-bar order-skeleton-bar--total-val sk" />
+                          <div className="order-skeleton-actions">
+                            <div className="order-skeleton-bar order-skeleton-btn sk" />
+                            <div className="order-skeleton-bar order-skeleton-btn sk" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ) : orders.length === 0 ? (
                 <div className="empty-orders-view">
                   <div className="empty-icon">🛍️</div>
                   <h3>No Orders Yet</h3>
                   <p>You haven't placed any orders yet. Discover our curated collections.</p>
-                  <Link to="/collection" className="btn btn-primary" style={{ marginTop: "16px" }}>
-                    Explore Catalog
-                  </Link>
+                  <div style={{ display: "flex", gap: "12px", justifyContent: "center", marginTop: "16px" }}>
+                    <Link to="/collection" className="btn btn-primary">
+                      Explore Catalog
+                    </Link>
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={() => loadOrders()}
+                    >
+                      🔄 Refresh
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <div className="orders-list">
-                  {orders.map((order) => {
+                  {orders.map((order, orderIdx) => {
                     const statusMeta = STATUS_BADGES[order.status] || {
                       label: order.status,
                       color: "#111827",
@@ -256,7 +476,11 @@ export default function CustomerProfile() {
                     );
 
                     return (
-                      <div key={order.id} className="order-card">
+                      <div
+                        key={order.id}
+                        className="order-card fade"
+                        style={{ animationDelay: `${orderIdx * 90}ms` }}
+                      >
                         <div className="order-card-header">
                           <div className="order-info-group">
                             <span className="order-number">{order.order_number}</span>
@@ -269,6 +493,7 @@ export default function CustomerProfile() {
                             >
                               ● {statusMeta.label}
                             </span>
+                            {order.shipping_status && <small style={{ display: "block", textTransform: "capitalize", color: "#64748b", marginTop: 5 }}>{order.shipping_status.replace(/_/g, " ")}</small>}
                           </div>
                         </div>
 
@@ -279,9 +504,9 @@ export default function CustomerProfile() {
                               order.items.map((item) => (
                                 <div key={item.id} className="order-item-row">
                                   <div className="order-item-thumb">
-                                    {item.product?.images?.[0]?.url ? (
+                                    {item.image_url || item.product?.images?.[0]?.url ? (
                                       <img
-                                        src={item.product.images[0].url}
+                                        src={imageUrl(item.image_url || item.product.images[0].url)}
                                         alt={item.product_name_snapshot}
                                       />
                                     ) : (
@@ -293,11 +518,21 @@ export default function CustomerProfile() {
                                     <div className="item-meta">
                                       {item.size && <span>Size: {item.size}</span>}
                                       {item.color && <span>Color: {item.color}</span>}
+                                      {item.sku_snapshot && <span>SKU: {item.sku_snapshot}</span>}
                                       <span>Qty: {item.quantity}</span>
                                     </div>
                                     <div className="item-price">
                                       {formatPrice(item.unit_price)}
                                     </div>
+                                    {order.status === "delivered" && (item.review ? (
+                                      <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 8, fontSize: 12 }}>
+                                        <span style={{ color: item.review.is_approved ? "#15803d" : "#b45309" }}>{item.review.is_approved ? "Review published" : "Review awaiting approval"}</span>
+                                        <button type="button" className="btn-order-action" onClick={() => editItemReview(item)}>Edit</button>
+                                        <button type="button" className="btn-order-action cancel" onClick={() => deleteItemReview(item)}>Delete</button>
+                                      </div>
+                                    ) : (
+                                      <button type="button" className="btn-order-action" style={{ marginTop: 8 }} onClick={() => { setReviewTarget(item); setReviewForm({ rating: 5, title: "", comment: "" }); setReviewImages([]); }}>Write a review</button>
+                                    ))}
                                   </div>
                                 </div>
                               ))}
@@ -331,6 +566,7 @@ export default function CustomerProfile() {
                             </div>
 
                             <div className="order-card-actions">
+                              {order.awb_code && <a className="btn-order-action" href={`https://www.shiprocket.in/shipment-tracking/${encodeURIComponent(order.awb_code)}`} target="_blank" rel="noreferrer">Track shipment</a>}
                               <button
                                 type="button"
                                 className="btn-order-action"
@@ -338,14 +574,53 @@ export default function CustomerProfile() {
                               >
                                 📄 Tax Invoice
                               </button>
-                              {(order.status === "pending" || order.status === "confirmed") && (
-                                <button
-                                  type="button"
-                                  className="btn-order-action cancel"
-                                  onClick={() => setCancelModalOrder(order)}
+                              {order.cancellation_status && order.cancellation_status !== "none" ? (
+                                <span
+                                  style={{
+                                    fontSize: "0.74rem",
+                                    fontWeight: 700,
+                                    padding: "4px 8px",
+                                    borderRadius: 6,
+                                    textTransform: "uppercase",
+                                    background: order.cancellation_status === "completed" ? "#dcfce7" : "#fef3c7",
+                                    color: order.cancellation_status === "completed" ? "#15803d" : "#b45309",
+                                    border: `1px solid ${order.cancellation_status === "completed" ? "#bbf7d0" : "#fde68a"}`
+                                  }}
                                 >
-                                  ✕ Cancel Order
-                                </button>
+                                  {order.cancellation_type === "post_delivery" ? "Return" : "Cancel"}: {order.cancellation_status.replace(/_/g, " ")}
+                                </span>
+                              ) : (
+                                <>
+                                  {(order.status === "pending" || order.status === "confirmed") && (
+                                    <button
+                                      type="button"
+                                      className="btn-order-action cancel"
+                                      onClick={() => openActionModal(order, "pre_pack")}
+                                    >
+                                      ✕ Cancel Order
+                                    </button>
+                                  )}
+                                  {(order.status === "packed" || order.status === "shipped") && (
+                                    <button
+                                      type="button"
+                                      className="btn-order-action"
+                                      style={{ color: "#d97706", borderColor: "#fde68a" }}
+                                      onClick={() => openActionModal(order, "in_transit")}
+                                    >
+                                      ✕ Stop Delivery
+                                    </button>
+                                  )}
+                                  {order.status === "delivered" && (
+                                    <button
+                                      type="button"
+                                      className="btn-order-action"
+                                      style={{ color: "#7c3aed", borderColor: "#ddd6fe" }}
+                                      onClick={() => openActionModal(order, "post_delivery")}
+                                    >
+                                      ↩ Request Return
+                                    </button>
+                                  )}
+                                </>
                               )}
                             </div>
                           </div>
@@ -366,7 +641,12 @@ export default function CustomerProfile() {
                 <span className="pane-subtitle">Update your personal contact details</span>
               </div>
 
-              <form className="account-form" onSubmit={handleProfileSubmit}>
+              <form className="account-form" onSubmit={handleProfileSubmit} noValidate>
+                {profileError && (
+                  <div style={{ color: "#DC2626", fontSize: "0.85rem", marginBottom: "14px", background: "#FEF2F2", padding: "8px 12px", borderRadius: "6px", border: "1px solid #FCA5A5" }}>
+                    ⚠️ {profileError}
+                  </div>
+                )}
                 <div className="form-group">
                   <label htmlFor="acc-name">Full Name</label>
                   <input
@@ -374,7 +654,10 @@ export default function CustomerProfile() {
                     type="text"
                     required
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={(e) => {
+                      setProfileError("");
+                      setFormData({ ...formData, name: e.target.value });
+                    }}
                     className="account-input"
                   />
                 </div>
@@ -396,9 +679,15 @@ export default function CustomerProfile() {
                   <input
                     id="acc-phone"
                     type="tel"
+                    inputMode="numeric"
+                    maxLength={10}
+                    placeholder="10-digit mobile number"
                     required
                     value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    onChange={(e) => {
+                      setProfileError("");
+                      setFormData({ ...formData, phone: cleanPhoneInput(e.target.value) });
+                    }}
                     className="account-input"
                   />
                 </div>
@@ -472,43 +761,170 @@ export default function CustomerProfile() {
         />
       )}
 
-      {/* Cancellation Confirmation Modal */}
+      {reviewTarget && (
+        <div className="cancel-confirm-modal-overlay" onClick={() => setReviewTarget(null)}>
+          <form className="cancel-confirm-modal" onClick={(e) => e.stopPropagation()} onSubmit={saveItemReview}>
+            <h3>Review {reviewTarget.product_name_snapshot}</h3>
+            <label style={{ display: "block", margin: "12px 0" }}>Rating
+              <select value={reviewForm.rating} onChange={(e) => setReviewForm((v) => ({ ...v, rating: e.target.value }))} style={{ display: "block", width: "100%", padding: 9 }}>
+                {[5, 4, 3, 2, 1].map((rating) => <option key={rating} value={rating}>{rating} stars</option>)}
+              </select>
+            </label>
+            <label style={{ display: "block", margin: "12px 0" }}>Title (optional)
+              <input value={reviewForm.title} onChange={(e) => setReviewForm((v) => ({ ...v, title: e.target.value }))} maxLength={255} style={{ display: "block", width: "100%", padding: 9 }} />
+            </label>
+            <label style={{ display: "block", margin: "12px 0" }}>Your review
+              <textarea value={reviewForm.comment} onChange={(e) => setReviewForm((v) => ({ ...v, comment: e.target.value }))} minLength={5} required rows={4} style={{ display: "block", width: "100%", padding: 9 }} />
+            </label>
+            <label style={{ display: "block", margin: "12px 0" }}>Photos (optional, up to 4)
+              <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple onChange={(e) => setReviewImages(Array.from(e.target.files || []).slice(0, 4))} />
+            </label>
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+              <button type="button" className="btn-order-action" onClick={() => setReviewTarget(null)}>Cancel</button>
+              <button type="submit" className="btn btn-primary" disabled={reviewSaving}>{reviewSaving ? "Submitting…" : "Submit review"}</button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Cancellation / Return Request Modal */}
       {cancelModalOrder && (
         <div className="cancel-confirm-modal-overlay" onClick={() => setCancelModalOrder(null)}>
-          <div className="cancel-confirm-modal" onClick={(e) => e.stopPropagation()}>
-            <h3>Cancel Order</h3>
-            <p>
-              Are you sure you wish to cancel order <strong>{cancelModalOrder.order_number}</strong>?
-              If already paid, a full refund will be initiated to your original payment method.
+          <div
+            className="cancel-confirm-modal"
+            style={{ maxWidth: 520, width: "100%", maxHeight: "90vh", overflowY: "auto" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 style={{ margin: "0 0 8px 0" }}>
+              {actionType === "post_delivery"
+                ? `Request Return & Reverse Pickup — ${cancelModalOrder.order_number}`
+                : actionType === "in_transit"
+                ? `Stop Delivery & Cancel — ${cancelModalOrder.order_number}`
+                : `Cancel Order — ${cancelModalOrder.order_number}`}
+            </h3>
+            <p style={{ fontSize: "0.82rem", color: "#64748b", margin: "0 0 14px 0" }}>
+              {actionType === "post_delivery"
+                ? "Items can be returned within 7 days of delivery. Reverse pickup will be arranged by Shiprocket."
+                : actionType === "in_transit"
+                ? "Package will be redirected back to the warehouse (RTO). If prepaid, refund will be credited upon receipt."
+                : "Your order will be cancelled immediately and product inventory restocked."}
             </p>
-            <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 600, marginBottom: "6px" }}>
-              Reason for Cancellation (Optional)
-            </label>
-            <textarea
-              className="cancel-reason-textarea"
-              placeholder="e.g. Ordered by mistake, found alternative, etc."
-              value={cancelReason}
-              onChange={(e) => setCancelReason(e.target.value)}
-            />
-            <div className="cancel-modal-actions">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                disabled={isCancelling}
-                onClick={() => setCancelModalOrder(null)}
-              >
-                Keep Order
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary"
-                style={{ background: "#DC2626", borderColor: "#DC2626", color: "#fff" }}
-                disabled={isCancelling}
-                onClick={handleConfirmCancel}
-              >
-                {isCancelling ? "Cancelling..." : "Confirm Cancellation"}
-              </button>
-            </div>
+
+            <form onSubmit={handleConfirmCancel}>
+              <div style={{ marginBottom: 12 }}>
+                <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: 4 }}>
+                  1. Reason for {actionType === "post_delivery" ? "Return" : "Cancellation"} *
+                </label>
+                <select
+                  value={cancelReason}
+                  onChange={(e) => setCancelReason(e.target.value)}
+                  style={{ width: "100%", padding: "8px 10px", borderRadius: 6, border: "1.5px solid #cbd5e1", fontSize: "0.85rem" }}
+                  required
+                >
+                  {(actionType === "post_delivery" ? RETURN_REASONS : CANCEL_REASONS).map((r) => (
+                    <option key={r} value={r}>{r}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div style={{ marginBottom: 12 }}>
+                <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: 4 }}>
+                  2. Detailed Explanation {actionType === "post_delivery" ? "*" : "(Optional)"}
+                </label>
+                <textarea
+                  className="cancel-reason-textarea"
+                  placeholder="Provide comments for our warehouse inspection team..."
+                  value={cancelComments}
+                  onChange={(e) => setCancelComments(e.target.value)}
+                  required={actionType === "post_delivery"}
+                />
+              </div>
+
+              {actionType === "post_delivery" && (
+                <div style={{ marginBottom: 14 }}>
+                  <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: 4 }}>
+                    3. Upload Media Proof (Optional)
+                  </label>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                    <div style={{ border: "1.5px dashed #cbd5e1", borderRadius: 8, padding: 10, textAlign: "center" }}>
+                      <span style={{ fontSize: "0.78rem", fontWeight: 600, display: "block", color: "#475569" }}>
+                        📷 Photos ({photoFiles.length}/3)
+                      </span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={(e) => setPhotoFiles(Array.from(e.target.files).slice(0, 3))}
+                        style={{ fontSize: "0.72rem", marginTop: 6, width: "100%" }}
+                      />
+                    </div>
+                    <div style={{ border: "1.5px dashed #cbd5e1", borderRadius: 8, padding: 10, textAlign: "center" }}>
+                      <span style={{ fontSize: "0.78rem", fontWeight: 600, display: "block", color: "#475569" }}>
+                        🎥 Video ({videoFile ? 1 : 0}/1)
+                      </span>
+                      <input
+                        type="file"
+                        accept="video/*"
+                        onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+                        style={{ fontSize: "0.72rem", marginTop: 6, width: "100%" }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div style={{ background: "#f8fafc", padding: 12, borderRadius: 8, border: "1px solid #e2e8f0", marginBottom: 16 }}>
+                <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, color: "#334155", marginBottom: 6 }}>
+                  {actionType === "post_delivery" ? "4" : "3"}. Your UPI ID for Refund
+                </label>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  <input
+                    type="text"
+                    placeholder="e.g. user@okhdfcbank"
+                    value={upiId}
+                    onChange={(e) => setUpiId(e.target.value)}
+                    style={{ width: "100%", padding: "7px 10px", borderRadius: 6, border: "1.5px solid #cbd5e1", fontSize: "0.82rem" }}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Account Holder Name"
+                    value={accountHolder}
+                    onChange={(e) => setAccountHolder(e.target.value)}
+                    style={{ width: "100%", padding: "7px 10px", borderRadius: 6, border: "1.5px solid #cbd5e1", fontSize: "0.82rem" }}
+                  />
+                </div>
+                <span style={{ fontSize: "0.7rem", color: "#64748b", marginTop: 4, display: "block" }}>
+                  For prepaid orders, approved refunds are transferred directly to this UPI address.
+                </span>
+              </div>
+
+              <div className="cancel-modal-actions">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  disabled={isCancelling}
+                  onClick={() => setCancelModalOrder(null)}
+                >
+                  Keep Order
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  style={{
+                    background: actionType === "post_delivery" ? "#7c3aed" : "#DC2626",
+                    borderColor: actionType === "post_delivery" ? "#7c3aed" : "#DC2626",
+                    color: "#fff"
+                  }}
+                  disabled={isCancelling}
+                >
+                  {isCancelling
+                    ? "Submitting..."
+                    : actionType === "post_delivery"
+                    ? "Submit Return & Reverse Pickup"
+                    : "Confirm Cancellation"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

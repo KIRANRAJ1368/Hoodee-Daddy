@@ -40,19 +40,42 @@ export default function ProductsPage() {
   const [confirm, ConfirmModal] = useConfirm();
   const navigate = useNavigate();
 
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery.trim());
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
   useEffect(() => {
     categoriesApi.list().then(({ data }) => setCategories(data || []));
   }, []);
+
+  function broadcastCatalogUpdate() {
+    try {
+      const channel = new BroadcastChannel("zmw_catalog_channel");
+      channel.postMessage({ type: "CATALOG_UPDATED", timestamp: Date.now() });
+      channel.close();
+    } catch {}
+    try {
+      localStorage.setItem("zmw_catalog_updated_at", String(Date.now()));
+    } catch {}
+  }
 
   async function load() {
     setIsLoading(true);
     try {
       const cleaned = Object.fromEntries(Object.entries(filters).filter(([, v]) => v !== ""));
-      const { data, meta } = await productsApi.list({ ...cleaned, page, limit: 15 });
+      if (debouncedSearch) {
+        cleaned.search = debouncedSearch;
+      }
+      const { data, meta } = await productsApi.list({ ...cleaned, page, limit: 10 });
       setProducts(data || []);
       setMeta(meta || { page: 1, totalPages: 1, total: 0 });
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.message || "Failed to load products");
     } finally {
       setIsLoading(false);
     }
@@ -61,7 +84,7 @@ export default function ProductsPage() {
   useEffect(() => {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters, page]);
+  }, [filters, page, debouncedSearch]);
 
   function updateFilter(key, value) {
     setPage(1);
@@ -83,8 +106,9 @@ export default function ProductsPage() {
       toast.success(
         `${product.name} ${flagName === "isBestSeller" ? "best seller" : "new arrival"} updated`
       );
+      broadcastCatalogUpdate();
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.message || "Failed to update product status");
     }
   }
 
@@ -96,22 +120,15 @@ export default function ProductsPage() {
     if (!ok) return;
     try {
       await productsApi.remove(product.id);
-      toast.success("Product successfully deleted");
+      toast.delete(`Product "${product.name}" has been deleted successfully.`);
+      broadcastCatalogUpdate();
       load();
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.message || "Failed to delete product");
     }
   }
 
-  // Client search filtering
-  const displayedProducts = searchQuery.trim()
-    ? products.filter(
-        (p) =>
-          p.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          p.sku?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          p.productType?.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : products;
+  const displayedProducts = products;
 
   const hasActiveFilters = filters.category || filters.availability || filters.sort !== "newest" || searchQuery;
 

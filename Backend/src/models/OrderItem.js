@@ -9,6 +9,7 @@ module.exports = (sequelize, DataTypes) => {
       product_id: { type: DataTypes.INTEGER.UNSIGNED, allowNull: true },
       product_name_snapshot: { type: DataTypes.STRING(200), allowNull: false },
       sku_snapshot: { type: DataTypes.STRING(60), allowNull: true },
+      image_url: { type: DataTypes.STRING(500), allowNull: true },
       size: { type: DataTypes.STRING(20), allowNull: true },
       color: { type: DataTypes.STRING(60), allowNull: true },
       unit_price: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
@@ -21,6 +22,7 @@ module.exports = (sequelize, DataTypes) => {
   OrderItem.associate = (db) => {
     OrderItem.belongsTo(db.Order, { foreignKey: "order_id", as: "order" });
     OrderItem.belongsTo(db.Product, { foreignKey: "product_id", as: "product" });
+    OrderItem.hasOne(db.Review, { foreignKey: "order_item_id", as: "review" });
   };
 
   return OrderItem;
