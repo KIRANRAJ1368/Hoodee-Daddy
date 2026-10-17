@@ -1,0 +1,45 @@
+﻿# Dependencies
+node_modules/
+**/node_modules/
+
+# Build outputs
+build/
+dist/
+coverage/
+.vite/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+logs/
+*.log
+
+# OS / editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Uploaded files (keep directory placeholders)
+Backend/uploads/*
+!Backend/uploads/**/.gitkeep
+
+# Temporary files
+tmp/
+temp/
+
+# Local databases
+*.sqlite
+*.sqlite3
+
+# Local config overrides
+config.local.js
