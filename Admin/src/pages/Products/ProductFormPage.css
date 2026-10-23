@@ -1299,10 +1299,11 @@
 }
 
 .size-cat-tab.active {
-  background: #0B1020;
-  color: #FFFFFF;
-  border-color: #0B1020;
-  box-shadow: 0 2px 6px rgba(11, 16, 32, 0.18);
+  background: #FEF3C7;
+  color: #78350F;
+  border-color: #F59E0B;
+  box-shadow: 0 1px 4px rgba(250, 167, 3, 0.2);
+  font-weight: 700;
 }
 
 /* Quick Sizing Bar */
@@ -1953,10 +1954,11 @@
 }
 
 .size-pill-btn.is-active {
-  background: #6366f1;
-  color: #ffffff;
-  border-color: #6366f1;
-  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.28);
+  background: #FEF3C7;
+  color: #78350F;
+  border-color: #F59E0B;
+  box-shadow: 0 1px 4px rgba(250, 167, 3, 0.2);
+  font-weight: 700;
 }
 
 .variants-notice-banner {

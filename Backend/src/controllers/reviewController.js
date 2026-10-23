@@ -44,17 +44,22 @@ async function getCustomerEligibility(productId, user) {
       product_id: productId,
       [Op.or]: [
         { user_id: user.id },
-        ...(user.email ? [{ customer_email: user.email }] : [])
+        ...(user.email
+          ? [{ customer_email: user.email }, { customer_email: user.email.toLowerCase() }]
+          : [])
       ]
     }
   });
 
-  // 2. Query all order items for this user and this product
+  // 2. Query all order items for this user and this product (excluding cancelled or returned orders)
   const orderWhere = {
     [Op.or]: [
       { user_id: user.id },
-      ...(user.email ? [{ email: user.email }] : [])
-    ]
+      ...(user.email
+        ? [{ email: user.email }, { email: user.email.toLowerCase() }]
+        : [])
+    ],
+    status: { [Op.notIn]: ["cancelled", "returned"] }
   };
 
   const orderItems = await OrderItem.findAll({
@@ -90,20 +95,30 @@ async function getCustomerEligibility(productId, user) {
     };
   }
 
+  if (!hasPurchased) {
+    return {
+      canReview: false,
+      hasPurchased: false,
+      isDelivered: false,
+      alreadyReviewed: false,
+      reason: "not_purchased",
+      message: "Only verified buyers who have purchased this product can submit a review.",
+      orderItemId: null
+    };
+  }
+
   // Check if any order is delivered for verified buyer status
   const deliveredItems = orderItems.filter((item) => item.order?.status === "delivered");
   const isDelivered = deliveredItems.length > 0;
-  const eligibleItem = isDelivered ? (deliveredItems.find((item) => !item.review) || deliveredItems[0]) : null;
+  const eligibleItem = orderItems.find((item) => !item.review) || orderItems[0];
 
   return {
     canReview: true,
-    hasPurchased,
+    hasPurchased: true,
     isDelivered,
     alreadyReviewed: false,
     reason: "eligible",
-    message: isDelivered
-      ? "You are eligible to submit a verified purchase review."
-      : "Share your experience and feedback on this apparel.",
+    message: "You are eligible to submit a verified purchase review.",
     orderItemId: eligibleItem ? eligibleItem.id : null
   };
 }
@@ -203,7 +218,7 @@ async function createForProduct(req, res) {
 
     const orderBelongsToUser =
       orderItemToUse.order.user_id === req.user.id ||
-      (req.user.email && orderItemToUse.order.email === req.user.email);
+      (req.user.email && orderItemToUse.order.email?.toLowerCase() === req.user.email.toLowerCase());
 
     if (!orderBelongsToUser) {
       throw ApiError.forbidden("This order does not belong to your account.");
@@ -213,27 +228,27 @@ async function createForProduct(req, res) {
       throw ApiError.forbidden("Reviews are not available for cancelled or returned orders.");
     }
 
-    if (orderItemToUse.order.status !== "delivered") {
-      throw ApiError.badRequest("Reviews can only be submitted after your order has been delivered.");
-    }
-
     const existingForOrderItem = await Review.findOne({ where: { order_item_id: orderItemToUse.id } });
     if (existingForOrderItem) {
       throw ApiError.conflict("You have already submitted a review for this purchase. Edit your existing review instead.");
     }
   } else {
-    // Automatically verify purchase and locate eligible delivered order item if available
+    // Automatically verify purchase and locate eligible order item
     const eligibility = await getCustomerEligibility(product.id, req.user);
 
     if (eligibility.alreadyReviewed) {
       throw ApiError.conflict("You have already submitted a review for this product.");
     }
-    if (!eligibility.canReview) {
-      throw ApiError.forbidden(eligibility.message || "You are not eligible to review this product.");
+    if (!eligibility.hasPurchased || !eligibility.canReview) {
+      throw ApiError.forbidden(eligibility.message || "Only customers who have purchased this product can submit a review.");
     }
 
     if (eligibility.orderItemId) {
       orderItemToUse = await OrderItem.findByPk(eligibility.orderItemId);
+    }
+
+    if (!orderItemToUse) {
+      throw ApiError.forbidden("Only customers who have purchased this product can submit a review.");
     }
   }
 
@@ -243,7 +258,9 @@ async function createForProduct(req, res) {
       product_id: product.id,
       [Op.or]: [
         { user_id: req.user.id },
-        ...(req.user.email ? [{ customer_email: req.user.email }] : [])
+        ...(req.user.email
+          ? [{ customer_email: req.user.email }, { customer_email: req.user.email.toLowerCase() }]
+          : [])
       ]
     }
   });

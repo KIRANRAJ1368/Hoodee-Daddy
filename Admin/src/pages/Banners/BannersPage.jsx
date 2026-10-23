@@ -387,28 +387,6 @@ export default function BannersPage({ offerOnly = false }) {
               }
             },
             {
-              key: "primary_cta_text",
-              label: "Call to Action",
-              width: "145px",
-              render: (row) =>
-                row.primary_cta_text ? (
-                  <div style={{ fontSize: 12 }}>
-                    <span style={{ fontWeight: 600, color: "var(--text-main)", whiteSpace: "nowrap" }}>
-                      {row.primary_cta_text}
-                    </span>
-                    {row.primary_cta_link && row.primary_cta_link !== "#collection-catalog" && !row.primary_cta_link.startsWith("#") && (
-                      <div className="cell-muted" style={{ fontSize: 11, marginTop: 2 }}>
-                        <code style={{ fontSize: 10.5, padding: "1px 5px", whiteSpace: "nowrap" }}>
-                          {row.primary_cta_link}
-                        </code>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <span className="cell-muted">—</span>
-                )
-            },
-            {
               key: "sort_order",
               label: "Sequence",
               width: "80px",

@@ -1541,7 +1541,11 @@
   }
 
   .coll-grid-cols-4,
-  .coll-grid-cols-3,
+  .coll-grid-cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px 12px;
+  }
+
   .coll-grid-cols-2 {
     grid-template-columns: repeat(2, 1fr);
     gap: 18px 12px;
@@ -1637,6 +1641,13 @@
     height: 36px;
     padding: 0 12px;
     font-size: 12.5px;
+  }
+
+  .coll-custom-sort-menu {
+    left: 0;
+    right: auto;
+    min-width: 190px;
+    max-width: calc(100vw - 28px);
   }
 
   .coll-mobile-filter-btn {

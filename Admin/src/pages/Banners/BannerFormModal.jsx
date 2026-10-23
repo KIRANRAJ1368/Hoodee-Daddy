@@ -215,7 +215,7 @@ export default function BannerFormModal({ banner, heroCount = 0, offerCount = 0,
         />
 
         <div className="form-grid">
-          <FormField
+          {/* <FormField
             label="Image Focal Position"
             htmlFor="b-image-position"
             hint="CSS object-position, e.g. center center, right top"
@@ -226,7 +226,7 @@ export default function BannerFormModal({ banner, heroCount = 0, offerCount = 0,
               onChange={(e) => update("image_position", e.target.value)}
               placeholder="center center"
             />
-          </FormField>
+          </FormField> */}
 
           <FormField
             label="Promo Badge Tag"

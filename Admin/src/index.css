@@ -14,14 +14,18 @@
   --sk: #e8e6f4;
   --sh: rgba(255, 255, 255, 0.75);
 
-  /* ── FRESH MODERN SAAS COLOR PALETTE ── */
-  --midnight: #0B1020;
-  --indigo: #6366F1;
-  --purple: #8B5CF6;
-  --sky: #38BDF8;
-  --mint: #2DD4BF;
-  --coral: #FB7185;
-  --amber: #FBBF24;
+  /* ── ZMW SIGNATURE BRAND COLOR PALETTE ── */
+  --primary-gold: #FAA703;
+  --primary: #FAA703;
+  --primary-hover: #E09600;
+  --primary-active: #C68500;
+  --primary-light: rgba(250, 167, 3, 0.12);
+  --primary-light-hover: rgba(250, 167, 3, 0.22);
+  --primary-glow: rgba(250, 167, 3, 0.35);
+  --primary-text: #B45309;
+  --primary-border: rgba(250, 167, 3, 0.25);
+  --primary-gradient: linear-gradient(135deg, #FAA703 0%, #FFC107 100%);
+  --primary-gradient-subtle: linear-gradient(135deg, rgba(250, 167, 3, 0.14) 0%, rgba(255, 193, 7, 0.04) 100%);
 
   /* Surfaces & Canvas */
   --bg: #F8FAFC;
@@ -29,20 +33,12 @@
   --surface-alt: #F1F5F9;
   --surface-hover: #F8FAFC;
 
-  /* Text Hierarchy */
-  --text-main: #1E293B;
-  --text-muted: #64748B;
-  --text-subtle: #94A3B8;
+  /* Text Hierarchy - High Contrast & Clearly Legible */
+  --text-main: #0F172A;
+  --text-body: #1E293B;
+  --text-muted: #475569;
+  --text-subtle: #64748B;
   --text-white: #FFFFFF;
-
-  /* Primary Brand Accent (Indigo) */
-  --primary: #6366F1;
-  --primary-hover: #4F46E5;
-  --primary-active: #4338CA;
-  --primary-light: rgba(99, 102, 241, 0.12);
-  --primary-light-hover: rgba(99, 102, 241, 0.2);
-  --primary-glow: rgba(99, 102, 241, 0.35);
-  --primary-text: #4F46E5;
 
   /* Executive Dark Midnight Shell */
   --dark-pure: #070B16;
@@ -52,70 +48,57 @@
   --dark-hover: #1E293B;
   --dark-border: rgba(255, 255, 255, 0.08);
 
-  /* ── SIGNATURE COLOR GRADIENTS ── */
-  --primary-gradient: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
-  --grad-indigo-purple: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
-  --grad-sky-indigo: linear-gradient(135deg, #38BDF8 0%, #6366F1 100%);
-  --grad-mint-sky: linear-gradient(135deg, #2DD4BF 0%, #38BDF8 100%);
-  --grad-coral-purple: linear-gradient(135deg, #FB7185 0%, #8B5CF6 100%);
-  --grad-amber-coral: linear-gradient(135deg, #FBBF24 0%, #FB7185 100%);
-  --primary-gradient-subtle: linear-gradient(135deg, rgba(99, 102, 241, 0.14) 0%, rgba(139, 92, 246, 0.04) 100%);
-
   /* Borders & Dividers */
-  --border: #E2E8F0;
-  --border-light: #F1F5F9;
-  --border-hover: #CBD5E1;
-  --border-focus: #6366F1;
+  --border: #CBD5E1;
+  --border-light: #E2E8F0;
+  --border-hover: #94A3B8;
+  --border-focus: #FAA703;
 
-  /* Semantic Status Colors */
-  --success: #2DD4BF;
-  --success-bg: #ECFDF5;
-  --success-border: #A7F3D0;
-  --success-text: #0D9488;
+  /* Semantic Status Colors - High-Contrast Saturated Badges */
+  --success: #059669;
+  --success-bg: #D1FAE5;
+  --success-border: #10B981;
+  --success-text: #065F46;
 
-  --danger: #FB7185;
-  --danger-bg: #FFF1F2;
-  --danger-border: #FECDD3;
-  --danger-text: #E11D48;
+  --danger: #DC2626;
+  --danger-bg: #FEE2E2;
+  --danger-border: #EF4444;
+  --danger-text: #991B1B;
 
-  --warning: #FBBF24;
-  --warning-bg: #FFFBEB;
-  --warning-border: #FDE68A;
-  --warning-text: #D97706;
+  --warning: #D97706;
+  --warning-bg: #FEF3C7;
+  --warning-border: #F59E0B;
+  --warning-text: #78350F;
 
-  --info: #38BDF8;
-  --info-bg: #F0F9FF;
-  --info-border: #BAE6FD;
-  --info-text: #0284C7;
+  --info: #2563EB;
+  --info-bg: #DBEAFE;
+  --info-border: #3B82F6;
+  --info-text: #1E40AF;
 
   /* Typography */
-  --font-sans: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans: "Plus Jakarta Sans", "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
   /* Radii */
   --radius-xs: 6px;
-  --radius-sm: 10px;
-  --radius-md: 14px;
-  --radius-lg: 18px;
-  --radius-xl: 24px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
   --radius-full: 9999px;
 
   /* Modern Layered Elevation Shadows */
   --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
-  --shadow-sm: 0 2px 8px -2px rgba(15, 23, 42, 0.05), 0 1px 4px -1px rgba(15, 23, 42, 0.03);
-  --shadow-md: 0 8px 24px -4px rgba(15, 23, 42, 0.08), 0 3px 10px -2px rgba(15, 23, 42, 0.04);
-  --shadow-lg: 0 18px 38px -6px rgba(15, 23, 42, 0.1), 0 8px 16px -4px rgba(15, 23, 42, 0.05);
-  --shadow-xl: 0 28px 56px -12px rgba(15, 23, 42, 0.16);
+  --shadow-sm: 0 1px 3px 0 rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.03);
+  --shadow-md: 0 4px 12px -2px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 12px 28px -4px rgba(15, 23, 42, 0.1), 0 4px 12px -2px rgba(15, 23, 42, 0.05);
+  --shadow-xl: 0 20px 40px -8px rgba(15, 23, 42, 0.14);
 
-  /* ── GLOW SHADOWS ── */
-  --shadow-glow-indigo: 0 12px 30px -6px rgba(99, 102, 241, 0.35), 0 4px 12px rgba(15, 23, 42, 0.04);
-  --shadow-glow-sky: 0 12px 30px -6px rgba(56, 189, 248, 0.35), 0 4px 12px rgba(15, 23, 42, 0.04);
-  --shadow-glow-mint: 0 12px 30px -6px rgba(45, 212, 191, 0.35), 0 4px 12px rgba(15, 23, 42, 0.04);
-  --shadow-glow-coral: 0 12px 30px -6px rgba(251, 113, 133, 0.35), 0 4px 12px rgba(15, 23, 42, 0.04);
-  --shadow-glow-amber: 0 12px 30px -6px rgba(251, 191, 36, 0.35), 0 4px 12px rgba(15, 23, 42, 0.04);
+  /* Glow Shadows */
+  --shadow-glow-gold: 0 8px 24px -4px rgba(250, 167, 3, 0.35);
 
   /* Dimensions */
-  --sidebar-width: 280px;
-  --header-height: 72px;
+  --sidebar-width: 270px;
+  --header-height: 68px;
 }
 
 /* ── Reset & Base ── */
@@ -240,34 +223,35 @@ p {
   pointer-events: none;
 }
 
-/* Modern Indigo-Purple Gradient Capsule Button */
+/* ZMW Signature Gold Capsule Button - High Contrast Dark Slate on Gold */
 .btn-accent {
-  background: var(--grad-indigo-purple);
-  color: #ffffff;
-  font-weight: 600;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: var(--shadow-glow-indigo);
+  background: var(--primary);
+  color: #0F172A;
+  font-weight: 700;
+  border: 1px solid rgba(15, 23, 42, 0.15);
+  box-shadow: 0 2px 6px rgba(250, 167, 3, 0.32);
 }
 .btn-accent:hover:not(:disabled) {
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-  box-shadow: 0 16px 36px -6px rgba(99, 102, 241, 0.45);
-  transform: translateY(-2px);
-  color: #ffffff;
+  background: var(--primary-hover);
+  box-shadow: 0 4px 14px rgba(250, 167, 3, 0.42);
+  transform: translateY(-1px);
+  color: #0F172A;
 }
 
-/* Modern Indigo Primary Button */
+/* ZMW Primary Button */
 .btn-primary {
-  background: var(--indigo);
-  color: #ffffff;
-  border: 1px solid transparent;
-  box-shadow: 0 2px 10px rgba(99, 102, 241, 0.25);
+  background: var(--primary);
+  color: #0F172A;
+  font-weight: 700;
+  border: 1px solid rgba(15, 23, 42, 0.15);
+  box-shadow: 0 2px 6px rgba(250, 167, 3, 0.32);
 }
 .btn-primary:hover:not(:disabled) {
-  background: #4f46e5;
-  border-color: transparent;
-  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
+  background: var(--primary-hover);
+  border-color: rgba(15, 23, 42, 0.2);
+  box-shadow: 0 4px 14px rgba(250, 167, 3, 0.42);
   transform: translateY(-1px);
-  color: #ffffff;
+  color: #0F172A;
 }
 
 /* Clean Minimalist Secondary Button */
@@ -505,21 +489,46 @@ p {
   padding: 3px 10px;
   border-radius: var(--radius-full);
   font-size: 11.5px;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.2;
   white-space: nowrap;
 }
 
 .badge-gold {
-  background: var(--primary-light);
-  color: var(--primary);
-  border: 1px solid rgba(99, 102, 241, 0.28);
+  background: #FEF3C7;
+  color: #78350F;
+  border: 1.5px solid #F59E0B;
 }
 
+.badge-green {
+  background: #D1FAE5;
+  color: #065F46;
+  border: 1.5px solid #10B981;
+}
+
+.badge-blue {
+  background: #DBEAFE;
+  color: #1E40AF;
+  border: 1.5px solid #3B82F6;
+}
+
+.badge-red {
+  background: #FEE2E2;
+  color: #991B1B;
+  border: 1.5px solid #EF4444;
+}
+
+.badge-gray,
 .badge-dark {
-  background: #f1f5f9;
-  color: #334155;
-  border: 1px solid #cbd5e1;
+  background: #E2E8F0;
+  color: #0F172A;
+  border: 1.5px solid #94A3B8;
+}
+
+.badge-obsidian {
+  background: #0F172A;
+  color: #FAA703;
+  border: 1.5px solid #FAA703;
 }
 
 /* ── Page Headers ── */

@@ -121,12 +121,12 @@
   align-items: center;
   gap: 6px;
   background: var(--primary);
-  color: var(--text-white);
+  color: #0F172A;
   border: 1px solid var(--primary-active);
   padding: 9px 18px;
   border-radius: var(--radius-sm);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   box-shadow: 0 2px 10px rgba(99, 102, 241, 0.25);
   transition: background 0.15s ease;
@@ -165,7 +165,8 @@
 
 .v-btn-add-variant-inline:hover {
   background: var(--primary);
-  color: var(--text-white);
+  color: #0F172A;
+  font-weight: 700;
   border-color: var(--primary);
 }
 
@@ -281,12 +282,12 @@
 
 .v-variants-count-badge {
   font-size: 12px;
-  font-weight: 600;
-  color: var(--text-muted);
-  background: var(--surface-alt);
+  font-weight: 700;
+  color: #0F172A;
+  background: #E2E8F0;
   padding: 4px 10px;
   border-radius: 6px;
-  border: 1px solid var(--border);
+  border: 1.5px solid #CBD5E1;
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -355,13 +356,13 @@
 }
 
 .v-table th {
-  padding: 10px 14px;
-  font-size: 10.5px;
-  font-weight: 700;
-  color: var(--text-muted);
+  padding: 11px 14px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #0F172A;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-bottom: 1px solid var(--border);
+  letter-spacing: 0.06em;
+  border-bottom: 2px solid #CBD5E1;
   white-space: nowrap;
 }
 
@@ -966,9 +967,10 @@
 }
 
 .v-size-pill-btn.is-active {
-  background: var(--primary);
-  border-color: var(--primary-active);
-  color: var(--text-white);
+  background: #FEF3C7;
+  border-color: #F59E0B;
+  color: #78350F;
+  font-weight: 700;
 }
 
 .v-custom-size-row {
@@ -1209,7 +1211,8 @@
 
 .v-btn-add-gallery:hover:not(:disabled) {
   background: var(--primary);
-  color: var(--text-white);
+  color: #0F172A;
+  font-weight: 700;
   border-color: var(--primary);
 }
 

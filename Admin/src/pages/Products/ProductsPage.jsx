@@ -274,60 +274,54 @@ export default function ProductsPage() {
                 )
               },
               {
-                key: "image",
-                label: "Image",
-                width: "65px",
-                align: "center",
+                key: "product",
+                label: "Product",
+                width: "280px",
                 render: (row) => (
-                  <div
-                    className="product-thumb-wrap"
-                    onClick={(e) => {
-                      if (row.images?.[0]) {
-                        e.stopPropagation();
-                        setLightboxImg(resolveImageUrl(row.images[0]));
-                      }
-                    }}
-                    role={row.images?.[0] ? "button" : undefined}
-                    tabIndex={row.images?.[0] ? 0 : undefined}
-                    title={row.images?.[0] ? "Click to view larger image" : undefined}
-                    style={row.images?.[0] ? { cursor: "pointer" } : undefined}
-                  >
-                    {row.images?.[0] ? (
-                      <img
-                        src={resolveImageUrl(row.images[0])}
-                        alt={row.name}
-                        className="product-thumb-img"
-                        onError={(e) => {
-                          e.target.style.display = "none";
-                          e.target.parentElement.classList.add("img-fallback-active");
-                        }}
-                      />
-                    ) : null}
-                    <div className="product-thumb-empty">
-                      <ImageIcon size={18} />
-                    </div>
-                    {row.images?.length > 1 && (
-                      <span className="product-thumb-count">
-                        +{row.images.length - 1}
-                      </span>
-                    )}
-                  </div>
-                )
-              },
-              {
-                key: "name",
-                label: "Product Name",
-                width: "220px",
-                render: (row) => (
-                  <div className="product-details">
-                    <span className="cell-title">{row.name}</span>
-                    <div className="product-meta-row">
-                      <code className="product-sku-badge">{row.sku}</code>
-                      {row.productType && (
-                        <span className="product-type-badge">
-                          {row.productType}
+                  <div className="product-row-info">
+                    <div
+                      className="product-thumb-wrap"
+                      onClick={(e) => {
+                        if (row.images?.[0]) {
+                          e.stopPropagation();
+                          setLightboxImg(resolveImageUrl(row.images[0]));
+                        }
+                      }}
+                      role={row.images?.[0] ? "button" : undefined}
+                      tabIndex={row.images?.[0] ? 0 : undefined}
+                      title={row.images?.[0] ? "Click to view larger image" : undefined}
+                      style={row.images?.[0] ? { cursor: "pointer" } : undefined}
+                    >
+                      {row.images?.[0] ? (
+                        <img
+                          src={resolveImageUrl(row.images[0])}
+                          alt={row.name}
+                          className="product-thumb-img"
+                          onError={(e) => {
+                            e.target.style.display = "none";
+                            e.target.parentElement.classList.add("img-fallback-active");
+                          }}
+                        />
+                      ) : null}
+                      <div className="product-thumb-empty">
+                        <ImageIcon size={18} />
+                      </div>
+                      {row.images?.length > 1 && (
+                        <span className="product-thumb-count">
+                          +{row.images.length - 1}
                         </span>
                       )}
+                    </div>
+                    <div className="product-details">
+                      <span className="cell-title">{row.name}</span>
+                      <div className="product-meta-row">
+                        <code className="product-sku-badge">{row.sku}</code>
+                        {row.productType && (
+                          <span className="product-type-badge">
+                            {row.productType}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )

@@ -388,17 +388,9 @@ async function updateStatus(req, res) {
     return sendSuccess(res, { data: order });
   }
 
-  const allowedTransitions = {
-    pending: ["confirmed", "cancelled"],
-    confirmed: ["packed", "cancelled"],
-    packed: ["shipped", "delivered", "cancelled", "returned"],
-    shipped: ["delivered", "returned", "cancelled"],
-    delivered: ["returned"],
-    cancelled: ["pending"],
-    returned: []
-  };
-  if (!allowedTransitions[prevStatus]?.includes(newStatus)) {
-    throw ApiError.badRequest(`Order cannot move from ${prevStatus} to ${newStatus}.`);
+  const validStatuses = ["pending", "confirmed", "packed", "shipped", "delivered", "cancelled", "returned"];
+  if (!validStatuses.includes(newStatus)) {
+    throw ApiError.badRequest(`Invalid order status: ${newStatus}. Valid statuses are: ${validStatuses.join(", ")}`);
   }
 
   // Create the Shiprocket shipment as soon as the order is packed.
@@ -454,6 +446,7 @@ async function updateStatus(req, res) {
     order.status = newStatus;
     if (newStatus === "delivered") order.shipping_status = "delivered";
     if (newStatus === "cancelled") order.shipping_status = "cancelled";
+    if (newStatus === "shipped" && order.shipping_status === "pending_dispatch") order.shipping_status = "in_transit";
     await order.save({ transaction });
     if (OrderStatusHistory) {
       await OrderStatusHistory.create({

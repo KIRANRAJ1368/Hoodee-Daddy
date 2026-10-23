@@ -13,52 +13,66 @@ import {
   Menu,
   X,
   ChevronRight,
-  ChevronDown,
   Tag,
   TrendingUp,
   ExternalLink,
-  ShieldCheck,
-  Boxes,
   Layers,
   Package2,
   Truck,
   Star,
   Sparkles,
   Percent,
-  Search,
   Network
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import "./AdminLayout.css";
 
-const TOP_NAV_ITEMS = [
-  { to: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
-  { to: "/banners", label: "Hero & Banners", icon: ImageIcon },
-  { to: "/offer-banners", label: "Offer Banners", icon: Sparkles },
-  { to: "/offers", label: "Product Offers", icon: Percent }
-];
+const NAV_SECTIONS = [
+  {
+    title: "Overview",
+    items: [
+      { to: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
+      { to: "/reports", label: "Reports & Analytics", icon: TrendingUp }
+    ]
+  },
 
-const PRODUCT_SUB_ITEMS = [
-  { to: "/categories", label: "Categories", icon: FolderTree },
-  { to: "/subcategories", label: "Sub Categories", icon: Tags },
-  { to: "/products", label: "Products", icon: Shirt },
-  { to: "/variants", label: "Variants", icon: Layers }
-];
+    {
+    title: "Banners",
+    items: [
+      { to: "/banners", label: "Hero & Banners", icon: ImageIcon },
+      { to: "/offer-banners", label: "Offer Banners", icon: Sparkles },
+      { to: "/offers", label: "Product Offers", icon: Percent },
+      { to: "/coupons", label: "Coupons & Discounts", icon: Tag }
+    ]
+  },
 
-const BOTTOM_NAV_ITEMS = [
-  { to: "/stock", label: "Stock Management", icon: Package2 },
-  { to: "/coupons", label: "Coupons & Discounts", icon: Tag },
-  { to: "/reports", label: "Reports & Analytics", icon: TrendingUp },
-  { to: "/orders", label: "Orders", icon: ShoppingBag },
-  { to: "/reviews", label: "Reviews", icon: Star },
-  { to: "/shipping", label: "Shipping", icon: Truck },
-  { to: "/customers", label: "Customers", icon: Users },
-  { to: "/contact", label: "Customer Inquiries", icon: Mail }
-];
-
-const SEO_NAV_ITEMS = [
-  { to: "/seo", label: "Meta Settings", icon: Tag, end: true },
-  { to: "/seo/sitemap", label: "Sitemap", icon: Network }
+  {
+    title: "Catalog Management",
+    items: [
+      { to: "/products", label: "Products", icon: Shirt },
+      { to: "/categories", label: "Categories", icon: FolderTree },
+      { to: "/subcategories", label: "Sub Categories", icon: Tags },
+      { to: "/variants", label: "Variants", icon: Layers },
+      { to: "/stock", label: "Stock Management", icon: Package2 }
+    ]
+  },
+  {
+    title: "Sales & Orders",
+    items: [
+      { to: "/orders", label: "Orders", icon: ShoppingBag },
+      { to: "/shipping", label: "Shipping", icon: Truck },
+      { to: "/customers", label: "Customers", icon: Users },
+      { to: "/contact", label: "Customer Inquiries", icon: Mail },
+      { to: "/reviews", label: "Reviews", icon: Star }
+    ]
+  },
+  {
+    title: "SEO & Settings",
+    items: [
+      { to: "/seo", label: "Meta Settings", icon: Tag, end: true },
+      { to: "/seo/sitemap", label: "Sitemap", icon: Network }
+    ]
+  }
 ];
 
 export default function AdminLayout() {
@@ -66,36 +80,14 @@ export default function AdminLayout() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const location = useLocation();
 
-  const isProductRouteActive = PRODUCT_SUB_ITEMS.some((item) =>
-    location.pathname.startsWith(item.to)
-  );
-
-  const [productDropdownOpen, setProductDropdownOpen] = useState(() => isProductRouteActive);
-
-  // Auto-expand Product dropdown whenever navigating to a product route
-  useEffect(() => {
-    if (isProductRouteActive) {
-      setProductDropdownOpen(true);
-    }
-  }, [location.pathname, isProductRouteActive]);
-
-  const toggleProductDropdown = (e) => {
-    e.preventDefault();
-    setProductDropdownOpen((prev) => !prev);
-  };
-
   // Close mobile drawer on route change
   useEffect(() => {
     setMobileNavOpen(false);
   }, [location.pathname]);
 
   // Current section title for breadcrumb
-  const currentItem = [
-    ...TOP_NAV_ITEMS,
-    ...PRODUCT_SUB_ITEMS,
-    ...BOTTOM_NAV_ITEMS,
-    ...SEO_NAV_ITEMS
-  ].find((item) =>
+  const allNavItems = NAV_SECTIONS.flatMap((sec) => sec.items);
+  const currentItem = allNavItems.find((item) =>
     item.end ? location.pathname === item.to : location.pathname.startsWith(item.to)
   );
 
@@ -110,9 +102,9 @@ export default function AdminLayout() {
         />
       )}
 
-      {/* Floating Luxury Sidebar */}
+      {/* Modern Grouped Sidebar */}
       <aside className={`admin-sidebar ${mobileNavOpen ? "open" : ""}`}>
-        {/* Brand Header — Centered, clear, prominent logo */}
+        {/* Brand Header */}
         <div className="admin-sidebar-brand">
           <div className="admin-brand-center">
             <img
@@ -123,6 +115,7 @@ export default function AdminLayout() {
                 e.target.style.display = "none";
               }}
             />
+            <span className="admin-brand-badge">ADMIN</span>
           </div>
           <button
             type="button"
@@ -134,132 +127,53 @@ export default function AdminLayout() {
           </button>
         </div>
 
-        {/* Section Heading */}
-        <div className="admin-nav-section-title">Navigation</div>
-
-        {/* Navigation links */}
+        {/* Grouped Navigation */}
         <nav className="admin-nav">
-          {/* Top navigation items */}
-          {TOP_NAV_ITEMS.map((item) => {
-            const Icon = item.icon;
-            return (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.end}
-                className={({ isActive }) => "admin-nav-link" + (isActive ? " active" : "")}
-              >
-                <span className="admin-nav-icon-wrap">
-                  <Icon size={18} className="admin-nav-icon" />
-                </span>
-                <span className="admin-nav-text">{item.label}</span>
-                <span className="admin-nav-active-pip" />
-              </NavLink>
-            );
-          })}
-
-          {/* Product Collapsible Dropdown */}
-          <div className={`admin-nav-dropdown-group ${productDropdownOpen ? "open" : ""} ${isProductRouteActive ? "has-active" : ""}`}>
-            <button
-              type="button"
-              className={`admin-nav-link admin-nav-dropdown-toggle ${isProductRouteActive ? "active" : ""}`}
-              onClick={toggleProductDropdown}
-              aria-expanded={productDropdownOpen}
-              aria-controls="admin-product-dropdown-menu"
-              title="Product Menu"
-            >
-              <span className="admin-nav-icon-wrap">
-                <Boxes size={18} className="admin-nav-icon" />
-              </span>
-              <span className="admin-nav-text">Product</span>
-              <span className={`admin-nav-chevron ${productDropdownOpen ? "open" : ""}`}>
-                <ChevronDown size={15} />
-              </span>
-            </button>
-
-            {/* Dropdown Menu Container */}
-            <div
-              id="admin-product-dropdown-menu"
-              className={`admin-nav-dropdown-menu ${productDropdownOpen ? "open" : ""}`}
-              style={{ display: productDropdownOpen ? "flex" : "none" }}
-            >
-              {PRODUCT_SUB_ITEMS.map((sub) => {
-                const SubIcon = sub.icon;
-                return (
-                  <NavLink
-                    key={sub.to}
-                    to={sub.to}
-                    className={({ isActive }) =>
-                      "admin-nav-sub-link" + (isActive ? " active" : "")
-                    }
-                  >
-                    <span className="admin-nav-sub-icon-wrap">
-                      <SubIcon size={16} className="admin-nav-sub-icon" />
-                    </span>
-                    <span className="admin-nav-sub-text">{sub.label}</span>
-                    <span className="admin-nav-sub-pip" />
-                  </NavLink>
-                );
-              })}
+          {NAV_SECTIONS.map((section) => (
+            <div key={section.title} className="admin-nav-group">
+              <div className="admin-nav-section-title">{section.title}</div>
+              <div className="admin-nav-group-items">
+                {section.items.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <NavLink
+                      key={item.to}
+                      to={item.to}
+                      end={item.end}
+                      className={({ isActive }) =>
+                        "admin-nav-link" + (isActive ? " active" : "")
+                      }
+                    >
+                      <span className="admin-nav-icon-wrap">
+                        <Icon size={17} className="admin-nav-icon" />
+                      </span>
+                      <span className="admin-nav-text">{item.label}</span>
+                      <span className="admin-nav-active-pip" />
+                    </NavLink>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-
-          {/* Bottom navigation items */}
-          {BOTTOM_NAV_ITEMS.map((item) => {
-            const Icon = item.icon;
-            return (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.end}
-                className={({ isActive }) => "admin-nav-link" + (isActive ? " active" : "")}
-              >
-                <span className="admin-nav-icon-wrap">
-                  <Icon size={18} className="admin-nav-icon" />
-                </span>
-                <span className="admin-nav-text">{item.label}</span>
-                <span className="admin-nav-active-pip" />
-              </NavLink>
-            );
-          })}
-
-          {/* SEO SETTINGS Section Heading & Links (House of KNP Reference) */}
-          <div className="admin-nav-section-title" style={{ marginTop: "12px" }}>SEO SETTINGS</div>
-          {SEO_NAV_ITEMS.map((item) => {
-            const Icon = item.icon;
-            return (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.end}
-                className={({ isActive }) => "admin-nav-link" + (isActive ? " active" : "")}
-              >
-                <span className="admin-nav-icon-wrap">
-                  <Icon size={18} className="admin-nav-icon" />
-                </span>
-                <span className="admin-nav-text">{item.label}</span>
-                <span className="admin-nav-active-pip" />
-              </NavLink>
-            );
-          })}
+          ))}
         </nav>
 
-        {/* Redesigned Sidebar Footer with Logout & Live Store link */}
+        {/* User Profile & Logout Card Footer */}
         <div className="admin-sidebar-footer">
-          <button
-            type="button"
-            className="admin-logout-card-btn"
-            onClick={logout}
-            title="Sign out of Admin Portal"
-          >
-            <div className="admin-logout-icon-box">
+          <div className="admin-profile-footer-card">
+            <div className="admin-footer-avatar">AD</div>
+            <div className="admin-footer-meta">
+              <span className="admin-footer-name">ZMW Administrator</span>
+              <span className="admin-footer-role">Super Admin</span>
+            </div>
+            <button
+              type="button"
+              className="admin-footer-logout-btn"
+              onClick={logout}
+              title="Sign out of Admin Portal"
+            >
               <LogOut size={16} />
-            </div>
-            <div className="admin-logout-info">
-              <span className="admin-logout-title">Logout</span>
-              {/* <span className="admin-logout-role">Admin Session</span> */}
-            </div>
-          </button>
+            </button>
+          </div>
         </div>
       </aside>
 
@@ -276,42 +190,22 @@ export default function AdminLayout() {
               <Menu size={22} />
             </button>
             <div className="admin-breadcrumbs">
-              <span className="breadcrumb-root">ZMW Store</span>
+              <span className="breadcrumb-root">Admin Console</span>
               <ChevronRight size={14} className="breadcrumb-arrow" />
               <span className="breadcrumb-current">{currentItem?.label || "Console"}</span>
             </div>
           </div>
 
           <div className="admin-header-user">
-            {/* <a
-              href="http://localhost:3000"
-              target="_blank"
-              rel="noreferrer"
-              className="admin-header-store-btn"
-              title="Open customer storefront in a new tab"
-            >
-              <span>Storefront</span>
-              <ExternalLink size={13} />
-            </a> */}
 
             <div className="admin-profile-pill">
               <div className="admin-avatar">
-                <ShieldCheck size={16} />
+                AD
               </div>
               <div className="admin-profile-info">
                 <span className="admin-profile-role">Admin</span>
               </div>
             </div>
-
-            {/* <button
-              type="button"
-              className="admin-header-logout-btn"
-              onClick={logout}
-              title="Sign out of Admin Portal"
-            >
-              <LogOut size={14} />
-              <span>Logout</span>
-            </button> */}
           </div>
         </header>
 

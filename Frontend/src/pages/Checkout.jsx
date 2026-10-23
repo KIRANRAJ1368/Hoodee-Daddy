@@ -12,7 +12,7 @@ import "./Checkout.css";
 const PAYMENT_METHODS = [
   {
     id: "razorpay",
-    name: "Razorpay (Online Payment)",
+    name: "Online Payment",
     icon: "⚡",
     badge: "Recommended",
     desc: "UPI (Google Pay, PhonePe, Paytm), Credit & Debit Cards, Net Banking & Wallets"
@@ -180,7 +180,6 @@ export default function Checkout() {
           return;
         }
         setPostOffices(offices);
-        setSelectedPostOffice((previous) => offices.some((office) => office.Name === previous) ? previous : offices[0].Name);
         setFormData((prev) => prev.postalCode.replace(/\D/g, "") === pin
           ? { ...prev, city: offices[0].District || "", state: offices[0].State || "" }
           : prev);
@@ -256,7 +255,14 @@ export default function Checkout() {
     }
   }, [formData.postalCode, checkoutItems]);
 
-  const hasValidPincode = (formData.postalCode || "").trim().replace(/\D/g, "").length === 6;
+  const cleanPin = (formData.postalCode || "").trim().replace(/\D/g, "");
+  const hasValidPincode = cleanPin.length === 6;
+  const hasRequiredAddressDetails = Boolean(
+    formData.address?.trim() &&
+    formData.city?.trim() &&
+    formData.state?.trim() &&
+    hasValidPincode
+  );
   const effectiveShippingCost = calculatedShippingCost !== null
     ? calculatedShippingCost
     : shippingCost;
@@ -457,14 +463,14 @@ export default function Checkout() {
     const fullAddress = [streetAndOffice, formData.apartment.trim()].filter(Boolean).join(", ");
 
     const orderItems = checkoutItems.map((item) => ({
-      product_id: Number(item.id),
-      quantity: item.quantity,
+      product_id: Number(item.id || item.productId),
+      quantity: Number(item.quantity) || 1,
       size: item.size || null,
       color: item.color || null
     }));
 
     const itemsSnapshot = checkoutItems.map((item) => ({
-      id: item.id,
+      id: item.id || item.productId,
       name: item.name,
       image: item.image,
       price: item.price,
@@ -486,7 +492,7 @@ export default function Checkout() {
     // ─────────────────────────────────────────────
     if (paymentMethod === "cod") {
       try {
-        const canSubmitToApi = checkoutItems.every((item) => Number.isInteger(Number(item.id)));
+        const canSubmitToApi = checkoutItems.length > 0 && orderItems.every((item) => Number.isInteger(item.product_id) && item.product_id > 0);
         let orderNumber;
 
         if (canSubmitToApi) {
@@ -501,15 +507,17 @@ export default function Checkout() {
               pincode: formData.postalCode.trim(),
               payment_method: "COD",
               discount_amount: activeDiscount,
+              coupon_code: appliedCoupon?.code || null,
               shipping_fee: effectiveShippingCost,
               courier_name: selectedCourier?.courier_name || shippingRateData?.courier_name || "Shiprocket Express",
               courier_company_id: selectedCourier?.courier_company_id || shippingRateData?.courier_company_id || null,
               estimated_delivery: selectedCourier?.estimated_delivery || shippingRateData?.estimated_delivery || "3–5 Business Days",
-              items: orderItems
+              items: orderItems,
+              notes: formData.instructions?.trim() || null
             },
             customerToken
           );
-          orderNumber = order.order_number;
+          orderNumber = order?.order_number || order?.orderNumber;
         } else {
           // Fallback reference for static catalog items
           orderNumber = "ZMW-" + Math.floor(10000 + Math.random() * 90000);
@@ -638,7 +646,7 @@ export default function Checkout() {
               email: formData.email.trim(),
               phone: formData.phone.trim(),
               address: `${fullAddress}, ${formData.city.trim()}, ${formData.state.trim()} - ${formData.postalCode.trim()}`,
-              paymentMethod: PAYMENT_METHODS.find((p) => p.id === paymentMethod)?.name || "Online (Razorpay)",
+              paymentMethod: PAYMENT_METHODS.find((p) => p.id === paymentMethod)?.name || "Online Payment",
               paymentId: response.razorpay_payment_id,
               paymentStatus: "Paid",
               subtotal: confirmedOrder.subtotal ?? rzpData.subtotal ?? activeSubtotal,
@@ -723,7 +731,7 @@ export default function Checkout() {
                 <span className="cko-oqs-label">Payment Status</span>
                 <span className="cko-oqs-value">
                   {orderReceipt.paymentStatus === "Paid" ? (
-                    <span className="cko-status-pill --paid">● Paid (Razorpay)</span>
+                    <span className="cko-status-pill --paid">● Paid (Online Payment)</span>
                   ) : (
                     <span className="cko-status-pill --cod">● Cash On Delivery</span>
                   )}
@@ -794,7 +802,7 @@ export default function Checkout() {
               </div>
               {orderReceipt.paymentId && (
                 <div className="cko-receipt-row">
-                  <span className="cko-rr-label">Razorpay Payment ID</span>
+                  <span className="cko-rr-label">Online Payment ID</span>
                   <span className="cko-rr-value font-mono">{orderReceipt.paymentId}</span>
                 </div>
               )}
@@ -1135,20 +1143,18 @@ export default function Checkout() {
                       {stepErrors.address && <p className="cko-field-error">{stepErrors.address}</p>}
                     </div>
 
-                    {postOffices.length > 0 && (
+                    {hasRequiredAddressDetails && (
                       <div className="cko-form-group">
                         <label htmlFor="postOffice" className="cko-label">POST OFFICE / LOCALITY</label>
-                        <select
+                        <input
                           id="postOffice"
+                          name="postOffice"
+                          type="text"
+                          placeholder="Enter post office or locality"
                           value={selectedPostOffice}
                           onChange={(e) => setSelectedPostOffice(e.target.value)}
                           className="cko-input"
-                        >
-                          {postOffices.map((office) => (
-                            <option key={`${office.Name}-${office.Pincode}`} value={office.Name}>{office.Name}</option>
-                          ))}
-                        </select>
-                        <p className="cko-field-hint">Select the matching locality. You can edit the street address above.</p>
+                        />
                       </div>
                     )}
 
@@ -1398,7 +1404,6 @@ export default function Checkout() {
                     {paymentMethod === "razorpay" && (
                       <div className="cko-razorpay-info-box">
                         <div className="cko-razorpay-header">
-                          <span className="cko-razorpay-badge-lock">🔒 256-bit SSL Secure</span>
                           <span className="cko-razorpay-powered">Powered by <strong>Razorpay</strong></span>
                         </div>
                         <div className="cko-razorpay-tags">
@@ -1408,7 +1413,7 @@ export default function Checkout() {
                           <span className="cko-rzp-tag">👛 Digital Wallets (Paytm, Mobikwik, Amazon Pay)</span>
                         </div>
                         <p className="cko-razorpay-instruction">
-                          Clicking below will securely open the official Razorpay checkout modal where you can select your preferred payment option.
+                          Clicking below will securely open the online payment gateway where you can select your preferred payment option.
                         </p>
                       </div>
                     )}
@@ -1449,10 +1454,10 @@ export default function Checkout() {
                         {isSubmitting
                           ? paymentMethod === "cod"
                             ? "PLACING ORDER..."
-                            : "OPENING RAZORPAY..."
+                            : "OPENING PAYMENT GATEWAY..."
                           : paymentMethod === "cod"
                             ? `PLACE ORDER (COD) • ${formatPrice(effectiveTotal)} →`
-                            : `PAY WITH RAZORPAY • ${formatPrice(effectiveTotal)} →`}
+                            : `PAY ONLINE • ${formatPrice(effectiveTotal)} →`}
                       </button>
                     </div>
                   </form>

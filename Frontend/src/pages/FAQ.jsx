@@ -147,7 +147,7 @@ const FAQ_DATA = [
     categoryLabel: "Payments",
     question: "Are payment transactions secure?",
     answer:
-      "Yes, absolutely. All payments are processed through RBI-authorized payment gateways featuring bank-grade 256-bit SSL encryption. ZWMStore never stores sensitive credit/debit card numbers or passwords."
+      "Yes, absolutely. All payments are processed through RBI-authorized payment gateways featuring bank-grade. ZWMStore never stores sensitive credit/debit card numbers or passwords."
   },
 
   // General

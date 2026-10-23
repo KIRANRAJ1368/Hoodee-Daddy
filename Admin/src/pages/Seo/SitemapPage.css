@@ -318,19 +318,19 @@
 .sitemap-pill {
   padding: 5px 12px;
   font-size: 12px;
-  font-weight: 600;
-  color: #475569;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  font-weight: 700;
+  color: #1E293B;
+  background: #FFFFFF;
+  border: 1.5px solid var(--border);
   border-radius: 20px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .sitemap-pill.active {
-  background: #2563eb;
-  color: #ffffff;
-  border-color: #2563eb;
+  background: #FEF3C7;
+  color: #78350F;
+  border-color: #F59E0B;
 }
 
 .sitemap-search-wrap {

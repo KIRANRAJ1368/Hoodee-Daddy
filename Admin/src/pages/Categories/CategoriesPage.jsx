@@ -222,50 +222,6 @@ export default function CategoriesPage() {
               render: (row) => <StatusBadge value={row.is_active ? "active" : "inactive"} />
             },
             {
-              key: "show_on_homepage",
-              label: "Show on Homepage",
-              width: "185px",
-              align: "center",
-              render: (row) => {
-                const isShown = row.show_on_homepage !== false;
-                const isBusy = togglingId === row.id;
-                return (
-                  <label
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 8,
-                      cursor: isBusy ? "wait" : "pointer",
-                      padding: "4px 8px",
-                      borderRadius: 6,
-                      background: isShown ? "rgba(16, 185, 129, 0.08)" : "rgba(148, 163, 184, 0.08)",
-                      border: `1px solid ${isShown ? "rgba(16, 185, 129, 0.25)" : "rgba(148, 163, 184, 0.25)"}`,
-                      transition: "all 0.15s ease"
-                    }}
-                    title={isShown ? "Visible on Homepage (Click to hide)" : "Hidden from Homepage (Click to show)"}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={isShown}
-                      disabled={isBusy}
-                      onChange={(e) => handleToggleHomepage(row, e.target.checked)}
-                      style={{ cursor: "pointer", accentColor: "#059669" }}
-                    />
-                    <span
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 600,
-                        color: isShown ? "#059669" : "#64748b"
-                      }}
-                    >
-                      {isShown ? "Show on Homepage" : "Hide from Homepage"}
-                    </span>
-                  </label>
-                );
-              }
-            },
-            {
               key: "actions",
               label: "Actions",
               width: "220px",

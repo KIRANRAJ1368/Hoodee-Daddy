@@ -140,7 +140,19 @@
   width: 100%;
 }
 
+/* ── Product Table Vertical Column Dividers ── */
+.products-table-card .data-table th:not(:last-child),
+.products-table-card .data-table td:not(:last-child) {
+  border-right: 1px solid var(--border-light);
+}
+
 /* ── Product Thumb & Cell ── */
+.product-row-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .product-cell {
   display: flex;
   align-items: center;
@@ -216,11 +228,12 @@
 .product-sku-badge {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 11px;
+  font-weight: 700;
   background: var(--surface-alt);
-  padding: 2px 7px;
+  padding: 2.5px 7px;
   border-radius: 4px;
-  border: 1px solid var(--border);
-  color: #475569;
+  border: 1.5px solid var(--border);
+  color: #0F172A;
   white-space: nowrap;
   word-break: keep-all;
   display: inline-block;
@@ -229,12 +242,12 @@
 
 .product-type-badge {
   background: var(--surface-alt);
-  color: var(--text-muted);
+  color: #0F172A;
   font-size: 10.5px;
-  font-weight: 500;
-  padding: 2px 6px;
+  font-weight: 700;
+  padding: 2.5px 6px;
   border-radius: 4px;
-  border: 1px solid var(--border-light);
+  border: 1.5px solid var(--border);
   white-space: nowrap;
   display: inline-block;
   line-height: 1.2;
@@ -250,13 +263,13 @@
 }
 
 .category-tag-ref {
-  background: #f1f5f9;
-  color: #334155;
-  border: 1px solid #cbd5e1;
+  background: #E2E8F0;
+  color: #0F172A;
+  border: 1.5px solid #94A3B8;
   border-radius: 6px;
-  padding: 2px 7px;
+  padding: 2.5px 8px;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -265,7 +278,8 @@
 
 .subcategory-tag-ref {
   font-size: 11.5px;
-  color: var(--text-muted);
+  font-weight: 600;
+  color: #475569;
   white-space: nowrap;
 }
 

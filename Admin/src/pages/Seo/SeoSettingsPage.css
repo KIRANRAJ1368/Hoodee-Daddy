@@ -102,9 +102,10 @@
   padding: 10px 16px;
   font-size: 0.88rem;
   font-weight: 600;
-  color: var(--text-muted, #64748b);
+  color: #1E293B;
+  font-weight: 700;
   background: transparent;
-  border: none;
+  border: 1.5px solid transparent;
   border-radius: var(--radius-md, 8px);
   cursor: pointer;
   white-space: nowrap;
@@ -113,12 +114,13 @@
 
 .seo-tab:hover:not(.active) {
   background: #f1f5f9;
-  color: var(--text-main, #0f172a);
+  color: #0f172a;
 }
 
 .seo-tab.active {
-  background: var(--primary, #0f172a);
-  color: #ffffff;
+  background: #FEF3C7;
+  color: #78350F;
+  border-color: #F59E0B;
 }
 
 /* Grid Layout */

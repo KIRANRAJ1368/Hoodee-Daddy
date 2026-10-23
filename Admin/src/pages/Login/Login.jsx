@@ -197,11 +197,11 @@ export default function Login() {
               )}
             </button>
           </form>
-{/* 
+
           <div className="login-security-notice">
             <ShieldCheck size={14} className="login-security-icon" />
-            <span>Authorized personnel only · 256-bit encrypted session</span>
-          </div> */}
+            <span>Authorized person only</span>
+          </div>
         </div>
       </div>
     </div>

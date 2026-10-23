@@ -238,18 +238,6 @@ export default function SubcategoriesPage() {
               render: (row) => <StatusBadge value={row.is_active ? "active" : "inactive"} />
             },
             {
-              key: "show_on_homepage",
-              label: "Homepage",
-              width: "130px",
-              align: "center",
-              render: (row) =>
-                row.show_on_homepage === false ? (
-                  <StatusBadge value="inactive" label="Hidden" />
-                ) : (
-                  <StatusBadge value="active" label="On Homepage" />
-                )
-            },
-            {
               key: "actions",
               label: "Actions",
               width: "220px",

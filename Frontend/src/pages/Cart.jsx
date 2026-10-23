@@ -279,16 +279,20 @@ export default function Cart() {
                       {/* Selected Color & Size */}
                       <div className="cp-card-variants">
                         {item.color && item.color !== "Standard" && (
-                          <span>Color: <strong>{item.color}</strong></span>
+                          <span className="cp-var-item">Color: <strong>{item.color}</strong></span>
                         )}
                         {item.color && item.color !== "Standard" && item.size && item.size !== "Standard" && (
                           <span className="cp-var-sep"> | </span>
                         )}
                         {item.size && item.size !== "Standard" && (
-                          <span>Size: <strong>{item.size}</strong></span>
+                          <span className="cp-var-item">Size: <strong>{item.size}</strong></span>
                         )}
-                        {item.sku && <span>SKU: <strong>{item.sku}</strong></span>}
                       </div>
+
+                      {/* SKU (Discrete subtitle) */}
+                      {item.sku && (
+                        <div className="cp-card-sku">SKU: {item.sku}</div>
+                      )}
 
                       {/* Stock Status */}
                       <div className={`cp-card-stock ${isOut ? "cp-stock--out" : isLow ? "cp-stock--low" : ""}`}>

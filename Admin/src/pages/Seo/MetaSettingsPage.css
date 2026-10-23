@@ -477,10 +477,10 @@
 }
 
 .meta-pill.active {
-  background: #2563eb;
-  color: #ffffff;
-  border-color: #2563eb;
-  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.25);
+  background: #FEF3C7;
+  color: #78350F;
+  border-color: #F59E0B;
+  box-shadow: 0 1px 3px rgba(250, 167, 3, 0.2);
 }
 
 .meta-table-search-wrap {
@@ -951,8 +951,9 @@
 }
 
 .meta-picker-pill.active {
-  background: #2563eb;
-  color: #ffffff;
+  background: #FEF3C7;
+  color: #78350F;
+  border: 1px solid #F59E0B;
 }
 
 /* Scrollable list */

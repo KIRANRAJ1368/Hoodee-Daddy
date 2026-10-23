@@ -27,17 +27,10 @@ import LoadingState from "../../components/LoadingState/LoadingState";
 import StatusBadge from "../../components/StatusBadge/StatusBadge";
 import { formatINR } from "../../utils/formatPrice";
 import { resolveImageUrl } from "../../utils/imageUrl";
+import InvoiceModal from "../../components/InvoiceModal/InvoiceModal";
 import "./OrderDetailPage.css";
 
-const STATUS_OPTIONS = {
-  pending: ["confirmed", "cancelled"],
-  confirmed: ["packed", "cancelled"],
-  packed: ["shipped", "delivered", "cancelled", "returned"],
-  shipped: ["delivered", "cancelled", "returned"],
-  delivered: ["returned"],
-  cancelled: [],
-  returned: []
-};
+const ALL_STATUSES = ["pending", "confirmed", "packed", "shipped", "delivered", "cancelled", "returned"];
 
 export default function OrderDetailPage() {
   const { id } = useParams();
@@ -57,6 +50,7 @@ export default function OrderDetailPage() {
   const [utrNumber, setUtrNumber] = useState("");
   const [refundNotes, setRefundNotes] = useState("");
   const [activeMediaModal, setActiveMediaModal] = useState(null);
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false);
 
   const toast = useToast();
 
@@ -220,7 +214,7 @@ export default function OrderDetailPage() {
               <button
                 type="button"
                 className="btn btn-secondary"
-                onClick={() => window.print()}
+                onClick={() => setShowInvoiceModal(true)}
                 style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
               >
                 <Printer size={16} />
@@ -894,7 +888,7 @@ export default function OrderDetailPage() {
                   }}
                 >
                   <option value={order.status}>{order.status.toUpperCase()} (current)</option>
-                  {(STATUS_OPTIONS[order.status] || []).map((s) => (
+                  {ALL_STATUSES.filter((s) => s !== order.status).map((s) => (
                     <option key={s} value={s}>{s.toUpperCase()}</option>
                   ))}
                 </select>
@@ -976,6 +970,39 @@ export default function OrderDetailPage() {
                 <a href={`tel:${order.phone}`}>{order.phone}</a>
               </div>
             )}
+            {(order.refund_upi_id || order.upi_id) && (
+              <div
+                style={{
+                  marginTop: 10,
+                  padding: "8px 12px",
+                  background: "#f0f9ff",
+                  border: "1px solid #bae6fd",
+                  borderRadius: 6,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 8
+                }}
+              >
+                <div>
+                  <span style={{ fontSize: 10.5, fontWeight: 700, color: "#0369a1", textTransform: "uppercase", display: "block" }}>
+                    Customer UPI ID
+                  </span>
+                  <strong style={{ fontSize: 13, color: "#0f172a" }}>{order.refund_upi_id || order.upi_id}</strong>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(order.refund_upi_id || order.upi_id);
+                    toast.success("UPI ID copied to clipboard!");
+                  }}
+                  style={{ background: "none", border: "none", cursor: "pointer", color: "#0284c7", padding: 4 }}
+                  title="Copy UPI ID"
+                >
+                  <Copy size={13} />
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Shipping Destination */}
@@ -989,7 +1016,12 @@ export default function OrderDetailPage() {
               {[order.city, order.state, order.pincode].filter(Boolean).join(", ")}
             </p>
             <div className="payment-method-chip">
-              Payment Mode: <strong>{order.payment_method || "Cash On Delivery (COD)"}</strong>
+              Payment Mode: <strong>{order.payment_method === "COD" || !order.payment_method ? "Cash on Delivery" : (order.payment_method === "PREPAID" ? "Online Payment" : order.payment_method)}</strong>
+              {(order.refund_upi_id || order.upi_id) && (
+                <div style={{ marginTop: 4, fontSize: 12, color: "#0369a1", fontWeight: 600 }}>
+                  Customer UPI ID: <strong>{order.refund_upi_id || order.upi_id}</strong>
+                </div>
+              )}
             </div>
           </div>
 
@@ -1113,6 +1145,11 @@ export default function OrderDetailPage() {
             />
           </div>
         </div>
+      )}
+
+      {/* Official Printable Tax Invoice Modal */}
+      {showInvoiceModal && (
+        <InvoiceModal order={order} onClose={() => setShowInvoiceModal(false)} />
       )}
     </div>
   );

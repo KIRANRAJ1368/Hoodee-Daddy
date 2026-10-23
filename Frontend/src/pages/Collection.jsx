@@ -580,7 +580,7 @@ export default function Collection() {
         image: resolvedCategoryBanner.image_url || config.image,
         imagePosition: resolvedCategoryBanner.image_position || config.imagePosition || "center center",
         ctaText: resolvedCategoryBanner.primary_cta_text?.trim() || config.ctaText || "Shop Now",
-        ctaLink: (resolvedCategoryBanner.primary_cta_link && !resolvedCategoryBanner.primary_cta_link.startsWith("#")) ? resolvedCategoryBanner.primary_cta_link : null,
+        ctaLink: null,
         urgencyTag,
         perks: [
           { icon: "truck", label: SHIPPING_LABEL },

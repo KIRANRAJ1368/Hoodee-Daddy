@@ -524,7 +524,7 @@ export default function CustomerProfile() {
                                     <div className="item-price">
                                       {formatPrice(item.unit_price)}
                                     </div>
-                                    {order.status === "delivered" && (item.review ? (
+                                    {order.status !== "cancelled" && order.status !== "returned" && (item.review ? (
                                       <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 8, fontSize: 12 }}>
                                         <span style={{ color: item.review.is_approved ? "#15803d" : "#b45309" }}>{item.review.is_approved ? "Review published" : "Review awaiting approval"}</span>
                                         <button type="button" className="btn-order-action" onClick={() => editItemReview(item)}>Edit</button>
@@ -556,7 +556,7 @@ export default function CustomerProfile() {
                               <p className="summary-val">
                                 {order.payment_method === "COD"
                                   ? "Cash on Delivery"
-                                  : "Prepaid / Online"}
+                                  : "Online Payment"}
                               </p>
                             </div>
 

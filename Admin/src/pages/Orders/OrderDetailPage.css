@@ -250,3 +250,24 @@
   font-style: italic;
   line-height: 1.6;
 }
+
+/* Print Overrides */
+@media print {
+  .product-back-link,
+  .order-detail-header button,
+  .order-detail-header a,
+  .order-detail-side,
+  .table-actions,
+  .no-print {
+    display: none !important;
+  }
+
+  .order-detail-grid {
+    display: block !important;
+  }
+
+  .order-detail-main {
+    width: 100% !important;
+  }
+}
+

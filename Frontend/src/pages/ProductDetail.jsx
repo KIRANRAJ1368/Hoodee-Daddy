@@ -105,6 +105,17 @@ export default function ProductDetail() {
   const handleReviewSubmit = async (e) => {
     if (e) e.preventDefault();
     setReviewErrorMsg("");
+    if (!customerToken) {
+      setReviewErrorMsg("Please sign in to write a review.");
+      return;
+    }
+    if (reviewsData?.userEligibility && !reviewsData.userEligibility.canReview) {
+      setReviewErrorMsg(
+        reviewsData.userEligibility.message ||
+          "Only customers who have purchased this product can submit a review."
+      );
+      return;
+    }
     if (!customerUser && (!reviewFormName || !reviewFormName.trim())) {
       setReviewErrorMsg("Please enter your name.");
       return;
@@ -125,7 +136,10 @@ export default function ProductDetail() {
         title: reviewFormTitle ? reviewFormTitle.trim() : null,
         comment: reviewFormComment.trim(),
         customer_name: name,
-        customer_email: customerUser?.email || null
+        customer_email: customerUser?.email || null,
+        ...(reviewsData?.userEligibility?.orderItemId
+          ? { order_item_id: reviewsData.userEligibility.orderItemId }
+          : {})
       };
       const res = await storefrontApi.submitProductReview(productIdentifier, payload, customerToken);
 
@@ -193,7 +207,7 @@ export default function ProductDetail() {
   const [copiedCoupon, setCopiedCoupon] = useState(null);
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
-  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [activeImageIndex, setActiveImageIndex] = useState(1);
   const [isDualView, setIsDualView] = useState(true);
 
   // Accordions state
@@ -218,7 +232,7 @@ export default function ProductDetail() {
     setQuantity(1);
     setAddedToCart(false);
     setPreviewImage(null);
-    setActiveImageIndex(0);
+    setActiveImageIndex(1);
     setIsDualView(true);
     setLoadError(null);
 
@@ -372,7 +386,9 @@ export default function ProductDetail() {
     return unique.length > 0 ? unique : ["/images/photo-1521572163474-6864f9cf17ab.jpg"];
   }, [product, currentVariant]);
 
-  const safeActiveIndex = activeImageIndex >= 0 && activeImageIndex < galleryImages.length ? activeImageIndex : 0;
+  const safeActiveIndex = activeImageIndex >= 0 && activeImageIndex < galleryImages.length
+    ? activeImageIndex
+    : (galleryImages.length > 1 ? 1 : 0);
   const showDualView = isDualView && galleryImages.length >= 2;
 
   const recentlyViewedProducts = useMemo(
@@ -527,7 +543,7 @@ export default function ProductDetail() {
   // Intelligent Color Select: switches to in-stock size if current size isn't available in new color
   const handleColorSelect = (colorName) => {
     setSelectedColor(colorName);
-    setActiveImageIndex(0);
+    setActiveImageIndex(1);
     setIsDualView(true);
     if (product?.variants?.length) {
       const variantsForColor = product.variants.filter(
@@ -706,9 +722,12 @@ export default function ProductDetail() {
             <div className="pd-gallery-col">
               <div className="pd-dual-images-grid">
                 {showDualView ? (
-                  galleryImages.slice(0, 2).map((img, idx) => (
+                  [
+                    { img: galleryImages[0], index: 0, isRight: false },
+                    { img: galleryImages[safeActiveIndex] || galleryImages[1] || galleryImages[0], index: safeActiveIndex, isRight: true }
+                  ].map(({ img, index, isRight }, slotIdx) => (
                     <div
-                      key={`${img}-${idx}`}
+                      key={`dual-slot-${slotIdx}-${img}`}
                       className="pd-grid-image-item"
                       onClick={() => setPreviewImage(img)}
                       title="Click to view full resolution"
@@ -716,7 +735,7 @@ export default function ProductDetail() {
                       tabIndex={0}
                       onKeyDown={(e) => e.key === "Enter" && setPreviewImage(img)}
                     >
-                      {idx === 0 && (
+                      {!isRight ? (
                         <>
                           <span className="pd-overlay-badge-top">
                             {product.badge || ((product.subCategory || product.name || "").toLowerCase().includes("oversized") ? "OVERSIZED FIT" : "PREMIUM FIT")}
@@ -731,18 +750,17 @@ export default function ProductDetail() {
                               : "240 GSM COMBED COTTON"}
                           </span>
                         </>
-                      )}
-                      {idx === 1 && (
+                      ) : (
                         <span className="pd-overlay-badge-top" style={{ background: "rgba(15, 23, 42, 0.75)" }}>
-                          BACK VIEW
+                          {index === 1 ? "BACK VIEW" : index === 0 ? "FRONT VIEW" : `VIEW ${index + 1}`}
                         </span>
                       )}
 
                       <img
                         src={imageUrl(img)}
-                        alt={`${product.name} - ${idx === 0 ? "front view" : "back view"}`}
+                        alt={`${product.name} - ${!isRight ? "front view" : index === 1 ? "back view" : index === 0 ? "front view" : `view ${index + 1}`}`}
                         className="pd-grid-img"
-                        loading={idx < 2 ? "eager" : "lazy"}
+                        loading={slotIdx < 2 ? "eager" : "lazy"}
                         onError={(event) => { event.currentTarget.src = "/images/zmw-logo-transparent.png"; }}
                       />
 
@@ -821,7 +839,7 @@ export default function ProductDetail() {
                         onClick={() => {
                           setIsDualView((prev) => !prev);
                           if (!showDualView) {
-                            setActiveImageIndex(0);
+                            setActiveImageIndex(1);
                           }
                         }}
                         title={showDualView ? "Switch to single view" : "Switch to dual front and back view"}
@@ -832,7 +850,7 @@ export default function ProductDetail() {
                   </div>
                   <div className="pd-thumbnails-grid" role="tablist" aria-label="Product thumbnails">
                     {galleryImages.map((img, idx) => {
-                      const isActive = showDualView ? (idx === 0 || idx === 1) : idx === safeActiveIndex;
+                      const isActive = idx === safeActiveIndex;
                       const label = idx === 0 ? "Front" : idx === 1 ? "Back" : `${idx + 1}`;
                       return (
                         <button
@@ -843,7 +861,7 @@ export default function ProductDetail() {
                           className={`pd-thumbnail-item ${isActive ? "is-active" : ""}`}
                           onClick={() => {
                             setActiveImageIndex(idx);
-                            setIsDualView(false);
+                            setIsDualView(true);
                           }}
                           title={`View ${label} image`}
                         >
@@ -1228,6 +1246,8 @@ export default function ProductDetail() {
                   ? "✓ You have already reviewed this piece."
                   : reviewsData?.userEligibility?.reason === "not_logged_in"
                   ? "Sign in to share your experience with this piece."
+                  : !reviewsData?.userEligibility?.canReview
+                  ? "Only verified buyers who have purchased this product can leave a review."
                   : "Share your experience and feedback with the community."}
               </p>
               {reviewsData?.userEligibility?.canReview ? (
@@ -1441,13 +1461,9 @@ export default function ProductDetail() {
                     ✓ You have already reviewed this piece.
                   </span>
                 ) : (
-                  <button
-                    type="button"
-                    className="pd-write-review-btn pd-write-review-btn-secondary"
-                    onClick={() => setIsWritingReview(true)}
-                  >
-                    WRITE THE FIRST REVIEW
-                  </button>
+                  <span style={{ fontSize: "13px", color: "var(--color-ink-light)", fontWeight: 500 }}>
+                    Only verified buyers who have purchased this product can leave a review.
+                  </span>
                 )
               )}
             </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState } from "react";
 import Modal from "../../components/Modal/Modal";
 import FormField from "../../components/FormField/FormField";
 import ImageUploadField from "../../components/ImageUploadField/ImageUploadField";
@@ -25,20 +25,6 @@ export default function CategoryFormModal({ category, onClose, onSaved, defaultS
   const [bannerTitle, setBannerTitle] = useState(category?.banner_title || "");
   const [bannerSubtitle, setBannerSubtitle] = useState(category?.banner_subtitle || "");
   const [bannerPrimaryCtaText, setBannerPrimaryCtaText] = useState(category?.banner_primary_cta_text || "");
-  const [bannerPrimaryCtaLink, setBannerPrimaryCtaLink] = useState(
-    category?.banner_primary_cta_link || (category?.slug ? `/collection?category=${category.slug}` : "")
-  );
-
-  const [categoriesList, setCategoriesList] = useState([]);
-
-  useEffect(() => {
-    categoriesApi
-      .list({ includeInactive: "false" })
-      .then((catRes) => {
-        if (Array.isArray(catRes?.data)) setCategoriesList(catRes.data);
-      })
-      .catch(() => setCategoriesList([]));
-  }, []);
 
 
 
@@ -97,7 +83,7 @@ export default function CategoryFormModal({ category, onClose, onSaved, defaultS
           description.trim() ||
           `Explore our premium ${cleanName.toLowerCase()} essentials crafted for everyday comfort and modern style.`,
         banner_primary_cta_text: bannerPrimaryCtaText.trim() || `Shop ${cleanName}`,
-        banner_primary_cta_link: bannerPrimaryCtaLink.trim() || `/collection?category=${generatedSlug}`
+        banner_primary_cta_link: category?.banner_primary_cta_link || `/collection?category=${generatedSlug}`
       };
 
       if (isEdit) {
@@ -252,7 +238,7 @@ export default function CategoryFormModal({ category, onClose, onSaved, defaultS
             hint="Upload a high-resolution landscape banner (Recommended: 1920 × 800px). Supports JPG, PNG, WEBP."
           />
 
-          <FormField
+          {/* <FormField
             label="Image Focal Position"
             htmlFor="cat-b-pos"
             hint="CSS object-position (e.g. center center, 85% top, center 20%)"
@@ -263,7 +249,7 @@ export default function CategoryFormModal({ category, onClose, onSaved, defaultS
               value={bannerImagePosition}
               onChange={(e) => setBannerImagePosition(e.target.value)}
             />
-          </FormField>
+          </FormField> */}
 
           <div className="form-grid">
             <FormField
@@ -320,63 +306,18 @@ export default function CategoryFormModal({ category, onClose, onSaved, defaultS
             />
           </FormField>
 
-          <div className="form-grid">
-            <FormField
-              label="Primary CTA Text"
-              htmlFor="cat-b-cta1"
-              hint="e.g. Shop Men's, Explore Now"
-            >
-              <input
-                id="cat-b-cta1"
-                placeholder={name ? `Shop ${name}` : "Shop Now"}
-                value={bannerPrimaryCtaText}
-                onChange={(e) => setBannerPrimaryCtaText(e.target.value)}
-              />
-            </FormField>
-
-            <FormField
-              label="Primary CTA Link"
-              htmlFor="cat-b-cta-link"
-              hint="Choose destination page or collection"
-            >
-              <select
-                id="cat-b-cta-link"
-                value={bannerPrimaryCtaLink || ""}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setBannerPrimaryCtaLink(val);
-                  if (!bannerPrimaryCtaText && val) {
-                    const matchedCat = categoriesList.find(
-                      (c) => `/collection?category=${encodeURIComponent(c.slug)}` === val
-                    );
-                    if (matchedCat) setBannerPrimaryCtaText(`Shop ${matchedCat.name}`);
-                    else if (val === "/collection") setBannerPrimaryCtaText("Shop All");
-                  }
-                }}
-              >
-                <option value="">-- Select Category --</option>
-                <option value="/collection">All Categories (Shop All)</option>
-                {categoriesList.map((cat) => (
-                  <option key={cat.id} value={`/collection?category=${encodeURIComponent(cat.slug)}`}>
-                    {cat.name}
-                  </option>
-                ))}
-                {bannerPrimaryCtaLink &&
-                  bannerPrimaryCtaLink !== "/collection" &&
-                  !categoriesList.some((c) => `/collection?category=${encodeURIComponent(c.slug)}` === bannerPrimaryCtaLink) && (
-                    <option value={bannerPrimaryCtaLink}>{bannerPrimaryCtaLink}</option>
-                )}
-              </select>
-              {bannerPrimaryCtaLink && (
-                <div style={{ fontSize: 11.5, color: "#64748b", marginTop: 5, display: "flex", alignItems: "center", gap: 5 }}>
-                  <span>Target:</span>
-                  <code style={{ background: "#f1f5f9", padding: "1px 6px", borderRadius: 4, color: "#334155", fontSize: 11 }}>
-                    {bannerPrimaryCtaLink}
-                  </code>
-                </div>
-              )}
-            </FormField>
-          </div>
+          <FormField
+            label="Primary CTA Text"
+            htmlFor="cat-b-cta1"
+            hint="e.g. Shop Men's, Explore Now"
+          >
+            <input
+              id="cat-b-cta1"
+              placeholder={name ? `Shop ${name}` : "Shop Now"}
+              value={bannerPrimaryCtaText}
+              onChange={(e) => setBannerPrimaryCtaText(e.target.value)}
+            />
+          </FormField>
         </div>
 
 

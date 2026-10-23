@@ -34,7 +34,13 @@ const create = [
     .matches(/^\d{6}$/)
     .withMessage("PIN code must contain exactly 6 digits"),
   body("payment_method")
-    .customSanitizer((val) => (typeof val === "string" ? val.toUpperCase() : "COD"))
+    .customSanitizer((val) => {
+      if (!val) return "COD";
+      const s = String(val).trim().toUpperCase();
+      if (s.includes("COD") || s.includes("CASH")) return "COD";
+      if (s.includes("PREPAID") || s.includes("ONLINE") || s.includes("RAZORPAY")) return "PREPAID";
+      return s;
+    })
     .optional()
     .isIn(["COD", "PREPAID"]),
   body("items").isArray({ min: 1 }).withMessage("At least one item is required"),

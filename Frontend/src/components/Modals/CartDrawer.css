@@ -14,6 +14,7 @@
   flex-direction: column;
   transform: translateX(100%);
   transition: transform var(--dur-normal) var(--ease-smooth);
+  overflow-x: hidden;
 }
 
 .cart-drawer-panel.active {
@@ -84,10 +85,20 @@
 .cart-items-container {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 20px 24px;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.cart-items-container::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 /* Empty State */
@@ -228,6 +239,7 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
+  overflow-x: hidden;
 }
 
 .coupon-input-group {

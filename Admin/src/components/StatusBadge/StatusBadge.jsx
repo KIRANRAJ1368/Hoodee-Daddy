@@ -30,7 +30,6 @@ export default function StatusBadge({ value, label }) {
 
   return (
     <span className={`status-badge status-badge-${tone}`}>
-      <span className="status-badge-dot" />
       <span>{displayLabel}</span>
     </span>
   );

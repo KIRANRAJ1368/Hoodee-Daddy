@@ -574,7 +574,7 @@ export default function MetaSettingsPage() {
             </div>
 
             {/* Row 4: Canonical URL (Optional) */}
-            <div className="meta-form-group">
+            {/* <div className="meta-form-group">
               <label className="meta-form-label">Canonical URL (Optional)</label>
               <div className="meta-icon-input-wrap">
                 <span className="meta-input-icon">
@@ -591,7 +591,7 @@ export default function MetaSettingsPage() {
               <p className="meta-form-hint">
                 Defines the master URL for search engines to prevent duplicate content penalties.
               </p>
-            </div>
+            </div> */}
 
             {/* Row 5: Social Media Share Image Card (OpenGraph / WhatsApp / Twitter) */}
             <div className="meta-share-image-card">

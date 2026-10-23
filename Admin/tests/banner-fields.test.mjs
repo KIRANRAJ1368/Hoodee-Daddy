@@ -24,6 +24,18 @@ test("Categories Banner matches Hero Banner fields and contains no extra input f
     "Categories Banner must not have Secondary CTA / Urgency Tag input field"
   );
 
+  // Verify that Primary CTA Link has been removed from Categories Banner
+  assert.equal(
+    categoryModalContent.includes('id="cat-b-cta-link"'),
+    false,
+    "Categories Banner must not have cat-b-cta-link input"
+  );
+  assert.equal(
+    categoryModalContent.includes('label="Primary CTA Link"'),
+    false,
+    "Categories Banner must not have Primary CTA Link field"
+  );
+
   // Verify Categories Banner has the exact matching fields that are in Hero Banner
   // 1. Banner Image (ImageUploadField)
   assert.ok(

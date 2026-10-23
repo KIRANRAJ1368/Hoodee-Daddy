@@ -249,18 +249,6 @@ export default function HomepageSectionsPage() {
             Manage, reorder, and configure dynamic content for every section of your customer-facing homepage. Changes reflect instantly on your live store.
           </p>
         </div>
-
-        <div className="header-actions">
-          <a
-            href="http://localhost:3000"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-secondary view-storefront-btn"
-          >
-            <span>View Live Store</span>
-            <ExternalLink size={15} />
-          </a>
-        </div>
       </div>
 
       {/* Main Section Cards List */}
