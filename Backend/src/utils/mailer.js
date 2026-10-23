@@ -990,6 +990,184 @@ async function sendWelcomeEmail(email, customer = {}) {
   }
 }
 
+/**
+ * Sends an email notification to the configured admin email with new first-visit customer details.
+ * @param {string} adminEmail
+ * @param {Object} leadData
+ * @returns {Promise<{success: boolean, messageId?: string, simulated?: boolean, error?: string}>}
+ */
+async function sendFirstVisitLeadNotification(adminEmail, leadData = {}) {
+  const { user, pass, from } = env.smtp;
+  const recipientEmail = adminEmail || env.seedAdmin?.email || "adminzmw@gmail.com";
+  const { phone, pincode, district, state, ip, userAgent, submittedAt } = leadData;
+
+  const locationSummary = [district, state].filter(Boolean).join(", ") || "India";
+  const dateStr = submittedAt ? new Date(submittedAt).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }) : new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
+
+  const subject = `🔔 New Customer Visit Lead: +91 ${phone} | PIN ${pincode} (${locationSummary})`;
+
+  const text = `ZMW CLOTHING - NEW CUSTOMER FIRST-VISIT LEAD
+======================================================
+A customer has submitted their contact & delivery details on their first visit to the storefront.
+
+Customer Phone : +91 ${phone}
+Delivery PIN   : ${pincode}
+District       : ${district || "N/A"}
+State          : ${state || "N/A"}
+Submitted At   : ${dateStr} IST
+IP Address     : ${ip || "N/A"}
+
+You can use these details for customer outreach, marketing broadcasts, or checkout support.
+Best regards,
+ZMW Clothing System`;
+
+  const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New Customer Lead - ZMW Clothing</title>
+</head>
+<body style="margin: 0; padding: 24px 0; background-color: #0f172a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b;">
+  <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: #0f172a;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="560" border="0" cellpadding="0" cellspacing="0" style="max-width: 560px; width: 100%; margin: 0 auto; background: #ffffff; border-radius: 14px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.35);">
+          <!-- Header Banner -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #111827 0%, #1f2937 100%); padding: 32px 28px; text-align: center; border-bottom: 3px solid #d4af37;">
+              <span style="display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: 3px; color: #d4af37; text-transform: uppercase; background: rgba(212, 175, 55, 0.12); padding: 4px 12px; border-radius: 999px; margin-bottom: 12px; border: 1px solid rgba(212, 175, 55, 0.25);">
+                ZMW CLOTHING ADMIN ALERT
+              </span>
+              <h1 style="color: #ffffff; font-size: 22px; font-weight: 700; margin: 0; letter-spacing: 0.3px;">
+                New Customer Visit Lead
+              </h1>
+              <p style="color: #9ca3af; font-size: 13.5px; margin: 8px 0 0 0;">
+                First-time storefront visitor submitted delivery & contact details
+              </p>
+            </td>
+          </tr>
+
+          <!-- Content Body -->
+          <tr>
+            <td style="padding: 32px 28px;">
+              <p style="font-size: 14.5px; line-height: 1.6; color: #475569; margin: 0 0 20px 0;">
+                Hello <strong>Admin</strong>, a new potential customer visited the <strong>ZMW Clothing</strong> website and shared their contact and location details:
+              </p>
+
+              <!-- Main Details Card -->
+              <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px; margin-bottom: 24px; overflow: hidden;">
+                <tr>
+                  <td style="padding: 14px 18px; border-bottom: 1px solid #e2e8f0; font-size: 13px; color: #64748b; font-weight: 600; width: 38%;">
+                    📱 Mobile Number
+                  </td>
+                  <td style="padding: 14px 18px; border-bottom: 1px solid #e2e8f0; font-size: 15px; color: #0f172a; font-weight: 700;">
+                    <a href="tel:+91${phone}" style="color: #0284c7; text-decoration: none;">+91 ${phone}</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 14px 18px; border-bottom: 1px solid #e2e8f0; font-size: 13px; color: #64748b; font-weight: 600;">
+                    📮 Delivery PIN Code
+                  </td>
+                  <td style="padding: 14px 18px; border-bottom: 1px solid #e2e8f0; font-size: 15px; color: #0f172a; font-weight: 700;">
+                    ${pincode}
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 14px 18px; border-bottom: 1px solid #e2e8f0; font-size: 13px; color: #64748b; font-weight: 600;">
+                    📍 District / City
+                  </td>
+                  <td style="padding: 14px 18px; border-bottom: 1px solid #e2e8f0; font-size: 14px; color: #334155; font-weight: 600;">
+                    ${district || "Auto-detected upon entry"}
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 14px 18px; border-bottom: 1px solid #e2e8f0; font-size: 13px; color: #64748b; font-weight: 600;">
+                    🗺️ State
+                  </td>
+                  <td style="padding: 14px 18px; border-bottom: 1px solid #e2e8f0; font-size: 14px; color: #334155; font-weight: 600;">
+                    ${state || "India"}
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 14px 18px; border-bottom: 1px solid #e2e8f0; font-size: 13px; color: #64748b; font-weight: 600;">
+                    ⏰ Submitted At
+                  </td>
+                  <td style="padding: 14px 18px; border-bottom: 1px solid #e2e8f0; font-size: 13.5px; color: #64748b;">
+                    ${dateStr} IST
+                  </td>
+                </tr>
+                ${ip ? `
+                <tr>
+                  <td style="padding: 12px 18px; font-size: 12px; color: #94a3b8; font-weight: 500;">
+                    🌐 Visitor IP
+                  </td>
+                  <td style="padding: 12px 18px; font-size: 12px; color: #94a3b8; font-family: monospace;">
+                    ${ip}
+                  </td>
+                </tr>` : ""}
+              </table>
+
+              <!-- Action / Tip Box -->
+              <div style="background: #fffbeb; border: 1px solid #fef3c7; border-radius: 8px; padding: 14px 18px; margin-bottom: 24px;">
+                <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #92400e;">
+                  💡 <strong>Checkout Autofill Active:</strong> These details have also been saved to this customer's browser. When they proceed to checkout, their phone number and PIN code will be automatically filled for a lightning-fast ordering experience.
+                </p>
+              </div>
+
+              <!-- Admin Call to Action -->
+              <div style="text-align: center; margin-top: 26px;">
+                <a href="http://localhost:5173" style="display: inline-block; background-color: #111827; color: #ffffff; text-decoration: none; font-size: 13.5px; font-weight: 600; padding: 13px 28px; border-radius: 8px; letter-spacing: 0.3px; box-shadow: 0 4px 12px rgba(17, 24, 39, 0.2);">
+                  Open ZMW Admin Panel &rarr;
+                </a>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #f8fafc; padding: 20px 28px; text-align: center; border-top: 1px solid #f1f5f9; font-size: 12px; color: #94a3b8;">
+              <p style="margin: 0 0 6px 0;">This is an automated notification from your ZMW Clothing eCommerce platform.</p>
+              <p style="margin: 0; font-size: 11px; color: #cbd5e1;">© ${new Date().getFullYear()} ZMW Clothing. All rights reserved.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `;
+
+  if (!user || !pass || smtpAuthDisabled) {
+    console.log(`\n======================================================`);
+    console.log(`[ZMW NODEMAILER] ℹ️ First-visit lead notification (SIMULATED):`);
+    console.log(`To Admin     : ${recipientEmail}`);
+    console.log(`Subject      : ${subject}`);
+    console.log(`Customer Phone : +91 ${phone} | PIN: ${pincode} (${locationSummary})`);
+    console.log(`======================================================\n`);
+    return { success: true, simulated: true };
+  }
+
+  try {
+    const activeTransporter = getTransporter();
+    const info = await activeTransporter.sendMail({
+      from,
+      to: recipientEmail,
+      subject,
+      text,
+      html
+    });
+
+    console.log(`[ZMW NODEMAILER] ✅ Live first-visit lead notification dispatched to ${recipientEmail}. (Message ID: ${info.messageId})`);
+    return { success: true, messageId: info.messageId };
+  } catch (err) {
+    handleSmtpAuthError(err, "dispatch first-visit lead email");
+    return { success: true, simulated: true, error: err.message };
+  }
+}
+
 module.exports = {
   getTransporter,
   sendPasswordResetOtp,
@@ -998,7 +1176,9 @@ module.exports = {
   sendOrderConfirmationEmail,
   sendRefundConfirmationEmail,
   sendOrderStatusUpdateEmail,
-  buildOrderStatusEmailHtml
+  buildOrderStatusEmailHtml,
+  sendFirstVisitLeadNotification
 };
+
 
 

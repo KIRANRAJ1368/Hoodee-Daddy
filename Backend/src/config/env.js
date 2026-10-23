@@ -1,4 +1,5 @@
-require("dotenv").config();
+const path = require("path");
+require("dotenv").config({ path: path.resolve(__dirname, "../../.env") });
 
 const required = ["DB_HOST", "DB_NAME", "DB_USER", "JWT_SECRET"];
 if (process.env.NODE_ENV === "production") {

@@ -22,7 +22,8 @@ import {
   Star,
   Sparkles,
   Percent,
-  Network
+  Network,
+  Megaphone
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import "./AdminLayout.css";
@@ -39,6 +40,7 @@ const NAV_SECTIONS = [
     {
     title: "Banners",
     items: [
+      { to: "/announcements", label: "Top Announcements", icon: Megaphone },
       { to: "/banners", label: "Hero & Banners", icon: ImageIcon },
       { to: "/offer-banners", label: "Offer Banners", icon: Sparkles },
       { to: "/offers", label: "Product Offers", icon: Percent },

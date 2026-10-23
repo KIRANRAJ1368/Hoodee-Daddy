@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useShop } from "../context/ShopContext";
 import { storefrontApi } from "../services/storefrontApi";
+import { lookupPincodeLocation } from "../utils/pincodeLookup";
 import { imageUrl } from "../utils/imageUrl";
 import { ZMW_LOGO_DATA_URI } from "../utils/zmwLogo";
 import "./Checkout.css";
@@ -97,17 +98,29 @@ export default function Checkout() {
   // Progress Step: 1 = Contact, 2 = Delivery, 3 = Payment
   const [currentStep, setCurrentStep] = useState(2);
 
+  // Auto-fetch saved customer details from first-visit submission (Requirement 2)
+  const getSavedVisitor = () => {
+    try {
+      if (typeof window !== "undefined") {
+        const raw = localStorage.getItem("zmw_visitor_details");
+        return raw ? JSON.parse(raw) : null;
+      }
+    } catch {}
+    return null;
+  };
+  const savedVisitor = getSavedVisitor();
+
   // Form Fields
   const [formData, setFormData] = useState({
     email: "",
-    phone: "",
+    phone: savedVisitor?.phone || "",
     keepUpdated: true,
     fullName: "",
     address: "",
     apartment: "",
-    city: "",
-    state: "",
-    postalCode: initialPostalCode,
+    city: savedVisitor?.district || "",
+    state: savedVisitor?.state || "",
+    postalCode: initialPostalCode || savedVisitor?.pincode || "",
     country: "India",
     cardNumber: "•••• •••• •••• 4242",
     cardExp: "12/28",
@@ -157,6 +170,7 @@ export default function Checkout() {
   const [isLookingUpPincode, setIsLookingUpPincode] = useState(false);
   const [pincodeLookupMessage, setPincodeLookupMessage] = useState("");
 
+  // Auto-fetch District & State when valid 6-digit PIN code is entered (Requirement 4)
   useEffect(() => {
     const pin = (formData.postalCode || "").replace(/\D/g, "");
     if (pin.length !== 6) {
@@ -166,32 +180,36 @@ export default function Checkout() {
       setPincodeLookupMessage("");
       return undefined;
     }
-    const controller = new AbortController();
+    let isCancelled = false;
     const timer = setTimeout(async () => {
       setIsLookingUpPincode(true);
       setPincodeLookupMessage("");
       try {
-        const response = await fetch(`https://api.postalpincode.in/pincode/${pin}`, { signal: controller.signal });
-        const result = await response.json();
-        const offices = result?.[0]?.Status === "Success" ? result[0].PostOffice || [] : [];
-        if (!offices.length) {
+        const result = await lookupPincodeLocation(pin);
+        if (isCancelled) return;
+        if (result && result.success && result.district) {
+          setPostOffices(result.postOffices || []);
+          setFormData((prev) =>
+            prev.postalCode.replace(/\D/g, "") === pin
+              ? { ...prev, city: result.district, state: result.state }
+              : prev
+          );
+          if (stepErrors.postalCode) {
+            setStepErrors((prev) => ({ ...prev, postalCode: null }));
+          }
+        } else {
           setPostOffices([]);
           setPincodeLookupMessage("No post offices found for this PIN code.");
-          return;
         }
-        setPostOffices(offices);
-        setFormData((prev) => prev.postalCode.replace(/\D/g, "") === pin
-          ? { ...prev, city: offices[0].District || "", state: offices[0].State || "" }
-          : prev);
       } catch (error) {
-        if (error.name !== "AbortError") setPincodeLookupMessage("Could not look up this PIN code. You can still enter the address manually.");
+        if (!isCancelled) setPincodeLookupMessage("Could not look up this PIN code. You can still enter the address manually.");
       } finally {
-        if (!controller.signal.aborted) setIsLookingUpPincode(false);
+        if (!isCancelled) setIsLookingUpPincode(false);
       }
-    }, 300);
+    }, 250);
     return () => {
+      isCancelled = true;
       clearTimeout(timer);
-      controller.abort();
     };
   }, [formData.postalCode]);
 
@@ -1173,7 +1191,29 @@ export default function Checkout() {
                       />
                     </div>
 
+                    {/* Address Fields in Exact Order: PIN Code -> District -> State (Requirement 3) */}
                     <div className="cko-grid-3">
+                      <div className="cko-form-group">
+                        <label htmlFor="postalCode" className="cko-label">
+                          PIN CODE <span className="cko-req">*</span>
+                        </label>
+                        <input
+                          id="postalCode"
+                          name="postalCode"
+                          type="text"
+                          inputMode="numeric"
+                          maxLength={6}
+                          placeholder="e.g. 641004"
+                          value={formData.postalCode}
+                          onChange={handleInputChange}
+                          className={`cko-input ${stepErrors.postalCode ? "--error" : ""}`}
+                          required
+                        />
+                        {isLookingUpPincode && <p className="cko-field-hint">Detecting location…</p>}
+                        {pincodeLookupMessage && <p className="cko-field-hint">{pincodeLookupMessage}</p>}
+                        {stepErrors.postalCode && <p className="cko-field-error">{stepErrors.postalCode}</p>}
+                      </div>
+
                       <div className="cko-form-group">
                         <label htmlFor="city" className="cko-label">
                           DISTRICT <span className="cko-req">*</span>
@@ -1182,9 +1222,9 @@ export default function Checkout() {
                           id="city"
                           name="city"
                           type="text"
-                          placeholder="Filled from PIN code"
+                          placeholder="Auto-filled from PIN code"
                           value={formData.city}
-                          readOnly={postOffices.length > 0}
+                          onChange={handleInputChange}
                           className="cko-input"
                           required
                         />
@@ -1198,30 +1238,12 @@ export default function Checkout() {
                           id="state"
                           name="state"
                           type="text"
-                          placeholder="Filled from PIN code"
+                          placeholder="Auto-filled from PIN code"
                           value={formData.state}
-                          readOnly={postOffices.length > 0}
+                          onChange={handleInputChange}
                           className="cko-input"
                           required
                         />
-                      </div>
-
-                      <div className="cko-form-group">
-                        <label htmlFor="postalCode" className="cko-label">
-                          PIN CODE <span className="cko-req">*</span>
-                        </label>
-                        <input
-                          id="postalCode"
-                          name="postalCode"
-                          type="text"
-                          inputMode="numeric"
-                          placeholder="e.g. 641004"
-                          value={formData.postalCode}
-                          onChange={handleInputChange}
-                          className={`cko-input ${stepErrors.postalCode ? "--error" : ""}`}
-                          required
-                        />
-                        {stepErrors.postalCode && <p className="cko-field-error">{stepErrors.postalCode}</p>}
                       </div>
                     </div>
 

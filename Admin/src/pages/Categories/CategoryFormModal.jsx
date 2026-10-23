@@ -9,24 +9,14 @@ import { slugify } from "../../utils/slugify";
 import { broadcastCatalogUpdate } from "../../utils/broadcastCatalogUpdate";
 
 export default function CategoryFormModal({ category, onClose, onSaved, defaultSortOrder = 0 }) {
-  const isEdit = !!category?.id;
+  const isEdit = Boolean(category?.id);
   const [name, setName] = useState(category?.name || "");
   const [slug, setSlug] = useState(category?.slug || "");
   const [description, setDescription] = useState(category?.description || "");
   const [sortOrder, setSortOrder] = useState(category?.sort_order ?? (defaultSortOrder ?? 0));
   const [isActive, setIsActive] = useState(category?.is_active ?? true);
   const [showOnHomepage, setShowOnHomepage] = useState(category?.show_on_homepage ?? true);
-
-  // Integrated Collection Page Hero Banner
   const [bannerImageUrl, setBannerImageUrl] = useState(category?.banner_image_url || "");
-  const [bannerImagePosition, setBannerImagePosition] = useState(category?.banner_image_position || "center center");
-  const [bannerTag, setBannerTag] = useState(category?.banner_tag || "");
-  const [bannerBadgePromo, setBannerBadgePromo] = useState(category?.banner_badge_promo || "");
-  const [bannerTitle, setBannerTitle] = useState(category?.banner_title || "");
-  const [bannerSubtitle, setBannerSubtitle] = useState(category?.banner_subtitle || "");
-  const [bannerPrimaryCtaText, setBannerPrimaryCtaText] = useState(category?.banner_primary_cta_text || "");
-
-
 
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
@@ -74,16 +64,13 @@ export default function CategoryFormModal({ category, onClose, onSaved, defaultS
         is_active: Boolean(isActive),
         show_on_homepage: Boolean(showOnHomepage),
         banner_image_url: bannerImageUrl.trim() || null,
-        banner_image_position: bannerImagePosition.trim() || "center center",
-        banner_tag: bannerTag.trim() || cleanName,
-        banner_badge_promo: bannerBadgePromo.trim() || "New Collection",
-        banner_title: bannerTitle.trim() || `${cleanName.toUpperCase()} COLLECTION`,
-        banner_subtitle:
-          bannerSubtitle.trim() ||
-          description.trim() ||
-          `Explore our premium ${cleanName.toLowerCase()} essentials crafted for everyday comfort and modern style.`,
-        banner_primary_cta_text: bannerPrimaryCtaText.trim() || `Shop ${cleanName}`,
-        banner_primary_cta_link: category?.banner_primary_cta_link || `/collection?category=${generatedSlug}`
+        banner_image_position: "center center",
+        banner_tag: null,
+        banner_badge_promo: null,
+        banner_title: `${cleanName.toUpperCase()} COLLECTION`,
+        banner_subtitle: description.trim() || null,
+        banner_primary_cta_text: null,
+        banner_primary_cta_link: `/collection?category=${generatedSlug}`
       };
 
       if (isEdit) {
@@ -111,217 +98,126 @@ export default function CategoryFormModal({ category, onClose, onSaved, defaultS
     <Modal
       title={isEdit ? "Edit Category & Collection Banner" : "Add New Category & Collection Banner"}
       onClose={onClose}
-      width={720}
+      width={680}
     >
       <form noValidate onSubmit={handleSubmit}>
-        {/* Category Basics */}
-        <div style={{ marginBottom: 18 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "#1e293b", marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.04em" }}>
-            1. Category Details
-          </div>
+        {/* 1. Category Name & Slug */}
+        <div className="form-grid">
+          <FormField
+            label="Category Name *"
+            htmlFor="cat-name"
+            error={error}
+            hint="Primary storefront category title (e.g. Men, Women, Kids)"
+          >
+            <input
+              id="cat-name"
+              placeholder="e.g. Men, Women, Kids, Unisex"
+              value={name}
+              onChange={(e) => handleNameChange(e.target.value)}
+              className={error ? "has-error" : ""}
+              autoFocus
+              required
+            />
+          </FormField>
 
-          <div className="form-grid">
-            <FormField
-              label="Category Name *"
-              htmlFor="cat-name"
-              error={error}
-              hint="Primary storefront category title (e.g. Men, Women, Kids)"
-            >
-              <input
-                id="cat-name"
-                placeholder="e.g. Men, Women, Kids, Unisex"
-                value={name}
-                onChange={(e) => handleNameChange(e.target.value)}
-                className={error ? "has-error" : ""}
-                autoFocus
-                required
-              />
-            </FormField>
-
-            <FormField
-              label="URL Slug"
-              htmlFor="cat-slug"
-              hint="URL parameter: /collection?category=slug"
-            >
-              <input
-                id="cat-slug"
-                placeholder="e.g. mens, women, kids"
-                value={slug}
-                onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]+/g, "-"))}
-              />
-            </FormField>
-          </div>
-
-          <div className="form-grid">
-            <FormField
-              label="Display Order Sequence"
-              htmlFor="cat-sort-order"
-              hint="Lower number appears first on navbar & storefront"
-            >
-              <input
-                id="cat-sort-order"
-                type="number"
-                min="0"
-                placeholder="e.g. 0, 1, 2"
-                value={sortOrder}
-                onChange={(e) => setSortOrder(e.target.value)}
-              />
-            </FormField>
-
-            <FormField
-              label="Short Description"
-              htmlFor="cat-desc"
-              hint="Category description used across storefront"
-            >
-              <input
-                id="cat-desc"
-                placeholder="e.g. Premium pure cotton drops and streetwear fits"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
-            </FormField>
-          </div>
-
-          <div style={{ display: "flex", gap: 24, marginTop: 8 }}>
-            <div className="checkbox-row">
-              <input
-                id="cat-active"
-                type="checkbox"
-                checked={isActive}
-                onChange={(e) => setIsActive(e.target.checked)}
-              />
-              <label htmlFor="cat-active">
-                <strong>Active & Visible in Navbar</strong>
-              </label>
-            </div>
-
-            <div className="checkbox-row">
-              <input
-                id="cat-home"
-                type="checkbox"
-                checked={showOnHomepage}
-                onChange={(e) => setShowOnHomepage(e.target.checked)}
-              />
-              <label htmlFor="cat-home">
-                <strong>Show Category Carousel on Homepage</strong>
-              </label>
-            </div>
-          </div>
+          <FormField
+            label="URL Slug"
+            htmlFor="cat-slug"
+            hint="URL parameter: /collection?category=slug"
+          >
+            <input
+              id="cat-slug"
+              placeholder="e.g. mens, women, kids"
+              value={slug}
+              onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]+/g, "-"))}
+            />
+          </FormField>
         </div>
 
-        {/* Collection Hero Banner Section (Pic 2) */}
-        <div
-          style={{
-            background: "#f8fafc",
-            border: "1px solid #e2e8f0",
-            borderRadius: 12,
-            padding: "16px 18px",
-            marginBottom: 20
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "#1e293b", textTransform: "uppercase", letterSpacing: "0.04em" }}>
-              2. Collection Page Hero Banner
-            </div>
-            <span style={{ fontSize: 11, color: "#64748b", fontWeight: 500 }}>
-              Appears atop /collection?category={slug || "..."}
-            </span>
-          </div>
+        {/* 2. Display Order Sequence & Short Description */}
+        <div className="form-grid">
+          <FormField
+            label="Display Order Sequence"
+            htmlFor="cat-sort-order"
+            hint="Lower number appears first on navbar & storefront"
+          >
+            <input
+              id="cat-sort-order"
+              type="number"
+              min="0"
+              placeholder="e.g. 0, 1, 2"
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value)}
+            />
+          </FormField>
 
+          <FormField
+            label="Short Description"
+            htmlFor="cat-desc"
+            hint="Category description used across storefront"
+          >
+            <input
+              id="cat-desc"
+              placeholder="e.g. Premium pure cotton drops and streetwear fits"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </FormField>
+        </div>
+
+        {/* 3. Collection Page Hero Banner (Pure Banner Image) */}
+        <div style={{ marginTop: 6, marginBottom: 16 }}>
           <ImageUploadField
-            label="Banner Image"
+            label="Collection Page Hero Banner"
             value={bannerImageUrl}
             onChange={(url) => setBannerImageUrl(url)}
             folder="banners"
             aspectRatio="16/9"
-            previewHeight={160}
-            hint="Upload a high-resolution landscape banner (Recommended: 1920 × 800px). Supports JPG, PNG, WEBP."
+            previewHeight={180}
+            hint="Upload a high-resolution landscape banner image for this category collection page (Recommended: 1920 × 800px). Supports JPG, PNG, WEBP."
           />
-
-          {/* <FormField
-            label="Image Focal Position"
-            htmlFor="cat-b-pos"
-            hint="CSS object-position (e.g. center center, 85% top, center 20%)"
-          >
-            <input
-              id="cat-b-pos"
-              placeholder="center center"
-              value={bannerImagePosition}
-              onChange={(e) => setBannerImagePosition(e.target.value)}
-            />
-          </FormField> */}
-
-          <div className="form-grid">
-            <FormField
-              label="Promo Badge Tag"
-              htmlFor="cat-b-badge"
-              hint="e.g. FLAT 25% OFF · AUTO-APPLIED"
-            >
-              <input
-                id="cat-b-badge"
-                placeholder="e.g. FLAT 25% OFF · AUTO-APPLIED"
-                value={bannerBadgePromo}
-                onChange={(e) => setBannerBadgePromo(e.target.value)}
-              />
-            </FormField>
-
-            <FormField
-              label="Tagline / Eyebrow Text"
-              htmlFor="cat-b-tag"
-              hint="e.g. ★ PREMIUM MEN'S APPAREL · SEASON 2026"
-            >
-              <input
-                id="cat-b-tag"
-                placeholder={name ? `★ PREMIUM ${name.toUpperCase()} · SEASON 2026` : "e.g. ★ PREMIUM COLLECTION"}
-                value={bannerTag}
-                onChange={(e) => setBannerTag(e.target.value)}
-              />
-            </FormField>
-          </div>
-
-          <FormField
-            label="Headline Title"
-            htmlFor="cat-b-title"
-            hint="e.g. MEN'S COLLECTION"
-          >
-            <input
-              id="cat-b-title"
-              placeholder={name ? `${name.toUpperCase()} COLLECTION` : "e.g. NEW SEASON COLLECTION"}
-              value={bannerTitle}
-              onChange={(e) => setBannerTitle(e.target.value)}
-            />
-          </FormField>
-
-          <FormField
-            label="Subtitle / Description Copy"
-            htmlFor="cat-b-subtitle"
-            hint="Support copy under the headline"
-          >
-            <textarea
-              id="cat-b-subtitle"
-              rows={2}
-              placeholder={name ? `Explore our premium ${name.toLowerCase()} essentials crafted for elevated comfort and everyday style.` : "Explore our latest drops."}
-              value={bannerSubtitle}
-              onChange={(e) => setBannerSubtitle(e.target.value)}
-            />
-          </FormField>
-
-          <FormField
-            label="Primary CTA Text"
-            htmlFor="cat-b-cta1"
-            hint="e.g. Shop Men's, Explore Now"
-          >
-            <input
-              id="cat-b-cta1"
-              placeholder={name ? `Shop ${name}` : "Shop Now"}
-              value={bannerPrimaryCtaText}
-              onChange={(e) => setBannerPrimaryCtaText(e.target.value)}
-            />
-          </FormField>
         </div>
 
+        {/* 4. Active & Show Category Checkboxes */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 12,
+            marginTop: 8,
+            padding: "12px 14px",
+            background: "#f8fafc",
+            borderRadius: 8,
+            border: "1px solid #e2e8f0"
+          }}
+        >
+          <div className="checkbox-row">
+            <input
+              id="cat-active"
+              type="checkbox"
+              checked={isActive}
+              onChange={(e) => setIsActive(e.target.checked)}
+            />
+            <label htmlFor="cat-active" style={{ cursor: "pointer", fontSize: 13 }}>
+              <strong>Active & Visible in Navbar</strong>
+            </label>
+          </div>
 
-        <div className="form-actions" style={{ marginTop: 24 }}>
+          <div className="checkbox-row">
+            <input
+              id="cat-home"
+              type="checkbox"
+              checked={showOnHomepage}
+              onChange={(e) => setShowOnHomepage(e.target.checked)}
+            />
+            <label htmlFor="cat-home" style={{ cursor: "pointer", fontSize: 13 }}>
+              <strong>Show Category Carousel on Homepage</strong>
+            </label>
+          </div>
+        </div>
+
+        {/* Form Actions */}
+        <div className="form-actions" style={{ marginTop: 22 }}>
           <button type="button" className="btn btn-secondary" onClick={onClose}>
             Cancel
           </button>

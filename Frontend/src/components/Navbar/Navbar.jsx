@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import { Link, useLocation } from "react-router-dom";
 import { useShop } from "../../context/ShopContext";
 import { storefrontApi } from "../../services/storefrontApi";
+import TopAnnouncementBar from "../TopAnnouncementBar/TopAnnouncementBar";
 import "./Navbar.css";
 
 function isCategoryMatching(catSlug, activeNav) {
@@ -319,6 +320,7 @@ export default function Navbar() {
   return (
     <>
       <header className="site-header">
+        <TopAnnouncementBar />
         <nav className={`main-navbar ${isScrolled ? "navbar-scrolled" : ""}`}>
           <div className="container navbar-inner" ref={desktopNavRef}>
             <button

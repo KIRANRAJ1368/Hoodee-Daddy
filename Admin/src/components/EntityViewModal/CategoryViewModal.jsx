@@ -94,73 +94,31 @@ export default function CategoryViewModal({ category, onEdit, onClose }) {
             </div>
           </div>
 
-          {(data.banner_image_url || data.banner_title) && (
+          {data.banner_image_url && (
             <div style={{ marginTop: 14 }}>
-              <div className="ev-section-label">Collection Page Hero Banner</div>
+              <div className="ev-section-label">Collection Page Hero Banner (Original Quality)</div>
               <div
                 style={{
                   background: "#0F172A",
                   borderRadius: 10,
                   overflow: "hidden",
-                  color: "#fff",
-                  display: "flex",
-                  flexDirection: "column",
+                  border: "1px solid var(--border, #e2e8f0)",
                   position: "relative"
                 }}
               >
-                {data.banner_image_url && (
-                  <div style={{ height: 140, overflow: "hidden", position: "relative" }}>
-                    <img
-                      src={data.banner_image_url}
-                      alt={data.banner_title || data.name}
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                        objectPosition: data.banner_image_position || "center center"
-                      }}
-                      onError={(e) => { e.currentTarget.style.display = "none"; }}
-                    />
-                    <div
-                      style={{
-                        position: "absolute",
-                        inset: 0,
-                        background: "linear-gradient(to right, rgba(15,23,42,0.92) 0%, rgba(15,23,42,0.6) 60%, transparent 100%)"
-                      }}
-                    />
-                  </div>
-                )}
-                <div style={{ padding: "14px 18px", position: "relative", zIndex: 1 }}>
-                  {data.banner_tag && (
-                    <div style={{ fontSize: 11, fontWeight: 700, color: "#FAA703", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
-                      {data.banner_tag}
-                    </div>
-                  )}
-                  <h3 style={{ fontSize: 18, fontWeight: 800, margin: "0 0 6px 0", letterSpacing: "0.02em" }}>
-                    {data.banner_title || `${data.name.toUpperCase()} COLLECTION`}
-                  </h3>
-                  {data.banner_subtitle && (
-                    <p style={{ fontSize: 12.5, color: "#94A3B8", margin: "0 0 10px 0", lineHeight: 1.4 }}>
-                      {data.banner_subtitle}
-                    </p>
-                  )}
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-                    {data.banner_badge_promo && (
-                      <span style={{ fontSize: 11, fontWeight: 700, background: "#FAA703", color: "#0F172A", padding: "3px 8px", borderRadius: 4 }}>
-                        {data.banner_badge_promo}
-                      </span>
-                    )}
-                    {data.banner_primary_cta_text && (
-                      <span style={{ fontSize: 11.5, fontWeight: 600, color: "#fff", border: "1px solid rgba(255,255,255,0.3)", padding: "3px 10px", borderRadius: 4 }}>
-                        {data.banner_primary_cta_text} →
-                      </span>
-                    )}
-                    {data.banner_secondary_cta_text && (
-                      <span style={{ fontSize: 11, color: "#CBD5E1" }}>
-                        {data.banner_secondary_cta_text}
-                      </span>
-                    )}
-                  </div>
+                <div style={{ height: 160, overflow: "hidden", position: "relative" }}>
+                  <img
+                    src={data.banner_image_url}
+                    alt={data.name}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      objectPosition: "center center",
+                      filter: "none"
+                    }}
+                    onError={(e) => { e.currentTarget.style.display = "none"; }}
+                  />
                 </div>
               </div>
             </div>

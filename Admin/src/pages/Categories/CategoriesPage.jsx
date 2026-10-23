@@ -184,14 +184,9 @@ export default function CategoriesPage() {
                     </div>
                   )}
                   <div style={{ minWidth: 0 }}>
-                    <div style={{ fontSize: 12.5, fontWeight: 700, color: "#1e293b", maxWidth: 220, textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
-                      {row.banner_title || `${row.name.toUpperCase()} COLLECTION`}
+                    <div style={{ fontSize: 12.5, fontWeight: 600, color: "#1e293b", maxWidth: 220, textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
+                      {row.banner_image_url ? `${row.name} Banner` : "Default Banner"}
                     </div>
-                    {row.banner_badge_promo && (
-                      <span style={{ fontSize: 10.5, fontWeight: 600, color: "#d97706" }}>
-                        {row.banner_badge_promo}
-                      </span>
-                    )}
                   </div>
                 </div>
               )

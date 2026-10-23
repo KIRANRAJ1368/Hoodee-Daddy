@@ -42,8 +42,9 @@ function parseOfferHighlights(banner) {
 }
 
 export default function OfferBannerRow({ banners = [], onOpenBanner }) {
-  if (!banners || !banners.length) return null;
-
+  if (!Array.isArray(banners) || banners.length === 0) {
+    return null;
+  }
   const displayBanners = banners.slice(0, 10);
   const isSingle = displayBanners.length === 1;
 

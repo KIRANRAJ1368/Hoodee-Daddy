@@ -1,0 +1,28 @@
+.announcements-page {
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.status-toggle-btn {
+  transition: transform 0.15s ease;
+}
+
+.status-toggle-btn:hover {
+  transform: scale(1.04);
+}
+
+.status-toggle-btn:active {
+  transform: scale(0.96);
+}
+
+@media (max-width: 768px) {
+  .announcements-page .page-header {
+    flex-direction: column;
+    gap: 14px;
+    align-items: stretch !important;
+  }
+
+  .announcements-page .page-header .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

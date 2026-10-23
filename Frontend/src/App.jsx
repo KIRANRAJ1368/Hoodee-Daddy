@@ -38,6 +38,7 @@ const AuthModal = lazy(() => import("./components/Modals/AuthModal"));
 const OrderTrackModal = lazy(() => import("./components/Modals/OrderTrackModal"));
 const LightboxModal = lazy(() => import("./components/Modals/LightboxModal"));
 const ToastContainer = lazy(() => import("./components/Widgets/ToastContainer"));
+const FirstVisitModal = lazy(() => import("./components/Modals/FirstVisitModal"));
 
 /**
  * CategoryRedirect preserves any existing query parameters when redirecting
@@ -256,6 +257,7 @@ export default function App() {
         <OrderTrackModal />
         <LightboxModal />
         <ToastContainer />
+        <FirstVisitModal />
       </Suspense>
     </ShopProvider>
   );

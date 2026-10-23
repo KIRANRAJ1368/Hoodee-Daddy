@@ -14,6 +14,7 @@ import InventoryPage from "./pages/Inventory/InventoryPage";
 import VariantManagementPage from "./pages/Variants/VariantManagementPage";
 import StockManagementPage from "./pages/Stock/StockManagementPage";
 import BannersPage from "./pages/Banners/BannersPage";
+import AnnouncementsPage from "./pages/Announcements/AnnouncementsPage";
 import HomepageSectionsPage from "./pages/HomepageSections/HomepageSectionsPage";
 import OrdersPage from "./pages/Orders/OrdersPage";
 import OrderDetailPage from "./pages/Orders/OrderDetailPage";
@@ -54,6 +55,7 @@ export default function App() {
             <Route path="inventory" element={<InventoryPage />} />
             <Route path="variants" element={<VariantManagementPage />} />
             <Route path="stock" element={<StockManagementPage />} />
+            <Route path="announcements" element={<AnnouncementsPage />} />
             <Route path="banners" element={<BannersPage />} />
             <Route path="offer-banners" element={<OfferBannersPage />} />
             <Route path="offers" element={<OffersPage />} />

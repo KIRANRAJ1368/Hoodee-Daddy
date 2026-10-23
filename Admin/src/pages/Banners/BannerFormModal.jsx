@@ -14,8 +14,8 @@ const CORE_PLACEMENTS = [
   { value: "default", label: "Default Fallback Banner" }
 ];
 
-export default function BannerFormModal({ banner, heroCount = 0, offerCount = 0, onClose, onSaved }) {
-  const isEdit = !!banner.id;
+export default function BannerFormModal({ banner = {}, heroCount = 0, offerCount = 0, onClose, onSaved }) {
+  const isEdit = Boolean(banner?.id);
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
@@ -54,26 +54,28 @@ export default function BannerFormModal({ banner, heroCount = 0, offerCount = 0,
   }, [categories, banner]);
 
   function defaultPlacement() {
-    if (banner.placement) return banner.placement;
+    if (banner?.placement) return banner.placement;
     if (heroCount >= 3) return "mens";
     return "hero";
   }
 
   const [form, setForm] = useState({
     placement: defaultPlacement(),
-    title: banner.title || "",
-    subtitle: banner.subtitle || "",
-    tag: banner.tag || "",
-    badge_promo: banner.badge_promo || "",
-    image_url: banner.image_url || "",
-    image_position: banner.image_position || "center center",
-    primary_cta_text: banner.primary_cta_text || "",
-    primary_cta_link: banner.primary_cta_link || "",
-    secondary_cta_text: banner.secondary_cta_text || "",
-    secondary_cta_link: banner.secondary_cta_link || "",
-    sort_order: banner.sort_order ?? 0,
-    is_active: banner.is_active ?? true
+    title: banner?.title || "",
+    subtitle: banner?.subtitle || "",
+    tag: banner?.tag || "",
+    badge_promo: banner?.badge_promo || "",
+    image_url: banner?.image_url || "",
+    image_position: banner?.image_position || "center center",
+    primary_cta_text: banner?.primary_cta_text || "",
+    primary_cta_link: banner?.primary_cta_link || "",
+    secondary_cta_text: banner?.secondary_cta_text || "",
+    secondary_cta_link: banner?.secondary_cta_link || "",
+    sort_order: banner?.sort_order ?? 0,
+    is_active: banner?.is_active ?? true
   });
+
+  const isHeroPlacement = form.placement === "hero";
   const [errors, setErrors] = useState({});
   const [isSaving, setIsSaving] = useState(false);
   const toast = useToast();
@@ -91,6 +93,7 @@ export default function BannerFormModal({ banner, heroCount = 0, offerCount = 0,
 
   async function handleSubmit(e) {
     e.preventDefault();
+
     if (form.placement === "hero" && (!isEdit || banner.placement !== "hero") && heroCount >= 3) {
       toast.error("Maximum 3 Hero Banners can be added.");
       setErrors((prev) => ({ ...prev, placement: "Maximum 3 Hero Banners can be added." }));
@@ -108,7 +111,10 @@ export default function BannerFormModal({ banner, heroCount = 0, offerCount = 0,
       return;
     }
 
-    if (!form.title || !form.title.trim()) {
+    // For Hero Banners: automatically set a clean reference title if not provided
+    const finalTitle = form.title?.trim() || (isHeroPlacement ? `Hero Banner ${(form.sort_order ?? 0) + 1}` : "Campaign Banner");
+
+    if (!isHeroPlacement && (!form.title || !form.title.trim())) {
       toast.error("Please enter the headline title");
       setErrors((prev) => ({ ...prev, title: "Please enter the headline title" }));
       return;
@@ -117,14 +123,27 @@ export default function BannerFormModal({ banner, heroCount = 0, offerCount = 0,
     setErrors({});
     setIsSaving(true);
     try {
-      const payload = { ...form };
+      const payload = {
+        placement: form.placement,
+        sort_order: form.sort_order ?? 0,
+        image_url: form.image_url,
+        is_active: form.is_active ?? true,
+        title: finalTitle,
+        subtitle: isHeroPlacement ? null : (form.subtitle?.trim() || null),
+        tag: isHeroPlacement ? null : (form.tag?.trim() || null),
+        badge_promo: isHeroPlacement ? null : (form.badge_promo?.trim() || null),
+        primary_cta_text: isHeroPlacement ? null : (form.primary_cta_text?.trim() || null),
+        primary_cta_link: isHeroPlacement ? (form.primary_cta_link || null) : (form.primary_cta_link || null),
+        secondary_cta_text: null,
+        secondary_cta_link: null
+      };
 
       if (isEdit) {
         await bannersApi.update(banner.id, payload);
-        toast.success(`Banner "${payload.title}" updated successfully!`);
+        toast.success(`Banner updated successfully!`);
       } else {
         await bannersApi.create(payload);
-        toast.success(`Banner "${payload.title}" created successfully!`);
+        toast.success(`Banner created successfully!`);
       }
       onSaved();
     } catch (err) {
@@ -142,9 +161,9 @@ export default function BannerFormModal({ banner, heroCount = 0, offerCount = 0,
 
   return (
     <Modal
-      title={isEdit ? "Edit Banner" : "Create New Banner"}
+      title={isEdit ? (isHeroPlacement ? "Edit Hero Banner" : "Edit Banner") : (isHeroPlacement ? "Create Hero Banner" : "Create New Banner")}
       onClose={onClose}
-      width={700}
+      width={680}
     >
       <form noValidate onSubmit={handleSubmit}>
         {currentIsHeroCapped && (
@@ -167,10 +186,10 @@ export default function BannerFormModal({ banner, heroCount = 0, offerCount = 0,
           </div>
         )}
 
-        {/* Placement & Sequence */}
+        {/* 1. Banner Placement & Sequence */}
         <div className="form-grid">
           <FormField
-            label="Banner Placement / Target *"
+            label="Banner Placement *"
             htmlFor="b-placement"
             error={errors.placement || (currentIsHeroCapped ? "Maximum 3 Hero Banners can be added." : null)}
           >
@@ -191,7 +210,7 @@ export default function BannerFormModal({ banner, heroCount = 0, offerCount = 0,
             </select>
           </FormField>
 
-          <FormField label="Display Order Sequence" htmlFor="b-sort" hint="Lower appears first in slider">
+          <FormField label="Display Order Sequence" htmlFor="b-sort" hint="Lower number appears first (e.g. 0, 1, 2)">
             <input
               id="b-sort"
               type="number"
@@ -201,150 +220,106 @@ export default function BannerFormModal({ banner, heroCount = 0, offerCount = 0,
           </FormField>
         </div>
 
-        {/* Banner Imagery */}
+        {/* 2. Banner Image * */}
         <ImageUploadField
-          label="Banner Image"
+          label="Banner Image *"
           value={form.image_url}
           onChange={(url) => update("image_url", url)}
           folder="banners"
           aspectRatio="16/9"
-          previewHeight={180}
-          hint="Upload a high-resolution landscape banner (Recommended: 1920 × 800px or 16:9 ratio). Supports JPG, PNG, WEBP up to 10MB."
+          previewHeight={200}
+          hint="Upload a high-resolution landscape banner image (Recommended: 1920 × 800px or 16:9 ratio). Supports JPG, PNG, WEBP."
           error={errors.image_url}
           required
         />
 
-        <div className="form-grid">
-          {/* <FormField
-            label="Image Focal Position"
-            htmlFor="b-image-position"
-            hint="CSS object-position, e.g. center center, right top"
-          >
-            <input
-              id="b-image-position"
-              value={form.image_position}
-              onChange={(e) => update("image_position", e.target.value)}
-              placeholder="center center"
-            />
-          </FormField> */}
+        {/* Non-Hero Placements Only: Headline, Tag, Subtitle, CTA */}
+        {!isHeroPlacement && (
+          <>
+            <FormField label="Headline Title *" htmlFor="b-title" error={errors.title}>
+              <input
+                id="b-title"
+                placeholder="e.g. Redefine Your Wardrobe"
+                value={form.title}
+                onChange={(e) => update("title", e.target.value)}
+                required
+              />
+            </FormField>
 
-          <FormField
-            label="Promo Badge Tag"
-            htmlFor="b-badge"
-            hint="e.g. FLAT 20% OFF &bull; LIMITED DROP"
-          >
-            <input
-              id="b-badge"
-              placeholder="e.g. LUXURY EDITION &bull; NEW SEASON"
-              value={form.badge_promo}
-              onChange={(e) => update("badge_promo", e.target.value)}
-            />
-          </FormField>
-        </div>
+            <div className="form-grid">
+              <FormField label="Tagline / Eyebrow Text" htmlFor="b-tag">
+                <input
+                  id="b-tag"
+                  placeholder="e.g. NEW SEASON DROP"
+                  value={form.tag}
+                  onChange={(e) => update("tag", e.target.value)}
+                />
+              </FormField>
 
-        {/* Copy / Typography */}
-        <FormField
-          label="Tagline / Eyebrow Text"
-          htmlFor="b-tag"
-          hint="Small uppercase kicker above headline, e.g. AUTUMN / WINTER 2026"
-        >
-          <input
-            id="b-tag"
-            placeholder="e.g. AUTUMN / WINTER 2026"
-            value={form.tag}
-            onChange={(e) => update("tag", e.target.value)}
-          />
-        </FormField>
+              <FormField label="Promo Badge Tag" htmlFor="b-badge">
+                <input
+                  id="b-badge"
+                  placeholder="e.g. FLAT 20% OFF"
+                  value={form.badge_promo}
+                  onChange={(e) => update("badge_promo", e.target.value)}
+                />
+              </FormField>
+            </div>
 
-        <FormField label="Headline Title *" htmlFor="b-title" error={errors.title}>
-          <input
-            id="b-title"
-            placeholder="e.g. Redefine Your Wardrobe"
-            value={form.title}
-            onChange={(e) => update("title", e.target.value)}
-            required
-          />
-        </FormField>
+            <FormField label="Subtitle / Description Copy" htmlFor="b-subtitle">
+              <textarea
+                id="b-subtitle"
+                rows={2}
+                placeholder="Description copy for banner"
+                value={form.subtitle}
+                onChange={(e) => update("subtitle", e.target.value)}
+              />
+            </FormField>
 
-        <FormField label="Subtitle / Description Copy" htmlFor="b-subtitle">
-          <textarea
-            id="b-subtitle"
-            rows={2}
-            placeholder="Crafted with 450+ GSM heavyweight cotton for timeless silhouette and warmth."
-            value={form.subtitle}
-            onChange={(e) => update("subtitle", e.target.value)}
-          />
-        </FormField>
+            <div className="form-grid">
+              <FormField label="Button Text (CTA)" htmlFor="b-cta1-text">
+                <input
+                  id="b-cta1-text"
+                  placeholder="e.g. Shop Now"
+                  value={form.primary_cta_text}
+                  onChange={(e) => update("primary_cta_text", e.target.value)}
+                />
+              </FormField>
 
-        {/* Buttons / CTA */}
-        <div className="form-grid">
-          <FormField label="Primary CTA Text" htmlFor="b-cta1-text">
-            <input
-              id="b-cta1-text"
-              placeholder="e.g. Shop Collection"
-              value={form.primary_cta_text}
-              onChange={(e) => update("primary_cta_text", e.target.value)}
-            />
-          </FormField>
+              <FormField label="Button Link" htmlFor="b-cta1-link">
+                <select
+                  id="b-cta1-link"
+                  value={form.primary_cta_link || ""}
+                  onChange={(e) => update("primary_cta_link", e.target.value)}
+                >
+                  <option value="">-- Select Destination --</option>
+                  <option value="/collection">All Categories</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={`/collection?category=${encodeURIComponent(cat.slug)}`}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+              </FormField>
+            </div>
+          </>
+        )}
 
-          <FormField
-            label="Primary CTA Link"
-            htmlFor="b-cta1-link"
-            hint="Choose where visitors go when clicking this banner"
-            error={errors.primary_cta_link}
-          >
-            <select
-              id="b-cta1-link"
-              value={form.primary_cta_link || ""}
-              onChange={(e) => {
-                const val = e.target.value;
-                update("primary_cta_link", val);
-                if (!form.primary_cta_text && val) {
-                  const matchedCat = categories.find(
-                    (c) => `/collection?category=${encodeURIComponent(c.slug)}` === val
-                  );
-                  if (matchedCat) update("primary_cta_text", `Shop ${matchedCat.name}`);
-                  else if (val === "/collection") update("primary_cta_text", "Shop All");
-                }
-              }}
-            >
-              <option value="">-- Select Category --</option>
-              <option value="/collection">All Categories (Shop All)</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={`/collection?category=${encodeURIComponent(cat.slug)}`}>
-                  {cat.name}
-                </option>
-              ))}
-              {form.primary_cta_link &&
-                form.primary_cta_link !== "/collection" &&
-                !categories.some((c) => `/collection?category=${encodeURIComponent(c.slug)}` === form.primary_cta_link) && (
-                  <option value={form.primary_cta_link}>{form.primary_cta_link}</option>
-              )}
-            </select>
-            {form.primary_cta_link && (
-              <div style={{ fontSize: 11.5, color: "#64748b", marginTop: 5, display: "flex", alignItems: "center", gap: 5 }}>
-                <span>Target:</span>
-                <code style={{ background: "#f1f5f9", padding: "1px 6px", borderRadius: 4, color: "#334155", fontSize: 11 }}>
-                  {form.primary_cta_link}
-                </code>
-              </div>
-            )}
-          </FormField>
-        </div>
-
-        <div className="checkbox-row" style={{ marginTop: 6 }}>
+        {/* 3. Active Checkbox */}
+        <div className="checkbox-row" style={{ marginTop: 14, paddingTop: 10, borderTop: "1px solid #f1f5f9" }}>
           <input
             id="b-active"
             type="checkbox"
             checked={form.is_active}
             onChange={(e) => update("is_active", e.target.checked)}
           />
-          <label htmlFor="b-active">
+          <label htmlFor="b-active" style={{ cursor: "pointer", fontSize: 13 }}>
             <strong>Active & Visible on Storefront</strong>
           </label>
         </div>
 
-        <div className="form-actions">
+        {/* Form Actions */}
+        <div className="form-actions" style={{ marginTop: 20 }}>
           <button type="button" className="btn btn-secondary" onClick={onClose}>
             Cancel
           </button>

@@ -17,79 +17,159 @@
 .coll-hero-banner {
   position: relative;
   width: 100%;
-  min-height: 520px;
-  height: clamp(520px, calc(100vh - 68px), 640px);
-  height: clamp(520px, calc(100dvh - 68px), 640px);
   background-color: #06090F;
   overflow: hidden;
-  contain: layout size paint;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  user-select: none;
+  -webkit-user-select: none;
   border-bottom: 1px solid rgba(250, 167, 3, 0.25);
 }
 
 .coll-hero-wrapper {
   position: relative;
   width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
+  height: clamp(320px, 32vw, 500px);
   overflow: hidden;
-}
-
-/* ── Full-Bleed Backdrop Image with per-category positioning ── */
-.coll-hero-backdrop {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  z-index: 1;
+  background: #06090F;
 }
 
 .coll-hero-backdrop-img {
-  position: absolute;
-  inset: 0;
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transform: scale(1.0);
-  transition: transform 3000ms cubic-bezier(0.16, 1, 0.3, 1), opacity 500ms ease;
+  object-position: center center;
+  /* 100% Original Bright Image — NO darkening, NO gradient shade, NO filters */
+  filter: none !important;
+  opacity: 1 !important;
+  image-rendering: -webkit-optimize-contrast;
+  transition: transform 6s cubic-bezier(0.25, 1, 0.5, 1);
   will-change: transform;
 }
 
 .coll-hero-banner:hover .coll-hero-backdrop-img {
-  transform: scale(1.0);
+  transform: scale(1.025);
 }
 
-/* ── Balanced Modern Scrim (Exact match to Home Hero) ── */
-.coll-hero-backdrop-scrim {
+/* ── CrazyMonk-style Streetwear Live Category Pulse Badge ── */
+.coll-crazymonk-pill {
   position: absolute;
-  inset: 0;
-  z-index: 2;
-  background: 
-    /* Top header gradient */
-    linear-gradient(
-      180deg,
-      rgba(6, 9, 15, 0.5) 0%,
-      transparent 110px
-    ),
-    /* Left-to-right gradient preserving model on right side */
-    linear-gradient(
-      90deg,
-      rgba(6, 9, 15, 0.90) 0%,
-      rgba(6, 9, 15, 0.76) 34%,
-      rgba(6, 9, 15, 0.32) 58%,
-      rgba(6, 9, 15, 0.05) 76%,
-      transparent 100%
-    ),
-    /* Subtle bottom blend into catalog */
-    linear-gradient(
-      0deg,
-      rgba(6, 9, 15, 0.6) 0%,
-      transparent 80px
-    );
+  bottom: 22px;
+  left: 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(15, 23, 42, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 6px 14px 6px 10px;
+  border-radius: 999px;
+  z-index: 5;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+  animation: collPillFadeIn 0.4s ease;
+}
+
+.coll-crazymonk-dot {
+  width: 7.5px;
+  height: 7.5px;
+  border-radius: 50%;
+  background: #dc2626;
+  display: inline-block;
+  animation: heroCrazymonkPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.coll-crazymonk-text {
+  font-family: var(--font-primary, "Plus Jakarta Sans", sans-serif);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+@keyframes collPillFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .coll-crazymonk-pill {
+    bottom: 14px;
+    left: 14px;
+    padding: 4px 10px 4px 8px;
+  }
+  .coll-crazymonk-text {
+    font-size: 9.5px;
+    letter-spacing: 0.05em;
+  }
+}
+
+@media (max-width: 480px) {
+  .coll-crazymonk-pill {
+    display: none;
+  }
+}
+
+/* Scrim is completely disabled — Pure bright original banner */
+.coll-hero-backdrop-scrim {
+  display: none !important;
+}
+
+/* Breadcrumb Navigation on Collection Page */
+.coll-page-breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+  font-size: 13px;
+  color: #64748b;
+  flex-wrap: wrap;
+}
+
+.coll-page-breadcrumb-link {
+  color: #64748b;
+  text-decoration: none;
+  transition: color 150ms ease;
+  font-weight: 500;
+}
+
+.coll-page-breadcrumb-link:hover {
+  color: #FAA703;
+}
+
+.coll-page-breadcrumb-sep {
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+.coll-page-breadcrumb-active {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+@media (max-width: 1024px) {
+  .coll-hero-wrapper {
+    height: clamp(240px, 32vw, 360px);
+  }
+}
+
+@media (max-width: 768px) {
+  .coll-hero-wrapper {
+    height: clamp(180px, 42vw, 270px);
+  }
+}
+
+@media (max-width: 480px) {
+  .coll-hero-wrapper {
+    height: clamp(140px, 48vw, 210px);
+  }
 }
 
 /* ── Content Container & Left Alignment ── */
@@ -1554,8 +1634,8 @@
 
 @media (max-width: 580px) {
   .coll-hero-banner {
-    min-height: 440px;
-    height: clamp(440px, 72vh, 520px);
+    min-height: unset;
+    height: clamp(180px, 46vw, 260px);
   }
 
   .coll-hero-container {
@@ -1709,7 +1789,7 @@
 
 @media (max-width: 320px) {
   .coll-hero-banner {
-    min-height: 400px;
+    min-height: unset;
   }
 
   .coll-hero-offer-heading {

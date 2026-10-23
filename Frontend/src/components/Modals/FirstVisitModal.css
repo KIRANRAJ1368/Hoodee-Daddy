@@ -1,0 +1,362 @@
+/* ============================================================
+   FIRST VISIT MODAL — CUSTOMER PHONE & PIN CODE CAPTURE
+   Luxury styling aligned with ZMW aesthetic (gold & charcoal)
+   ============================================================ */
+
+.fvm-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fvmFadeIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fvmFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fvm-card {
+  position: relative;
+  background: #ffffff;
+  width: 100%;
+  max-width: 460px;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.32),
+              0 0 0 1px rgba(0, 0, 0, 0.05);
+  animation: fvmScaleUp 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fvmScaleUp {
+  from {
+    transform: scale(0.94) translateY(12px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ── Close Button ── */
+.fvm-close-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.18s ease;
+}
+
+.fvm-close-btn:hover {
+  background: rgba(255, 255, 255, 0.35);
+  transform: rotate(90deg);
+}
+
+/* ── Header Banner ── */
+.fvm-header {
+  background: linear-gradient(135deg, #111827 0%, #1e293b 100%);
+  color: #ffffff;
+  padding: 28px 24px 22px 24px;
+  text-align: center;
+  position: relative;
+  border-bottom: 3px solid #d4af37;
+}
+
+.fvm-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: 999px;
+  color: #eab308;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.fvm-title {
+  margin: 0;
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+  font-family: var(--font-primary, "Plus Jakarta Sans", sans-serif);
+}
+
+.fvm-subtitle {
+  margin: 8px 0 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #94a3b8;
+}
+
+/* ── Body & Form ── */
+.fvm-body {
+  padding: 24px 24px 20px 24px;
+}
+
+.fvm-form-group {
+  margin-bottom: 18px;
+}
+
+.fvm-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 6px;
+  letter-spacing: 0.02em;
+}
+
+.fvm-req {
+  color: #dc2626;
+  margin-left: 2px;
+}
+
+.fvm-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.fvm-country-prefix {
+  position: absolute;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #64748b;
+  padding-right: 8px;
+  border-right: 1px solid #e2e8f0;
+  pointer-events: none;
+  user-select: none;
+}
+
+.fvm-input {
+  width: 100%;
+  padding: 11px 14px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #0f172a;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 9px;
+  transition: all 0.18s ease;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.fvm-input.has-prefix {
+  padding-left: 64px;
+}
+
+.fvm-input:focus {
+  background: #ffffff;
+  border-color: #111827;
+  box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.08);
+}
+
+.fvm-input.is-error {
+  border-color: #dc2626;
+  background: #fff5f5;
+}
+
+.fvm-field-error {
+  margin: 5px 0 0 0;
+  font-size: 11.5px;
+  color: #dc2626;
+  font-weight: 500;
+}
+
+/* ── Auto-Detected Location Pill ── */
+.fvm-location-pill {
+  margin-top: 7px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  animation: fvmFadeIn 0.2s ease;
+}
+
+.fvm-location-pill.is-detecting {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.fvm-location-pill.is-success {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #15803d;
+  font-weight: 600;
+}
+
+.fvm-location-pill.is-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+}
+
+/* ── Benefit / Guarantee note ── */
+.fvm-benefit-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: #fffdf5;
+  border: 1px dashed #fde68a;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 12px;
+  color: #854d0e;
+  line-height: 1.45;
+  margin-bottom: 20px;
+}
+
+/* ── Submit Button ── */
+.fvm-submit-btn {
+  width: 100%;
+  padding: 13px 18px;
+  background: #111827;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(17, 24, 39, 0.22);
+}
+
+.fvm-submit-btn:hover:not(:disabled) {
+  background: #000000;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+}
+
+.fvm-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── Skip / Dismiss Link ── */
+.fvm-skip-row {
+  margin-top: 14px;
+  text-align: center;
+}
+
+.fvm-skip-btn {
+  background: none;
+  border: none;
+  color: #64748b;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px 8px;
+  text-decoration: underline;
+  transition: color 0.15s ease;
+}
+
+.fvm-skip-btn:hover {
+  color: #1e293b;
+}
+
+/* ── Success Screen ── */
+.fvm-success-view {
+  padding: 42px 24px;
+  text-align: center;
+  animation: fvmFadeIn 0.24s ease;
+}
+
+.fvm-success-icon {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: #dcfce7;
+  color: #16a34a;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  margin-bottom: 14px;
+}
+
+.fvm-success-title {
+  margin: 0 0 6px 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.fvm-success-text {
+  margin: 0;
+  font-size: 13.5px;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+/* ── Spinner ── */
+.fvm-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: fvmSpin 0.7s linear infinite;
+}
+
+@keyframes fvmSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 480px) {
+  .fvm-card {
+    border-radius: 14px;
+  }
+  .fvm-header {
+    padding: 24px 18px 18px 18px;
+  }
+  .fvm-title {
+    font-size: 18.5px;
+  }
+  .fvm-body {
+    padding: 18px 16px;
+  }
+}

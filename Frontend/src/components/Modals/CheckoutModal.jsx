@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useShop } from "../../context/ShopContext";
 import { storefrontApi } from "../../services/storefrontApi";
+import { lookupPincodeLocation } from "../../utils/pincodeLookup";
 import { isValidEmail, isValidPhone, cleanPhoneInput, cleanPincodeInput, isValidPincode, isNonEmpty } from "../../utils/validators";
 import "./CheckoutModal.css";
 
@@ -30,17 +31,28 @@ export default function CheckoutModal() {
     logoutCustomer
   } = useShop();
 
+  const getSavedVisitor = () => {
+    try {
+      if (typeof window !== "undefined") {
+        const raw = localStorage.getItem("zmw_visitor_details");
+        return raw ? JSON.parse(raw) : null;
+      }
+    } catch {}
+    return null;
+  };
+  const savedVisitor = getSavedVisitor();
+
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
     address: "",
-    city: "",
-    state: "",
-    postalCode: "",
+    city: savedVisitor?.district || "",
+    state: savedVisitor?.state || "",
+    postalCode: savedVisitor?.pincode || "",
     country: "India",
-    phone: "",
+    phone: savedVisitor?.phone || "",
     cardNumber: "•••• •••• •••• 4242",
     cardExp: "12/28",
     cardCvc: "888"
@@ -66,6 +78,28 @@ export default function CheckoutModal() {
       }));
     }
   }, [customerUser]);
+
+  // Auto-fetch District & State when PIN code is 6 digits (Requirement 4)
+  useEffect(() => {
+    const pin = (formData.postalCode || "").replace(/\D/g, "");
+    if (pin.length !== 6) return;
+
+    let isCancelled = false;
+    lookupPincodeLocation(pin).then((res) => {
+      if (isCancelled) return;
+      if (res && res.success && res.district) {
+        setFormData((prev) =>
+          prev.postalCode.replace(/\D/g, "") === pin
+            ? { ...prev, city: res.district, state: res.state }
+            : prev
+        );
+      }
+    });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [formData.postalCode]);
 
   if (!isCheckoutOpen) return null;
 
@@ -334,14 +368,29 @@ export default function CheckoutModal() {
                   />
                 </div>
 
+                {/* Address Fields in Exact Order: PIN Code -> District -> State (Requirement 3) */}
                 <div className="form-grid-3">
                   <div className="form-group">
-                    <label>City</label>
+                    <label>PIN Code</label>
+                    <input
+                      name="postalCode"
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={6}
+                      required
+                      placeholder="6-digit PIN code"
+                      value={formData.postalCode}
+                      onChange={handleChange}
+                      className="auth-input"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>District</label>
                     <input
                       name="city"
                       type="text"
                       required
-                      placeholder="e.g. Coimbatore"
+                      placeholder="Auto-filled from PIN code"
                       value={formData.city}
                       onChange={handleChange}
                       className="auth-input"
@@ -353,21 +402,8 @@ export default function CheckoutModal() {
                       name="state"
                       type="text"
                       required
-                      placeholder="e.g. Tamil Nadu"
+                      placeholder="Auto-filled from PIN code"
                       value={formData.state}
-                      onChange={handleChange}
-                      className="auth-input"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Pincode</label>
-                    <input
-                      name="postalCode"
-                      type="text"
-                      inputMode="numeric"
-                      required
-                      placeholder="6-digit PIN code"
-                      value={formData.postalCode}
                       onChange={handleChange}
                       className="auth-input"
                     />

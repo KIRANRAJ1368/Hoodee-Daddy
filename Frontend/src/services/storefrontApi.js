@@ -37,6 +37,7 @@ function get(path) {
 
 export const storefrontApi = {
   home: () => get("/home"),
+  getActiveAnnouncement: () => get("/announcements/active"),
   categories: () => get("/categories"),
   products: async () => {
     // Fetch up to 500 items per request, handling multi-page catalogs seamlessly
@@ -217,6 +218,13 @@ export const storefrontApi = {
     });
     return res && typeof res === "object" ? { ...res, data: res } : res;
   },
-  seoSettings: () => get("/seo/settings")
+  seoSettings: () => get("/seo/settings"),
+  submitFirstVisitLead: (payload) =>
+    request("/leads/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    }),
+  lookupPincode: (pincode) => get(`/leads/pincode/${encodeURIComponent(pincode)}`)
 };
 

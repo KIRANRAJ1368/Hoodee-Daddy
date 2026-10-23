@@ -21,10 +21,11 @@
 }
 
 .site-header-spacer {
-  height: 72px;
+  height: calc(72px + var(--announcement-bar-height, 0px));
   width: 100%;
   pointer-events: none;
   visibility: hidden;
+  transition: height 0.24s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ---------- Announcement Bar ---------- */
@@ -1181,7 +1182,7 @@
   }
 
   .site-header-spacer {
-    height: 56px;
+    height: calc(56px + var(--announcement-bar-height, 0px));
   }
 
   .brand-logo-img {
@@ -1257,7 +1258,7 @@
   }
 
   .site-header-spacer {
-    height: 52px;
+    height: calc(52px + var(--announcement-bar-height, 0px));
   }
 
   .navbar-scrolled .navbar-inner {
@@ -1315,7 +1316,7 @@
   }
 
   .site-header-spacer {
-    height: 50px;
+    height: calc(50px + var(--announcement-bar-height, 0px));
   }
 
   .navbar-scrolled .navbar-inner {
@@ -1384,7 +1385,7 @@
   }
 
   .site-header-spacer {
-    height: 48px;
+    height: calc(48px + var(--announcement-bar-height, 0px));
   }
 
   .navbar-scrolled .navbar-inner {

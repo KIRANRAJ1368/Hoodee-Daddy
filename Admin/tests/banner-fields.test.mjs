@@ -8,102 +8,35 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const categoryModalPath = path.resolve(here, "../src/pages/Categories/CategoryFormModal.jsx");
 const bannerModalPath = path.resolve(here, "../src/pages/Banners/BannerFormModal.jsx");
 
-test("Categories Banner matches Hero Banner fields and contains no extra input fields", () => {
+test("Hero Banner and Categories Banner are simplified with pure image uploads and zero unwanted text overlay fields", () => {
   const categoryModalContent = fs.readFileSync(categoryModalPath, "utf8");
   const bannerModalContent = fs.readFileSync(bannerModalPath, "utf8");
 
-  // Verify that the extra secondary CTA input field has been removed from Categories Banner
-  assert.equal(
-    categoryModalContent.includes('id="cat-b-cta2"'),
-    false,
-    "Categories Banner must not have cat-b-cta2 input"
-  );
-  assert.equal(
-    categoryModalContent.includes("Secondary CTA / Urgency Tag"),
-    false,
-    "Categories Banner must not have Secondary CTA / Urgency Tag input field"
-  );
+  // Category Modal must contain:
+  // 1. Category Name
+  assert.ok(categoryModalContent.includes('label="Category Name *"'), "Category Modal must have Category Name *");
+  // 2. URL Slug
+  assert.ok(categoryModalContent.includes('label="URL Slug"'), "Category Modal must have URL Slug");
+  // 3. Display Order Sequence
+  assert.ok(categoryModalContent.includes('label="Display Order Sequence"'), "Category Modal must have Display Order Sequence");
+  // 4. Short Description
+  assert.ok(categoryModalContent.includes('label="Short Description"'), "Category Modal must have Short Description");
+  // 5. Collection Page Hero Banner
+  assert.ok(categoryModalContent.includes('label="Collection Page Hero Banner"'), "Category Modal must have Collection Page Hero Banner");
+  // 6. Active checkbox
+  assert.ok(categoryModalContent.includes('Active & Visible in Navbar'), "Category Modal must have Active checkbox");
+  // 7. Show Category on Homepage checkbox
+  assert.ok(categoryModalContent.includes('Show Category Carousel on Homepage'), "Category Modal must have Show Category Carousel checkbox");
 
-  // Verify that Primary CTA Link has been removed from Categories Banner
-  assert.equal(
-    categoryModalContent.includes('id="cat-b-cta-link"'),
-    false,
-    "Categories Banner must not have cat-b-cta-link input"
-  );
-  assert.equal(
-    categoryModalContent.includes('label="Primary CTA Link"'),
-    false,
-    "Categories Banner must not have Primary CTA Link field"
-  );
+  // Category Modal must NOT contain unwanted text overlay fields
+  assert.equal(categoryModalContent.includes('label="Tagline / Eyebrow Text"'), false, "Category Modal must not have Tagline field");
+  assert.equal(categoryModalContent.includes('label="Promo Badge Tag"'), false, "Category Modal must not have Promo Badge field");
+  assert.equal(categoryModalContent.includes('label="Headline Title"'), false, "Category Modal must not have Headline Title field");
+  assert.equal(categoryModalContent.includes('label="Primary CTA Text"'), false, "Category Modal must not have CTA text field");
 
-  // Verify Categories Banner has the exact matching fields that are in Hero Banner
-  // 1. Banner Image (ImageUploadField)
-  assert.ok(
-    categoryModalContent.includes('label="Banner Hero Image"') || categoryModalContent.includes('label="Banner Image"'),
-    "Categories Banner must have ImageUploadField"
-  );
-  assert.ok(
-    bannerModalContent.includes('label="Banner Image"'),
-    "Hero Banner must have Banner Image field"
-  );
-
-  // 2. Tagline / Eyebrow Text
-  assert.ok(
-    categoryModalContent.includes('label="Tagline / Eyebrow Text"'),
-    "Categories Banner must have Tagline / Eyebrow Text field"
-  );
-  assert.ok(
-    bannerModalContent.includes('label="Tagline / Eyebrow Text"'),
-    "Hero Banner must have Tagline / Eyebrow Text field"
-  );
-
-  // 3. Promo Badge Tag
-  assert.ok(
-    categoryModalContent.includes('label="Promo Badge Tag"'),
-    "Categories Banner must have Promo Badge Tag field"
-  );
-  assert.ok(
-    bannerModalContent.includes('label="Promo Badge Tag"'),
-    "Hero Banner must have Promo Badge Tag field"
-  );
-
-  // 4. Headline Title
-  assert.ok(
-    categoryModalContent.includes("Headline Title"),
-    "Categories Banner must have Headline Title field"
-  );
-  assert.ok(
-    bannerModalContent.includes("Headline Title"),
-    "Hero Banner must have Headline Title field"
-  );
-
-  // 5. Image Focal Position
-  assert.ok(
-    categoryModalContent.includes('label="Image Focal Position"'),
-    "Categories Banner must have Image Focal Position field"
-  );
-  assert.ok(
-    bannerModalContent.includes('label="Image Focal Position"'),
-    "Hero Banner must have Image Focal Position field"
-  );
-
-  // 6. Subtitle / Description Copy
-  assert.ok(
-    categoryModalContent.includes("Subtitle / Description Copy"),
-    "Categories Banner must have Subtitle / Description Copy field"
-  );
-  assert.ok(
-    bannerModalContent.includes("Subtitle / Description Copy"),
-    "Hero Banner must have Subtitle / Description Copy field"
-  );
-
-  // 7. Primary CTA Text
-  assert.ok(
-    categoryModalContent.includes('label="Primary CTA Text"'),
-    "Categories Banner must have Primary CTA Text field"
-  );
-  assert.ok(
-    bannerModalContent.includes('label="Primary CTA Text"'),
-    "Hero Banner must have Primary CTA Text field"
-  );
+  // Hero Banner form must have simplified inputs for hero banners
+  assert.ok(bannerModalContent.includes('label="Banner Placement *"'), "Banner Modal must have Banner Placement");
+  assert.ok(bannerModalContent.includes('label="Display Order Sequence"'), "Banner Modal must have Display Order Sequence");
+  assert.ok(bannerModalContent.includes('label="Banner Image *"'), "Banner Modal must have Banner Image");
+  assert.ok(bannerModalContent.includes('isHeroPlacement'), "Banner Modal must conditionally simplify for hero banners");
 });

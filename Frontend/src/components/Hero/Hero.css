@@ -1,4 +1,325 @@
 /* ============================================================
+   HERO PURE BANNER SLIDER — 100% ORIGINAL UPLOADED IMAGE, ZERO OVERLAY, ZERO TEXT
+   ============================================================ */
+.hero-pure-banner {
+  position: relative;
+  width: 100%;
+  background: #06090F;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.hero-pure-track {
+  position: relative;
+  width: 100%;
+  /* Responsive e-commerce banner height maintaining widescreen fidelity (~21:9 to 16:7) */
+  height: clamp(400px, 40vw, 640px);
+  overflow: hidden;
+  background: #06090F;
+}
+
+.hero-pure-slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 650ms cubic-bezier(0.16, 1, 0.3, 1),
+              visibility 650ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity;
+  z-index: 1;
+}
+
+.hero-pure-slide.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  z-index: 2;
+}
+
+.hero-pure-link {
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+  cursor: pointer;
+  position: relative;
+}
+
+/* 100% Original Uploaded Image — NO darkening, NO gradient shade, NO filters */
+.hero-pure-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  filter: none !important;
+  opacity: 1 !important;
+  image-rendering: -webkit-optimize-contrast;
+  transition: transform 7s cubic-bezier(0.25, 1, 0.5, 1);
+  will-change: transform;
+}
+
+.hero-pure-slide.active .hero-pure-img {
+  transform: scale(1.025);
+}
+
+.hero-pure-banner:hover .hero-pure-slide.active .hero-pure-img {
+  transform: scale(1.035);
+}
+
+/* ── CrazyMonk-style Streetwear Live Pulse Badge ── */
+.hero-crazymonk-pill {
+  position: absolute;
+  bottom: 24px;
+  left: 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  background: rgba(15, 23, 42, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 7px 16px 7px 12px;
+  border-radius: 999px;
+  z-index: 5;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+  animation: heroPillFadeIn 0.4s ease;
+  transition: all 0.25s ease;
+}
+
+.hero-crazymonk-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #dc2626;
+  position: relative;
+  display: inline-block;
+  animation: heroCrazymonkPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes heroCrazymonkPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.85);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 7px rgba(220, 38, 38, 0);
+    transform: scale(1.15);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+    transform: scale(1);
+  }
+}
+
+.hero-crazymonk-text {
+  font-family: var(--font-primary, "Plus Jakarta Sans", sans-serif);
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+@keyframes heroPillFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-pure-track {
+    height: clamp(260px, 48vw, 380px);
+  }
+  .hero-crazymonk-pill {
+    bottom: 16px;
+    left: 16px;
+    padding: 5px 12px 5px 9px;
+  }
+  .hero-crazymonk-text {
+    font-size: 10px;
+    letter-spacing: 0.05em;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-pure-track {
+    height: clamp(200px, 58vw, 290px);
+  }
+  .hero-crazymonk-pill {
+    bottom: 12px;
+    left: 12px;
+    padding: 4px 9px 4px 7px;
+  }
+  .hero-crazymonk-text {
+    font-size: 9px;
+  }
+}
+
+/* ── Sleek Floating Navigation Arrows ── */
+.hero-pure-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.65);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.25s ease, background-color 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.hero-pure-banner:hover .hero-pure-arrow {
+  opacity: 1;
+}
+
+.hero-pure-arrow:hover {
+  background: rgba(15, 23, 42, 0.92);
+  border-color: rgba(255, 255, 255, 0.7);
+  transform: translateY(-50%) scale(1.08);
+}
+
+.hero-pure-arrow:active {
+  transform: translateY(-50%) scale(0.96);
+}
+
+.hero-pure-arrow-prev {
+  left: 20px;
+}
+
+.hero-pure-arrow-next {
+  right: 20px;
+}
+
+/* ── Minimalist Floating Dots Indicator ── */
+.hero-pure-dots {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 10;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.hero-pure-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hero-pure-dot:hover {
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.hero-pure-dot.active {
+  width: 26px;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+/* ── Responsive Viewport Scaling ── */
+@media (max-width: 1024px) {
+  .hero-pure-track {
+    height: clamp(280px, 42vw, 420px);
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-pure-track {
+    height: clamp(200px, 52vw, 340px);
+  }
+
+  .hero-pure-arrow {
+    width: 36px;
+    height: 36px;
+    opacity: 0.85;
+  }
+
+  .hero-pure-arrow-prev {
+    left: 10px;
+  }
+
+  .hero-pure-arrow-next {
+    right: 10px;
+  }
+
+  .hero-pure-dots {
+    bottom: 12px;
+    padding: 5px 10px;
+    gap: 6px;
+  }
+
+  .hero-pure-dot {
+    width: 6px;
+    height: 6px;
+  }
+
+  .hero-pure-dot.active {
+    width: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-pure-track {
+    height: clamp(170px, 56vw, 250px);
+  }
+
+  .hero-pure-arrow {
+    display: none;
+  }
+
+  .hero-pure-dots {
+    bottom: 8px;
+    padding: 4px 8px;
+    gap: 5px;
+  }
+
+  .hero-pure-dot {
+    width: 5px;
+    height: 5px;
+  }
+
+  .hero-pure-dot.active {
+    width: 14px;
+  }
+}
+
+
+/* ============================================================
    Hero Section — Visually Rich, High-Converting Ecommerce Banners
    Structured hierarchy: Offer -> Campaign / Supporting Text -> Perks -> CTA
    Preserves 100% visible, sharp model face & clothing on the right.

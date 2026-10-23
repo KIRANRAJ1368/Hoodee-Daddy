@@ -1,4 +1,4 @@
-const { HomepageSection, Category, Subcategory, Banner, Product } = require("../models");
+const { HomepageSection, Category, Subcategory, Banner, Product, Announcement } = require("../models");
 const ApiError = require("../utils/ApiError");
 const { sendSuccess } = require("../utils/apiResponse");
 const { serializeProduct } = require("../services/productSerializer");
@@ -17,7 +17,7 @@ async function getHomePayload(req, res) {
     order: [["sort_order", "ASC"]]
   });
 
-  const [categories, banners] = await Promise.all([
+  const [categories, banners, activeAnnouncement] = await Promise.all([
     Category.findAll({
       where: { is_active: true },
       order: [["sort_order", "ASC"], ["id", "ASC"]],
@@ -30,7 +30,11 @@ async function getHomePayload(req, res) {
         order: [["sort_order", "ASC"], ["id", "ASC"]]
       }]
     }),
-    Banner.findAll({ where: { is_active: true }, order: [["sort_order", "ASC"], ["updated_at", "DESC"]] })
+    Banner.findAll({ where: { is_active: true }, order: [["sort_order", "ASC"], ["updated_at", "DESC"]] }),
+    Announcement.findOne({
+      where: { is_active: true },
+      order: [["sort_order", "ASC"], ["id", "DESC"]]
+    })
   ]);
 
   const bannersByPlacement = {};
@@ -137,6 +141,7 @@ async function getHomePayload(req, res) {
       sections,
       categories,
       banners: bannersByPlacement,
+      activeAnnouncement: activeAnnouncement || null,
       newArrivals: newArrivals.map((p) => ({
         ...serializeProduct(p),
         offer: offersMap.get(Number(p.id)) || null

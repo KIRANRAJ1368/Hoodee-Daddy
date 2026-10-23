@@ -25,7 +25,7 @@ async function create(req, res) {
   const banner = await Banner.create({
     placement,
     tag: req.body.tag || null,
-    title: req.body.title,
+    title: req.body.title || (placement === "hero" ? "Hero Banner" : "Banner"),
     subtitle: req.body.subtitle || null,
     badge_promo: req.body.badge_promo || null,
     image_url: req.body.image_url,

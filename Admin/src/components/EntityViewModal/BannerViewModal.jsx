@@ -64,11 +64,11 @@ export default function BannerViewModal({ banner, onEdit, onClose }) {
           </div>
         </div>
 
-        {/* Live Storefront Overlay Simulation */}
+        {/* Banner Image Preview */}
         <div>
           <div className="ev-section-label">
             <Eye size={13} />
-            <span>Live Storefront Visual Simulation</span>
+            <span>Banner Image Preview (Original Quality)</span>
           </div>
 
           <div
@@ -79,36 +79,13 @@ export default function BannerViewModal({ banner, onEdit, onClose }) {
             tabIndex={0}
             onKeyDown={(e) => e.key === "Enter" && setShowLightbox(true)}
           >
-            <span className="ev-image-badge">Campaign Spotlight</span>
-
-            {/* Live Banner Overlay (Matches Storefront Home Hero Slider) */}
-            <div className="ev-banner-overlay-preview">
-              <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginBottom: 6 }}>
-                {data.tag && <span className="ev-banner-eyebrow">{data.tag}</span>}
-                {data.badge_promo && (
-                  <span className="pill-badge" style={{ fontSize: 10, padding: "2px 8px", background: "rgba(250, 167, 3, 0.25)", color: "#FFD166", border: "1px solid rgba(250, 167, 3, 0.6)", fontWeight: 700, letterSpacing: "0.04em" }}>
-                    {data.badge_promo}
-                  </span>
-                )}
-              </div>
-              <h3 className="ev-banner-title">{data.title}</h3>
-              {data.subtitle && <p className="ev-banner-subtitle">{data.subtitle}</p>}
-
-              <div className="ev-banner-btn-row">
-                {data.primary_cta_text && (
-                  <span className="ev-banner-preview-btn ev-banner-preview-btn-primary">
-                    <span>{data.primary_cta_text}</span>
-                    <ArrowUpRight size={12} />
-                  </span>
-                )}
-              </div>
-            </div>
+            <span className="ev-image-badge">Original Banner</span>
 
             <img
               src={resolvedImg}
               alt={data.title}
               loading="lazy"
-              style={{ objectPosition: data.image_position || "85% top" }}
+              style={{ objectPosition: data.image_position || "center center" }}
               onError={(e) => {
                 e.currentTarget.src = "/images/hero-mens-oversized-tee.jpg";
               }}

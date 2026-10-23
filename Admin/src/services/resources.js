@@ -42,6 +42,14 @@ export const bannersApi = {
   remove: (id) => api.delete(`/banners/${id}`)
 };
 
+export const announcementsApi = {
+  list: () => api.get("/announcements"),
+  create: (data) => api.post("/announcements", data),
+  update: (id, data) => api.put(`/announcements/${id}`, data),
+  toggle: (id) => api.patch(`/announcements/${id}/toggle`),
+  remove: (id) => api.delete(`/announcements/${id}`)
+};
+
 export const offersApi = {
   list: () => api.get("/offers"),
   create: (data) => api.post("/offers", data),

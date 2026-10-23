@@ -107,8 +107,8 @@ const BANNER_CONFIG = {
     ],
     ctaText: "Shop Men's",
     urgencyTag: "✨ Fresh Drop",
-    image: "/images/banner-mens.jpg",
-    imagePosition: "85% top"
+    image: "/images/crazymonk-cat-mens.jpg",
+    imagePosition: "center center"
   },
   women: {
     categoryName: "Women",
@@ -126,8 +126,8 @@ const BANNER_CONFIG = {
     ],
     ctaText: "Shop Women's",
     urgencyTag: "✨ Fresh Drop",
-    image: "/images/banner-womens.jpg",
-    imagePosition: "85% top"
+    image: "/images/crazymonk-cat-womens.jpg",
+    imagePosition: "center center"
   },
   boys: {
     categoryName: "Boys",
@@ -201,8 +201,8 @@ const BANNER_CONFIG = {
       { icon: "shield", label: "Guaranteed Satisfaction" }
     ],
     ctaText: "Shop Best Sellers",
-    image: "/images/hero-mens-tshirt-banner-2.jpg",
-    imagePosition: "center 20%"
+    image: "/images/crazymonk-hero-hoodies.jpg",
+    imagePosition: "center center"
   },
   "new-arrivals": {
     categoryName: "New Arrivals",
@@ -219,8 +219,8 @@ const BANNER_CONFIG = {
       { icon: "truck", label: "Fast Track Delivery" }
     ],
     ctaText: "Shop New Arrivals",
-    image: "/images/hero-mens-tshirt-banner-3.jpg",
-    imagePosition: "center 20%"
+    image: "/images/crazymonk-hero-oversized.jpg",
+    imagePosition: "center center"
   },
   default: {
     categoryName: "Collection",
@@ -1269,133 +1269,27 @@ export default function Collection() {
       />
       <h1 className="sr-only">{categoryName} Collection — Luxury Apparel &amp; Streetwear | ZMW</h1>
 
-      {/* ── Collection Page Hero-Style Category Banner (Matching Home Hero Visuals & Proportions) ── */}
+      {/* ── Collection Page Hero-Style Category Banner — Pure Bright Image, Zero Overlay Shade ── */}
       {!isBannerlessListing && (
         <section
           id="collection-hero"
-          className="coll-hero-banner hero-clean-banner"
-          aria-label="Featured Collection Category Banner"
+          className="coll-hero-banner"
+          aria-label={`${categoryName} Collection Banner`}
         >
-          <div className="hero-slides-wrapper coll-hero-wrapper">
-            {/* Full-Bleed Backdrop Image with per-category positioning */}
-            <div className="hero-backdrop coll-hero-backdrop">
-              <img
-                src={banner.image}
-                alt={banner.title || "ZMW Apparel Collection"}
-                className="hero-backdrop-img coll-hero-backdrop-img"
-                style={{ objectPosition: banner.imagePosition || "85% top" }}
-                onError={(event) => { event.currentTarget.src = "/images/hero-family-banner.jpg"; }}
-              />
-              {/* Subtle balanced scrim: preserves bright, sharp model on right while text on left is ultra-crisp */}
-              <div className="hero-backdrop-scrim coll-hero-backdrop-scrim" />
-            </div>
-
-            {/* Visually rich ecommerce content container on the LEFT */}
-            <div className="container coll-hero-container">
-              {/* Breadcrumb Navigation */}
-              <nav className="coll-hero-breadcrumbs" aria-label="Breadcrumb">
-                <Link to="/" className="coll-hero-breadcrumb-link">Home</Link>
-                <span className="coll-hero-breadcrumb-sep">/</span>
-                <Link to="/collection" className="coll-hero-breadcrumb-link" onClick={clearAllFilters}>Collection</Link>
-                {categoryParam !== "all" && (
-                  <>
-                    <span className="coll-hero-breadcrumb-sep">/</span>
-                    <span className="coll-hero-breadcrumb-active">{activeCategoryLabel}</span>
-                    {isSubcategoryView && activeSubcategory && (
-                      <>
-                        <span className="coll-hero-breadcrumb-sep">/</span>
-                        <span className="coll-hero-breadcrumb-active">{activeSubcategory.name}</span>
-                      </>
-                    )}
-                  </>
-                )}
-              </nav>
-
-              <div className="hero-content-box coll-hero-content-box">
-                {/* Top Eyebrow Badges Row */}
-                {(banner.badge || banner.subBadge) && (
-                  <div className="hero-tag-wrap coll-hero-tag-wrap">
-                    {banner.badge && (
-                      <span className="hero-tag-badge gold">
-                        {renderHeroIcon(banner.badgeIcon)}
-                        {banner.badge}
-                      </span>
-                    )}
-                    {banner.subBadge && (
-                      <span className="hero-tag-subbadge">
-                        {banner.subBadge}
-                      </span>
-                    )}
-                  </div>
-                )}
-
-                {/* 1. PRIMARY OFFER HEADING (Strong Visual Hierarchy) */}
-                {banner.offer && (
-                  <div className="hero-offer-block coll-hero-offer-block">
-                    <div className="hero-offer-heading coll-hero-offer-heading">
-                      {banner.offer}
-                    </div>
-                    {banner.offerTag && (
-                      <span className="hero-offer-tag coll-hero-offer-tag">
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                          <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
-                          <circle cx="7" cy="7" r="1.5" />
-                        </svg>
-                        {banner.offerTag}
-                      </span>
-                    )}
-                  </div>
-                )}
-
-                {/* 2. SUPPORTING TEXT & CAMPAIGN HEADLINE */}
-                <div className="hero-campaign-info coll-hero-campaign-info">
-                  {banner.title && (
-                    <h2 className="hero-campaign-headline coll-hero-campaign-headline">
-                      {banner.title}
-                    </h2>
-                  )}
-                  {banner.subtitle && (
-                    <p className="hero-subtitle coll-hero-subtitle">
-                      {banner.subtitle}
-                    </p>
-                  )}
-                </div>
-
-                {/* ECOMMERCE MICRO-PERKS BAR */}
-                {banner.perks && banner.perks.length > 0 && (
-                  <div className="hero-perks-bar coll-hero-perks-bar">
-                    {banner.perks.map((perk, pIdx) => (
-                      <div key={pIdx} className="hero-perk-item coll-hero-perk-item">
-                        <span className="hero-perk-icon">
-                          {renderHeroIcon(perk.icon)}
-                        </span>
-                        <span className="hero-perk-label">{perk.label}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* 3. CALL TO ACTION & URGENCY PILL */}
-                <div className="hero-cta-group coll-hero-cta-group">
-                  <button
-                    type="button"
-                    className="hero-btn-primary coll-hero-btn-primary"
-                    onClick={handleBannerCtaClick}
-                    aria-label={banner.ctaText || "Shop Collection Products"}
-                  >
-                    <span>{banner.ctaText || "Shop Now"}</span>
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
-                      <line x1="5" y1="12" x2="19" y2="12" />
-                      <polyline points="12 5 19 12 12 19" />
-                    </svg>
-                  </button>
-                  {banner.urgencyTag && (
-                    <span className="hero-urgency-pill coll-hero-urgency-pill">
-                      {banner.urgencyTag}
-                    </span>
-                  )}
-                </div>
-              </div>
+          <div className="coll-hero-wrapper">
+            <img
+              src={banner.image}
+              alt={categoryName ? `${categoryName} Collection Banner` : "ZMW Apparel Collection"}
+              className="coll-hero-backdrop-img"
+              style={{ objectPosition: banner.imagePosition || "center center" }}
+              onError={(event) => { event.currentTarget.src = "/images/hero-mens-oversized-tee.jpg"; }}
+            />
+            {/* CrazyMonk-style Streetwear Live Category Pulse Badge */}
+            <div className="coll-crazymonk-pill" aria-hidden="true">
+              <span className="coll-crazymonk-dot" />
+              <span className="coll-crazymonk-text">
+                {categoryName ? `${categoryName.toUpperCase()} · HOODIES & TEES` : "STREETWEAR DROP"}
+              </span>
             </div>
           </div>
         </section>
@@ -1403,6 +1297,24 @@ export default function Collection() {
 
       <section id="collection-catalog" className="coll-catalog-section section-padding" aria-label="Product catalog">
         <div className="container">
+          {/* Breadcrumb Navigation */}
+          <nav className="coll-page-breadcrumbs" aria-label="Breadcrumb">
+            <Link to="/" className="coll-page-breadcrumb-link">Home</Link>
+            <span className="coll-page-breadcrumb-sep">/</span>
+            <Link to="/collection" className="coll-page-breadcrumb-link" onClick={clearAllFilters}>Collection</Link>
+            {categoryParam !== "all" && (
+              <>
+                <span className="coll-page-breadcrumb-sep">/</span>
+                <span className="coll-page-breadcrumb-active">{activeCategoryLabel}</span>
+                {isSubcategoryView && activeSubcategory && (
+                  <>
+                    <span className="coll-page-breadcrumb-sep">/</span>
+                    <span className="coll-page-breadcrumb-active">{activeSubcategory.name}</span>
+                  </>
+                )}
+              </>
+            )}
+          </nav>
           {/* Category Subcategories Quick Filter Pills */}
           {matchedCategory?.subcategories && matchedCategory.subcategories.length > 0 && (
             <div className="coll-subcat-pills-bar" role="group" aria-label="Subcategories">

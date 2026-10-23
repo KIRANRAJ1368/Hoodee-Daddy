@@ -4,7 +4,13 @@ function buildRules(isUpdate = false) {
   const placementRule = body("placement")
     .customSanitizer((val, { req }) => val || req.body.position || (isUpdate ? undefined : "hero"))
     .trim();
-  const titleRule = body("title").trim();
+  const titleRule = body("title")
+    .customSanitizer((val, { req }) => {
+      const trimmed = val ? String(val).trim() : "";
+      if (trimmed) return trimmed;
+      if (req.body.placement === "hero" || req.body.position === "hero") return "Hero Banner";
+      return isUpdate ? undefined : "Banner";
+    });
   const imageRule = body("image_url")
     .customSanitizer((val, { req }) => val || req.body.imageUrl || (isUpdate ? undefined : ""))
     .trim();
@@ -13,9 +19,7 @@ function buildRules(isUpdate = false) {
     isUpdate
       ? placementRule.optional({ nullable: true, checkFalsy: true }).isLength({ max: 60 })
       : placementRule.notEmpty().withMessage("Placement is required").isLength({ max: 60 }),
-    isUpdate
-      ? titleRule.optional({ nullable: true, checkFalsy: true }).isLength({ max: 200 })
-      : titleRule.notEmpty().withMessage("Title is required").isLength({ max: 200 }),
+    titleRule.optional({ nullable: true }).isLength({ max: 200 }),
     body("subtitle").optional({ nullable: true }).isString(),
     body("tag").optional({ nullable: true }).isString(),
     body("badge_promo").optional({ nullable: true }).isString(),
