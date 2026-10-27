@@ -97,7 +97,7 @@ export default function CategoryVisuals() {
             id: category.id,
             badge: category.description || existingCategory?.badge || "SHOP THE COLLECTION",
             title: category.name,
-            subtitle: category.description || existingCategory?.subtitle || "Discover the latest ZMW styles.",
+            subtitle: category.description || existingCategory?.subtitle || "Discover the latest HooDee Daddy styles.",
             cta: `Shop ${category.name}`,
             image: category.image_url || existingCategory?.image || "/images/dept-family-banner.jpg",
             imagePosition: category.image_position || existingCategory?.imagePosition || "center 8%",

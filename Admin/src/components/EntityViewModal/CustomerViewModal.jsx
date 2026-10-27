@@ -101,7 +101,7 @@ export default function CustomerViewModal({ customer, customerDetail, loadingDet
           <div className="ev-contact-links">
             {data.email && (
               <a
-                href={`mailto:${data.email}?subject=${encodeURIComponent("Regarding Your Order with ZMW Clothing")}`}
+                href={`mailto:${data.email}?subject=${encodeURIComponent("Regarding Your Order with HooDee Daddy")}`}
                 className="ev-contact-btn ev-contact-btn-email"
               >
                 <Mail size={13} />
@@ -112,7 +112,7 @@ export default function CustomerViewModal({ customer, customerDetail, loadingDet
             {data.phone && (
               <a
                 href={`https://wa.me/${data.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
-                  `Hello ${data.name}, greetings from ZMW Clothing concierge.`
+                  `Hello ${data.name}, greetings from HooDee Daddy support.`
                 )}`}
                 target="_blank"
                 rel="noreferrer"

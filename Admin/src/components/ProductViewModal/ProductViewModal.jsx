@@ -196,10 +196,6 @@ export default function ProductViewModal({ product, productId, onClose }) {
                 <span className="pv-attr-value">{categoryName}</span>
               </div>
               <div className="pv-attr">
-                <span className="pv-attr-label">Sub-category</span>
-                <span className="pv-attr-value">{data.subCategory || "—"}</span>
-              </div>
-              <div className="pv-attr">
                 <span className="pv-attr-label">Product Type</span>
                 <span className="pv-attr-value">{data.productType || "—"}</span>
               </div>

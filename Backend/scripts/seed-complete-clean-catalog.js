@@ -35,9 +35,9 @@ const CATALOG_DATA = [
         image: "/images/cat-men-round-neck.jpg",
         products: [
           {
-            name: "ZMW Atelier Heavyweight Oversized Tee",
-            slug: "zmw-atelier-heavyweight-oversized-tee",
-            sku: "ZMW-M-TEE-01",
+            name: "HooDee Daddy Atelier Heavyweight Oversized Tee",
+            slug: "hd-atelier-heavyweight-oversized-tee",
+            sku: "HD-M-TEE-01",
             price: 999,
             original_price: 1699,
             badge_label: "Best Seller",
@@ -64,9 +64,9 @@ const CATALOG_DATA = [
             ]
           },
           {
-            name: "ZMW Gothic Arch Graphic Acid-Wash Tee",
-            slug: "zmw-gothic-arch-graphic-acid-wash-tee",
-            sku: "ZMW-M-TEE-02",
+            name: "HooDee Daddy Gothic Arch Graphic Acid-Wash Tee",
+            slug: "hd-gothic-arch-graphic-acid-wash-tee",
+            sku: "HD-M-TEE-02",
             price: 1099,
             original_price: 1899,
             badge_label: "New Season",
@@ -93,9 +93,9 @@ const CATALOG_DATA = [
             ]
           },
           {
-            name: "ZMW Minimalist Embroidered Crest Tee",
-            slug: "zmw-minimalist-embroidered-crest-tee",
-            sku: "ZMW-M-TEE-03",
+            name: "HooDee Daddy Minimalist Embroidered Crest Tee",
+            slug: "hd-minimalist-embroidered-crest-tee",
+            sku: "HD-M-TEE-03",
             price: 899,
             original_price: 1499,
             badge_label: "Essential",
@@ -128,9 +128,9 @@ const CATALOG_DATA = [
         image: "/images/cat-men-hoodie.jpg",
         products: [
           {
-            name: "ZMW Signature 450 GSM Boxy Pullover Hoodie",
-            slug: "zmw-signature-450-gsm-boxy-pullover-hoodie",
-            sku: "ZMW-M-HOD-01",
+            name: "HooDee Daddy Signature 450 GSM Boxy Pullover Hoodie",
+            slug: "hd-signature-450-gsm-boxy-pullover-hoodie",
+            sku: "HD-M-HOD-01",
             price: 1999,
             original_price: 3299,
             badge_label: "Winter Drop",
@@ -157,9 +157,9 @@ const CATALOG_DATA = [
             ]
           },
           {
-            name: "ZMW Vintage Washed Zip-Up Fleece Jacket",
-            slug: "zmw-vintage-washed-zip-up-fleece-jacket",
-            sku: "ZMW-M-HOD-02",
+            name: "HooDee Daddy Vintage Washed Zip-Up Fleece Jacket",
+            slug: "hd-vintage-washed-zip-up-fleece-jacket",
+            sku: "HD-M-HOD-02",
             price: 2199,
             original_price: 3499,
             badge_label: "Limited Drop",
@@ -185,9 +185,9 @@ const CATALOG_DATA = [
             ]
           },
           {
-            name: "ZMW Raw Hem Relaxed Crewneck Sweatshirt",
-            slug: "zmw-raw-hem-relaxed-crewneck-sweatshirt",
-            sku: "ZMW-M-HOD-03",
+            name: "HooDee Daddy Raw Hem Relaxed Crewneck Sweatshirt",
+            slug: "hd-raw-hem-relaxed-crewneck-sweatshirt",
+            sku: "HD-M-HOD-03",
             price: 1699,
             original_price: 2799,
             badge_label: "Minimal",
@@ -220,9 +220,9 @@ const CATALOG_DATA = [
         image: "/images/cat-banner-mens.jpg",
         products: [
           {
-            name: "ZMW Tactical Utility Multi-Pocket Cargo Pant",
-            slug: "zmw-tactical-utility-multi-pocket-cargo-pant",
-            sku: "ZMW-M-TR-01",
+            name: "HooDee Daddy Tactical Utility Multi-Pocket Cargo Pant",
+            slug: "hd-tactical-utility-multi-pocket-cargo-pant",
+            sku: "HD-M-TR-01",
             price: 1799,
             original_price: 2999,
             badge_label: "Trending",
@@ -248,9 +248,9 @@ const CATALOG_DATA = [
             ]
           },
           {
-            name: "ZMW Pleated Wide-Leg Tailored Trouser",
-            slug: "zmw-pleated-wide-leg-tailored-trouser",
-            sku: "ZMW-M-TR-02",
+            name: "HooDee Daddy Pleated Wide-Leg Tailored Trouser",
+            slug: "hd-pleated-wide-leg-tailored-trouser",
+            sku: "HD-M-TR-02",
             price: 1899,
             original_price: 3199,
             badge_label: "New Cut",
@@ -276,9 +276,9 @@ const CATALOG_DATA = [
             ]
           },
           {
-            name: "ZMW Daily Elastic-Waist Easy Chino Pant",
-            slug: "zmw-daily-elastic-waist-easy-chino-pant",
-            sku: "ZMW-M-TR-03",
+            name: "HooDee Daddy Daily Elastic-Waist Easy Chino Pant",
+            slug: "hd-daily-elastic-waist-easy-chino-pant",
+            sku: "HD-M-TR-03",
             price: 1499,
             original_price: 2499,
             badge_label: "Essential",
@@ -319,9 +319,9 @@ const CATALOG_DATA = [
         image: "/images/cat-women-tees.jpg",
         products: [
           {
-            name: "ZMW Women's Celestial Aura Boxy Cropped Tee",
-            slug: "zmw-womens-celestial-aura-boxy-cropped-tee",
-            sku: "ZMW-W-TEE-01",
+            name: "HooDee Daddy Women's Celestial Aura Boxy Cropped Tee",
+            slug: "hd-womens-celestial-aura-boxy-cropped-tee",
+            sku: "HD-W-TEE-01",
             price: 849,
             original_price: 1499,
             badge_label: "Trending",
@@ -348,9 +348,9 @@ const CATALOG_DATA = [
             ]
           },
           {
-            name: "ZMW Minimalist Linear Typography Relaxed Tee",
-            slug: "zmw-minimalist-linear-typography-relaxed-tee",
-            sku: "ZMW-W-TEE-02",
+            name: "HooDee Daddy Minimalist Linear Typography Relaxed Tee",
+            slug: "hd-minimalist-linear-typography-relaxed-tee",
+            sku: "HD-W-TEE-02",
             price: 799,
             original_price: 1399,
             badge_label: "Everyday",
@@ -376,9 +376,9 @@ const CATALOG_DATA = [
             ]
           },
           {
-            name: "ZMW Vintage Sun-Faded Heavyweight Boyfriend Tee",
-            slug: "zmw-vintage-sun-faded-heavyweight-boyfriend-tee",
-            sku: "ZMW-W-TEE-03",
+            name: "HooDee Daddy Vintage Sun-Faded Heavyweight Boyfriend Tee",
+            slug: "hd-vintage-sun-faded-heavyweight-boyfriend-tee",
+            sku: "HD-W-TEE-03",
             price: 899,
             original_price: 1599,
             badge_label: "Vintage Drop",
@@ -411,9 +411,9 @@ const CATALOG_DATA = [
         image: "/images/cat-women-hoodie.jpg",
         products: [
           {
-            name: "ZMW Women's Cloud-Soft Cropped Pullover Hoodie",
-            slug: "zmw-womens-cloud-soft-cropped-pullover-hoodie",
-            sku: "ZMW-W-HOD-01",
+            name: "HooDee Daddy Women's Cloud-Soft Cropped Pullover Hoodie",
+            slug: "hd-womens-cloud-soft-cropped-pullover-hoodie",
+            sku: "HD-W-HOD-01",
             price: 1799,
             original_price: 2999,
             badge_label: "Best Seller",
@@ -439,9 +439,9 @@ const CATALOG_DATA = [
             ]
           },
           {
-            name: "ZMW Chunky Ribbed Mock-Neck Knit Sweater",
-            slug: "zmw-chunky-ribbed-mock-neck-knit-sweater",
-            sku: "ZMW-W-HOD-02",
+            name: "HooDee Daddy Chunky Ribbed Mock-Neck Knit Sweater",
+            slug: "hd-chunky-ribbed-mock-neck-knit-sweater",
+            sku: "HD-W-HOD-02",
             price: 1999,
             original_price: 3299,
             badge_label: "Winter Drop",
@@ -467,9 +467,9 @@ const CATALOG_DATA = [
             ]
           },
           {
-            name: "ZMW Oversized Half-Zip Loungewear Sweatshirt",
-            slug: "zmw-oversized-half-zip-loungewear-sweatshirt",
-            sku: "ZMW-W-HOD-03",
+            name: "HooDee Daddy Oversized Half-Zip Loungewear Sweatshirt",
+            slug: "hd-oversized-half-zip-loungewear-sweatshirt",
+            sku: "HD-W-HOD-03",
             price: 1699,
             original_price: 2799,
             badge_label: "Comfort Fit",
@@ -502,9 +502,9 @@ const CATALOG_DATA = [
         image: "/images/cat-banner-womens.jpg",
         products: [
           {
-            name: "ZMW Wide-Leg Cotton Linen Drawstring Trouser",
-            slug: "zmw-wide-leg-cotton-linen-drawstring-trouser",
-            sku: "ZMW-W-TR-01",
+            name: "HooDee Daddy Wide-Leg Cotton Linen Drawstring Trouser",
+            slug: "hd-wide-leg-cotton-linen-drawstring-trouser",
+            sku: "HD-W-TR-01",
             price: 1599,
             original_price: 2699,
             badge_label: "Best Seller",
@@ -530,9 +530,9 @@ const CATALOG_DATA = [
             ]
           },
           {
-            name: "ZMW High-Waisted Relaxed Cargo Jogger",
-            slug: "zmw-high-waisted-relaxed-cargo-jogger",
-            sku: "ZMW-W-TR-02",
+            name: "HooDee Daddy High-Waisted Relaxed Cargo Jogger",
+            slug: "hd-high-waisted-relaxed-cargo-jogger",
+            sku: "HD-W-TR-02",
             price: 1699,
             original_price: 2899,
             badge_label: "Streetwear",
@@ -558,9 +558,9 @@ const CATALOG_DATA = [
             ]
           },
           {
-            name: "ZMW Classic Straight-Leg Everyday Chino Pant",
-            slug: "zmw-classic-straight-leg-everyday-chino-pant",
-            sku: "ZMW-W-TR-03",
+            name: "HooDee Daddy Classic Straight-Leg Everyday Chino Pant",
+            slug: "hd-classic-straight-leg-everyday-chino-pant",
+            sku: "HD-W-TR-03",
             price: 1499,
             original_price: 2499,
             badge_label: "Essential",
@@ -601,9 +601,9 @@ const CATALOG_DATA = [
         image: "/images/cat-babies-romper.jpg",
         products: [
           {
-            name: "ZMW Tiny Cloud 100% Organic Cotton Snap Romper",
-            slug: "zmw-tiny-cloud-100-organic-cotton-snap-romper",
-            sku: "ZMW-B-ROM-01",
+            name: "HooDee Daddy Tiny Cloud 100% Organic Cotton Snap Romper",
+            slug: "hd-tiny-cloud-100-organic-cotton-snap-romper",
+            sku: "HD-B-ROM-01",
             price: 599,
             original_price: 999,
             badge_label: "GOTS Certified",
@@ -630,9 +630,9 @@ const CATALOG_DATA = [
             ]
           },
           {
-            name: "ZMW Meadow Floral Soft Kimono-Style Romper",
-            slug: "zmw-meadow-floral-soft-kimono-style-romper",
-            sku: "ZMW-B-ROM-02",
+            name: "HooDee Daddy Meadow Floral Soft Kimono-Style Romper",
+            slug: "hd-meadow-floral-soft-kimono-style-romper",
+            sku: "HD-B-ROM-02",
             price: 649,
             original_price: 1099,
             badge_label: "Newborn Pick",
@@ -658,9 +658,9 @@ const CATALOG_DATA = [
             ]
           },
           {
-            name: "ZMW Nautical Striped Sunsuit Summer Romper",
-            slug: "zmw-nautical-striped-sunsuit-summer-romper",
-            sku: "ZMW-B-ROM-03",
+            name: "HooDee Daddy Nautical Striped Sunsuit Summer Romper",
+            slug: "hd-nautical-striped-sunsuit-summer-romper",
+            sku: "HD-B-ROM-03",
             price: 549,
             original_price: 899,
             badge_label: "Summer Drop",
@@ -693,9 +693,9 @@ const CATALOG_DATA = [
         image: "/images/cat-babies-pyjama.jpg",
         products: [
           {
-            name: "ZMW Two-Way Zipper Organic Ribbed Footie Sleepsuit",
-            slug: "zmw-two-way-zipper-organic-ribbed-footie-sleepsuit",
-            sku: "ZMW-B-SLP-01",
+            name: "HooDee Daddy Two-Way Zipper Organic Ribbed Footie Sleepsuit",
+            slug: "hd-two-way-zipper-organic-ribbed-footie-sleepsuit",
+            sku: "HD-B-SLP-01",
             price: 699,
             original_price: 1199,
             badge_label: "Must Have",
@@ -721,9 +721,9 @@ const CATALOG_DATA = [
             ]
           },
           {
-            name: "ZMW Cozy Bear Ears Hooded Fleece Sleepsuit",
-            slug: "zmw-cozy-bear-ears-hooded-fleece-sleepsuit",
-            sku: "ZMW-B-SLP-02",
+            name: "HooDee Daddy Cozy Bear Ears Hooded Fleece Sleepsuit",
+            slug: "hd-cozy-bear-ears-hooded-fleece-sleepsuit",
+            sku: "HD-B-SLP-02",
             price: 899,
             original_price: 1499,
             badge_label: "Winter Warmth",
@@ -749,9 +749,9 @@ const CATALOG_DATA = [
             ]
           },
           {
-            name: "ZMW Pastel Neutral Everyday Sleep & Play Suit",
-            slug: "zmw-pastel-neutral-everyday-sleep-and-play-suit",
-            sku: "ZMW-B-SLP-03",
+            name: "HooDee Daddy Pastel Neutral Everyday Sleep & Play Suit",
+            slug: "hd-pastel-neutral-everyday-sleep-and-play-suit",
+            sku: "HD-B-SLP-03",
             price: 629,
             original_price: 1049,
             badge_label: "Daily Cozy",
@@ -784,9 +784,9 @@ const CATALOG_DATA = [
         image: "/images/dept-babies.jpg",
         products: [
           {
-            name: "ZMW 3-Piece Organic Cotton Top, Bottom & Beanie Set",
-            slug: "zmw-3-piece-organic-cotton-top-bottom-beanie-set",
-            sku: "ZMW-B-SET-01",
+            name: "HooDee Daddy 3-Piece Organic Cotton Top, Bottom & Beanie Set",
+            slug: "hd-3-piece-organic-cotton-top-bottom-beanie-set",
+            sku: "HD-B-SET-01",
             price: 849,
             original_price: 1399,
             badge_label: "Gift Set",
@@ -812,9 +812,9 @@ const CATALOG_DATA = [
             ]
           },
           {
-            name: "ZMW Buttery-Soft Bamboo Cotton Swaddle Blanket Duo",
-            slug: "zmw-buttery-soft-bamboo-cotton-swaddle-blanket-duo",
-            sku: "ZMW-B-SET-02",
+            name: "HooDee Daddy Buttery-Soft Bamboo Cotton Swaddle Blanket Duo",
+            slug: "hd-buttery-soft-bamboo-cotton-swaddle-blanket-duo",
+            sku: "HD-B-SET-02",
             price: 799,
             original_price: 1299,
             badge_label: "Pack of 2",
@@ -840,9 +840,9 @@ const CATALOG_DATA = [
             ]
           },
           {
-            name: "ZMW Knitted Newborn Cardigan & Booties Set",
-            slug: "zmw-knitted-newborn-cardigan-booties-set",
-            sku: "ZMW-B-SET-03",
+            name: "HooDee Daddy Knitted Newborn Cardigan & Booties Set",
+            slug: "hd-knitted-newborn-cardigan-booties-set",
+            sku: "HD-B-SET-03",
             price: 999,
             original_price: 1699,
             badge_label: "Atelier Knits",
@@ -883,9 +883,9 @@ const CATALOG_DATA = [
         image: "/images/cat-girls-round-neck.jpg",
         products: [
           {
-            name: "ZMW Girls' Dreamer Butterfly Pastel Graphic Tee",
-            slug: "zmw-girls-dreamer-butterfly-pastel-graphic-tee",
-            sku: "ZMW-G-TEE-01",
+            name: "HooDee Daddy Girls' Dreamer Butterfly Pastel Graphic Tee",
+            slug: "hd-girls-dreamer-butterfly-pastel-graphic-tee",
+            sku: "HD-G-TEE-01",
             price: 599,
             original_price: 999,
             badge_label: "Best Seller",
@@ -912,9 +912,9 @@ const CATALOG_DATA = [
             ]
           },
           {
-            name: "ZMW Girls' Rainbow Stripe Boxy Drop-Shoulder Tee",
-            slug: "zmw-girls-rainbow-stripe-boxy-drop-shoulder-tee",
-            sku: "ZMW-G-TEE-02",
+            name: "HooDee Daddy Girls' Rainbow Stripe Boxy Drop-Shoulder Tee",
+            slug: "hd-girls-rainbow-stripe-boxy-drop-shoulder-tee",
+            sku: "HD-G-TEE-02",
             price: 629,
             original_price: 1049,
             badge_label: "Trending",
@@ -940,9 +940,9 @@ const CATALOG_DATA = [
             ]
           },
           {
-            name: "ZMW Girls' Floral Botanical Minimalist Pocket Tee",
-            slug: "zmw-girls-floral-botanical-minimalist-pocket-tee",
-            sku: "ZMW-G-TEE-03",
+            name: "HooDee Daddy Girls' Floral Botanical Minimalist Pocket Tee",
+            slug: "hd-girls-floral-botanical-minimalist-pocket-tee",
+            sku: "HD-G-TEE-03",
             price: 549,
             original_price: 899,
             badge_label: "Essential",
@@ -975,9 +975,9 @@ const CATALOG_DATA = [
         image: "/images/cat-girls-nightwear.jpg",
         products: [
           {
-            name: "ZMW Girls' Pastel Chunky Knit Button Cardigan",
-            slug: "zmw-girls-pastel-chunky-knit-button-cardigan",
-            sku: "ZMW-G-SWT-01",
+            name: "HooDee Daddy Girls' Pastel Chunky Knit Button Cardigan",
+            slug: "hd-girls-pastel-chunky-knit-button-cardigan",
+            sku: "HD-G-SWT-01",
             price: 1199,
             original_price: 1999,
             badge_label: "Winter Pick",
@@ -1003,9 +1003,9 @@ const CATALOG_DATA = [
             ]
           },
           {
-            name: "ZMW Girls' Embroidered Daisy Pullover Fleece Hoodie",
-            slug: "zmw-girls-embroidered-daisy-pullover-fleece-hoodie",
-            sku: "ZMW-G-SWT-02",
+            name: "HooDee Daddy Girls' Embroidered Daisy Pullover Fleece Hoodie",
+            slug: "hd-girls-embroidered-daisy-pullover-fleece-hoodie",
+            sku: "HD-G-SWT-02",
             price: 1299,
             original_price: 2199,
             badge_label: "Cozy Drop",
@@ -1031,9 +1031,9 @@ const CATALOG_DATA = [
             ]
           },
           {
-            name: "ZMW Girls' Ribbed Crewneck Everyday Sweater",
-            slug: "zmw-girls-ribbed-crewneck-everyday-sweater",
-            sku: "ZMW-G-SWT-03",
+            name: "HooDee Daddy Girls' Ribbed Crewneck Everyday Sweater",
+            slug: "hd-girls-ribbed-crewneck-everyday-sweater",
+            sku: "HD-G-SWT-03",
             price: 1099,
             original_price: 1799,
             badge_label: "Classic",
@@ -1066,9 +1066,9 @@ const CATALOG_DATA = [
         image: "/images/cat-girls-long-gown.jpg",
         products: [
           {
-            name: "ZMW Girls' Garden Bloom Tiered Cotton Midi Dress",
-            slug: "zmw-girls-garden-bloom-tiered-cotton-midi-dress",
-            sku: "ZMW-G-DRS-01",
+            name: "HooDee Daddy Girls' Garden Bloom Tiered Cotton Midi Dress",
+            slug: "hd-girls-garden-bloom-tiered-cotton-midi-dress",
+            sku: "HD-G-DRS-01",
             price: 1149,
             original_price: 1899,
             badge_label: "Party Pick",
@@ -1094,9 +1094,9 @@ const CATALOG_DATA = [
             ]
           },
           {
-            name: "ZMW Girls' Chambray Blue Button-Front Pinafore Dress",
-            slug: "zmw-girls-chambray-blue-button-front-pinafore-dress",
-            sku: "ZMW-G-DRS-02",
+            name: "HooDee Daddy Girls' Chambray Blue Button-Front Pinafore Dress",
+            slug: "hd-girls-chambray-blue-button-front-pinafore-dress",
+            sku: "HD-G-DRS-02",
             price: 1249,
             original_price: 2099,
             badge_label: "Timeless",
@@ -1122,9 +1122,9 @@ const CATALOG_DATA = [
             ]
           },
           {
-            name: "ZMW Girls' Sunburst Yellow Smocked Bodice Frock",
-            slug: "zmw-girls-sunburst-yellow-smocked-bodice-frock",
-            sku: "ZMW-G-DRS-03",
+            name: "HooDee Daddy Girls' Sunburst Yellow Smocked Bodice Frock",
+            slug: "hd-girls-sunburst-yellow-smocked-bodice-frock",
+            sku: "HD-G-DRS-03",
             price: 999,
             original_price: 1649,
             badge_label: "Festive Joy",
@@ -1165,9 +1165,9 @@ const CATALOG_DATA = [
         image: "/images/cat-boys-round-neck.jpg",
         products: [
           {
-            name: "ZMW Boys' Street Velocity Graphic Skate Tee",
-            slug: "zmw-boys-street-velocity-graphic-skate-tee",
-            sku: "ZMW-B-TEE-01",
+            name: "HooDee Daddy Boys' Street Velocity Graphic Skate Tee",
+            slug: "hd-boys-street-velocity-graphic-skate-tee",
+            sku: "HD-B-TEE-01",
             price: 599,
             original_price: 999,
             badge_label: "Best Seller",
@@ -1194,9 +1194,9 @@ const CATALOG_DATA = [
             ]
           },
           {
-            name: "ZMW Boys' Retro Mountain Adventure Raglan Tee",
-            slug: "zmw-boys-retro-mountain-adventure-raglan-tee",
-            sku: "ZMW-B-TEE-02",
+            name: "HooDee Daddy Boys' Retro Mountain Adventure Raglan Tee",
+            slug: "hd-boys-retro-mountain-adventure-raglan-tee",
+            sku: "HD-B-TEE-02",
             price: 629,
             original_price: 1049,
             badge_label: "New Season",
@@ -1222,9 +1222,9 @@ const CATALOG_DATA = [
             ]
           },
           {
-            name: "ZMW Boys' Minimalist Urban Typography Tee",
-            slug: "zmw-boys-minimalist-urban-typography-tee",
-            sku: "ZMW-B-TEE-03",
+            name: "HooDee Daddy Boys' Minimalist Urban Typography Tee",
+            slug: "hd-boys-minimalist-urban-typography-tee",
+            sku: "HD-B-TEE-03",
             price: 549,
             original_price: 899,
             badge_label: "Essential",
@@ -1257,9 +1257,9 @@ const CATALOG_DATA = [
         image: "/images/cat-boys-hoodie.jpg",
         products: [
           {
-            name: "ZMW Boys' Colorblock Heavyweight Cotton Hoodie",
-            slug: "zmw-boys-colorblock-heavyweight-cotton-hoodie",
-            sku: "ZMW-B-HOD-01",
+            name: "HooDee Daddy Boys' Colorblock Heavyweight Cotton Hoodie",
+            slug: "hd-boys-colorblock-heavyweight-cotton-hoodie",
+            sku: "HD-B-HOD-01",
             price: 1299,
             original_price: 2199,
             badge_label: "Winter Pick",
@@ -1285,9 +1285,9 @@ const CATALOG_DATA = [
             ]
           },
           {
-            name: "ZMW Boys' Camo Print Fleece Zip-Up Jacket",
-            slug: "zmw-boys-camo-print-fleece-zip-up-jacket",
-            sku: "ZMW-B-HOD-02",
+            name: "HooDee Daddy Boys' Camo Print Fleece Zip-Up Jacket",
+            slug: "hd-boys-camo-print-fleece-zip-up-jacket",
+            sku: "HD-B-HOD-02",
             price: 1399,
             original_price: 2299,
             badge_label: "Outdoor",
@@ -1313,9 +1313,9 @@ const CATALOG_DATA = [
             ]
           },
           {
-            name: "ZMW Boys' Classic Varsity Stripe Crewneck Sweatshirt",
-            slug: "zmw-boys-classic-varsity-stripe-crewneck-sweatshirt",
-            sku: "ZMW-B-HOD-03",
+            name: "HooDee Daddy Boys' Classic Varsity Stripe Crewneck Sweatshirt",
+            slug: "hd-boys-classic-varsity-stripe-crewneck-sweatshirt",
+            sku: "HD-B-HOD-03",
             price: 1149,
             original_price: 1899,
             badge_label: "Varsity",
@@ -1348,9 +1348,9 @@ const CATALOG_DATA = [
         image: "/images/cat-boys-shorts.jpg",
         products: [
           {
-            name: "ZMW Boys' Reinforced Knee Tactical Cargo Jogger",
-            slug: "zmw-boys-reinforced-knee-tactical-cargo-jogger",
-            sku: "ZMW-B-JOG-01",
+            name: "HooDee Daddy Boys' Reinforced Knee Tactical Cargo Jogger",
+            slug: "hd-boys-reinforced-knee-tactical-cargo-jogger",
+            sku: "HD-B-JOG-01",
             price: 1099,
             original_price: 1799,
             badge_label: "Playground Proof",
@@ -1376,9 +1376,9 @@ const CATALOG_DATA = [
             ]
           },
           {
-            name: "ZMW Boys' Everyday Washed Denim Straight Jogger",
-            slug: "zmw-boys-everyday-washed-denim-straight-jogger",
-            sku: "ZMW-B-JOG-02",
+            name: "HooDee Daddy Boys' Everyday Washed Denim Straight Jogger",
+            slug: "hd-boys-everyday-washed-denim-straight-jogger",
+            sku: "HD-B-JOG-02",
             price: 1199,
             original_price: 1999,
             badge_label: "Stretch Denim",
@@ -1404,9 +1404,9 @@ const CATALOG_DATA = [
             ]
           },
           {
-            name: "ZMW Boys' Summer Multi-Pocket Adventure Cargo Shorts",
-            slug: "zmw-boys-summer-multi-pocket-adventure-cargo-shorts",
-            sku: "ZMW-B-JOG-03",
+            name: "HooDee Daddy Boys' Summer Multi-Pocket Adventure Cargo Shorts",
+            slug: "hd-boys-summer-multi-pocket-adventure-cargo-shorts",
+            sku: "HD-B-JOG-03",
             price: 849,
             original_price: 1399,
             badge_label: "Summer Pick",

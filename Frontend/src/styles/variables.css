@@ -1,107 +1,101 @@
-/* Design Tokens for ZMW — Modern Streetwear & Luxury Apparel (CrazyMonk Aesthetic) */
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+/* White surfaces, logo navy typography and orange interaction states. Brand primitives live in shared/brand.css. */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap');
 
 :root {
   /* Skeleton Shimmer Tokens */
-  --sk: #e8e6f4;
-  --sh: rgba(255, 255, 255, 0.75);
+  --sk: var(--brand-white);
+  --sh: var(--brand-blue);
 
   /* Section-by-Section Distinct Backgrounds */
-  --bg-hero:           #0B0F19;   /* High-impact sleek obsidian dark */
-  --bg-trust:          #FFFFFF;
-  --bg-category:       #F8FAFC;   /* Ultra-clean slate tinted neutral */
-  --bg-whats-new:      #FFFFFF;
-  --bg-collections:    #F8FAFC;
-  --bg-tabbed:         #FFFFFF;
-  --bg-split:          #080C14;
-  --bg-testimonials:   #F8FAFC;
-  --bg-instagram:      #FFFFFF;
-  --bg-footer:         #070A10;
+  --bg-hero:           #ffffff;
+  --bg-trust:          #f8fafc;
+  --bg-category:       #ffffff;
+  --bg-whats-new:      #f8fafc;
+  --bg-collections:    #ffffff;
+  --bg-tabbed:         #f8fafc;
+  --bg-split:          #091525;
+  --bg-testimonials:   #f8fafc;
+  --bg-instagram:      #ffffff;
+  --bg-footer:         #091525;
 
-  /* Core Palette (Crisp High-Contrast Modern D2C) */
-  --color-cream:       #FFFFFF;   /* Main background - crisp modern white */
-  --color-sand:        #F8FAFC;   /* Secondary light neutral */
-  --color-sand-light:  #FFFFFF;   /* Pure white */
-  --color-sand-hover:  #F1F5F9;   /* Hover state */
-  --color-white:       #FFFFFF;   /* Pure white */
-
-  /* Brand Palette (ZMW Identity: Primary #FAA703, Secondary #E7E7E7, Soft Background #F8FAFC) */
-  --color-primary-brand:   #FAA703; /* Primary accent: highlights, buttons, badges */
-  --color-secondary-brand: #E7E7E7; /* Secondary cool neutral section bg */
-  --color-soft-bg:         #F8FAFC; /* Clean modern slate neutral bg */
+  /* Core Palette (Crisp High-Contrast Modern Streetwear D2C) */
+  --color-cream:       #ffffff;
+  --color-sand:        #f8fafc;
+  --color-sand-light:  #ffffff;
+  --color-sand-hover:  var(--brand-orange);
+  --color-white:       #ffffff;
+  --color-primary-brand:   #ff7300;
+  --color-secondary-brand: #091525;
+  --color-soft-bg:         #f8fafc;
 
   /* Brand Accent */
-  --color-accent:        #FAA703; /* Vibrant warm golden amber */
-  --color-accent-hover:  #E09500; /* Rich gold hover */
-  --color-accent-soft:   #FFF8EC; /* Light golden tint */
-  --color-accent-deep:   #111827; /* High-contrast dark text */
-  --color-accent-border: #FAA703;
-  --color-accent-gradient: linear-gradient(135deg, #FFC043 0%, #FAA703 50%, #E09500 100%);
-
-  /* ZMW Logo Metallic Chrome & Silver */
-  --color-chrome:        #E2E8F0;
-  --color-chrome-silver: #CBD5E1;
-  --color-chrome-dark:   #475569;
-  --color-chrome-gradient: linear-gradient(135deg, #FFFFFF 0%, #E2E8F0 45%, #94A3B8 100%);
-
-  /* CrazyMonk High-Energy Badges & Signals */
-  --color-badge-hot:       #9A84C8; /* CrazyMonk Purple */
-  --color-badge-new:       #10B981; /* CrazyMonk Mint Green */
-  --color-badge-sale:      #059669; /* Standard E-Commerce Emerald Green */
-  --color-badge-sale-soft: #ECFDF5;
-  --color-badge-exclusive: #0284C7; /* Electric Cyan */
+  --color-accent:        #ff7300;
+  --color-accent-hover:  #ff8a00;
+  --color-accent-soft:   rgba(255, 115, 0, 0.1);
+  --color-accent-deep:   #091525;
+  --color-accent-border: rgba(255, 115, 0, 0.3);
+  --color-accent-gradient: linear-gradient(135deg, #ff7300 0%, #ff5500 100%);
+  --color-chrome:        #091525;
+  --color-chrome-silver: #94a3b8;
+  --color-chrome-dark:   #091525;
+  --color-chrome-gradient: linear-gradient(135deg, #091525 0%, #1e293b 100%);
+  --color-badge-hot:       linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+  --color-badge-new:       linear-gradient(135deg, #00c0ff 0%, #0070f3 100%);
+  --color-badge-sale:      linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --color-badge-sale-soft: rgba(16, 185, 129, 0.15);
+  --color-badge-exclusive: linear-gradient(135deg, #ffb800 0%, #ff8a00 100%);
 
   /* Backwards-compatibility aliases */
-  --color-rust:        #FAA703;
-  --color-rust-hover:  #E09500;
-  --color-rust-soft:   #FFF8EC;
-  --color-rust-deep:   #111827;
-  --color-ink-soft:    #475569;
-  --color-paper:       #FFFFFF;
-  --color-linen:       #F8FAFC;
-  --color-linen-deep:  #E2E8F0;
-  --color-line:        #E2E8F0;
-  --color-off-white:   #F8FAFC;
-  --color-olive:       #111827;
+  --color-rust:        #ff7300;
+  --color-rust-hover:  #ff8a00;
+  --color-rust-soft:   rgba(255, 115, 0, 0.1);
+  --color-rust-deep:   #091525;
+  --color-ink-soft:    #64748b;
+  --color-paper:       #ffffff;
+  --color-linen:       #f8fafc;
+  --color-linen-deep:  #f1f5f9;
+  --color-line:        var(--brand-border);
+  --color-off-white:   #f8fafc;
+  --color-olive:       #091525;
 
   /* Step scale aliases */
   --step-small:  var(--text-small);
   --step-h2:     var(--text-h2);
   --step-lead:   var(--text-lead);
-
-  /* Neutrals */
-  --color-grey-50:  #F8FAFC;
-  --color-grey-100: #F1F5F9;
-  --color-grey-200: #E2E8F0;
-  --color-grey-300: #CBD5E1;
-  --color-grey-400: #94A3B8;
-  --color-grey-500: #64748B;
+  --color-grey-50:  #f8fafc;
+  --color-grey-100: #f1f5f9;
+  --color-grey-200: #e2e8f0;
+  --color-grey-300: #cbd5e1;
+  --color-grey-400: #94a3b8;
+  --color-grey-500: #64748b;
   --color-grey-600: #475569;
-  --color-grey-800: #1E293B;
+  --color-grey-800: #1e293b;
 
   /* Ink / Text */
-  --color-ink:      #0F172A; /* Deep cyber onyx */
-  --color-ink-deep: #020617; /* Pure near-black */
+  --color-ink:      #091525;
+  --color-ink-deep: #091525;
 
   /* Semantic */
-  --color-success:    #10B981;
-  --color-success-bg: #ECFDF5;
-  --color-error:      #DA3F3F;
-  --color-error-bg:   #FEF2F2;
-  --color-warning:    #FAA703;
-  --color-warning-bg: #FFF8EC;
+  --color-success:    #10b981;
+  --color-success-bg: #ecfdf5;
+  --color-error:      #ef4444;
+  --color-error-bg:   #fef2f2;
+  --color-warning:    #f59e0b;
+  --color-warning-bg: #fffbeb;
 
   /* Overlays & Glass */
-  --color-overlay-dark:   rgba(11, 15, 25, 0.75);
-  --color-overlay-glass:  rgba(255, 255, 255, 0.96);
-  --color-glass-border:   rgba(226, 232, 240, 0.8);
-  --color-glass-card:     rgba(255, 255, 255, 0.98);
+  --color-overlay-dark:   rgba(9, 21, 37, 0.85);
+  --color-overlay-glass:  rgba(255, 255, 255, 0.85);
+  --color-glass-border:   rgba(255, 255, 255, 0.2);
+  --color-glass-card:     #ffffff;
 
-  /* Typography (Modern High-Energy Streetwear) */
+  /* Typography (Modern High-Energy Streetwear & FirstCry E-Commerce Card Style) */
   --font-primary:      "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-display:      "Outfit", "Plus Jakarta Sans", sans-serif;
   --font-body:         "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-poppins:      "Plus Jakarta Sans", sans-serif;
+  --font-product:      "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
   --font-serif-accent: "Outfit", sans-serif;
 
   /* Fluid Type Scale */
@@ -140,13 +134,13 @@
   --radius-pill: 9999px;
 
   /* Shadows */
-  --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
-  --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
-  --shadow-lg: 0 16px 40px rgba(15, 23, 42, 0.12);
-  --shadow-xl: 0 24px 60px rgba(15, 23, 42, 0.18);
-  --shadow-drawer: -10px 0 35px rgba(0, 0, 0, 0.25);
-  --shadow-accent: 0 6px 24px rgba(250, 167, 3, 0.38);
-  --shadow-glow-gold: 0 0 25px rgba(250, 167, 3, 0.3);
+  --shadow-sm: 0 2px 8px rgba(9, 21, 37, 0.06);
+  --shadow-md: 0 8px 24px rgba(9, 21, 37, 0.08);
+  --shadow-lg: 0 16px 40px rgba(9, 21, 37, 0.12);
+  --shadow-xl: 0 24px 60px rgba(9, 21, 37, 0.18);
+  --shadow-drawer: -10px 0 35px rgba(9, 21, 37, 0.25);
+  --shadow-accent: 0 6px 24px rgba(9, 21, 37, 0.38);
+  --shadow-glow-gold: 0 0 25px rgba(9, 21, 37, 0.3);
 
   /* Transitions */
   --ease-smooth:    cubic-bezier(0.16, 1, 0.3, 1);

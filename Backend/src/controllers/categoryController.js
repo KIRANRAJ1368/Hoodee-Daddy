@@ -1,5 +1,5 @@
 const { Op } = require("sequelize");
-const { Category, Subcategory, Product, HomepageSection, Banner } = require("../models");
+const { Category, Product, HomepageSection, Banner } = require("../models");
 const ApiError = require("../utils/ApiError");
 const { sendSuccess } = require("../utils/apiResponse");
 
@@ -82,16 +82,7 @@ async function list(req, res) {
   const where = req.query.includeInactive === "true" ? {} : { is_active: true };
   const categories = await Category.findAll({
     where,
-    order: [["sort_order", "ASC"], ["id", "ASC"]],
-    include: [{
-      model: Subcategory,
-      as: "subcategories",
-      where: { is_active: true },
-      required: false,
-      separate: true,
-      order: [["sort_order", "ASC"], ["id", "ASC"]]
-    }]
-  });
+    order: [["sort_order", "ASC"], ["id", "ASC"]] });
   const data = categories.map((c) => c.toJSON());
   return sendSuccess(res, { data });
 }
@@ -101,17 +92,7 @@ async function getBySlug(req, res) {
   const where = isNumericId
     ? { [Op.or]: [{ id: Number(req.params.slug) }, { slug: req.params.slug }] }
     : { slug: req.params.slug };
-  const category = await Category.findOne({
-    where,
-    include: [{
-      model: Subcategory,
-      as: "subcategories",
-      where: { is_active: true },
-      required: false,
-      separate: true,
-      order: [["sort_order", "ASC"], ["id", "ASC"]]
-    }]
-  });
+  const category = await Category.findOne({ where });
   if (!category) throw ApiError.notFound("Category not found");
   return sendSuccess(res, { data: category.toJSON() });
 }
@@ -235,12 +216,6 @@ async function remove(req, res) {
     await Banner.destroy({ where: { placement: [category.slug, `${category.slug}_header`] } });
   } catch (bannerErr) {
     console.error("Failed to delete category banner:", bannerErr);
-  }
-
-  try {
-    await Subcategory.destroy({ where: { category_id: category.id } });
-  } catch (subErr) {
-    console.error("Failed to delete category subcategories:", subErr);
   }
 
   await category.destroy();

@@ -583,7 +583,7 @@ export default function MetaSettingsPage() {
                 <input
                   type="url"
                   className="meta-form-input with-icon"
-                  placeholder="https://zmwclothing.com/your-preferred-url"
+                  placeholder="https://hoodeedaddy.com/your-preferred-url"
                   value={form.canonical_url || ""}
                   onChange={(e) => setForm({ ...form, canonical_url: e.target.value })}
                 />

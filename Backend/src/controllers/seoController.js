@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const { Op } = require("sequelize");
-const { SeoSetting, Product, Category, Subcategory, PageMetaSetting, sequelize } = require("../models");
+const { SeoSetting, Product, Category, PageMetaSetting, sequelize } = require("../models");
 const ApiError = require("../utils/ApiError");
 const { sendSuccess } = require("../utils/apiResponse");
 
@@ -11,7 +11,7 @@ const FRONTEND_PUBLIC_DIR = path.resolve(__dirname, "../../../Frontend/public");
  * Normalizes base URL, stripping trailing slashes.
  */
 function cleanUrl(url) {
-  return String(url || "https://zmwclothing.com").trim().replace(/\/+$/, "");
+  return String(url || "https://hoodeedaddy.com").trim().replace(/\/+$/, "");
 }
 
 /**
@@ -44,25 +44,25 @@ async function getOrInitSettings() {
   let settings = await SeoSetting.findOne();
   if (!settings) {
     settings = await SeoSetting.create({
-      default_meta_title: "ZMW Clothing — Luxury Pret-a-Porter & Haute Couture",
+      default_meta_title: "HooDee Daddy — Luxury Pret-a-Porter & Haute Couture",
       default_meta_description: "Handcrafted luxury apparel. Natural fibres, master tailoring, and considered design. Nationwide insured dispatch.",
-      default_meta_keywords: "ZMW clothing, luxury fashion, couture, menswear, womenswear, premium apparel, oversized t-shirts, hoodies, streetwear, Coimbatore",
-      homepage_title: "ZMW Clothing — Luxury Fashion, Streetwear & Everyday Essentials",
-      homepage_description: "Discover ZMW's luxury streetwear and couture collections. Handcrafted 240+ GSM oversized t-shirts, 450 GSM hoodies, and tailored apparel.",
-      product_title_format: "{name} | ZMW Clothing",
+      default_meta_keywords: "HooDee Daddy, kids fashion, hoodies, pyjamas, streetwear, couture, menswear, womenswear, premium apparel, oversized t-shirts, hoodies, streetwear, Coimbatore",
+      homepage_title: "HooDee Daddy — Luxury Fashion, Streetwear & Everyday Essentials",
+      homepage_description: "Discover HooDee Daddy's premium kids hoodies, pyjamas, and everyday streetwear collections.",
+      product_title_format: "{name} | HooDee Daddy",
       product_description_format: "{description}",
-      category_title_format: "{name} Collection — Luxury Apparel | ZMW Clothing",
-      category_description_format: "Explore the latest {name} collection at ZMW Clothing. Premium luxury fabrics, considered tailoring, and pan-India delivery.",
-      canonical_base_url: "https://zmwclothing.com",
-      og_title: "ZMW Clothing — Luxury Pret-a-Porter & Haute Couture",
+      category_title_format: "{name} Collection — Luxury Apparel | HooDee Daddy",
+      category_description_format: "Explore the latest {name} collection at HooDee Daddy. Premium luxury fabrics, considered tailoring, and pan-India delivery.",
+      canonical_base_url: "https://hoodeedaddy.com",
+      og_title: "HooDee Daddy — Luxury Pret-a-Porter & Haute Couture",
       og_description: "Handcrafted luxury apparel. Master tailoring, considered design, and nationwide insured dispatch.",
-      og_image_url: "/images/zmw-logo.png",
+      og_image_url: "/images/hoodee-daddy-logo.png",
       robots_index: true,
       robots_follow: true,
       robots_custom_rules: "Disallow: /admin\nDisallow: /cart\nDisallow: /checkout\nDisallow: /account\nDisallow: /profile\nDisallow: /my-orders\nDisallow: /login\nDisallow: /register\nDisallow: /forgot-password\nDisallow: /reset-password",
-      organization_name: "ZMW Clothing",
+      organization_name: "HooDee Daddy",
       organization_telephone: "+919876543210",
-      organization_email: "zmw@gmail.com"
+      organization_email: "support@hoodeedaddy.com"
     });
   }
   return settings;
@@ -89,32 +89,17 @@ async function generateSitemapXml() {
     { loc: `${baseUrl}/privacy-policy`, priority: "0.4", changefreq: "monthly", lastmod: today }
   ];
 
-  // Active Categories & Subcategories
+  // Active Categories
   const categories = await Category.findAll({
-    where: { is_active: true },
-    include: [{ model: Subcategory, as: "subcategories", where: { is_active: true }, required: false }]
+    where: { is_active: true }
   });
 
-  const categoryUrls = [];
-  categories.forEach((cat) => {
-    categoryUrls.push({
-      loc: `${baseUrl}/categories/${cat.slug}`,
-      priority: "0.9",
-      changefreq: "daily",
-      lastmod: formatDate(cat.updated_at || cat.updatedAt)
-    });
-
-    if (Array.isArray(cat.subcategories)) {
-      cat.subcategories.forEach((sub) => {
-        categoryUrls.push({
-          loc: `${baseUrl}/categories/${cat.slug}/${sub.slug}`,
-          priority: "0.8",
-          changefreq: "weekly",
-          lastmod: formatDate(sub.updated_at || sub.updatedAt || cat.updated_at)
-        });
-      });
-    }
-  });
+  const categoryUrls = categories.map((cat) => ({
+    loc: `${baseUrl}/categories/${cat.slug}`,
+    priority: "0.9",
+    changefreq: "daily",
+    lastmod: formatDate(cat.updated_at || cat.updatedAt)
+  }));
 
   // Active Products
   const products = await Product.findAll({
@@ -157,7 +142,7 @@ async function generateRobotsTxt() {
 
   // If site indexing is completely turned off (safeguard controlled)
   if (!settings.robots_index) {
-    return `# ZMW Clothing - Search Crawling Disabled via Admin SEO Settings
+    return `# HooDee Daddy - Search Crawling Disabled via Admin SEO Settings
 User-agent: *
 Disallow: /
 `;
@@ -165,7 +150,7 @@ Disallow: /
 
   const customRules = (settings.robots_custom_rules || "").trim();
 
-  return `# ZMW Clothing Robots Configuration
+  return `# HooDee Daddy Robots Configuration
 User-agent: *
 Allow: /
 ${customRules ? `${customRules}\n` : `Disallow: /admin

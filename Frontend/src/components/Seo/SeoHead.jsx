@@ -4,7 +4,7 @@ import { useShop } from "../../context/ShopContext";
 /**
  * Ensures a URL is absolute with the canonical base domain.
  */
-export function toAbsoluteUrl(url, baseUrl = "https://zmwclothing.com") {
+export function toAbsoluteUrl(url, baseUrl = "https://hoodeedaddy.com") {
   if (!url) return baseUrl;
   if (/^https?:\/\//i.test(url)) return url;
   const cleanBase = baseUrl.replace(/\/+$/, "");
@@ -76,13 +76,13 @@ export default function SeoHead({
 }) {
   const { seoSettings } = useShop();
 
-  const baseUrl = (seoSettings?.canonical_base_url || "https://zmwclothing.com").replace(/\/+$/, "");
+  const baseUrl = (seoSettings?.canonical_base_url || "https://hoodeedaddy.com").replace(/\/+$/, "");
 
   // Fallbacks from Admin database settings
   const finalTitle =
     title ||
     seoSettings?.default_meta_title ||
-    "ZMW Clothing — Luxury Pret-a-Porter & Haute Couture";
+    "HooDee Daddy — Everyday Streetwear & Essentials";
 
   const finalDescription =
     description ||
@@ -92,12 +92,12 @@ export default function SeoHead({
   const finalKeywords =
     keywords ||
     seoSettings?.default_meta_keywords ||
-    "ZMW clothing, luxury fashion, couture, menswear, womenswear, premium apparel, oversized t-shirts, hoodies, streetwear, Coimbatore";
+    "HooDee Daddy, kids hoodies, kids pyjamas, boys fashion, girls fashion, streetwear, Coimbatore, India";
 
   const canonicalUrl = toAbsoluteUrl(canonicalPath || window?.location?.pathname || "/", baseUrl);
 
   const finalOgImage = toAbsoluteUrl(
-    ogImage || seoSettings?.og_image_url || "/images/zmw-logo.png",
+    ogImage || seoSettings?.og_image_url || "/images/hoodee-daddy-logo.svg",
     baseUrl
   );
 
@@ -122,7 +122,7 @@ export default function SeoHead({
     setMetaTag('meta[property="og:url"]', "property", "og:url", canonicalUrl);
     setMetaTag('meta[property="og:type"]', "property", "og:type", ogType);
     setMetaTag('meta[property="og:image"]', "property", "og:image", finalOgImage);
-    setMetaTag('meta[property="og:site_name"]', "property", "og:site_name", "ZMW Clothing");
+    setMetaTag('meta[property="og:site_name"]', "property", "og:site_name", "HooDee Daddy");
 
     // 5. Twitter Card Tags
     setMetaTag('meta[name="twitter:card"]', "name", "twitter:card", "summary_large_image");
@@ -132,9 +132,9 @@ export default function SeoHead({
 
     // 6. JSON-LD Structured Data
     if (schema) {
-      setJsonLd("zmw-page-schema-jsonld", schema);
+      setJsonLd("hd-page-schema-jsonld", schema);
     } else {
-      setJsonLd("zmw-page-schema-jsonld", null);
+      setJsonLd("hd-page-schema-jsonld", null);
     }
 
     return () => {

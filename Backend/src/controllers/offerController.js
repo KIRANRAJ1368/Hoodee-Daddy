@@ -1,9 +1,9 @@
 const { Op } = require("sequelize");
-const { Offer, Product, Category, Subcategory } = require("../models");
+const { Offer, Product, Category } = require("../models");
 const ApiError = require("../utils/ApiError");
 const { sendSuccess } = require("../utils/apiResponse");
 
-const VALID_TARGET_TYPES = ["all", "category", "subcategory", "product"];
+const VALID_TARGET_TYPES = ["all", "category", "product"];
 
 const parseTargetIds = (offerOrIds) => {
   const raw = offerOrIds && typeof offerOrIds === "object" && !Array.isArray(offerOrIds)
@@ -23,7 +23,7 @@ const parseTargetIds = (offerOrIds) => {
 
 async function resolveTargetAndProducts(type, rawIds) {
   if (!VALID_TARGET_TYPES.includes(type)) {
-    throw ApiError.badRequest("Invalid offer target type. Choose Overall Shop, Category, Subcategory, or Particular Product.");
+    throw ApiError.badRequest("Invalid offer target type. Choose Overall Shop, Category, or Particular Product.");
   }
 
   const cleanIds = Array.from(new Set(parseTargetIds(rawIds)));
@@ -31,7 +31,7 @@ async function resolveTargetAndProducts(type, rawIds) {
   if (type === "all") {
     const products = await Product.findAll({
       where: { is_active: true },
-      attributes: ["id", "name", "price", "original_price", "category_id", "subcategory_id"]
+      attributes: ["id", "name", "price", "original_price", "category_id"]
     });
     return { savedTargetIds: [], products };
   }
@@ -40,8 +40,6 @@ async function resolveTargetAndProducts(type, rawIds) {
     throw ApiError.badRequest(
       type === "category"
         ? "Please select at least one category."
-        : type === "subcategory"
-        ? "Please select at least one subcategory."
         : "Please select at least one product."
     );
   }
@@ -53,27 +51,15 @@ async function resolveTargetAndProducts(type, rawIds) {
     }
     const products = await Product.findAll({
       where: { category_id: cleanIds },
-      attributes: ["id", "name", "price", "original_price", "category_id", "subcategory_id"]
+      attributes: ["id", "name", "price", "original_price", "category_id"]
     });
     return { savedTargetIds: categories.map((c) => Number(c.id)), products };
-  }
-
-  if (type === "subcategory") {
-    const subcategories = await Subcategory.findAll({ where: { id: cleanIds }, attributes: ["id", "name", "category_id"] });
-    if (!subcategories.length) {
-      throw ApiError.badRequest("Selected subcategory was not found.");
-    }
-    const products = await Product.findAll({
-      where: { subcategory_id: cleanIds },
-      attributes: ["id", "name", "price", "original_price", "category_id", "subcategory_id"]
-    });
-    return { savedTargetIds: subcategories.map((s) => Number(s.id)), products };
   }
 
   // type === "product"
   const products = await Product.findAll({
     where: { id: cleanIds },
-    attributes: ["id", "name", "price", "original_price", "category_id", "subcategory_id"]
+    attributes: ["id", "name", "price", "original_price", "category_id"]
   });
   if (!products.length) {
     throw ApiError.badRequest("Selected products were not found.");
@@ -134,10 +120,6 @@ function doesOfferMatchProduct(offer, product) {
   const ids = parseTargetIds(offer);
   if (type === "product") {
     return ids.includes(Number(product.id));
-  }
-  if (type === "subcategory") {
-    const subId = Number(product.subcategory_id ?? product.subcategoryId);
-    return subId > 0 && ids.includes(subId);
   }
   if (type === "category") {
     const catId = Number(product.category_id ?? product.categoryId);
@@ -256,7 +238,7 @@ async function remove(req, res) {
 
 /**
  * Resolves the highest-priority active offer for each product:
- * Specificity priority: "product" (4) > "subcategory" (3) > "category" (2) > "all" (1)
+ * Specificity priority: "product" (3) > "category" (2) > "all" (1)
  */
 async function activeForProducts(products) {
   if (!Array.isArray(products) || !products.length) return new Map();
@@ -273,7 +255,7 @@ async function activeForProducts(products) {
 
   if (!offers.length) return new Map();
 
-  const priorityWeight = { product: 4, subcategory: 3, category: 2, all: 1 };
+  const priorityWeight = { product: 3, category: 2, all: 1 };
   const sortedOffers = [...offers].sort(
     (a, b) => (priorityWeight[b.target_type] || 0) - (priorityWeight[a.target_type] || 0) || b.id - a.id
   );

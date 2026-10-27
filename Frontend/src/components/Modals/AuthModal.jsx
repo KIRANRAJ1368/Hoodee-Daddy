@@ -368,7 +368,13 @@ export default function AuthModal() {
           <div className="auth-modal-inner">
             {/* Modal Header */}
             <div className="auth-header">
-              <span className="auth-kicker">ZMW CLOTHING</span>
+              <img
+                src={process.env.PUBLIC_URL + "/images/hoodee-daddy-logo.svg"}
+                alt="HooDee Daddy"
+                className="auth-brand-logo"
+                style={{ height: 42, width: "auto", margin: "0 auto 10px", display: "block" }}
+              />
+              <span className="auth-kicker">HOODEE DADDY</span>
               <h2 className="auth-title">
                 {activeTab === "login" && "Customer Sign In"}
                 {activeTab === "register" && "Create An Account"}
@@ -387,7 +393,7 @@ export default function AuthModal() {
                   </span>
                 )}
                 {activeTab === "login" && "Sign in for express checkout, saved delivery details, and order tracking."}
-                {activeTab === "register" && "Join ZMW to save delivery addresses, view order history, and unlock member perks."}
+                {activeTab === "register" && "Join HooDee Daddy to save delivery addresses, view order history, and unlock member perks."}
                 {activeTab === "forgot" && (
                   forgotStep === "request"
                     ? "Enter your registered email address to receive a 6-digit verification code (OTP)."

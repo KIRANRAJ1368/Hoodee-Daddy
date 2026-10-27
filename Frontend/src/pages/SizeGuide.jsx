@@ -18,8 +18,8 @@ export default function SizeGuide() {
   return (
     <div className="size-guide-page">
       <SeoHead
-        title="Size & Fit Guide — Measurements & Sizing Charts | ZMW Clothing"
-        description="Find your perfect streetwear fit with our comprehensive ZMW Clothing size guide. Accurate flat-lay measurements in inches and cm for men, women, and kids."
+        title="Size & Fit Guide — Measurements & Sizing Charts | HooDee Daddy"
+        description="Find your perfect fit with our comprehensive HooDee Daddy size guide. Accurate flat-lay measurements in inches and cm for hoodies, pyjamas, kids, and adults."
         canonicalPath="/size-guide"
       />
       {/* ── Hero ─────────────────────────────────────────────────── */}

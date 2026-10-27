@@ -1,5 +1,5 @@
 .features {
-  background: var(--color-white);
+  background: var(--brand-white);
   padding-block: var(--space-xl);
 }
 
@@ -19,7 +19,7 @@
 }
 
 .feature-item svg {
-  color: var(--color-rust-deep);
+  color: var(--brand-blue);
   transition: transform var(--dur-fast) var(--ease-out);
 }
 
@@ -37,7 +37,7 @@
 .feature-item p {
   margin-top: 0.5rem;
   font-size: var(--step-small);
-  color: var(--color-ink-soft);
+  color: var(--brand-blue);
   max-width: 28ch;
 }
 

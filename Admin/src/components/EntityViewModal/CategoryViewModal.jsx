@@ -24,8 +24,6 @@ export default function CategoryViewModal({ category, onEdit, onClose }) {
     );
   }
 
-  const subcategories = data.subcategories || [];
-
   return (
     <Modal title="Category Overview" onClose={onClose} width={620}>
       <div className="ev">
@@ -38,10 +36,6 @@ export default function CategoryViewModal({ category, onEdit, onClose }) {
             </div>
             <div className="ev-meta-line">
               <code>/{data.slug || "—"}</code>
-              <span className="ev-sep">•</span>
-              <span>
-                {subcategories.length} item group{subcategories.length === 1 ? "" : "s"}
-              </span>
             </div>
           </div>
           <div className="ev-status-col">
@@ -69,13 +63,7 @@ export default function CategoryViewModal({ category, onEdit, onClose }) {
               </span>
             </div>
 
-            <div className="ev-stat-card">
-              <span className="ev-stat-label">Subcategories</span>
-              <span className="ev-stat-value">
-                <Layers size={14} style={{ color: "var(--indigo)" }} />
-                <span>{subcategories.length} Classified Groups</span>
-              </span>
-            </div>
+
 
             <div className="ev-stat-card">
               <span className="ev-stat-label">Catalog Status</span>
@@ -134,24 +122,7 @@ export default function CategoryViewModal({ category, onEdit, onClose }) {
           )}
         </div>
 
-        {/* Subcategories Chips */}
-        {subcategories.length > 0 && (
-          <div>
-            <div className="ev-section-label">
-              <FolderTree size={13} />
-              <span>Assigned Subcategories & Item Groups</span>
-              <span className="ev-section-count">({subcategories.length})</span>
-            </div>
-            <div className="ev-chip-row">
-              {subcategories.map((s) => (
-                <span className="ev-chip" key={s.id || s.slug}>
-                  <span className="ev-chip-dot" />
-                  <span>{s.name}</span>
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
+        
 
         {/* Footer Meta & Actions */}
         <div className="ev-footer">

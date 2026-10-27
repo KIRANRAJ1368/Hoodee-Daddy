@@ -15,7 +15,7 @@ export default function WhatsAppWidget() {
   const [message, setMessage] = useState("");
 
   const handleSend = (textToSend) => {
-    const text = textToSend || message || "Hello ZWMStore / ZMW Support, I would like to inquire about your products.";
+    const text = textToSend || message || "Hello HooDee Daddy Support, I would like to inquire about your products.";
     if (!text.trim()) return;
     const url = `https://api.whatsapp.com/send?phone=${WHATSAPP_PHONE}&text=${encodeURIComponent(text)}`;
     window.open(url, "_blank");
@@ -35,7 +35,7 @@ export default function WhatsAppWidget() {
                 <span className="online-dot" />
               </div>
               <div className="agent-info">
-                <span className="agent-name">ZWMStore / ZMW Support</span>
+                <span className="agent-name">HooDee Daddy Support</span>
                 <span className="agent-status">Online • Indian Standard Time</span>
               </div>
             </div>
@@ -51,7 +51,7 @@ export default function WhatsAppWidget() {
           <div className="whatsapp-popup-body">
             <div className="chat-bubble">
               <p>
-                Hi! 👋 Welcome to ZWMStore / ZMW Customer Support. How can we help you today with product sizing, COD availability, delivery, or order tracking?
+                Hi! 👋 Welcome to HooDee Daddy Customer Support. How can we help you today with product sizing, COD availability, delivery, or order tracking?
               </p>
               <span className="chat-time">Just now</span>
             </div>

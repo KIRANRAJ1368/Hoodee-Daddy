@@ -53,7 +53,6 @@ const NAV_SECTIONS = [
     items: [
       { to: "/products", label: "Products", icon: Shirt },
       { to: "/categories", label: "Categories", icon: FolderTree },
-      { to: "/subcategories", label: "Sub Categories", icon: Tags },
       { to: "/variants", label: "Variants", icon: Layers },
       { to: "/stock", label: "Stock Management", icon: Package2 }
     ]
@@ -110,8 +109,8 @@ export default function AdminLayout() {
         <div className="admin-sidebar-brand">
           <div className="admin-brand-center">
             <img
-              src="/images/zmw-logo-transparent.png"
-              alt="ZMW Clothing"
+              src="/images/hoodee-daddy-logo.png"
+              alt="HooDee Daddy"
               className="admin-sidebar-logo-img"
               onError={(e) => {
                 e.target.style.display = "none";
@@ -164,7 +163,7 @@ export default function AdminLayout() {
           <div className="admin-profile-footer-card">
             <div className="admin-footer-avatar">AD</div>
             <div className="admin-footer-meta">
-              <span className="admin-footer-name">ZMW Administrator</span>
+              <span className="admin-footer-name">HooDee Daddy Administrator</span>
               <span className="admin-footer-role">Super Admin</span>
             </div>
             <button

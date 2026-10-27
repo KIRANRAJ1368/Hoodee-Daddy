@@ -21,11 +21,10 @@ import { resolveImageUrl } from "../../utils/imageUrl";
 import LoadingState from "../../components/LoadingState/LoadingState";
 import Pagination from "../../components/Pagination/Pagination";
 import { sortNewestFirst } from "../../utils/sortNewestFirst";
+import { getAgePresetsForCategory, isBabiesCategory } from "../../utils/agePresets";
 import "./VariantManagementPage.css";
 
 const PRODUCTS_PER_PAGE = 10;
-
-const SIZE_PRESETS = ["Free Size", "XS", "S", "M", "L", "XL", "XXL", "3XL"];
 
 const POPULAR_COLORS = [
   { name: "Sunflower Yellow", hex: "#EAB308" },
@@ -91,9 +90,7 @@ export default function VariantManagementPage() {
     return products.filter((prod) => {
       const matchName = prod.name?.toLowerCase().includes(q);
       const matchSku = prod.sku?.toLowerCase().includes(q);
-      const matchCat =
-        prod.category?.toLowerCase().includes(q) ||
-        prod.subCategory?.toLowerCase().includes(q);
+      const matchCat = prod.category?.toLowerCase().includes(q);
       const matchVar = prod.variants?.some(
         (v) =>
           v.size?.toLowerCase().includes(q) ||
@@ -692,6 +689,16 @@ function VariantModal({ editingData, products, onClose, onSave }) {
     [products, productId]
   );
 
+  const isBabies = useMemo(
+    () => isBabiesCategory(selectedProduct?.category),
+    [selectedProduct]
+  );
+
+  const currentAgePresets = useMemo(
+    () => getAgePresetsForCategory(selectedProduct?.category),
+    [selectedProduct]
+  );
+
   const [colorName, setColorName] = useState(
     editingData?.color || ""
   );
@@ -775,10 +782,8 @@ function VariantModal({ editingData, products, onClose, onSave }) {
     }
     setSelectedSizes((previous) => {
       const isSelected = previous.includes(sizeOption);
-      let next = isSelected ? previous.filter((item) => item !== sizeOption) : [...previous, sizeOption];
+      const next = isSelected ? previous.filter((item) => item !== sizeOption) : [...previous, sizeOption];
       if (!isSelected) {
-        if (sizeOption === "Free Size") next = ["Free Size"];
-        else next = next.filter((item) => item !== "Free Size");
         setSizeValues((values) => ({ ...values, [sizeOption]: values[sizeOption] || { price, originalPrice, stockQty } }));
       }
       return next;
@@ -791,7 +796,7 @@ function VariantModal({ editingData, products, onClose, onSave }) {
     if (errors.size) setErrors((previous) => ({ ...previous, size: undefined }));
     const existing = selectedSizes.some((item) => item.toLowerCase() === value.toLowerCase());
     if (!existing) {
-      setSelectedSizes((previous) => isEdit ? [value] : [...previous.filter((item) => item !== "Free Size"), value]);
+      setSelectedSizes((previous) => isEdit ? [value] : [...previous, value]);
       setSizeValues((previous) => ({ ...previous, [value]: previous[value] || { price, originalPrice, stockQty } }));
     }
     setCustomSizeInput("");
@@ -824,11 +829,13 @@ function VariantModal({ editingData, products, onClose, onSave }) {
   }
 
   // Upload Front View image
+  const isImageFile = (file) => Boolean(file && ((file.type && (file.type.startsWith("image/") || file.type.includes("jfif") || file.type.includes("jpeg"))) || /\.(jfif|jpe?g|png|webp|gif|svg)$/i.test(file.name || "")));
+
   async function handleFrontImageUpload(files) {
     if (!files || files.length === 0) return;
-    const file = Array.from(files).find((f) => f.type.startsWith("image/"));
+    const file = Array.from(files).find(isImageFile);
     if (!file) {
-      toast.error("Please select a valid image file (JPG, PNG, or WEBP).");
+      toast.error("Please select a valid image file (JPG, JPEG, JFIF, PNG, or WEBP).");
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
@@ -852,9 +859,9 @@ function VariantModal({ editingData, products, onClose, onSave }) {
   // Upload Back View image
   async function handleBackImageUpload(files) {
     if (!files || files.length === 0) return;
-    const file = Array.from(files).find((f) => f.type.startsWith("image/"));
+    const file = Array.from(files).find(isImageFile);
     if (!file) {
-      toast.error("Please select a valid image file (JPG, PNG, or WEBP).");
+      toast.error("Please select a valid image file (JPG, JPEG, JFIF, PNG, or WEBP).");
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
@@ -878,9 +885,7 @@ function VariantModal({ editingData, products, onClose, onSave }) {
   // Upload gallery images
   async function handleGalleryUpload(files) {
     if (!files || files.length === 0) return;
-    const imageFiles = Array.from(files).filter((f) =>
-      f.type.startsWith("image/")
-    );
+    const imageFiles = Array.from(files).filter(isImageFile);
     if (imageFiles.length === 0) return;
     const maxGallery = 10;
     const remaining = maxGallery - galleryImages.length;
@@ -1116,10 +1121,13 @@ function VariantModal({ editingData, products, onClose, onSave }) {
             {/* Size selection */}
             <div className="v-field-group">
               <label className="v-label">
-                Size(s) <span className="v-req">*</span>
+                Age Option(s) <span className="v-req">*</span>
+                <span style={{ fontSize: "11px", fontWeight: "normal", color: "var(--text-subtle)", marginLeft: "8px" }}>
+                  {isBabies ? "(Babies: Months)" : "(Boys / Girls / Kids: Years)"}
+                </span>
               </label>
               <div className="v-size-presets-bar">
-                {SIZE_PRESETS.map((s) => (
+                {currentAgePresets.map((s) => (
                   <button
                     key={s}
                     type="button"
@@ -1134,7 +1142,7 @@ function VariantModal({ editingData, products, onClose, onSave }) {
               <div className="v-custom-size-row">
                 <input
                   type="text"
-                  placeholder="Add custom size (e.g. 32, 34, 2XL)"
+                  placeholder={isBabies ? "Add custom age (e.g. 12–18 Months)" : "Add custom age (e.g. 14–16 Years)"}
                   value={customSizeInput}
                   onChange={(e) => {
                     setCustomSizeInput(e.target.value);
@@ -1143,7 +1151,7 @@ function VariantModal({ editingData, products, onClose, onSave }) {
                   onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustomSize(); } }}
                   className={`v-input ${errors.size ? "is-invalid" : ""}`}
                 />
-                <button type="button" className="v-btn-cancel" onClick={addCustomSize}>Add size</button>
+                <button type="button" className="v-btn-cancel" onClick={addCustomSize}>Add age</button>
               </div>
               {!!selectedSizes.length && <div className="v-selected-sizes">
                 {selectedSizes.map((selectedSize) => (
@@ -1255,7 +1263,7 @@ function VariantModal({ editingData, products, onClose, onSave }) {
             <div className="v-dual-views-row">
               <div className="v-view-card">
                 <div className="v-view-card-header"><strong>Front View</strong><span className="v-view-badge">Main image</span></div>
-                <input ref={frontImgRef} type="file" accept="image/*" hidden onChange={(e) => handleFrontImageUpload(e.target.files)} />
+                <input ref={frontImgRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/jfif,image/pjpeg,.jfif,.jpg,.jpeg,.png,.webp,.gif" hidden onChange={(e) => handleFrontImageUpload(e.target.files)} />
                 <button type="button" className={`v-img-upload-box ${frontImage ? "has-image" : ""}`} onClick={() => frontImgRef.current?.click()} disabled={isUploadingFront} aria-label="Upload variant front image">
                   {frontImage ? <><img src={resolveImageUrl(frontImage)} alt="Variant front preview" className="v-img-preview" /> <span className="v-img-upload-overlay">{isUploadingFront ? "Uploading…" : "Change image"}</span></> : <span className="v-img-placeholder"><UploadCloud size={22} />{isUploadingFront ? "Uploading…" : "Upload Front View"}</span>}
                 </button>
@@ -1263,7 +1271,7 @@ function VariantModal({ editingData, products, onClose, onSave }) {
               </div>
               <div className="v-view-card">
                 <div className="v-view-card-header"><strong>Back View</strong><span className="v-view-badge secondary">Secondary image</span></div>
-                <input ref={backImgRef} type="file" accept="image/*" hidden onChange={(e) => handleBackImageUpload(e.target.files)} />
+                <input ref={backImgRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/jfif,image/pjpeg,.jfif,.jpg,.jpeg,.png,.webp,.gif" hidden onChange={(e) => handleBackImageUpload(e.target.files)} />
                 <button type="button" className={`v-img-upload-box ${backImage ? "has-image" : ""}`} onClick={() => backImgRef.current?.click()} disabled={isUploadingBack} aria-label="Upload variant back image">
                   {backImage ? <><img src={resolveImageUrl(backImage)} alt="Variant back preview" className="v-img-preview" /> <span className="v-img-upload-overlay">{isUploadingBack ? "Uploading…" : "Change image"}</span></> : <span className="v-img-placeholder"><UploadCloud size={22} />{isUploadingBack ? "Uploading…" : "Upload Back View"}</span>}
                 </button>
@@ -1272,7 +1280,7 @@ function VariantModal({ editingData, products, onClose, onSave }) {
             </div>
             <div className="v-gallery-block">
               <div className="v-gallery-header"><strong>Thumbnail Images</strong>
-                <input ref={galleryImgRef} type="file" accept="image/*" multiple hidden onChange={(e) => handleGalleryUpload(e.target.files)} />
+                <input ref={galleryImgRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/jfif,image/pjpeg,.jfif,.jpg,.jpeg,.png,.webp,.gif" multiple hidden onChange={(e) => handleGalleryUpload(e.target.files)} />
                 <button type="button" className="v-btn-add-gallery" onClick={() => galleryImgRef.current?.click()} disabled={isUploadingGallery || galleryImages.length >= 10}><Plus size={13} />{isUploadingGallery ? "Uploading…" : "Add thumbnails"}</button>
               </div>
               <div className="v-gallery-grid">

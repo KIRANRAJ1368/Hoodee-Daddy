@@ -2,7 +2,7 @@
 .sg-modal-overlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(7, 10, 16, 0.75);
+  background-color: var(--brand-overlay);
   backdrop-filter: blur(6px);
   z-index: 10000;
   display: flex;
@@ -24,7 +24,7 @@
 }
 
 .sg-modal-card {
-  background-color: #FFFFFF;
+  background-color: var(--brand-white);
   border-radius: 16px;
   max-width: 680px;
   width: 100%;
@@ -32,9 +32,9 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
-  border: 1px solid #E2E8F0;
-  color: var(--color-ink, #0F172A);
+  box-shadow: 0 24px 60px rgba(9, 21, 37, 0.3);
+  border: 1px solid var(--brand-border);
+  color: var(--brand-blue);
 }
 
 /* Modal Header */
@@ -43,8 +43,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 22px 28px;
-  border-bottom: 1px solid #E2E8F0;
-  background-color: #FFFFFF;
+  border-bottom: 1px solid var(--brand-border);
+  background-color: var(--brand-white);
 }
 
 .sg-modal-eyebrow {
@@ -53,7 +53,7 @@
   font-weight: 800;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--color-primary-brand, #FAA703);
+  color: #FF7300;
   margin-bottom: 4px;
 }
 
@@ -61,7 +61,7 @@
   font-family: var(--font-display, "Outfit", sans-serif);
   font-size: 1.35rem;
   font-weight: 800;
-  color: var(--color-ink, #0F172A);
+  color: var(--brand-blue);
   margin: 0;
 }
 
@@ -73,16 +73,16 @@
   justify-content: center;
   border-radius: 50%;
   font-size: 16px;
-  color: #64748B;
-  background: #F1F5F9;
+  color: var(--brand-blue);
+  background: var(--brand-white);
   border: none;
   cursor: pointer;
   transition: all 150ms ease;
 }
 
 .sg-modal-close-btn:hover {
-  background-color: #E2E8F0;
-  color: #0F172A;
+  background-color: #F1F5F9;
+  color: #FF7300;
 }
 
 /* Modal Body */
@@ -94,8 +94,8 @@
 
 /* Fit Tip Banner */
 .sg-fit-banner {
-  background: #FFFDF8;
-  border: 1px solid rgba(250, 167, 3, 0.3);
+  background: #FFF7ED;
+  border: 1px solid rgba(255, 115, 0, 0.3);
   border-radius: 10px;
   padding: 14px 18px;
   margin-bottom: 22px;
@@ -106,9 +106,9 @@
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.12em;
-  color: #111827;
-  background-color: #FFF8EC;
-  border: 1px solid rgba(250, 167, 3, 0.4);
+  color: #EA580C;
+  background-color: rgba(234, 88, 12, 0.12);
+  border: 1px solid rgba(234, 88, 12, 0.25);
   padding: 2px 8px;
   border-radius: 4px;
   margin-bottom: 6px;
@@ -116,13 +116,13 @@
 
 .sg-fit-text {
   font-size: 0.88rem;
-  color: #475569;
+  color: var(--brand-blue);
   line-height: 1.55;
   margin: 0;
 }
 
 .sg-fit-text strong {
-  color: #0F172A;
+  color: var(--brand-blue);
 }
 
 /* Controls Bar (Label + Unit Toggle) */
@@ -138,7 +138,7 @@
 .sg-table-label {
   font-size: 0.88rem;
   font-weight: 700;
-  color: #334155;
+  color: var(--brand-blue);
 }
 
 .sg-unit-toggle {
@@ -155,22 +155,22 @@
   padding: 6px 14px;
   font-size: 0.8rem;
   font-weight: 700;
-  color: #64748B;
+  color: var(--brand-blue);
   border-radius: 6px;
   cursor: pointer;
   transition: all 150ms ease;
 }
 
 .sg-unit-btn.active {
-  background-color: #FFFFFF;
-  color: var(--color-ink, #0F172A);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  background: linear-gradient(135deg, #FF7300, #FF5500);
+  color: #FFFFFF !important;
+  box-shadow: 0 2px 8px rgba(255, 115, 0, 0.35);
 }
 
 /* Table Responsive Wrapper */
 .sg-table-responsive-wrapper {
   overflow-x: auto;
-  border: 1px solid #E2E8F0;
+  border: 1px solid var(--brand-border);
   border-radius: 10px;
   margin-bottom: 24px;
   -webkit-overflow-scrolling: touch;
@@ -184,21 +184,21 @@
 }
 
 .sg-size-table th {
-  background-color: #F8FAFC;
+  background-color: var(--brand-white);
   padding: 12px 16px;
   text-align: left;
   font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #475569;
-  border-bottom: 1px solid #E2E8F0;
+  color: var(--brand-blue);
+  border-bottom: 1px solid var(--brand-border);
 }
 
 .sg-size-table td {
   padding: 13px 16px;
-  border-bottom: 1px solid #F1F5F9;
-  color: #334155;
+  border-bottom: 1px solid var(--brand-border);
+  color: var(--brand-blue);
   font-weight: 500;
 }
 
@@ -207,12 +207,12 @@
 }
 
 .sg-size-table tbody tr:hover td {
-  background-color: #FFFDF9;
+  background-color: var(--brand-white);
 }
 
 .sg-size-table tbody tr.sg-row-active td {
-  background-color: #FFF8EC;
-  color: #0F172A;
+  background-color: var(--brand-white);
+  color: var(--brand-blue);
   font-weight: 700;
 }
 
@@ -229,8 +229,8 @@
   min-width: 32px;
   height: 28px;
   padding: 0 6px;
-  background-color: #0F172A;
-  color: #FFFFFF;
+  background-color: var(--brand-white);
+  color: var(--brand-blue);
   border-radius: 6px;
   font-size: 0.8rem;
   font-weight: 800;
@@ -239,16 +239,16 @@
 .sg-selected-tag {
   font-size: 0.7rem;
   font-weight: 700;
-  color: #111827;
-  background-color: #FAA703;
+  color: var(--brand-blue);
+  background-color: var(--brand-white);
   padding: 2px 6px;
   border-radius: 4px;
 }
 
 /* How to Measure Grid */
 .sg-measure-section {
-  background-color: #F8FAFC;
-  border: 1px solid #E2E8F0;
+  background-color: var(--brand-white);
+  border: 1px solid var(--brand-border);
   border-radius: 10px;
   padding: 18px 20px;
 }
@@ -256,7 +256,7 @@
 .sg-measure-title {
   font-size: 0.92rem;
   font-weight: 800;
-  color: #0F172A;
+  color: var(--brand-blue);
   margin-bottom: 14px;
 }
 
@@ -282,8 +282,8 @@
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background-color: #E2E8F0;
-  color: #0F172A;
+  background-color: var(--brand-white);
+  color: var(--brand-blue);
   font-size: 0.76rem;
   font-weight: 800;
   display: flex;
@@ -296,13 +296,13 @@
 .sg-measure-item strong {
   display: block;
   font-size: 0.84rem;
-  color: #0F172A;
+  color: var(--brand-blue);
   margin-bottom: 2px;
 }
 
 .sg-measure-item p {
   font-size: 0.8rem;
-  color: #64748B;
+  color: var(--brand-blue);
   line-height: 1.45;
   margin: 0;
 }
@@ -313,19 +313,19 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 28px;
-  border-top: 1px solid #E2E8F0;
-  background-color: #FFFFFF;
+  border-top: 1px solid var(--brand-border);
+  background-color: var(--brand-white);
   gap: 16px;
 }
 
 .sg-footer-note {
   font-size: 0.82rem;
-  color: #64748B;
+  color: var(--brand-blue);
   margin: 0;
 }
 
 .sg-footer-note strong {
-  color: #0F172A;
+  color: var(--brand-blue);
 }
 
 @media (max-width: 560px) {

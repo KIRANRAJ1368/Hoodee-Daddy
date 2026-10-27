@@ -17,10 +17,10 @@ export const categoriesApi = {
 };
 
 export const subcategoriesApi = {
-  list: (params) => api.get("/subcategories", { includeInactive: true, ...params }),
-  create: (data) => api.post("/subcategories", data),
-  update: (id, data) => api.put(`/subcategories/${id}`, data),
-  remove: (id) => api.delete(`/subcategories/${id}`)
+  list: () => Promise.resolve({ data: [] }),
+  create: () => Promise.resolve({ data: {} }),
+  update: () => Promise.resolve({ data: {} }),
+  remove: () => Promise.resolve({ data: {} })
 };
 
 export const productsApi = {

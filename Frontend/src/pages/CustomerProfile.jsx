@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, Navigate } from "react-router-dom";
 import { useShop } from "../context/ShopContext";
 import { storefrontApi } from "../services/storefrontApi";
 import InvoiceModal from "../components/Modals/InvoiceModal";
@@ -8,13 +8,13 @@ import { isValidPhone, cleanPhoneInput, isNonEmpty } from "../utils/validators";
 import "./CustomerProfile.css";
 
 const STATUS_BADGES = {
-  pending: { label: "Order Placed", color: "var(--color-accent, #FAA703)", bg: "#FFFBEB" },
-  confirmed: { label: "Confirmed", color: "#2563EB", bg: "#EFF6FF" },
-  packed: { label: "Packed", color: "#7C3AED", bg: "#F5F3FF" },
-  shipped: { label: "In Transit", color: "#D97706", bg: "#FFFBEB" },
-  delivered: { label: "Delivered", color: "#059669", bg: "#ECFDF5" },
-  cancelled: { label: "Cancelled", color: "#DC2626", bg: "#FEF2F2" },
-  returned: { label: "Returned", color: "#4B5563", bg: "#F3F4F6" }
+  pending: { label: "Order Placed", color: "var(--brand-blue)", bg: "var(--brand-white)" },
+  confirmed: { label: "Confirmed", color: "var(--brand-blue)", bg: "var(--brand-white)" },
+  packed: { label: "Packed", color: "var(--brand-blue)", bg: "var(--brand-white)" },
+  shipped: { label: "In Transit", color: "var(--brand-blue)", bg: "var(--brand-white)" },
+  delivered: { label: "Delivered", color: "var(--brand-blue)", bg: "var(--brand-white)" },
+  cancelled: { label: "Cancelled", color: "var(--brand-blue)", bg: "var(--brand-white)" },
+  returned: { label: "Returned", color: "var(--brand-blue)", bg: "var(--brand-white)" }
 };
 
 const RETURN_REASONS = [
@@ -302,29 +302,26 @@ export default function CustomerProfile() {
 
   if (!customerUser) {
     return (
-      <div className="account-unauth-container">
-        <div className="account-unauth-box">
-          <span className="account-kicker">ZMW CLOTHING</span>
-          <h1 className="account-unauth-title">Customer Account</h1>
-          <p className="account-unauth-desc">
-            Sign in to track orders, manage your shipping addresses, and experience seamless luxury shopping.
-          </p>
-          <div className="account-unauth-actions">
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={() => setAuthModalState("login")}
-            >
-              Sign In to Your Account
-            </button>
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={() => setAuthModalState("register")}
-            >
-              Create An Account
-            </button>
-          </div>
+      <div className="account-page-wrapper" style={{ padding: "80px 20px", textAlign: "center", minHeight: "60vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ fontSize: "3rem", marginBottom: "16px" }}>📦</div>
+        <h2 style={{ fontSize: "1.6rem", fontWeight: 700, marginBottom: "10px", color: "var(--brand-blue, #091525)" }}>
+          Sign in to View Your Orders
+        </h2>
+        <p style={{ color: "#64748b", maxWidth: 460, marginBottom: "24px", lineHeight: 1.6 }}>
+          Please sign in to view your past orders, track active shipments, and download invoices.
+        </p>
+        <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", justifyContent: "center" }}>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => setAuthModalState("login")}
+            style={{ padding: "10px 24px" }}
+          >
+            Sign In / Register
+          </button>
+          <Link to="/" className="btn btn-secondary" style={{ padding: "10px 24px" }}>
+            Return to Store
+          </Link>
         </div>
       </div>
     );
@@ -462,8 +459,8 @@ export default function CustomerProfile() {
                   {orders.map((order, orderIdx) => {
                     const statusMeta = STATUS_BADGES[order.status] || {
                       label: order.status,
-                      color: "#111827",
-                      bg: "#F3F4F6"
+                      color: "var(--brand-blue)",
+                      bg: "var(--brand-white)"
                     };
 
                     const orderDate = new Date(order.createdAt || order.created_at).toLocaleDateString(
@@ -493,7 +490,7 @@ export default function CustomerProfile() {
                             >
                               ● {statusMeta.label}
                             </span>
-                            {order.shipping_status && <small style={{ display: "block", textTransform: "capitalize", color: "#64748b", marginTop: 5 }}>{order.shipping_status.replace(/_/g, " ")}</small>}
+                            {order.shipping_status && <small style={{ display: "block", textTransform: "capitalize", color: "var(--brand-blue)", marginTop: 5 }}>{order.shipping_status.replace(/_/g, " ")}</small>}
                           </div>
                         </div>
 
@@ -510,7 +507,7 @@ export default function CustomerProfile() {
                                         alt={item.product_name_snapshot}
                                       />
                                     ) : (
-                                      <div className="thumb-placeholder">ZMW</div>
+                                      <div className="thumb-placeholder">HDD</div>
                                     )}
                                   </div>
                                   <div className="order-item-details">
@@ -526,7 +523,7 @@ export default function CustomerProfile() {
                                     </div>
                                     {order.status !== "cancelled" && order.status !== "returned" && (item.review ? (
                                       <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 8, fontSize: 12 }}>
-                                        <span style={{ color: item.review.is_approved ? "#15803d" : "#b45309" }}>{item.review.is_approved ? "Review published" : "Review awaiting approval"}</span>
+                                        <span style={{ color: item.review.is_approved ? "var(--brand-blue)" : "var(--brand-blue)" }}>{item.review.is_approved ? "Review published" : "Review awaiting approval"}</span>
                                         <button type="button" className="btn-order-action" onClick={() => editItemReview(item)}>Edit</button>
                                         <button type="button" className="btn-order-action cancel" onClick={() => deleteItemReview(item)}>Delete</button>
                                       </div>
@@ -582,9 +579,9 @@ export default function CustomerProfile() {
                                     padding: "4px 8px",
                                     borderRadius: 6,
                                     textTransform: "uppercase",
-                                    background: order.cancellation_status === "completed" ? "#dcfce7" : "#fef3c7",
-                                    color: order.cancellation_status === "completed" ? "#15803d" : "#b45309",
-                                    border: `1px solid ${order.cancellation_status === "completed" ? "#bbf7d0" : "#fde68a"}`
+                                    background: order.cancellation_status === "completed" ? "var(--brand-white)" : "var(--brand-white)",
+                                    color: order.cancellation_status === "completed" ? "var(--brand-blue)" : "var(--brand-blue)",
+                                    border: `1px solid ${order.cancellation_status === "completed" ? "var(--brand-border)" : "var(--brand-border)"}`
                                   }}
                                 >
                                   {order.cancellation_type === "post_delivery" ? "Return" : "Cancel"}: {order.cancellation_status.replace(/_/g, " ")}
@@ -604,7 +601,7 @@ export default function CustomerProfile() {
                                     <button
                                       type="button"
                                       className="btn-order-action"
-                                      style={{ color: "#d97706", borderColor: "#fde68a" }}
+                                      style={{ color: "var(--brand-blue)", borderColor: "var(--brand-border)" }}
                                       onClick={() => openActionModal(order, "in_transit")}
                                     >
                                       ✕ Stop Delivery
@@ -614,7 +611,7 @@ export default function CustomerProfile() {
                                     <button
                                       type="button"
                                       className="btn-order-action"
-                                      style={{ color: "#7c3aed", borderColor: "#ddd6fe" }}
+                                      style={{ color: "var(--brand-blue)", borderColor: "var(--brand-border)" }}
                                       onClick={() => openActionModal(order, "post_delivery")}
                                     >
                                       ↩ Request Return
@@ -643,7 +640,7 @@ export default function CustomerProfile() {
 
               <form className="account-form" onSubmit={handleProfileSubmit} noValidate>
                 {profileError && (
-                  <div style={{ color: "#DC2626", fontSize: "0.85rem", marginBottom: "14px", background: "#FEF2F2", padding: "8px 12px", borderRadius: "6px", border: "1px solid #FCA5A5" }}>
+                  <div style={{ color: "var(--brand-blue)", fontSize: "0.85rem", marginBottom: "14px", background: "var(--brand-white)", padding: "8px 12px", borderRadius: "6px", border: "1px solid var(--brand-border)" }}>
                     ⚠️ {profileError}
                   </div>
                 )}
@@ -802,7 +799,7 @@ export default function CustomerProfile() {
                 ? `Stop Delivery & Cancel — ${cancelModalOrder.order_number}`
                 : `Cancel Order — ${cancelModalOrder.order_number}`}
             </h3>
-            <p style={{ fontSize: "0.82rem", color: "#64748b", margin: "0 0 14px 0" }}>
+            <p style={{ fontSize: "0.82rem", color: "var(--brand-blue)", margin: "0 0 14px 0" }}>
               {actionType === "post_delivery"
                 ? "Items can be returned within 7 days of delivery. Reverse pickup will be arranged by Shiprocket."
                 : actionType === "in_transit"
@@ -818,7 +815,7 @@ export default function CustomerProfile() {
                 <select
                   value={cancelReason}
                   onChange={(e) => setCancelReason(e.target.value)}
-                  style={{ width: "100%", padding: "8px 10px", borderRadius: 6, border: "1.5px solid #cbd5e1", fontSize: "0.85rem" }}
+                  style={{ width: "100%", padding: "8px 10px", borderRadius: 6, border: "1.5px solid var(--brand-border)", fontSize: "0.85rem" }}
                   required
                 >
                   {(actionType === "post_delivery" ? RETURN_REASONS : CANCEL_REASONS).map((r) => (
@@ -846,8 +843,8 @@ export default function CustomerProfile() {
                     3. Upload Media Proof (Optional)
                   </label>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                    <div style={{ border: "1.5px dashed #cbd5e1", borderRadius: 8, padding: 10, textAlign: "center" }}>
-                      <span style={{ fontSize: "0.78rem", fontWeight: 600, display: "block", color: "#475569" }}>
+                    <div style={{ border: "1.5px dashed var(--brand-border)", borderRadius: 8, padding: 10, textAlign: "center" }}>
+                      <span style={{ fontSize: "0.78rem", fontWeight: 600, display: "block", color: "var(--brand-blue)" }}>
                         📷 Photos ({photoFiles.length}/3)
                       </span>
                       <input
@@ -858,8 +855,8 @@ export default function CustomerProfile() {
                         style={{ fontSize: "0.72rem", marginTop: 6, width: "100%" }}
                       />
                     </div>
-                    <div style={{ border: "1.5px dashed #cbd5e1", borderRadius: 8, padding: 10, textAlign: "center" }}>
-                      <span style={{ fontSize: "0.78rem", fontWeight: 600, display: "block", color: "#475569" }}>
+                    <div style={{ border: "1.5px dashed var(--brand-border)", borderRadius: 8, padding: 10, textAlign: "center" }}>
+                      <span style={{ fontSize: "0.78rem", fontWeight: 600, display: "block", color: "var(--brand-blue)" }}>
                         🎥 Video ({videoFile ? 1 : 0}/1)
                       </span>
                       <input
@@ -873,8 +870,8 @@ export default function CustomerProfile() {
                 </div>
               )}
 
-              <div style={{ background: "#f8fafc", padding: 12, borderRadius: 8, border: "1px solid #e2e8f0", marginBottom: 16 }}>
-                <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, color: "#334155", marginBottom: 6 }}>
+              <div style={{ background: "var(--brand-white)", padding: 12, borderRadius: 8, border: "1px solid var(--brand-border)", marginBottom: 16 }}>
+                <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, color: "var(--brand-blue)", marginBottom: 6 }}>
                   {actionType === "post_delivery" ? "4" : "3"}. Your UPI ID for Refund
                 </label>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
@@ -883,17 +880,17 @@ export default function CustomerProfile() {
                     placeholder="e.g. user@okhdfcbank"
                     value={upiId}
                     onChange={(e) => setUpiId(e.target.value)}
-                    style={{ width: "100%", padding: "7px 10px", borderRadius: 6, border: "1.5px solid #cbd5e1", fontSize: "0.82rem" }}
+                    style={{ width: "100%", padding: "7px 10px", borderRadius: 6, border: "1.5px solid var(--brand-border)", fontSize: "0.82rem" }}
                   />
                   <input
                     type="text"
                     placeholder="Account Holder Name"
                     value={accountHolder}
                     onChange={(e) => setAccountHolder(e.target.value)}
-                    style={{ width: "100%", padding: "7px 10px", borderRadius: 6, border: "1.5px solid #cbd5e1", fontSize: "0.82rem" }}
+                    style={{ width: "100%", padding: "7px 10px", borderRadius: 6, border: "1.5px solid var(--brand-border)", fontSize: "0.82rem" }}
                   />
                 </div>
-                <span style={{ fontSize: "0.7rem", color: "#64748b", marginTop: 4, display: "block" }}>
+                <span style={{ fontSize: "0.7rem", color: "var(--brand-blue)", marginTop: 4, display: "block" }}>
                   For prepaid orders, approved refunds are transferred directly to this UPI address.
                 </span>
               </div>
@@ -911,9 +908,9 @@ export default function CustomerProfile() {
                   type="submit"
                   className="btn btn-primary"
                   style={{
-                    background: actionType === "post_delivery" ? "#7c3aed" : "#DC2626",
-                    borderColor: actionType === "post_delivery" ? "#7c3aed" : "#DC2626",
-                    color: "#fff"
+                    background: actionType === "post_delivery" ? "var(--brand-white)" : "var(--brand-white)",
+                    borderColor: actionType === "post_delivery" ? "var(--brand-border)" : "var(--brand-border)",
+                    color: "var(--brand-blue)"
                   }}
                   disabled={isCancelling}
                 >

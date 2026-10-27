@@ -8,8 +8,8 @@ export default function ShippingPolicy() {
   return (
     <div className="policy-page">
       <SeoHead
-        title="Shipping Policy — Pan-India Express Delivery Timelines | ZMW Clothing"
-        description="Review ZMW Clothing shipping rates, delivery timelines, and order tracking across Tier-1 metros and regional pin codes in India."
+        title="Shipping Policy — Pan-India Express Delivery Timelines | HooDee Daddy"
+        description="Review HooDee Daddy shipping rates, delivery timelines, and order tracking across Tier-1 metros and regional pin codes in India."
         canonicalPath="/shipping-policy"
       />
       <section className="policy-hero" aria-label="Shipping Policy">
@@ -25,7 +25,7 @@ export default function ShippingPolicy() {
           <div className="policy-card">
             <h2>1. Order Processing Time</h2>
             <p>
-              All orders placed on ZMW are processed, quality-inspected, and dispatched from our primary hub within <strong>24 to 48 business hours</strong> (excluding Sundays and national holidays). You will receive an SMS and email notification with your tracking number as soon as the package leaves our warehouse.
+              All orders placed on HooDee Daddy are processed, quality-inspected, and dispatched from our primary hub within <strong>24 to 48 business hours</strong> (excluding Sundays and national holidays). You will receive an SMS and email notification with your tracking number as soon as the package leaves our warehouse.
             </p>
 
             <h2>2. Domestic Shipping & Delivery Timelines</h2>
@@ -63,7 +63,7 @@ export default function ShippingPolicy() {
             </p>
             <p>
               <strong>Logistics & Support Email:</strong>{" "}
-              <a href="mailto:zmw@gmail.com" style={{ color: "inherit", textDecoration: "underline" }}>zmw@gmail.com</a>
+              <a href="mailto:support@hoodeedaddy.com" style={{ color: "inherit", textDecoration: "underline" }}>support@hoodeedaddy.com</a>
               <br />
               <strong>Contact Helpline / Mobile:</strong>{" "}
               <a href="tel:+919876543210" style={{ color: "inherit", textDecoration: "underline" }}>+91 9876543210</a>

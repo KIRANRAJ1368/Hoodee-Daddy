@@ -69,7 +69,7 @@ export default function AnnouncementFormModal({ announcement, onClose, onSaved }
   function broadcastAnnouncementUpdate(actionType) {
     try {
       if (typeof BroadcastChannel !== "undefined") {
-        const bc = new BroadcastChannel("zmw_catalog_channel");
+        const bc = new BroadcastChannel("hd_catalog_channel");
         bc.postMessage({ action: actionType, timestamp: Date.now() });
         bc.close();
       }
@@ -119,7 +119,7 @@ export default function AnnouncementFormModal({ announcement, onClose, onSaved }
       width={620}
     >
       <form onSubmit={handleSubmit} noValidate>
-        {/* Live Storefront Preview in Red Bar */}
+        {/* Live Storefront Preview in Orange Bar */}
         <div style={{ marginBottom: 18 }}>
           <label
             style={{
@@ -135,12 +135,12 @@ export default function AnnouncementFormModal({ announcement, onClose, onSaved }
             }}
           >
             <Eye size={13} />
-            <span>Storefront Announcement Preview (Red Bar)</span>
+            <span>Storefront Announcement Preview (Orange Bar)</span>
           </label>
 
           <div
             style={{
-              backgroundColor: "#DC2626",
+              backgroundColor: "#FF6700",
               color: "#FFFFFF",
               borderRadius: 8,
               padding: "9px 36px 9px 16px",
@@ -152,7 +152,7 @@ export default function AnnouncementFormModal({ announcement, onClose, onSaved }
               alignItems: "center",
               justifyContent: "center",
               textAlign: "center",
-              boxShadow: "0 2px 6px rgba(220, 38, 38, 0.25)",
+              boxShadow: "0 2px 6px rgba(255, 103, 0, 0.25)",
               minHeight: 38,
               overflow: "hidden"
             }}
@@ -231,7 +231,7 @@ export default function AnnouncementFormModal({ announcement, onClose, onSaved }
           <label htmlFor="ann-active" style={{ cursor: "pointer", fontSize: 13 }}>
             <strong>Active & Visible at Top of Website</strong>
             <span style={{ display: "block", fontSize: 11.5, color: "#64748b", marginTop: 2 }}>
-              Display this red announcement bar across all storefront pages
+              Display this orange announcement bar across all storefront pages
             </span>
           </label>
         </div>

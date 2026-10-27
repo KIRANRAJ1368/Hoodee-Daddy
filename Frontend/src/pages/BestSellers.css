@@ -8,15 +8,15 @@
 
 /* ── 1. Page wrapper ─────────────────────────────────────── */
 .bs-page {
-  background-color: var(--color-cream);
+  background-color: var(--brand-white);
   min-height: 100vh;
-  color: var(--color-ink);
+  color: var(--brand-blue);
 }
 
 /* ── 2. Page Hero Banner ─────────────────────────────────── */
 .bs-hero {
-  background-color: var(--color-ink-deep);
-  color: var(--color-white);
+  background-color: var(--brand-white);
+  color: var(--brand-blue);
   padding: clamp(48px, 7vw, 88px) 0 clamp(36px, 5vw, 64px);
   text-align: center;
   position: relative;
@@ -28,7 +28,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at 60% 0%, rgba(250, 167, 3, 0.18) 0%, transparent 65%);
+  background: var(--brand-white);
   pointer-events: none;
 }
 
@@ -39,9 +39,9 @@
 
 .bs-hero .section-eyebrow {
   display: inline-block;
-  background-color: rgba(250, 167, 3, 0.2);
-  color: var(--color-accent);
-  border: 1px solid rgba(250, 167, 3, 0.4);
+  background-color: var(--brand-white);
+  color: var(--brand-blue);
+  border: 1px solid var(--brand-border);
   margin-bottom: 14px;
 }
 
@@ -50,14 +50,14 @@
   font-size: clamp(2rem, 5vw, 3.4rem);
   font-weight: 700;
   letter-spacing: -0.03em;
-  color: var(--color-white);
+  color: var(--brand-blue);
   margin-bottom: 14px;
   line-height: 1.1;
 }
 
 .bs-hero-subtitle {
   font-size: clamp(0.9rem, 1.5vw, 1.05rem);
-  color: rgba(255, 255, 255, 0.72);
+  color: var(--brand-blue);
   max-width: 540px;
   margin: 0 auto 28px;
   line-height: 1.6;
@@ -79,28 +79,28 @@
   letter-spacing: 0.05em;
   text-transform: uppercase;
   border-radius: var(--radius-pill);
-  border: 1px solid rgba(255, 255, 255, 0.28);
+  border: 1px solid var(--brand-border);
   background-color: transparent;
-  color: rgba(255, 255, 255, 0.75);
+  color: var(--brand-blue);
   cursor: pointer;
   transition: all var(--dur-fast) var(--ease-smooth);
 }
 
 .bs-gender-tab:hover {
-  border-color: rgba(255, 255, 255, 0.6);
-  color: var(--color-white);
-  background-color: rgba(255, 255, 255, 0.08);
+  border-color: var(--brand-orange);
+  color: var(--brand-orange);
+  background-color: var(--brand-white);
 }
 
 .bs-gender-tab.active {
-  background-color: var(--color-white);
-  color: var(--color-ink);
+  background-color: var(--brand-white);
+  color: var(--brand-orange);
   border-color: var(--color-white);
 }
 
 /* ── 3. Catalog section ──────────────────────────────────── */
 .bs-catalog-section {
-  background-color: var(--color-white);
+  background-color: var(--brand-white);
   border-top: 1px solid var(--color-grey-200);
 }
 

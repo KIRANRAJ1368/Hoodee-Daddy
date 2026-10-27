@@ -24,7 +24,7 @@ async function start() {
 
   const server = app.listen(env.port, () => {
     // eslint-disable-next-line no-console
-    console.log(`[server] ZMW backend listening on port ${env.port} (${env.env})`);
+    console.log(`[server] HooDee Daddy backend listening on port ${env.port} (${env.env})`);
   });
 
   server.on("error", (err) => {

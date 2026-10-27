@@ -431,7 +431,7 @@ export default function NewArrivals() {
                         aria-hidden="true"
                       >
                         {isActive && (
-                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3">
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--brand-blue)" strokeWidth="3">
                             <polyline points="20 6 9 17 4 12"></polyline>
                           </svg>
                         )}

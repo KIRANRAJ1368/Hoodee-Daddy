@@ -81,7 +81,7 @@ export default function ContactPage() {
             <span className="pill-badge badge-gold">{meta.total} Message{meta.total === 1 ? "" : "s"}</span>
           </h1>
           <p className="page-subtitle">
-            Messages and sizing/order feedback submitted through the ZMW storefront Contact portal.
+            Messages and sizing/order feedback submitted through the HooDee Daddy storefront Contact portal.
           </p>
         </div>
       </div>
@@ -273,7 +273,7 @@ export default function ContactPage() {
             </button>
             <a
               className="btn btn-accent"
-              href={`mailto:${viewing.email}?subject=Re: ${encodeURIComponent(viewing.subject || "Your inquiry with ZMW Clothing")}`}
+              href={`mailto:${viewing.email}?subject=Re: ${encodeURIComponent(viewing.subject || "Your inquiry with HooDee Daddy")}`}
             >
               <Reply size={14} />
               <span>Reply by Email</span>

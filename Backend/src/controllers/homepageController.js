@@ -1,4 +1,4 @@
-const { HomepageSection, Category, Subcategory, Banner, Product, Announcement } = require("../models");
+const { HomepageSection, Category, Banner, Product, Announcement } = require("../models");
 const ApiError = require("../utils/ApiError");
 const { sendSuccess } = require("../utils/apiResponse");
 const { serializeProduct } = require("../services/productSerializer");
@@ -21,14 +21,7 @@ async function getHomePayload(req, res) {
     Category.findAll({
       where: { is_active: true },
       order: [["sort_order", "ASC"], ["id", "ASC"]],
-      include: [{
-        model: Subcategory,
-        as: "subcategories",
-        where: { is_active: true },
-        required: false,
-        separate: true,
-        order: [["sort_order", "ASC"], ["id", "ASC"]]
-      }]
+      
     }),
     Banner.findAll({ where: { is_active: true }, order: [["sort_order", "ASC"], ["updated_at", "DESC"]] }),
     Announcement.findOne({
@@ -132,14 +125,43 @@ async function getHomePayload(req, res) {
   }
 
   const [newArrivals, bestSellers] = await Promise.all([newArrivalsPromise, bestSellersPromise]);
+
+  // Fetch products for all active categories (first 4 active products per category)
+  const categoryIds = categories.map((c) => c.id);
+  const categoryProductsRaw = categoryIds.length > 0 ? await Product.findAll({
+    where: { category_id: categoryIds, is_active: true },
+    include: PRODUCT_INCLUDES,
+    order: [["id", "ASC"]]
+  }) : [];
+
   const offerController = require("./offerController");
-  const allHomeProducts = [...newArrivals, ...bestSellers];
+  const allHomeProducts = [...newArrivals, ...bestSellers, ...categoryProductsRaw];
   const offersMap = await offerController.activeForProducts(allHomeProducts);
+
+  const productsByCatId = new Map();
+  categoryProductsRaw.forEach((p) => {
+    const list = productsByCatId.get(p.category_id) || [];
+    if (list.length < 4) {
+      list.push({
+        ...serializeProduct(p),
+        offer: offersMap.get(Number(p.id)) || null
+      });
+      productsByCatId.set(p.category_id, list);
+    }
+  });
+
+  const categoriesWithProducts = categories.map((cat) => {
+    const c = cat.toJSON ? cat.toJSON() : { ...cat };
+    return {
+      ...c,
+      products: productsByCatId.get(c.id) || []
+    };
+  });
 
   return sendSuccess(res, {
     data: {
       sections,
-      categories,
+      categories: categoriesWithProducts,
       banners: bannersByPlacement,
       activeAnnouncement: activeAnnouncement || null,
       newArrivals: newArrivals.map((p) => ({

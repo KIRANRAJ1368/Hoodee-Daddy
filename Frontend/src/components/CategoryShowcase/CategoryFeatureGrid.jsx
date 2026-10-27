@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useShop } from "../../context/ShopContext";
 import { imageUrl } from "../../utils/imageUrl";
+import ProductCard from "../ProductCard/ProductCard";
 import useCarousel from "../../hooks/useCarousel";
 import {
   CAROUSEL_BREAKPOINTS,
@@ -12,7 +13,7 @@ import {
 } from "../../utils/carouselCore";
 import "./CategoryFeatureGrid.css";
 
-function SubcategoryTile({ card }) {
+function CardTile({ card }) {
   const hasImage = Boolean(card.image && typeof card.image === "string" && card.image.trim());
   return (
     <Link to={card.link} className="cat-feature-card">
@@ -20,7 +21,7 @@ function SubcategoryTile({ card }) {
         {hasImage ? (
           <img
             src={imageUrl(card.image)}
-            alt={card.title ? `${card.title} - ${card.tag || "Clothing"} | ZMW` : "Category Item"}
+            alt={card.title ? `${card.title} - ${card.tag || "Clothing"} | HooDee Daddy` : "Category Item"}
             className="cat-feature-img"
             loading="lazy"
             style={card.imagePosition ? { objectPosition: card.imagePosition } : undefined}
@@ -76,28 +77,7 @@ export function CategoryCards({ cards: customCards, category: directCategory, ca
     return tag;
   };
 
-  // Authoritative admin toggle: render active subcategories
-  const visibleSubcategories = (category?.subcategories || []).filter(
-    (subcategory) => subcategory.show_on_homepage !== false && subcategory.is_active !== false
-  );
-
-  let items = [];
-  if (Array.isArray(customCards) && customCards.length > 0) {
-    items = customCards;
-  } else if (visibleSubcategories.length > 0) {
-    items = visibleSubcategories.map((subcategory) => {
-      // Show image ONLY when added from Admin for this subcategory
-      const image = subcategory.image_url || null;
-      return {
-        id: subcategory.id,
-        title: subcategory.name,
-        tag: sanitizeTag(category?.name?.toUpperCase() || defaultTag),
-        image,
-        imagePosition: subcategory.image_position || "center top",
-        link: `/categories/${encodeURIComponent(category?.slug || slug)}/${encodeURIComponent(subcategory.slug || subcategory.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"))}`
-      };
-    });
-  }
+  const items = Array.isArray(customCards) ? customCards : [];
 
   const { index, next, prev, setPaused } = useCarousel(
     items.length,
@@ -115,7 +95,7 @@ export function CategoryCards({ cards: customCards, category: directCategory, ca
     return (
       <div className="cat-feature-grid cat-feature-grid--four">
         {items.map((card) => (
-          <SubcategoryTile key={card.id} card={card} />
+          <CardTile key={card.id} card={card} />
         ))}
       </div>
     );
@@ -130,7 +110,7 @@ export function CategoryCards({ cards: customCards, category: directCategory, ca
       onTouchEnd={() => setPaused(false)}
     >
       {shouldShowArrows(items.length, visibleCount) && (
-        <CarouselArrow direction="left" onClick={prev} label="Previous subcategories" />
+        <CarouselArrow direction="left" onClick={prev} label="Previous items" />
       )}
 
       <div className="cat-feature-carousel-viewport">
@@ -147,14 +127,14 @@ export function CategoryCards({ cards: customCards, category: directCategory, ca
               className="cat-feature-carousel-slide"
               style={{ flex: `0 0 ${slideWidth}%`, maxWidth: `${slideWidth}%` }}
             >
-              <SubcategoryTile card={card} />
+              <CardTile card={card} />
             </div>
           ))}
         </div>
       </div>
 
       {shouldShowArrows(items.length, visibleCount) && (
-        <CarouselArrow direction="right" onClick={next} label="Next subcategories" />
+        <CarouselArrow direction="right" onClick={next} label="Next items" />
       )}
     </div>
   );
@@ -162,7 +142,7 @@ export function CategoryCards({ cards: customCards, category: directCategory, ca
 
 /* ── Generic Data-Driven Category Section ── */
 export function CategorySection({ category, section }) {
-  const { homeData } = useShop();
+  const { homeData, allProducts } = useShop();
   if (!category || category.is_active === false || category.show_on_homepage === false) {
     return null;
   }
@@ -178,10 +158,6 @@ export function CategorySection({ category, section }) {
     [];
   const banner = Array.isArray(bannerList) && bannerList.length > 0 ? bannerList[0] : null;
 
-  const visibleSubcategories = (category?.subcategories || []).filter(
-    (subcategory) => subcategory.show_on_homepage !== false && subcategory.is_active !== false
-  );
-
   const eyebrowText = `${category.name.toUpperCase()} COLLECTION`;
   const defaultTitle = `${category.name} Collection`;
   const defaultSubtitle =
@@ -191,6 +167,25 @@ export function CategorySection({ category, section }) {
   const title = banner?.title || section?.title || defaultTitle;
   const subtitle = banner?.subtitle || section?.subtitle || defaultSubtitle;
   const slugClass = `${category.slug}-feature-section`;
+
+  // First 4 active products for this category
+  const categoryProducts = useMemo(() => {
+    if (Array.isArray(category.products) && category.products.length > 0) {
+      return category.products.slice(0, 4);
+    }
+    const catId = Number(category.id);
+    const catSlug = String(category.slug || "").trim().toLowerCase();
+    return (allProducts || [])
+      .filter((p) => {
+        if (p.categoryId && Number(p.categoryId) === catId) return true;
+        const pCat = String(p.category || "").trim().toLowerCase();
+        if (pCat && pCat === catSlug) return true;
+        if ((catSlug === "mens" || catSlug === "men") && (pCat === "mens" || pCat === "men")) return true;
+        if ((catSlug === "women" || catSlug === "womens") && (pCat === "women" || pCat === "womens")) return true;
+        return false;
+      })
+      .slice(0, 4);
+  }, [category, allProducts]);
 
   return (
     <section className={`category-feature-section ${slugClass}`} aria-label={`${category.name} Collection`}>
@@ -219,13 +214,17 @@ export function CategorySection({ category, section }) {
           </Link>
         </div>
 
-        {/* If subcategories exist, render carousel underneath */}
-        {visibleSubcategories.length > 0 && (
-          <CategoryCards
-            category={category}
-            categorySlug={category.slug}
-            defaultTag={eyebrowText}
-          />
+        {/* First 4 Products Grid */}
+        {categoryProducts.length > 0 ? (
+          <div className="cat-products-grid">
+            {categoryProducts.map((prod) => (
+              <ProductCard key={prod.id} product={prod} />
+            ))}
+          </div>
+        ) : (
+          <div className="cat-empty-state">
+            <p>Products will appear here once added from the Admin Panel.</p>
+          </div>
         )}
       </div>
     </section>

@@ -17,7 +17,7 @@ export default function Home() {
   const [selectedOfferBanner, setSelectedOfferBanner] = useState(null);
   const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
 
-  const baseUrl = (seoSettings?.canonical_base_url || "https://zmwclothing.com").replace(/\/+$/, "");
+  const baseUrl = (seoSettings?.canonical_base_url || "https://hoodeedaddy.com").replace(/\/+$/, "");
 
   const homeSchemas = useMemo(() => {
     const org = buildOrganizationSchema(baseUrl, seoSettings || {});
@@ -29,7 +29,7 @@ export default function Home() {
   useEffect(() => {
     const offerList = homeData?.banners?.offers || [];
     if (!offerList.length) return;
-    const isDismissed = sessionStorage.getItem("zmw_offer_modal_dismissed");
+    const isDismissed = sessionStorage.getItem("hd_offer_modal_dismissed");
     if (!isDismissed) {
       const timer = setTimeout(() => {
         setSelectedOfferBanner(offerList[0]);
@@ -46,7 +46,7 @@ export default function Home() {
 
   function handleCloseOfferModal() {
     setIsOfferModalOpen(false);
-    sessionStorage.setItem("zmw_offer_modal_dismissed", "true");
+    sessionStorage.setItem("hd_offer_modal_dismissed", "true");
   }
 
   // Section configs from Admin
@@ -68,12 +68,12 @@ export default function Home() {
   return (
     <>
       <SeoHead
-        title={seoSettings?.homepage_title || "ZMW Clothing — Luxury Fashion, Streetwear & Everyday Essentials"}
-        description={seoSettings?.homepage_description || "Discover ZMW's luxury streetwear and couture collections. Handcrafted 240+ GSM oversized t-shirts, 450 GSM hoodies, and tailored apparel."}
+        title={seoSettings?.homepage_title || "HooDee Daddy — Streetwear & Everyday Essentials"}
+        description={seoSettings?.homepage_description || "Discover HooDee Daddy's premium kids hoodies, pyjamas, and everyday streetwear collections."}
         canonicalPath="/"
         schema={homeSchemas}
       />
-      <h1 className="sr-only">ZMW Clothing — Luxury Fashion, Streetwear &amp; Everyday Essentials</h1>
+      <h1 className="sr-only">HooDee Daddy — Streetwear &amp; Everyday Essentials</h1>
 
       {/* 1. Hero Banners (Dynamic) */}
       {isHeroActive && <Hero />}

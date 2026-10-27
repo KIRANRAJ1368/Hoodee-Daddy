@@ -168,7 +168,7 @@
   color: #0F172A;
 }
 
-/* Active Navigation Item (Approved ZMW Gold Style - High Contrast) */
+/* Active Navigation Item (Approved HooDee Daddy Gold Style - High Contrast) */
 .admin-nav-link.active {
   background: #FEF3C7;
   color: #78350F;
@@ -432,4 +432,12 @@
   .admin-header {
     padding: 0 18px;
   }
+}
+
+/* Enforce display: none on any subcategory navigation item */
+[href*="subcategories"],
+[href*="subcategory"],
+[data-nav*="subcategor"],
+.nav-subcategories {
+  display: none !important;
 }

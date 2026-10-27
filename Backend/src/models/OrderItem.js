@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
       product_name_snapshot: { type: DataTypes.STRING(200), allowNull: false },
       sku_snapshot: { type: DataTypes.STRING(60), allowNull: true },
       image_url: { type: DataTypes.STRING(500), allowNull: true },
-      size: { type: DataTypes.STRING(20), allowNull: true },
+      size: { type: DataTypes.STRING(60), allowNull: true },
       color: { type: DataTypes.STRING(60), allowNull: true },
       unit_price: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
       quantity: { type: DataTypes.INTEGER.UNSIGNED, allowNull: false, defaultValue: 1 },

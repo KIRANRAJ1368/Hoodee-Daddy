@@ -60,12 +60,12 @@ export default function InvoiceModal({ order, onClose }) {
           {/* Header */}
           <div className="invoice-header">
             <div className="invoice-brand">
-              <h1 className="brand-logo-text">ZMW</h1>
-              <p className="brand-sub">HAUTE COUTURE & LUXURY APPAREL</p>
+              <img src="/images/hoodee-daddy-logo.svg" alt="HooDee Daddy" className="invoice-brand-logo" />
+              <p className="brand-sub">PREMIUM HOODIES, TEES & KIDS ESSENTIALS</p>
               <div className="brand-address">
-                <p>ZMW Luxury Flagship & Atelier</p>
+                <p>HooDee Daddy Central Distribution & Hub</p>
                 <p>123, Avinashi Road, Peelamedu, Coimbatore, TN - 641004</p>
-                <p>GSTIN: 33AAAAZ0000A1Z5 | contact@zmwclothing.com</p>
+                <p>GSTIN: 33AAAAZ0000A1Z5 | support@hoodeedaddy.com</p>
               </div>
             </div>
 
@@ -149,7 +149,7 @@ export default function InvoiceModal({ order, onClose }) {
                       <td>{index + 1}</td>
                       <td>
                         {item.image_url && <img src={imageUrl(item.image_url)} alt="" className="invoice-item-thumb" />}
-                        <div className="item-title">{item.title || item.product_name_snapshot || item.product_name || "ZMW Signature Piece"}</div>
+                        <div className="item-title">{item.title || item.product_name_snapshot || item.product_name || "HooDee Daddy Signature Piece"}</div>
                         {(item.size || item.color || item.sku_snapshot) && (
                           <div className="item-variants">
                             {item.size && <span>Size: {item.size}</span>}
@@ -172,9 +172,9 @@ export default function InvoiceModal({ order, onClose }) {
           <div className="invoice-summary-section">
             <div className="invoice-notes">
               <h4>Terms & Policy:</h4>
-              <p>• Certified authentic handcrafted ZMW piece.</p>
+              <p>• Certified authentic HooDee Daddy apparel.</p>
               <p>• Complimentary alterations available within 15 days of dispatch at flagship boutiques.</p>
-              <p>• For queries or care advisory, contact concierge@zmwclothing.com.</p>
+              <p>• For queries or care advisory, contact support@hoodeedaddy.com.</p>
             </div>
 
             <div className="invoice-breakdown">
@@ -209,7 +209,7 @@ export default function InvoiceModal({ order, onClose }) {
             <div className="authorized-sign">
               <div className="sign-line"></div>
               <p>Authorized Signatory</p>
-              <p className="sign-company">ZMW Clothing Atelier</p>
+              <p className="sign-company">HooDee Daddy</p>
             </div>
           </div>
         </div>

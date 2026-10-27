@@ -15,9 +15,9 @@ export default function ImageShowcase() {
             <span className="eyebrow-dot" />
             <span className="eyebrow-text">COMMUNITY LOOKBOOK</span>
           </div>
-          <h2 className="section-heading-title">ZMW on Instagram</h2>
+          <h2 className="section-heading-title">HooDee Daddy on Instagram</h2>
           <p className="section-heading-subtitle">
-            Tag ZMWStyle and ZMWSummer on Instagram for a chance to be featured in our seasonal editorial gallery.
+            Tag @hoodeedaddy and #HooDeeDaddyStyle on Instagram to be featured in our community gallery.
           </p>
         </div>
 

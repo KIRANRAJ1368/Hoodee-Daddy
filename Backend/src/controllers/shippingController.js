@@ -121,7 +121,7 @@ async function generateAwb(req, res) {
     mailer.sendOrderStatusUpdateEmail(order.email, order, "packed", "confirmed", {
       courier_name: shipmentResult.courier_name,
       awb_code: shipmentResult.awb_code
-    }).catch((err) => console.warn("[ZMW NODEMAILER] AWB status email notice:", err.message));
+    }).catch((err) => console.warn("[HOODEE DADDY NODEMAILER] AWB status email notice:", err.message));
   }
 
   return sendSuccess(res, {
@@ -181,7 +181,7 @@ async function updateShippingStatus(req, res) {
 
   if (previousStatus !== order.status && order.email) {
     mailer.sendOrderStatusUpdateEmail(order.email, order, order.status, previousStatus)
-      .catch((err) => console.warn("[ZMW NODEMAILER] Shipping status update email notice:", err.message));
+      .catch((err) => console.warn("[HOODEE DADDY NODEMAILER] Shipping status update email notice:", err.message));
   }
 
   return sendSuccess(res, {
@@ -239,7 +239,7 @@ async function syncTracking(req, res) {
 
   if (previousOrderStatus !== order.status && order.email) {
     mailer.sendOrderStatusUpdateEmail(order.email, order, order.status, previousOrderStatus)
-      .catch((err) => console.warn("[ZMW NODEMAILER] Sync tracking status update email notice:", err.message));
+      .catch((err) => console.warn("[HOODEE DADDY NODEMAILER] Sync tracking status update email notice:", err.message));
   }
 
   return sendSuccess(res, {
@@ -275,7 +275,7 @@ async function handleWebhook(req, res) {
       }
       if (previousStatus !== order.status && order.email) {
         mailer.sendOrderStatusUpdateEmail(order.email, order, order.status, previousStatus)
-          .catch((err) => console.warn("[ZMW NODEMAILER] Webhook status update email notice:", err.message));
+          .catch((err) => console.warn("[HOODEE DADDY NODEMAILER] Webhook status update email notice:", err.message));
       }
     }
   }

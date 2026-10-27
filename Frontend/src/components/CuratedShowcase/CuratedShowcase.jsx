@@ -139,14 +139,14 @@ function ProductCarousel({
             </button>
           </div>
         ) : (
-          <div className="curated-empty-state" style={{ textAlign: "center", padding: "48px 20px 36px", color: "#64748b" }}>
-            <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "48px", height: "48px", borderRadius: "50%", background: "#f1f5f9", marginBottom: "12px", color: "#94a3b8" }}>
+          <div className="curated-empty-state" style={{ textAlign: "center", padding: "48px 20px 36px", color: "var(--brand-blue)" }}>
+            <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "48px", height: "48px", borderRadius: "50%", background: "var(--brand-white)", marginBottom: "12px", color: "var(--brand-blue)" }}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /><line x1="8" y1="11" x2="14" y2="11" />
               </svg>
             </div>
-            <h3 style={{ fontSize: "16px", fontWeight: 600, color: "#1e293b", margin: "0 0 4px" }}>No Products Found</h3>
-            <p style={{ fontSize: "14px", color: "#64748b", margin: 0 }}>Products will appear here once added from the Admin Panel.</p>
+            <h3 style={{ fontSize: "16px", fontWeight: 600, color: "var(--brand-blue)", margin: "0 0 4px" }}>No Products Found</h3>
+            <p style={{ fontSize: "14px", color: "var(--brand-blue)", margin: 0 }}>Products will appear here once added from the Admin Panel.</p>
           </div>
         )}
       </div>
@@ -185,13 +185,12 @@ export function NewArrivalsSection() {
     const matchDept = (p) => {
       if (selectedDept === "all") return true;
       const cat = (p.category || "").toLowerCase();
-      const sub = (p.subCategory || "").toLowerCase();
       const name = (p.name || "").toLowerCase();
       const sel = selectedDept.toLowerCase();
 
       if (sel === "mens" || sel === "men") return cat === "mens" || cat === "men";
       if (sel === "women" || sel === "womens") return cat === "women" || cat === "womens";
-      return cat === sel || sub.includes(sel) || name.includes(sel);
+      return cat === sel || name.includes(sel);
     };
     const inNewArrivals = newArrivals.filter(matchDept);
     if (inNewArrivals.length > 0) return inNewArrivals;
@@ -200,7 +199,7 @@ export function NewArrivalsSection() {
   }, [catalog, newArrivals, selectedDept]);
 
   const newArrivalsJsonLd = useMemo(() => {
-    return generateCatalogJsonLd(newArrivals, "ZMW New Arrivals Collection");
+    return generateCatalogJsonLd(newArrivals, "HooDee Daddy New Arrivals");
   }, [newArrivals]);
 
   const deptPills = useMemo(() => {
@@ -261,7 +260,7 @@ export function BestSellersSection() {
   const section = homeData?.sections?.find((item) => item.section_key === "best_sellers");
 
   const bestSellersJsonLd = useMemo(() => {
-    return generateCatalogJsonLd(bestSellers, "ZMW Best Sellers Collection");
+    return generateCatalogJsonLd(bestSellers, "HooDee Daddy Best Sellers");
   }, [bestSellers]);
 
   return (

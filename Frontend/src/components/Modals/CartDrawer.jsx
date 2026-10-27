@@ -43,13 +43,7 @@ export default function CartDrawer() {
       alert("Some items in your bag are currently out of stock. Please remove them before proceeding to checkout.");
       return;
     }
-    if (!isCustomerAuthenticated) {
-      setIsCartOpen(false);
-      setCheckoutIntent("cart");
-      setPendingCheckout(true);
-      setAuthModalState("register");
-      return;
-    }
+    setIsCartOpen(false);
     beginCartCheckout(navigate);
   };
 
@@ -131,9 +125,9 @@ export default function CartDrawer() {
                       <span>•</span>
                       <span>Color: {item.color}</span>
                       {isOut ? (
-                        <span style={{ color: "#DC2626", fontWeight: 700, marginLeft: "auto", fontSize: "0.75rem" }}>Out of Stock</span>
+                        <span style={{ color: "var(--brand-blue)", fontWeight: 700, marginLeft: "auto", fontSize: "0.75rem" }}>Out of Stock</span>
                       ) : isLow ? (
-                        <span style={{ color: "#D97706", fontWeight: 600, marginLeft: "auto", fontSize: "0.75rem" }}>Only {currentStock} left</span>
+                        <span style={{ color: "var(--brand-blue)", fontWeight: 600, marginLeft: "auto", fontSize: "0.75rem" }}>Only {currentStock} left</span>
                       ) : null}
                     </div>
                     {item.sku && <div className="cart-item-sku">SKU: {item.sku}</div>}

@@ -40,13 +40,11 @@ export default function SearchModal() {
   const containerRef = useRef(null);
   const navigate = useNavigate();
 
-  // Dynamically derive popular search chips from real subcategories and categories
+  // Dynamically derive popular search chips from real categories
   const dynamicPopularSearches = useMemo(() => {
     const list = [];
     (categories || []).forEach((c) => {
-      (c.subcategories || []).forEach((sub) => {
-        if (sub.name && !list.includes(sub.name)) list.push(sub.name);
-      });
+      if (c.name && !list.includes(c.name)) list.push(c.name);
     });
     return list.length > 0 ? list.slice(0, 8) : POPULAR_SEARCHES;
   }, [categories]);
@@ -95,7 +93,6 @@ export default function SearchModal() {
       const text = [
         p.name,
         p.category,
-        p.subCategory,
         p.description,
         p.badge,
         p.sku,
@@ -287,7 +284,7 @@ export default function SearchModal() {
                             alt={product.name}
                             className="search-item-img"
                             loading="lazy"
-                            onError={(e) => { e.currentTarget.src = "/images/zmw-logo-transparent.png"; }}
+                            onError={(e) => { e.currentTarget.src = "/images/hoodee-daddy-logo.svg"; }}
                           />
                         </div>
 
@@ -297,7 +294,7 @@ export default function SearchModal() {
                               {product.category}
                             </span>
                             {isOutOfStock && (
-                              <span style={{ color: "#DC2626", fontSize: "0.7rem", fontWeight: 700 }}>
+                              <span style={{ color: "var(--brand-blue)", fontSize: "0.7rem", fontWeight: 700 }}>
                                 OUT OF STOCK
                               </span>
                             )}
@@ -321,7 +318,7 @@ export default function SearchModal() {
                       </div>
                     );
                   })}
-                  <div style={{ padding: "12px 16px", textAlign: "center", borderTop: "1px solid var(--color-border, #e5e7eb)" }}>
+                  <div style={{ padding: "12px 16px", textAlign: "center", borderTop: "1px solid var(--color-border, var(--brand-border))" }}>
                     <button
                       type="button"
                       className="btn btn-secondary btn-sm"

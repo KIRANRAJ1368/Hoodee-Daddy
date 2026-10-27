@@ -76,7 +76,7 @@ export default function CategoriesPage() {
   async function handleDelete(category) {
     const ok = await confirm({
       title: "Delete Category?",
-      message: `"${category.name}" and all category linkages will be permanently removed. Ensure no products or subcategories are currently assigned to it.`
+      message: `"${category.name}" and all category linkages will be permanently removed. Ensure no products are currently assigned to it.`
     });
     if (!ok) return;
     try {
@@ -191,17 +191,7 @@ export default function CategoriesPage() {
                 </div>
               )
             },
-            {
-              key: "subcategories",
-              label: "Subcategories",
-              width: "130px",
-              align: "center",
-              render: (row) => (
-                <span className="pill-badge badge-dark">
-                  {row.subcategories?.length ?? 0} groups
-                </span>
-              )
-            },
+
             {
               key: "sort_order",
               label: "Sequence",

@@ -6,8 +6,8 @@ export default function ReturnRefundPolicy() {
   return (
     <div className="policy-page">
       <SeoHead
-        title="Return & Refund Policy — 7-Day Easy Returns | ZMW Clothing"
-        description="Learn about the ZMW Clothing return, replacement, and refund policies. Easy 7-day doorstep pickup across India for unworn apparel."
+        title="Return & Refund Policy — 7-Day Easy Returns | HooDee Daddy"
+        description="Learn about the HooDee Daddy return, replacement, and refund policies. Easy 7-day doorstep pickup across India for unworn apparel."
         canonicalPath="/return-refund-policy"
       />
       <section className="policy-hero" aria-label="General Return and Refund Policy">
@@ -21,8 +21,8 @@ export default function ReturnRefundPolicy() {
       <section className="policy-content-section">
         <div className="container">
           <div className="policy-card">
-            <div style={{ background: "#FFF8EC", padding: "12px 16px", borderRadius: "8px", border: "1px solid rgba(250, 167, 3, 0.35)", marginBottom: "24px" }}>
-              <p style={{ margin: 0, fontSize: "0.88rem", color: "#111827" }}>
+            <div style={{ background: "var(--brand-white)", padding: "12px 16px", borderRadius: "8px", border: "1px solid var(--brand-border)", marginBottom: "24px" }}>
+              <p style={{ margin: 0, fontSize: "0.88rem", color: "var(--brand-blue)" }}>
                 <strong>Notice:</strong> This document outlines our general return and exchange guidelines for customer assistance. Final specific terms and conditions will be updated upon finalization.
               </p>
             </div>
@@ -64,7 +64,7 @@ export default function ReturnRefundPolicy() {
             </p>
             <p>
               <strong>Customer Support Email:</strong>{" "}
-              <a href="mailto:zmw@gmail.com" style={{ color: "inherit", textDecoration: "underline" }}>zmw@gmail.com</a>
+              <a href="mailto:support@hoodeedaddy.com" style={{ color: "inherit", textDecoration: "underline" }}>support@hoodeedaddy.com</a>
               <br />
               <strong>Helpline / Mobile:</strong>{" "}
               <a href="tel:+919876543210" style={{ color: "inherit", textDecoration: "underline" }}>+91 9876543210</a>

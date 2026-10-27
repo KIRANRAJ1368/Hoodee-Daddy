@@ -61,7 +61,6 @@ export default function Hero() {
   }, [managedBanners]);
 
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
   const touchStartX = useRef(null);
   const touchEndX = useRef(null);
 
@@ -81,14 +80,14 @@ export default function Hero() {
     setCurrentSlide((prev) => (prev >= totalSlides ? 0 : prev));
   }, [totalSlides]);
 
-  // 5-second automatic slide transition
+  // Advance automatically every 3 seconds.
   useEffect(() => {
-    if (isPaused || totalSlides <= 1) return;
+    if (totalSlides <= 1) return;
     const interval = setInterval(() => {
       nextSlide();
-    }, 5000);
+    }, 3000);
     return () => clearInterval(interval);
-  }, [isPaused, totalSlides, nextSlide]);
+  }, [totalSlides, nextSlide]);
 
   const handleTouchStart = (e) => {
     touchStartX.current = e.touches[0].clientX;
@@ -100,7 +99,7 @@ export default function Hero() {
   };
 
   const handleTouchEnd = () => {
-    if (!touchStartX.current || !touchEndX.current || totalSlides <= 1) return;
+    if (touchStartX.current === null || touchEndX.current === null || totalSlides <= 1) return;
     const distance = touchStartX.current - touchEndX.current;
     if (distance > 45) {
       nextSlide();
@@ -114,8 +113,6 @@ export default function Hero() {
       id="home"
       className="hero-section hero-pure-banner"
       aria-label="Promotional Hero Banners"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -158,67 +155,10 @@ export default function Hero() {
                   {imageContent}
                 </div>
               )}
-
-              {/* CrazyMonk-inspired Streetwear Live Pulse Badge */}
-              <div className="hero-crazymonk-pill" aria-hidden="true">
-                <span className="hero-crazymonk-dot" />
-                <span className="hero-crazymonk-text">
-                  {banner.alt || "STREETWEAR DROP"}
-                </span>
-              </div>
             </div>
           );
         })}
       </div>
-
-      {/* Slide Navigation Controls (Only if multiple banners) */}
-      {totalSlides > 1 && (
-        <>
-          <button
-            type="button"
-            className="hero-pure-arrow hero-pure-arrow-prev"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              prevSlide();
-            }}
-            aria-label="Previous Slide"
-          >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
-          </button>
-
-          <button
-            type="button"
-            className="hero-pure-arrow hero-pure-arrow-next"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              nextSlide();
-            }}
-            aria-label="Next Slide"
-          >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="9 18 15 12 9 6" />
-            </svg>
-          </button>
-
-          <div className="hero-pure-dots" role="tablist" aria-label="Hero slide indicators">
-            {banners.map((banner, index) => (
-              <button
-                key={banner.id || index}
-                type="button"
-                role="tab"
-                aria-selected={index === currentSlide}
-                aria-label={`Go to slide ${index + 1}: ${banner.alt}`}
-                className={`hero-pure-dot ${index === currentSlide ? "active" : ""}`}
-                onClick={() => setCurrentSlide(index)}
-              />
-            ))}
-          </div>
-        </>
-      )}
     </section>
   );
 }

@@ -2,7 +2,8 @@ const getDefaultApiUrl = () => {
   if (typeof window !== "undefined" && window.location?.hostname) {
     const host = window.location.hostname;
     if (host && host !== "localhost" && host !== "127.0.0.1") {
-      return `http://${host}:5000`;
+      const proto = window.location.protocol === "https:" ? "https:" : "http:";
+      return `${proto}//${host}:5000`;
     }
   }
   return "http://localhost:5000";

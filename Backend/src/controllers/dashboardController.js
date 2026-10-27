@@ -1,4 +1,4 @@
-const { Product, Category, Subcategory, Banner, Order, ContactSubmission, User } = require("../models");
+const { Product, Category, Banner, Order, ContactSubmission, User } = require("../models");
 const { sendSuccess } = require("../utils/apiResponse");
 const { Op } = require("sequelize");
 
@@ -30,8 +30,6 @@ async function summary(req, res) {
     lowStockCount,
     categoryCount,
     activeCategoryCount,
-    subcategoryCount,
-    activeSubcategoryCount,
     bannerCount,
     activeBannerCount,
     orderCount,
@@ -66,8 +64,6 @@ async function summary(req, res) {
     Product.count({ where: { in_stock: true, stock_count: { [Op.lte]: 5 } } }),
     Category.count(),
     Category.count({ where: { is_active: true } }),
-    Subcategory.count(),
-    Subcategory.count({ where: { is_active: true } }),
     Banner.count(),
     Banner.count({ where: { is_active: true } }),
     Order.count(),
@@ -133,8 +129,6 @@ async function summary(req, res) {
       lowStockCount,
       categoryCount,
       activeCategoryCount,
-      subcategoryCount,
-      activeSubcategoryCount,
       bannerCount,
       activeBannerCount,
       orderCount,

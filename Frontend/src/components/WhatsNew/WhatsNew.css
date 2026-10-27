@@ -2,7 +2,7 @@
    components/ProductCard/ProductCard.css (shared with the Men's page). */
 
 .whats-new-section {
-  background-color: var(--bg-whats-new);
+  background-color: var(--brand-white);
   border-bottom: 1px solid var(--color-grey-200);
 }
 
@@ -21,23 +21,23 @@
   font-family: var(--font-body);
   font-size: var(--text-small);
   font-weight: 600;
-  color: var(--color-grey-600);
-  background-color: var(--color-sand);
-  border: 1px solid #E2DCCE;
+  color: var(--brand-blue);
+  background-color: var(--brand-white);
+  border: 1px solid var(--brand-border);
   border-radius: var(--radius-pill);
   cursor: pointer;
   transition: all var(--dur-fast) var(--ease-smooth);
 }
 
 .category-pill:hover {
-  color: var(--color-ink);
+  color: var(--brand-orange);
   border-color: var(--color-grey-400);
-  background-color: var(--color-sand-hover);
+  background-color: var(--brand-white);
 }
 
 .category-pill.active {
-  background-color: var(--color-ink);
-  color: var(--color-white);
+  background-color: var(--brand-white);
+  color: var(--brand-orange);
   border-color: var(--color-ink);
   box-shadow: var(--shadow-sm);
 }

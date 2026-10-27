@@ -1,14 +1,25 @@
 import React, { useState } from "react";
 import "./SizeGuideModal.css";
 
-export const SIZE_CHART = [
-  { size: "XS", chest: "40 in", length: "27.5 in", shoulder: "20.5 in", sleeve: "8.5 in" },
-  { size: "S", chest: "42 in", length: "28.5 in", shoulder: "21.5 in", sleeve: "9.0 in" },
-  { size: "M", chest: "44 in", length: "29.5 in", shoulder: "22.5 in", sleeve: "9.5 in" },
-  { size: "L", chest: "46 in", length: "30.5 in", shoulder: "23.5 in", sleeve: "10.0 in" },
-  { size: "XL", chest: "48 in", length: "31.5 in", shoulder: "24.5 in", sleeve: "10.5 in" },
-  { size: "XXL", chest: "50 in", length: "32.5 in", shoulder: "25.5 in", sleeve: "11.0 in" }
+export const BABIES_CHART = [
+  { size: "0–2 Months", chest: "16 in", length: "13 in", shoulder: "7.5 in", sleeve: "6.5 in" },
+  { size: "2–4 Months", chest: "17 in", length: "14 in", shoulder: "8.0 in", sleeve: "7.0 in" },
+  { size: "4–6 Months", chest: "18 in", length: "15 in", shoulder: "8.5 in", sleeve: "7.5 in" },
+  { size: "6–8 Months", chest: "19 in", length: "16 in", shoulder: "9.0 in", sleeve: "8.0 in" },
+  { size: "8–10 Months", chest: "20 in", length: "17 in", shoulder: "9.5 in", sleeve: "8.5 in" },
+  { size: "10–12 Months", chest: "21 in", length: "18 in", shoulder: "10.0 in", sleeve: "9.0 in" }
 ];
+
+export const KIDS_CHART = [
+  { size: "2–4 Years", chest: "24 in", length: "17 in", shoulder: "11 in", sleeve: "12 in" },
+  { size: "4–6 Years", chest: "26 in", length: "19 in", shoulder: "12 in", sleeve: "14 in" },
+  { size: "6–8 Years", chest: "28 in", length: "21 in", shoulder: "13 in", sleeve: "16 in" },
+  { size: "8–10 Years", chest: "30 in", length: "23 in", shoulder: "14 in", sleeve: "18 in" },
+  { size: "10–12 Years", chest: "32 in", length: "25 in", shoulder: "15 in", sleeve: "20 in" },
+  { size: "12–14 Years", chest: "34 in", length: "27 in", shoulder: "16 in", sleeve: "22 in" }
+];
+
+export const SIZE_CHART = KIDS_CHART;
 
 // Helper to convert "XX.X in" to cm
 function toCm(inStr) {
@@ -19,8 +30,12 @@ function toCm(inStr) {
 
 export default function SizeGuideModal({ isOpen, onClose, selectedSize }) {
   const [unit, setUnit] = useState("in"); // "in" or "cm"
+  const isBabiesSelected = selectedSize && /month/i.test(selectedSize);
+  const [activeTab, setActiveTab] = useState(isBabiesSelected ? "babies" : "kids");
 
   if (!isOpen) return null;
+
+  const currentChart = activeTab === "babies" ? BABIES_CHART : KIDS_CHART;
 
   return (
     <div className="sg-modal-overlay" onClick={onClose} role="dialog" aria-modal="true">
@@ -28,8 +43,8 @@ export default function SizeGuideModal({ isOpen, onClose, selectedSize }) {
         {/* Header */}
         <div className="sg-modal-header">
           <div>
-            <span className="sg-modal-eyebrow">FIT & DIMENSIONS</span>
-            <h3 className="sg-modal-title">Size & Fit Guide</h3>
+            <span className="sg-modal-eyebrow">FIT &amp; DIMENSIONS</span>
+            <h3 className="sg-modal-title">Age &amp; Size Guide</h3>
           </div>
           <button
             type="button"
@@ -43,18 +58,40 @@ export default function SizeGuideModal({ isOpen, onClose, selectedSize }) {
 
         {/* Body */}
         <div className="sg-modal-body">
+          {/* Category Tabs */}
+          <div style={{ display: "flex", gap: "8px", marginBottom: "16px" }}>
+            <button
+              type="button"
+              className={`sg-unit-btn ${activeTab === "kids" ? "active" : ""}`}
+              onClick={() => setActiveTab("kids")}
+              style={{ flex: 1, padding: "8px 14px", fontWeight: 700 }}
+            >
+              Boys, Girls &amp; Kids (Years)
+            </button>
+            <button
+              type="button"
+              className={`sg-unit-btn ${activeTab === "babies" ? "active" : ""}`}
+              onClick={() => setActiveTab("babies")}
+              style={{ flex: 1, padding: "8px 14px", fontWeight: 700 }}
+            >
+              Babies (Months)
+            </button>
+          </div>
+
           {/* Fit Tip Banner */}
           <div className="sg-fit-banner">
-            <div className="sg-fit-badge">INTENTIONAL OVERSIZED FIT</div>
+            <div className="sg-fit-badge">COMFORT &amp; GROWTH FIT</div>
             <p className="sg-fit-text">
-              Our streetwear garments are cut deliberately with drop shoulders and a relaxed chest drape.
-              <strong> Order your standard size for the intended oversized look.</strong> If you prefer a classic regular fit, order <strong>one size down</strong>.
+              Our kids and babies garments are crafted with ultra-soft, breathable cotton with room for natural movement and growth.
+              <strong> Choose the age range closest to your child's age or height.</strong>
             </p>
           </div>
 
           {/* Unit Toggle Bar */}
           <div className="sg-controls-bar">
-            <span className="sg-table-label">Garment Dimensions (Flat Lay)</span>
+            <span className="sg-table-label">
+              {activeTab === "babies" ? "Babies (0–12 Months) Dimensions" : "Kids (2–14 Years) Dimensions"}
+            </span>
             <div className="sg-unit-toggle">
               <button
                 type="button"
@@ -78,7 +115,7 @@ export default function SizeGuideModal({ isOpen, onClose, selectedSize }) {
             <table className="sg-size-table">
               <thead>
                 <tr>
-                  <th className="sg-th-size">Size</th>
+                  <th className="sg-th-size">Age Range</th>
                   <th>Chest</th>
                   <th>Body Length</th>
                   <th>Shoulder Width</th>
@@ -86,7 +123,7 @@ export default function SizeGuideModal({ isOpen, onClose, selectedSize }) {
                 </tr>
               </thead>
               <tbody>
-                {SIZE_CHART.map((row) => {
+                {currentChart.map((row) => {
                   const isSelected = selectedSize === row.size;
                   return (
                     <tr key={row.size} className={isSelected ? "sg-row-active" : ""}>
@@ -107,7 +144,7 @@ export default function SizeGuideModal({ isOpen, onClose, selectedSize }) {
 
           {/* How to Measure Grid */}
           <div className="sg-measure-section">
-            <h4 className="sg-measure-title">How To Measure Your Best-Fitting Tee:</h4>
+            <h4 className="sg-measure-title">How To Measure For Kids &amp; Babies:</h4>
             <div className="sg-measure-grid">
               <div className="sg-measure-item">
                 <span className="sg-measure-number">1</span>
@@ -120,35 +157,11 @@ export default function SizeGuideModal({ isOpen, onClose, selectedSize }) {
                 <span className="sg-measure-number">2</span>
                 <div>
                   <strong>Body Length</strong>
-                  <p>Measure straight down from highest point of the shoulder seam to bottom hem.</p>
-                </div>
-              </div>
-              <div className="sg-measure-item">
-                <span className="sg-measure-number">3</span>
-                <div>
-                  <strong>Shoulder Width</strong>
-                  <p>Measure horizontally across the back from left shoulder seam to right shoulder seam.</p>
-                </div>
-              </div>
-              <div className="sg-measure-item">
-                <span className="sg-measure-number">4</span>
-                <div>
-                  <strong>Sleeve Length</strong>
-                  <p>Measure along the outer sleeve seam from the shoulder junction down to the sleeve cuff.</p>
+                  <p>Measure from the highest point of the shoulder straight down to the bottom hem.</p>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Footer */}
-        <div className="sg-modal-footer">
-          <p className="sg-footer-note">
-            Still unsure about your fit? Chat with our team on WhatsApp: <strong>+91 9876543210</strong>
-          </p>
-          <button type="button" className="btn btn-primary btn-sm" onClick={onClose}>
-            Got It
-          </button>
         </div>
       </div>
     </div>

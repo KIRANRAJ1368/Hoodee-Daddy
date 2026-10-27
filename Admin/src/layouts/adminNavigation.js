@@ -4,7 +4,6 @@ export const ADMIN_NAVIGATION = [
   { to: "/offer-banners", label: "Offer Banners" },
   { to: "/offers", label: "Product Offers" },
   { to: "/categories", label: "Categories" },
-  { to: "/subcategories", label: "Sub Categories" },
   { to: "/products", label: "Products" },
   { to: "/variants", label: "Variants" },
   { to: "/stock", label: "Stock Management" },

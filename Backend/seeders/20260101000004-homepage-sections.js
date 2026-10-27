@@ -59,7 +59,7 @@ const SECTIONS = [
     config: null
   },
   { section_key: "newsletter", title: null, subtitle: null, sort_order: 9, config: null },
-  { section_key: "instagram_showcase", title: "ZMW on Instagram", subtitle: null, sort_order: 10, config: null }
+  { section_key: "instagram_showcase", title: "HooDee Daddy on Instagram", subtitle: null, sort_order: 10, config: null }
 ];
 
 module.exports = {

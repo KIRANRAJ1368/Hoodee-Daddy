@@ -52,35 +52,35 @@ const SECTION_METADATA = {
   mens_categories: {
     name: "Men Categories Showcase",
     category: "Department Feature",
-    description: "Features Men's department headline, tagline, and subcategory filter pills connected directly to the database.",
+    description: "Features Men's department headline, tagline, and category products connected directly to the database.",
     categorySlug: "mens",
     icon: Shirt
   },
   womens_categories: {
     name: "Women Categories Showcase",
     category: "Department Feature",
-    description: "Features Women's department headline, tagline, and subcategory filter pills connected directly to the database.",
+    description: "Features Women's department headline, tagline, and category products connected directly to the database.",
     categorySlug: "women",
     icon: Shirt
   },
   boys_categories: {
     name: "Boys Categories Showcase",
     category: "Department Feature",
-    description: "Features Boys' department headline, tagline, and subcategory filter pills connected directly to the database.",
+    description: "Features Boys' department headline, tagline, and category products connected directly to the database.",
     categorySlug: "boys",
     icon: Shirt
   },
   girls_categories: {
     name: "Girls Categories Showcase",
     category: "Department Feature",
-    description: "Features Girls' department headline, tagline, and subcategory filter pills connected directly to the database.",
+    description: "Features Girls' department headline, tagline, and category products connected directly to the database.",
     categorySlug: "girls",
     icon: Shirt
   },
   babies_categories: {
     name: "Babies Categories Showcase",
     category: "Department Feature",
-    description: "Features Babies' department headline, tagline, and subcategory filter pills connected directly to the database.",
+    description: "Features Babies' department headline, tagline, and category products connected directly to the database.",
     categorySlug: "babies",
     icon: Shirt
   },
@@ -533,8 +533,6 @@ function SectionPreviewContent({ sectionKey, section, allProducts, categories, h
   const matchedCategory = categories.find(
     (c) => c.slug?.toLowerCase() === catSlug.toLowerCase() || c.name?.toLowerCase().includes(catSlug)
   );
-  const subcats = matchedCategory?.subcategories || [];
-
   return (
     <div className="preview-category-strip">
       <div className="preview-summary-row">
@@ -542,17 +540,6 @@ function SectionPreviewContent({ sectionKey, section, allProducts, categories, h
           Heading: <strong>"{section.title || matchedCategory?.name || "Department Edit"}"</strong>
         </span>
         <span className="cat-db-source-tag">Connected to DB Category: {matchedCategory?.name || catSlug}</span>
-      </div>
-      <div className="subcat-pills-row">
-        {subcats.length > 0 ? (
-          subcats.map((sc) => (
-            <span key={sc.id} className="subcat-preview-pill">
-              {sc.name}
-            </span>
-          ))
-        ) : (
-          <span className="no-subcats-hint">No active subcategories found for this category</span>
-        )}
       </div>
     </div>
   );
@@ -991,18 +978,11 @@ function CategoryModal({ section, categories, isSaving, onClose, onSave }) {
             <div className="db-card-content">
               <strong>Connected Directly to Database</strong>
               <p>
-                This section dynamically displays the active subcategories and products under{" "}
+                This section dynamically displays the active products under{" "}
                 <strong>"{matchedCategory?.name || catSlug}"</strong> in your database.
               </p>
-              <div className="db-subcategories-list">
-                {matchedCategory?.subcategories?.map((sc) => (
-                  <span key={sc.id} className="db-subcat-badge">
-                    {sc.name}
-                  </span>
-                ))}
-              </div>
-              <Link to="/subcategories" className="db-manage-link" onClick={onClose}>
-                <span>Manage Subcategories in Catalog</span>
+              <Link to="/categories" className="db-manage-link" onClick={onClose}>
+                <span>Manage Categories in Catalog</span>
                 <ChevronRight size={13} />
               </Link>
             </div>

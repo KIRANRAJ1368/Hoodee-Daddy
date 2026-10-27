@@ -2,13 +2,13 @@
 @import "../components/Modals/SizeGuideModal.css";
 
 .size-guide-page {
-  background-color: var(--color-sand, #F8FAFC);
+  background-color: var(--brand-white);
   min-height: 80vh;
 }
 
 .size-guide-hero {
-  background-color: #070A10;
-  color: #FFFFFF;
+  background-color: var(--brand-white);
+  color: var(--brand-blue);
   padding: clamp(54px, 7vw, 90px) 0;
   text-align: center;
 }
@@ -19,7 +19,7 @@
   font-weight: 800;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--color-primary-brand, #FAA703);
+  color: var(--brand-blue);
   margin-bottom: 14px;
 }
 
@@ -28,14 +28,14 @@
   font-size: clamp(2.2rem, 4vw, 3.4rem);
   font-weight: 900;
   letter-spacing: -0.025em;
-  color: #FFFFFF;
+  color: var(--brand-blue);
   margin-bottom: 16px;
   line-height: 1.15;
 }
 
 .size-guide-subtitle {
   font-size: clamp(1rem, 1.4vw, 1.15rem);
-  color: #94A3B8;
+  color: var(--brand-blue);
   max-width: 640px;
   margin: 0 auto;
   line-height: 1.6;
@@ -48,11 +48,11 @@
 .size-guide-card {
   max-width: 960px;
   margin: 0 auto;
-  background-color: #FFFFFF;
+  background-color: var(--brand-white);
   border-radius: 20px;
-  border: 1px solid #E2E8F0;
+  border: 1px solid var(--brand-border);
   padding: clamp(28px, 4vw, 44px);
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 10px 30px rgba(9, 21, 37, 0.04);
 }
 
 .size-guide-controls {
@@ -62,7 +62,7 @@
   gap: 20px;
   margin-bottom: 20px;
   flex-wrap: wrap;
-  border-bottom: 1px solid #F1F5F9;
+  border-bottom: 1px solid var(--brand-border);
   padding-bottom: 18px;
 }
 
@@ -70,7 +70,7 @@
   display: block;
   font-size: 0.82rem;
   font-weight: 700;
-  color: #64748B;
+  color: var(--brand-blue);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 8px;
@@ -86,9 +86,9 @@
   width: 40px;
   height: 36px;
   border-radius: 8px;
-  border: 1px solid #E2E8F0;
-  background-color: #FFFFFF;
-  color: var(--color-ink, #0F172A);
+  border: 1px solid var(--brand-border);
+  background-color: var(--brand-white);
+  color: var(--brand-blue);
   font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
@@ -96,23 +96,23 @@
 }
 
 .sg-pill-btn:hover {
-  border-color: var(--color-primary-brand, #FAA703);
-  background-color: #FFFDF9;
+  border-color: var(--color-primary-brand, var(--brand-orange));
+  background-color: var(--brand-white);
 }
 
 .sg-pill-btn.active {
-  background-color: #0F172A;
-  color: #FFFFFF;
-  border-color: #0F172A;
-  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.2);
+  background-color: var(--brand-white);
+  color: var(--brand-orange);
+  border-color: var(--brand-orange);
+  box-shadow: 0 4px 10px rgba(9, 21, 37, 0.2);
 }
 
 .size-guide-help-box {
   margin-top: 32px;
   padding: 24px 28px;
   border-radius: 12px;
-  background-color: #F8FAFC;
-  border: 1px solid #E2E8F0;
+  background-color: var(--brand-white);
+  border: 1px solid var(--brand-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -123,13 +123,13 @@
 .size-guide-help-box h4 {
   font-size: 1.05rem;
   font-weight: 800;
-  color: #0F172A;
+  color: var(--brand-blue);
   margin-bottom: 4px;
 }
 
 .size-guide-help-box p {
   font-size: 0.88rem;
-  color: #64748B;
+  color: var(--brand-blue);
   margin: 0;
 }
 

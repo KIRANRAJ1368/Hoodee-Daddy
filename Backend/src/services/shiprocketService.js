@@ -382,7 +382,7 @@ async function createShipment(order) {
   const token = await getToken();
 
   const awbCode = `SR${Math.floor(1000000000 + Math.random() * 9000000000)}`;
-  const shipmentId = `SHP-${(order.order_number || "").replace(/^ZMW-/, "")}`;
+  const shipmentId = `SHP-${(order.order_number || "").replace(/^(?:ZMW|HD)-/, "")}`;
   const courierName = order.courier_name || "Shiprocket Express";
 
   if (token) {
@@ -416,7 +416,7 @@ async function createShipment(order) {
         billing_email: order.email || "customer@example.com",
         billing_phone: String(order.phone || "9876543210").replace(/\D/g, "").slice(-10),
         shipping_is_billing: true,
-        order_items: items.length > 0 ? items : [{ name: "ZMW Apparel", sku: "ZMW-APP-01", units: 1, selling_price: Number(order.subtotal || 999) }],
+        order_items: items.length > 0 ? items : [{ name: "HooDee Daddy Apparel", sku: "HD-APP-01", units: 1, selling_price: Number(order.subtotal || 999) }],
         payment_method: order.payment_method === "COD" ? "COD" : "Prepaid",
         sub_total: Number(order.subtotal || 999),
         length: 25,
@@ -623,7 +623,7 @@ async function createReversePickup(orderOrParams, returnReason, pickupAddress) {
 
   const token = await getToken();
   const reverseAwbCode = `SR-REV-${Math.floor(1000000000 + Math.random() * 9000000000)}`;
-  const reverseShipmentId = `REV-${(order.order_number || "").replace(/^ZMW-/, "")}`;
+  const reverseShipmentId = `REV-${(order.order_number || "").replace(/^(?:ZMW|HD)-/, "")}`;
   const reverseOrderId = `SR-REV-${Math.floor(100000000 + Math.random() * 900000000)}`;
 
   if (token) {
@@ -653,7 +653,7 @@ async function createReversePickup(orderOrParams, returnReason, pickupAddress) {
         pickup_pincode: String(order.pincode || "641004").replace(/\D/g, ""),
         pickup_email: order.email || "customer@example.com",
         pickup_phone: String(order.phone || "9876543210").replace(/\D/g, "").slice(-10),
-        shipping_customer_name: "ZMW Logistics Hub",
+        shipping_customer_name: "HooDee Daddy Logistics Hub",
         shipping_last_name: "Warehouse Returns",
         shipping_address: "123, Avinashi Road, Peelamedu",
         shipping_city: "Coimbatore",
@@ -661,9 +661,9 @@ async function createReversePickup(orderOrParams, returnReason, pickupAddress) {
         shipping_country: "India",
         shipping_pincode: "641016",
         shipping_phone: "9655121668",
-        shipping_email: "returns@zmwclothing.com",
+        shipping_email: "returns@hoodeedaddy.com",
         return_reason: normalizeShiprocketReturnReason(returnReason),
-        order_items: items.length > 0 ? items : [{ name: "ZMW Apparel", sku: "ZMW-APP-01", units: 1, selling_price: 999 }],
+        order_items: items.length > 0 ? items : [{ name: "HooDee Daddy Apparel", sku: "HD-APP-01", units: 1, selling_price: 999 }],
         sub_total: Number(order.total || 999),
         length: 25,
         breadth: 20,

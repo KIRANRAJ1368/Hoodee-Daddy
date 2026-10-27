@@ -7,6 +7,8 @@ const ApiError = require("../utils/ApiError");
 
 const ALLOWED_MIME_TYPES = new Set([
   "image/jpeg",
+  "image/pjpeg",
+  "image/jfif",
   "image/png",
   "image/webp",
   "image/gif",
@@ -17,6 +19,7 @@ const ALLOWED_MIME_TYPES = new Set([
 const ALLOWED_EXTENSIONS = new Set([
   ".jpg",
   ".jpeg",
+  ".jfif",
   ".png",
   ".webp",
   ".gif",
@@ -43,8 +46,10 @@ function safeFilename(req, file, cb) {
 
 function fileFilter(req, file, cb) {
   const ext = path.extname(file.originalname).toLowerCase();
-  if (!ALLOWED_MIME_TYPES.has(file.mimetype) || !ALLOWED_EXTENSIONS.has(ext)) {
-    return cb(ApiError.badRequest("Only JPG, PNG, WEBP or GIF images are allowed"));
+  const isAllowedExt = ALLOWED_EXTENSIONS.has(ext);
+  const isAllowedMime = ALLOWED_MIME_TYPES.has(file.mimetype) || (file.mimetype === "application/octet-stream" && isAllowedExt);
+  if (!isAllowedMime || !isAllowedExt) {
+    return cb(ApiError.badRequest("Only JPG, JPEG, JFIF, PNG, WEBP or GIF images are allowed"));
   }
   cb(null, true);
 }

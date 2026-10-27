@@ -1,5 +1,5 @@
 .story {
-  background: var(--color-cream);
+  background: var(--brand-white);
   padding-block: var(--space-2xl);
 }
 
@@ -18,7 +18,7 @@
 .story-visual-frame {
   border-radius: var(--radius-md);
   overflow: hidden;
-  background: var(--color-sand);
+  background: var(--brand-white);
 }
 
 .frame-back {
@@ -32,7 +32,7 @@
   bottom: 0;
   width: 54%;
   aspect-ratio: 4 / 5;
-  box-shadow: 0 24px 50px -20px rgba(26, 26, 24, 0.4);
+  box-shadow: 0 24px 50px -20px rgba(9, 21, 37, 0.4);
   border: 6px solid var(--color-cream);
 }
 
@@ -51,7 +51,7 @@
   margin-top: var(--space-md);
   max-width: 46ch;
   font-size: var(--text-lead);
-  color: var(--color-grey-600);
+  color: var(--brand-blue);
 }
 
 .story-list {
@@ -77,7 +77,7 @@
 .story-list span {
   font-family: var(--font-display);
   font-style: italic;
-  color: var(--color-accent-deep);
+  color: var(--brand-blue);
   font-size: 0.95rem;
 }
 

@@ -1,5 +1,5 @@
 /**
- * ZMW Storefront & Admin Category & Subcategory Image Resolver
+ * HooDee Daddy Storefront & Admin Category & Subcategory Image Resolver
  * Only returns image URLs explicitly configured or uploaded from Admin.
  */
 

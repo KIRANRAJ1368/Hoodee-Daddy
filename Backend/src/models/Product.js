@@ -62,7 +62,6 @@ module.exports = (sequelize, DataTypes) => {
 
   Product.associate = (db) => {
     Product.belongsTo(db.Category, { foreignKey: "category_id", as: "category" });
-    Product.belongsTo(db.Subcategory, { foreignKey: "subcategory_id", as: "subcategory" });
     Product.hasMany(db.ProductImage, { foreignKey: "product_id", as: "images", onDelete: "CASCADE" });
     Product.hasMany(db.ProductColor, { foreignKey: "product_id", as: "colors", onDelete: "CASCADE" });
     Product.hasMany(db.ProductSize, { foreignKey: "product_id", as: "sizes", onDelete: "CASCADE" });

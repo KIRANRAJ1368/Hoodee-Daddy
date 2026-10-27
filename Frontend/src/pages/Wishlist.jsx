@@ -41,7 +41,7 @@ export default function Wishlist() {
             </div>
 
             {wishlistProducts.length > 0 && (
-              <Link to="/collection?category=mens" className="wishlist-continue-top">
+              <Link to="/collection" className="wishlist-continue-top">
                 Continue Shopping &rarr;
               </Link>
             )}
@@ -50,7 +50,7 @@ export default function Wishlist() {
 
         {/* ── Products Grid ── */}
         {isLoading ? (
-          <div style={{ textAlign: "center", padding: "60px 20px", color: "var(--color-gold, #c5a880)" }}>
+          <div style={{ textAlign: "center", padding: "60px 20px", color: "var(--color-gold, var(--brand-blue))" }}>
             <p>Loading your saved pieces...</p>
           </div>
         ) : wishlistProducts.length > 0 ? (
@@ -95,7 +95,7 @@ export default function Wishlist() {
                         alt={product.name}
                         className="wishlist-card-img"
                         loading="lazy"
-                        onError={(e) => { e.currentTarget.src = "/images/zmw-logo-transparent.png"; }}
+                        onError={(e) => { e.currentTarget.src = "/images/hoodee-daddy-logo.svg"; }}
                       />
 
                       {/* Remove ❤️ Button */}
@@ -173,7 +173,7 @@ export default function Wishlist() {
 
             {/* Bottom Continue Shopping Button */}
             <div className="wishlist-footer-cta">
-              <Link to="/collection?category=mens" className="btn btn-secondary wishlist-continue-btn">
+              <Link to="/collection" className="btn btn-secondary wishlist-continue-btn">
                 Continue Shopping
               </Link>
             </div>
@@ -195,11 +195,17 @@ export default function Wishlist() {
             </div>
             <h2 className="wishlist-empty-title">Your Wishlist is Empty</h2>
             <p className="wishlist-empty-text">
-              You haven't saved any items to your wishlist yet. Explore our latest collections and tap the heart icon on any piece you love.
+              You haven't saved any items yet. Explore our latest everyday kids hoodies, pyjamas, and streetwear, and tap the heart icon on any piece you love.
             </p>
-            <Link to="/collection?category=mens" className="btn btn-primary wishlist-empty-btn">
-              Continue Shopping
+            <Link to="/collection" className="btn btn-primary wishlist-empty-btn">
+              Explore Collections →
             </Link>
+            <div style={{ marginTop: 24, display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
+              <Link to="/collection?category=kids-hoodies" className="btn btn-secondary btn-sm" style={{ padding: "6px 14px", fontSize: "0.8rem", borderRadius: "999px" }}>Kids Hoodies</Link>
+              <Link to="/collection?category=kids-pyjamas" className="btn btn-secondary btn-sm" style={{ padding: "6px 14px", fontSize: "0.8rem", borderRadius: "999px" }}>Kids Pyjamas</Link>
+              <Link to="/collection?category=kids-co-ords" className="btn btn-secondary btn-sm" style={{ padding: "6px 14px", fontSize: "0.8rem", borderRadius: "999px" }}>Kids Co-Ords</Link>
+              <Link to="/collection?collection=new-arrivals" className="btn btn-secondary btn-sm" style={{ padding: "6px 14px", fontSize: "0.8rem", borderRadius: "999px" }}>New Arrivals 🔥</Link>
+            </div>
           </div>
         )}
       </div>

@@ -3,7 +3,8 @@ const jwt = require("jsonwebtoken");
 const env = require("../config/env");
 const ApiError = require("../utils/ApiError");
 const { sendSuccess } = require("../utils/apiResponse");
-const { AdminUser, User } = require("../models");
+const { Op } = require("sequelize");
+const { AdminUser, User, Order } = require("../models");
 const mailer = require("../utils/mailer");
 const otpStore = require("../utils/otpStore");
 
@@ -69,13 +70,23 @@ async function customerRegister(req, res) {
       email: user.email,
       phone: user.phone
     }).catch((err) => {
-      console.warn("[ZMW NODEMAILER] Welcome email notification notice:", err.message);
+      console.warn("[HOODEE DADDY NODEMAILER] Welcome email notification notice:", err.message);
     });
   }
+
+  // Link any unassigned guest orders made with this email or phone
+  const registerLink = [{ email: user.email }];
+  if (user.phone) registerLink.push({ phone: user.phone });
+  await Order.update(
+    { user_id: user.id, is_guest: false },
+    { where: { [Op.or]: registerLink, user_id: null } }
+  ).catch(() => {});
 
   const token = jwt.sign({ sub: user.id, role: "customer" }, env.jwt.secret, {
     expiresIn: env.jwt.expiresIn
   });
+
+  const orderCount = await Order.count({ where: { user_id: user.id } }).catch(() => 0);
 
   return sendSuccess(res, {
     statusCode: 201,
@@ -85,7 +96,9 @@ async function customerRegister(req, res) {
         id: user.id,
         name: user.name,
         email: user.email,
-        phone: user.phone
+        phone: user.phone,
+        orderCount,
+        isFirstTimeUser: orderCount === 0
       }
     }
   });
@@ -104,9 +117,19 @@ async function customerLogin(req, res) {
     throw ApiError.unauthorized("Invalid email or password");
   }
 
+  // Link any unassigned guest orders made with this email or phone
+  const registerLink = [{ email: user.email }];
+  if (user.phone) registerLink.push({ phone: user.phone });
+  await Order.update(
+    { user_id: user.id, is_guest: false },
+    { where: { [Op.or]: registerLink, user_id: null } }
+  ).catch(() => {});
+
   const token = jwt.sign({ sub: user.id, role: "customer" }, env.jwt.secret, {
     expiresIn: env.jwt.expiresIn
   });
+
+  const orderCount = await Order.count({ where: { user_id: user.id } }).catch(() => 0);
 
   return sendSuccess(res, {
     data: {
@@ -115,13 +138,17 @@ async function customerLogin(req, res) {
         id: user.id,
         name: user.name,
         email: user.email,
-        phone: user.phone
+        phone: user.phone,
+        orderCount,
+        isFirstTimeUser: orderCount === 0
       }
     }
   });
 }
 
 async function customerMe(req, res) {
+  const orderCount = await Order.count({ where: { user_id: req.user.id } }).catch(() => 0);
+
   return sendSuccess(res, {
     data: {
       user: {
@@ -129,7 +156,9 @@ async function customerMe(req, res) {
         name: req.user.name,
         email: req.user.email,
         phone: req.user.phone,
-        created_at: req.user.created_at
+        created_at: req.user.created_at,
+        orderCount,
+        isFirstTimeUser: orderCount === 0
       }
     }
   });
@@ -176,7 +205,7 @@ async function customerForgotPassword(req, res) {
 
   // Send OTP email in background asynchronously so API response is INSTANT (< 20ms)
   mailer.sendPasswordResetOtp(user.email, otp).catch((err) => {
-    console.error("[ZMW NODEMAILER] Background email dispatch error:", err.message);
+    console.error("[HOODEE DADDY NODEMAILER] Background email dispatch error:", err.message);
   });
 
   return sendSuccess(res, {

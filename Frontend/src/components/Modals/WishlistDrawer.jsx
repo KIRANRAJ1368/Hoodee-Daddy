@@ -33,11 +33,6 @@ export default function WishlistDrawer() {
 
   const handleCheckout = () => {
     setIsWishlistOpen(false);
-    if (!isCustomerAuthenticated) {
-      setPendingCheckout(true);
-      setAuthModalState("register");
-      return;
-    }
     window.location.href = "/cart";
   };
 
@@ -83,7 +78,7 @@ export default function WishlistDrawer() {
                     src={imageUrl(item.images?.[0] || item.image)}
                     alt={item.name}
                     className="wishlist-item-img"
-                    onError={(e) => { e.currentTarget.src = "/images/zmw-logo-transparent.png"; }}
+                    onError={(e) => { e.currentTarget.src = "/images/hoodee-daddy-logo.svg"; }}
                   />
 
                   <div className="wishlist-item-info">
@@ -109,7 +104,7 @@ export default function WishlistDrawer() {
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: "4px 0" }}>
                       <span className="wishlist-item-price">{formatPrice(item.price)}</span>
                       {isOut && (
-                        <span style={{ color: "#DC2626", fontSize: "0.72rem", fontWeight: 700 }}>
+                        <span style={{ color: "var(--brand-blue)", fontSize: "0.72rem", fontWeight: 700 }}>
                           Out of Stock
                         </span>
                       )}

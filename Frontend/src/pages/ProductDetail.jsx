@@ -205,6 +205,7 @@ export default function ProductDetail() {
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
   const [copiedCoupon, setCopiedCoupon] = useState(null);
+  const [isCopied, setIsCopied] = useState(false);
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
   const [activeImageIndex, setActiveImageIndex] = useState(1);
@@ -447,6 +448,10 @@ export default function ProductDetail() {
     return set;
   }, [product, selectedColor]);
 
+  const hasAgeSizes = useMemo(() => {
+    return availableSizes(product).some((s) => /month|year/i.test(s));
+  }, [product]);
+
   // Determine category page navigation dynamically from real categories
   const catKey = (product?.category || "").toLowerCase();
   const matchedCategory = (categories || []).find(
@@ -455,7 +460,7 @@ export default function ProductDetail() {
   const categorySlug = matchedCategory?.slug || catKey || "mens";
   const collectionPath = `/categories/${encodeURIComponent(categorySlug)}`;
   const canonicalPath = product?.slug ? `/products/${product.slug}` : `/products/${productIdentifier}`;
-  const baseUrl = (seoSettings?.canonical_base_url || "https://zmwclothing.com").replace(/\/+$/, "");
+  const baseUrl = (seoSettings?.canonical_base_url || "https://hoodeedaddy.com").replace(/\/+$/, "");
 
   const formatCollectionLabel = (name) => {
     if (!name) return "Collection";
@@ -463,12 +468,13 @@ export default function ProductDetail() {
     if (trimmed.toLowerCase().endsWith("s")) return `${trimmed}' Collection`;
     return `${trimmed}'s Collection`;
   };
-  const collectionLabel = formatCollectionLabel(matchedCategory?.name || (catKey ? catKey.charAt(0).toUpperCase() + catKey.slice(1) : ""));
+  const categoryDisplayName = matchedCategory?.name || (catKey ? catKey.charAt(0).toUpperCase() + catKey.slice(1) : "");
+  const collectionLabel = formatCollectionLabel(categoryDisplayName);
 
   const seoTitle = useMemo(() => {
-    if (!product) return "Product Details | ZMW Clothing";
+    if (!product) return "Product Details | HooDee Daddy";
     if (product.metaTitle) return product.metaTitle;
-    const format = seoSettings?.product_title_format || "{name} | ZMW Clothing";
+    const format = seoSettings?.product_title_format || "{name} | HooDee Daddy";
     return format
       .replace("{name}", product.name || "")
       .replace("{category}", matchedCategory?.name || catKey || "")
@@ -476,14 +482,14 @@ export default function ProductDetail() {
   }, [product, seoSettings, matchedCategory, catKey]);
 
   const seoDescription = useMemo(() => {
-    if (!product) return "Handcrafted luxury apparel from ZMW Clothing.";
+    if (!product) return "Handcrafted luxury apparel from HooDee Daddy.";
     if (product.metaDescription) return product.metaDescription;
     if (seoSettings?.product_description_format && seoSettings.product_description_format.includes("{name}")) {
       return seoSettings.product_description_format
         .replace("{name}", product.name || "")
         .replace("{description}", product.description || "");
     }
-    return product ? (product.description || `Buy ${product.name} online at ZMW Clothing. Premium luxury fabrics, considered tailoring, and pan-India delivery.`) : "Handcrafted luxury apparel from ZMW Clothing.";
+    return product ? (product.description || `Buy ${product.name} online at HooDee Daddy. Premium luxury fabrics, considered tailoring, and pan-India delivery.`) : "Handcrafted luxury apparel from HooDee Daddy.";
   }, [product, seoSettings]);
 
   const productSchemas = useMemo(() => {
@@ -493,7 +499,6 @@ export default function ProductDetail() {
       [
         { name: "Home", path: "/" },
         { name: collectionLabel || "Collection", path: collectionPath },
-        ...(product.subCategory ? [{ name: product.subCategory, path: `/categories/${encodeURIComponent(categorySlug)}/${encodeURIComponent(product.subCategory.toLowerCase().replace(/[^a-z0-9]+/g, "-"))}` }] : []),
         { name: product.name, path: canonicalPath }
       ],
       baseUrl
@@ -505,7 +510,7 @@ export default function ProductDetail() {
     return (
       <div className="pd-loading-screen" style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div style={{ textAlign: "center", color: "var(--color-ink)" }}>
-          <div className="pd-spinner" style={{ width: 44, height: 44, border: "3px solid #e5e7eb", borderTopColor: "var(--color-accent, #FAA703)", borderRadius: "50%", margin: "0 auto 16px", animation: "spin 0.8s linear infinite" }} />
+          <div className="pd-spinner" style={{ width: 44, height: 44, border: "3px solid var(--brand-border)", borderTopColor: "var(--color-accent, var(--brand-border))", borderRadius: "50%", margin: "0 auto 16px", animation: "spin 0.8s linear infinite" }} />
           <p style={{ fontSize: 14, fontWeight: 600, color: "var(--color-grey-600)" }}>Loading product details…</p>
         </div>
       </div>
@@ -585,13 +590,6 @@ export default function ProductDetail() {
     // Explicitly guarantee cart drawer stays closed
     setIsCartOpen(false);
 
-    if (!isCustomerAuthenticated) {
-      setCheckoutIntent("buy-now");
-      setPendingCheckout(true);
-      setAuthModalState("register");
-      return;
-    }
-
     navigate("/checkout", { state: { buyNow: true } });
   };
 
@@ -602,17 +600,74 @@ export default function ProductDetail() {
     setTimeout(() => setCopiedCoupon(null), 2000);
   };
 
+  // Product Share & Copy Link Handlers
+  const getShareDetails = () => {
+    const url = typeof window !== "undefined" ? window.location.href : "";
+    const title = product?.name || "HooDee Daddy Luxury Hoodies";
+    const priceText = activePrice ? ` - ${formatPrice(activePrice)}` : "";
+    const text = `Check out "${title}"${priceText} on HooDee Daddy!`;
+    const image = galleryImages?.[safeActiveIndex] || galleryImages?.[0] || "";
+    const fullImage = image && image.startsWith("http")
+      ? image
+      : (typeof window !== "undefined" && image ? `${window.location.origin}${image}` : "");
+    return { url, title, text, image: fullImage };
+  };
+
+  const handleCopyLink = async () => {
+    const { url } = getShareDetails();
+    if (!url) return;
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(url);
+      } else {
+        const textarea = document.createElement("textarea");
+        textarea.value = url;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+      }
+      setIsCopied(true);
+      if (addToast) addToast("Product link copied to clipboard!", "success");
+      setTimeout(() => setIsCopied(false), 2500);
+    } catch (err) {
+      console.error("Failed to copy link:", err);
+      if (addToast) addToast("Could not copy link to clipboard", "error");
+    }
+  };
+
+  const handleNativeShare = async () => {
+    const { url, title, text } = getShareDetails();
+    if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
+      try {
+        await navigator.share({
+          title,
+          text,
+          url
+        });
+      } catch (err) {
+        if (err.name !== "AbortError") {
+          handleCopyLink();
+        }
+      }
+    } else {
+      handleCopyLink();
+    }
+  };
+
   // Dynamic Highlights derived from this product's actual information
   const highlights = [
     {
       label: "Silhouette",
-      value: (product.subCategory || product.name || "").toLowerCase().includes("oversized")
+      value: (product.category || product.name || "").toLowerCase().includes("oversized")
         ? "Oversized Boxy Fit"
-        : (product.subCategory || product.name || "").toLowerCase().includes("polo")
+        : (product.category || product.name || "").toLowerCase().includes("polo")
         ? "Classic Tailored Fit"
-        : (product.subCategory || product.name || "").toLowerCase().includes("hoodie")
+        : (product.category || product.name || "").toLowerCase().includes("hoodie")
         ? "Relaxed Streetwear Fit"
-        : (product.subCategory || product.name || "").toLowerCase().includes("sweatshirt")
+        : (product.category || product.name || "").toLowerCase().includes("sweatshirt")
         ? "Comfort Streetwear Fit"
         : isBabiesProduct
         ? "Easy-Fit Snug Infant Cut"
@@ -628,19 +683,19 @@ export default function ProductDetail() {
         ? "100% Super-Soft Bio-Washed Organic Cotton"
         : isWomensProduct
         ? "Soft-Washed Midweight Combed Cotton"
-        : (product.subCategory || product.name || "").toLowerCase().includes("hoodie")
+        : (product.category || product.name || "").toLowerCase().includes("hoodie")
         ? "360 GSM Heavyweight French Terry"
         : "240 GSM Pure Combed Cotton"
     },
     {
       label: "Collar / Neckline",
-      value: (product.subCategory || product.name || "").toLowerCase().includes("polo")
+      value: (product.category || product.name || "").toLowerCase().includes("polo")
         ? "Ribbed Knit Polo Collar"
-        : (product.subCategory || product.name || "").toLowerCase().includes("high neck")
+        : (product.category || product.name || "").toLowerCase().includes("high neck")
         ? "Snug Mock High Neck"
-        : (product.subCategory || product.name || "").toLowerCase().includes("v-neck")
+        : (product.category || product.name || "").toLowerCase().includes("v-neck")
         ? "Clean Minimalist V-Neck"
-        : (product.subCategory || product.name || "").toLowerCase().includes("hoodie")
+        : (product.category || product.name || "").toLowerCase().includes("hoodie")
         ? "Double-Layered Warm Hood"
         : isBabiesProduct
         ? "Envelope / Expandable Soft Ribbed Neck"
@@ -650,7 +705,7 @@ export default function ProductDetail() {
       label: "Sleeve Style",
       value: (product.name || "").toLowerCase().includes("full sleeve") || (product.name || "").toLowerCase().includes("long sleeve")
         ? "Full Length with Ribbed Cuffs"
-        : (product.subCategory || product.name || "").toLowerCase().includes("hoodie") || (product.subCategory || product.name || "").toLowerCase().includes("sweatshirt")
+        : (product.category || product.name || "").toLowerCase().includes("hoodie") || (product.category || product.name || "").toLowerCase().includes("sweatshirt")
         ? "Long Sleeve with Ribbed Cuffs"
         : "Drop-Shoulder Half Sleeve"
     },
@@ -691,28 +746,8 @@ export default function ProductDetail() {
         canonicalPath={canonicalPath}
         ogImage={previewImage || (product.images && product.images[0]) || product.image}
         schemas={productSchemas}
-        keywords={product.metaKeywords || `${product.name}, ${matchedCategory?.name || "apparel"}, streetwear, ZMW Clothing`}
+        keywords={product.metaKeywords || `${product.name}, ${matchedCategory?.name || "apparel"}, streetwear, HooDee Daddy`}
       />
-      {/* ── Breadcrumb Navigation ─────────────────────────────────── */}
-      <div className="pd-breadcrumb-bar">
-        <div className="container">
-          <nav className="pd-breadcrumb" aria-label="Breadcrumb">
-            <Link to="/">Home</Link>
-            <span className="pd-sep">/</span>
-            <Link to={collectionPath}>{collectionLabel}</Link>
-            {product.subCategory && (
-              <>
-                <span className="pd-sep">/</span>
-                <Link to={`/categories/${encodeURIComponent(categorySlug)}/${encodeURIComponent(product.subCategory.toLowerCase().replace(/[^a-z0-9]+/g, "-"))}`}>
-                  {product.subCategory}
-                </Link>
-              </>
-            )}
-            <span className="pd-sep">/</span>
-            <span aria-current="page" className="pd-crumb-current">{product.name}</span>
-          </nav>
-        </div>
-      </div>
 
       {/* ── Main Product Display: Clean Gallery Left + Info Right ── */}
       <section className="pd-main-section">
@@ -737,8 +772,8 @@ export default function ProductDetail() {
                     >
                       {!isRight ? (
                         <>
-                          <span className="pd-overlay-badge-top">
-                            {product.badge || ((product.subCategory || product.name || "").toLowerCase().includes("oversized") ? "OVERSIZED FIT" : "PREMIUM FIT")}
+                          <span className={`pd-overlay-badge-top pd-badge-${((product.badge || "").toLowerCase().replace(/[^a-z0-9]/g, "-")) || "essential"}`}>
+                            {product.badge || ((product.category || product.name || "").toLowerCase().includes("oversized") ? "OVERSIZED FIT" : "ESSENTIAL")}
                           </span>
                           <span className="pd-overlay-badge-bottom">
                             {isBabiesProduct
@@ -751,7 +786,7 @@ export default function ProductDetail() {
                           </span>
                         </>
                       ) : (
-                        <span className="pd-overlay-badge-top" style={{ background: "rgba(15, 23, 42, 0.75)" }}>
+                        <span className="pd-overlay-badge-top is-view">
                           {index === 1 ? "BACK VIEW" : index === 0 ? "FRONT VIEW" : `VIEW ${index + 1}`}
                         </span>
                       )}
@@ -761,7 +796,7 @@ export default function ProductDetail() {
                         alt={`${product.name} - ${!isRight ? "front view" : index === 1 ? "back view" : index === 0 ? "front view" : `view ${index + 1}`}`}
                         className="pd-grid-img"
                         loading={slotIdx < 2 ? "eager" : "lazy"}
-                        onError={(event) => { event.currentTarget.src = "/images/zmw-logo-transparent.png"; }}
+                        onError={(event) => { event.currentTarget.src = "/images/hoodee-daddy-logo.svg"; }}
                       />
 
                       <div className="pd-zoom-hint">
@@ -784,9 +819,9 @@ export default function ProductDetail() {
                     tabIndex={0}
                     onKeyDown={(e) => e.key === "Enter" && setPreviewImage(galleryImages[safeActiveIndex] || galleryImages[0])}
                   >
-                    <span className="pd-overlay-badge-top">
+                    <span className={`pd-overlay-badge-top ${safeActiveIndex > 0 ? "is-view" : `pd-badge-${((product.badge || "").toLowerCase().replace(/[^a-z0-9]/g, "-")) || "essential"}`}`}>
                       {safeActiveIndex === 0
-                        ? (product.badge || ((product.subCategory || product.name || "").toLowerCase().includes("oversized") ? "OVERSIZED FIT" : "PREMIUM FIT"))
+                        ? (product.badge || ((product.category || product.name || "").toLowerCase().includes("oversized") ? "OVERSIZED FIT" : "ESSENTIAL"))
                         : safeActiveIndex === 1
                         ? "BACK VIEW"
                         : `VIEW ${safeActiveIndex + 1}`}
@@ -808,7 +843,7 @@ export default function ProductDetail() {
                       alt={`${product.name} - view ${safeActiveIndex + 1}`}
                       className="pd-grid-img"
                       loading="eager"
-                      onError={(event) => { event.currentTarget.src = "/images/zmw-logo-transparent.png"; }}
+                      onError={(event) => { event.currentTarget.src = "/images/hoodee-daddy-logo.svg"; }}
                     />
 
                     <div className="pd-zoom-hint">
@@ -870,7 +905,7 @@ export default function ProductDetail() {
                             alt={`${product.name} thumbnail ${label}`}
                             className="pd-thumbnail-img"
                             loading="lazy"
-                            onError={(e) => { e.currentTarget.src = "/images/zmw-logo-transparent.png"; }}
+                            onError={(e) => { e.currentTarget.src = "/images/hoodee-daddy-logo.svg"; }}
                           />
                           <span className="pd-thumbnail-num">{label}</span>
                         </button>
@@ -885,27 +920,44 @@ export default function ProductDetail() {
             <div className="pd-info-col">
               {/* Category Eyebrow & Title Row */}
               <div className="pd-header-group">
-                <span className="pd-category-eyebrow">{product.subCategory}</span>
+                <span className="pd-category-eyebrow">{categoryDisplayName || product.category || "HooDee Daddy"}</span>
                 <div className="pd-title-row">
                   <h1 className="pd-title">{product.name}</h1>
-                  <button
-                    type="button"
-                    className={`pd-wishlist-icon-btn ${isSaved ? "saved" : ""}`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      toggleWishlist(product.id);
-                    }}
-                    onTouchEnd={(e) => {
-                      e.stopPropagation();
-                    }}
-                    aria-label={isSaved ? "Remove from wishlist" : "Save to wishlist"}
-                    title={isSaved ? "Saved to Wishlist" : "Save to Wishlist"}
-                  >
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill={isSaved ? "var(--color-accent)" : "none"} stroke={isSaved ? "var(--color-accent)" : "var(--color-ink)"} strokeWidth="1.8">
-                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                    </svg>
-                  </button>
+                  <div className="pd-title-actions">
+                    <button
+                      type="button"
+                      className="pd-action-icon-btn pd-share-top-btn"
+                      onClick={handleNativeShare}
+                      aria-label="Share this product"
+                      title="Share this product"
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="18" cy="5" r="3" />
+                        <circle cx="6" cy="12" r="3" />
+                        <circle cx="18" cy="19" r="3" />
+                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      className={`pd-wishlist-icon-btn ${isSaved ? "saved" : ""}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        toggleWishlist(product.id);
+                      }}
+                      onTouchEnd={(e) => {
+                        e.stopPropagation();
+                      }}
+                      aria-label={isSaved ? "Remove from wishlist" : "Save to wishlist"}
+                      title={isSaved ? "Saved to Wishlist" : "Save to Wishlist"}
+                    >
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill={isSaved ? "var(--color-accent)" : "none"} stroke={isSaved ? "var(--color-accent)" : "var(--color-ink)"} strokeWidth="1.8">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
 
                 {/* Rating & SKU */}
@@ -986,7 +1038,7 @@ export default function ProductDetail() {
                 <div className="pd-selector-block">
                   <div className="pd-size-header">
                     <span className="pd-selector-heading">
-                      Select Size: <strong>{selectedSize}</strong>
+                      {hasAgeSizes ? "Select Age:" : "Select Size:"} <strong>{selectedSize}</strong>
                     </span>
                     <button
                       type="button"
@@ -997,7 +1049,7 @@ export default function ProductDetail() {
                         <path d="M21.3 15.3l-6.6-6.6a1 1 0 0 0-1.4 0l-10.6 10.6a1 1 0 0 0 0 1.4l4.6 4.6a1 1 0 0 0 1.4 0l12.6-12.6a1 1 0 0 0 0-1.4z" />
                         <path d="M7.5 17.5l2-2" /><path d="M10.5 14.5l2-2" /><path d="M13.5 11.5l2-2" />
                       </svg>
-                      Size Chart
+                      {hasAgeSizes ? "Age & Size Guide" : "Size Chart"}
                     </button>
                   </div>
                   <div className="pd-size-chips">
@@ -1244,8 +1296,6 @@ export default function ProductDetail() {
               <p className="pd-reviews-cta-text">
                 {reviewsData?.userEligibility?.alreadyReviewed
                   ? "✓ You have already reviewed this piece."
-                  : reviewsData?.userEligibility?.reason === "not_logged_in"
-                  ? "Sign in to share your experience with this piece."
                   : !reviewsData?.userEligibility?.canReview
                   ? "Only verified buyers who have purchased this product can leave a review."
                   : "Share your experience and feedback with the community."}
@@ -1262,14 +1312,6 @@ export default function ProductDetail() {
                 >
                   {isWritingReview ? "CLOSE FORM" : "WRITE A REVIEW"}
                 </button>
-              ) : reviewsData?.userEligibility?.reason === "not_logged_in" ? (
-                <Link
-                  to="/account"
-                  className="pd-write-review-btn"
-                  style={{ textDecoration: "none", textAlign: "center", display: "inline-block" }}
-                >
-                  SIGN IN TO REVIEW
-                </Link>
               ) : null}
             </div>
           </div>
@@ -1348,7 +1390,7 @@ export default function ProductDetail() {
               </div>
 
               {reviewErrorMsg && (
-                <p style={{ color: "#dc2626", fontSize: "12.5px", marginBottom: "12px", fontWeight: "500" }}>
+                <p style={{ color: "var(--brand-blue)", fontSize: "12.5px", marginBottom: "12px", fontWeight: "500" }}>
                   {reviewErrorMsg}
                 </p>
               )}
@@ -1448,14 +1490,6 @@ export default function ProductDetail() {
                   >
                     WRITE THE FIRST REVIEW
                   </button>
-                ) : reviewsData?.userEligibility?.reason === "not_logged_in" ? (
-                  <Link
-                    to="/account"
-                    className="pd-write-review-btn pd-write-review-btn-secondary"
-                    style={{ textDecoration: "none", textAlign: "center", display: "inline-block" }}
-                  >
-                    SIGN IN TO REVIEW
-                  </Link>
                 ) : reviewsData?.userEligibility?.alreadyReviewed ? (
                   <span style={{ fontSize: "13px", color: "var(--color-ink-light)", fontWeight: 500 }}>
                     ✓ You have already reviewed this piece.

@@ -20,7 +20,7 @@ function generateOrderNumber() {
   const rand = Math.floor(Math.random() * 1000)
     .toString()
     .padStart(3, "0");
-  return `ZMW-${stamp}-${rand}`;
+  return `HD-${stamp}-${rand}`;
 }
 
 async function adjustItemStock(item, qtyChange, transaction) {
@@ -231,7 +231,7 @@ async function create(req, res) {
   // Asynchronously dispatch luxury order confirmation email without blocking API response
   if (full && full.email) {
     mailer.sendOrderConfirmationEmail(full.email, full).catch((err) => {
-      console.error("[ZMW NODEMAILER] Failed to send order confirmation email:", err.message);
+      console.error("[HOODEE DADDY NODEMAILER] Failed to send order confirmation email:", err.message);
     });
   }
 
@@ -304,7 +304,19 @@ async function getById(req, res) {
 
 async function getMyOrders(req, res) {
   const userId = req.user.id;
+  const userEmail = req.user.email ? String(req.user.email).toLowerCase().trim() : null;
+  const userPhone = req.user.phone ? String(req.user.phone).trim() : null;
   const { page, limit, offset } = getPagination(req.query);
+
+  if (userEmail || userPhone) {
+    const linkMatch = [];
+    if (userEmail) linkMatch.push({ email: userEmail });
+    if (userPhone) linkMatch.push({ phone: userPhone });
+    await Order.update(
+      { user_id: userId, is_guest: false },
+      { where: { [Op.or]: linkMatch, user_id: null } }
+    ).catch(() => {});
+  }
 
   const { rows, count } = await Order.findAndCountAll({
     where: { user_id: userId },
@@ -347,7 +359,7 @@ async function getMyOrders(req, res) {
             await OrderStatusHistory.create({ order_id: order.id, status: order.status, shipping_status: order.shipping_status, source: "shiprocket", note: tracking.message || "Shiprocket tracking update" });
             if (prevOrderStatus !== order.status && order.email) {
               mailer.sendOrderStatusUpdateEmail(order.email, order, order.status, prevOrderStatus)
-                .catch((err) => console.warn("[ZMW NODEMAILER] Customer tracking status email notice:", err.message));
+                .catch((err) => console.warn("[HOODEE DADDY NODEMAILER] Customer tracking status email notice:", err.message));
             }
           }
         } catch (_) {
@@ -462,7 +474,7 @@ async function updateStatus(req, res) {
   // Non-blocking: send branded customer email notification for order status progression
   if (order.email && prevStatus !== newStatus) {
     mailer.sendOrderStatusUpdateEmail(order.email, order, newStatus, prevStatus)
-      .catch((err) => console.warn("[ZMW NODEMAILER] Order status email notice:", err.message));
+      .catch((err) => console.warn("[HOODEE DADDY NODEMAILER] Order status email notice:", err.message));
   }
 
   return sendSuccess(res, { data: order });
@@ -606,7 +618,7 @@ async function approveCancellation(req, res) {
     if (order.email) {
       mailer.sendOrderStatusUpdateEmail(order.email, order, "cancelled", "confirmed", {
         reason: order.cancellation_reason || "Pre-pack cancellation approved by store admin"
-      }).catch((err) => console.warn("[ZMW NODEMAILER] Pre-pack cancel email notice:", err.message));
+      }).catch((err) => console.warn("[HOODEE DADDY NODEMAILER] Pre-pack cancel email notice:", err.message));
     }
 
     return sendSuccess(res, {
@@ -631,7 +643,7 @@ async function approveCancellation(req, res) {
     if (order.email) {
       mailer.sendOrderStatusUpdateEmail(order.email, order, "cancelled", order.status, {
         reason: order.cancellation_reason || "In-transit cancellation approved; shipment rerouted to warehouse"
-      }).catch((err) => console.warn("[ZMW NODEMAILER] In-transit cancel email notice:", err.message));
+      }).catch((err) => console.warn("[HOODEE DADDY NODEMAILER] In-transit cancel email notice:", err.message));
     }
 
     return sendSuccess(res, {
@@ -742,7 +754,7 @@ async function markWarehouseReceived(req, res) {
   if (order.email) {
     mailer.sendOrderStatusUpdateEmail(order.email, order, "returned", null, {
       inspected_by: order.warehouse_inspected_by
-    }).catch((err) => console.warn("[ZMW NODEMAILER] Returned status email notice:", err.message));
+    }).catch((err) => console.warn("[HOODEE DADDY NODEMAILER] Returned status email notice:", err.message));
   }
 
   return sendSuccess(res, {
@@ -785,7 +797,7 @@ async function processUpiRefund(req, res) {
   // Send luxury email notification to customer asynchronously
   if (order.email) {
     mailer.sendRefundConfirmationEmail(order.email, order).catch((err) => {
-      console.warn("[ZMW NODEMAILER] Refund email notification notice:", err.message);
+      console.warn("[HOODEE DADDY NODEMAILER] Refund email notification notice:", err.message);
     });
   }
 
@@ -926,7 +938,7 @@ async function trackOrder(req, res) {
       })),
       trackingUrl: order.awb_code ? `https://www.shiprocket.in/shipment-tracking/${encodeURIComponent(order.awb_code)}` : null,
       estimatedDelivery: order.estimated_delivery ? String(order.estimated_delivery) : estimatedDelivery,
-      origin: "ZMW Dispatch Hub, 123, Avinashi Road, Peelamedu, Coimbatore, Tamil Nadu, India",
+      origin: "HooDee Daddy Dispatch Hub, 123, Avinashi Road, Peelamedu, Coimbatore, Tamil Nadu, India",
       destination: `${order.shipping_address}, ${order.city || ""}, ${order.state || ""} - ${order.pincode || ""}`.trim(),
       customerName: order.customer_name,
       total: order.total,
@@ -1328,7 +1340,7 @@ async function verifyRazorpayPayment(req, res) {
   // Asynchronously dispatch luxury order confirmation email
   if (full && full.email) {
     mailer.sendOrderConfirmationEmail(full.email, full).catch((err) => {
-      console.error("[ZMW NODEMAILER] Failed to send order confirmation email:", err.message);
+      console.error("[HOODEE DADDY NODEMAILER] Failed to send order confirmation email:", err.message);
     });
   }
 

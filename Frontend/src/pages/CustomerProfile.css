@@ -1,5 +1,5 @@
 /* ==========================================================================
-   ZMW CLOTHING - CUSTOMER PROFILE & ORDER HISTORY STYLES
+   HOODEE DADDY - CUSTOMER PROFILE & ORDER HISTORY STYLES
    ========================================================================== */
 
 .account-page-wrapper {
@@ -20,19 +20,19 @@
 .account-unauth-box {
   max-width: 480px;
   width: 100%;
-  background: var(--color-white, #FFFFFF);
+  background: var(--brand-white);
   border-radius: var(--radius-lg, 16px);
   padding: 48px 36px;
   text-align: center;
-  border: 1px solid var(--color-grey-200, #E5E7EB);
-  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--color-grey-200, var(--brand-border));
+  box-shadow: 0 20px 40px -15px rgba(9, 21, 37, 0.08);
 }
 
 .account-kicker {
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.22em;
-  color: var(--color-accent, #FAA703);
+  color: var(--brand-blue);
   text-transform: uppercase;
   display: block;
   margin-bottom: 8px;
@@ -41,13 +41,13 @@
 .account-unauth-title {
   font-family: var(--font-display, "Playfair Display", Georgia, serif);
   font-size: 1.8rem;
-  color: var(--color-ink, #111827);
+  color: var(--brand-blue);
   margin-bottom: 12px;
 }
 
 .account-unauth-desc {
   font-size: 0.88rem;
-  color: var(--color-grey-600, #4B5563);
+  color: var(--brand-blue);
   line-height: 1.5;
   margin-bottom: 24px;
 }
@@ -63,42 +63,42 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: var(--color-sand-light, #F8F6F0);
+  background: var(--brand-white);
   border-radius: var(--radius-lg, 16px);
   padding: 32px 36px;
   margin-bottom: 32px;
-  border: 1px solid var(--color-grey-200, #E5E7EB);
+  border: 1px solid var(--color-grey-200, var(--brand-border));
 }
 
 .account-hero-title {
   font-family: var(--font-display, "Playfair Display", Georgia, serif);
   font-size: 1.75rem;
-  color: var(--color-ink, #111827);
+  color: var(--brand-blue);
   margin: 0 0 4px 0;
 }
 
 .account-hero-email {
   font-size: 0.85rem;
-  color: var(--color-grey-600, #4B5563);
+  color: var(--brand-blue);
   margin: 0;
 }
 
 .account-logout-btn {
   background: transparent;
-  border: 1.5px solid var(--color-grey-300, #D1D5DB);
+  border: 1.5px solid var(--color-grey-300, var(--brand-border));
   padding: 8px 18px;
   font-size: 0.82rem;
   font-weight: 600;
-  color: var(--color-ink, #111827);
+  color: var(--brand-blue);
   border-radius: var(--radius-sm, 6px);
   cursor: pointer;
   transition: all var(--dur-fast, 0.15s) ease;
 }
 
 .account-logout-btn:hover {
-  background: #FEF2F2;
-  border-color: #F87171;
-  color: #B91C1C;
+  background: var(--brand-white);
+  border-color: var(--brand-orange);
+  color: var(--brand-orange);
 }
 
 /* 2-Column Account Layout */
@@ -111,8 +111,8 @@
 
 /* Sidebar Navigation */
 .account-sidebar {
-  background: var(--color-white, #FFFFFF);
-  border: 1px solid var(--color-grey-200, #E5E7EB);
+  background: var(--brand-white);
+  border: 1px solid var(--color-grey-200, var(--brand-border));
   border-radius: var(--radius-md, 12px);
   padding: 8px;
   display: flex;
@@ -128,7 +128,7 @@
   padding: 12px 16px;
   border: none;
   background: transparent;
-  color: var(--color-grey-600, #4B5563);
+  color: var(--brand-blue);
   font-size: 0.88rem;
   font-weight: 600;
   border-radius: var(--radius-sm, 6px);
@@ -138,13 +138,13 @@
 }
 
 .account-nav-btn:hover {
-  background: var(--color-sand-light, #F8F6F0);
-  color: var(--color-ink, #111827);
+  background: var(--brand-white);
+  color: var(--brand-orange);
 }
 
 .account-nav-btn.active {
-  background: var(--color-ink, #111827);
-  color: var(--color-white, #FFFFFF);
+  background: var(--brand-white);
+  color: var(--brand-orange);
 }
 
 .nav-icon {
@@ -153,8 +153,8 @@
 
 .nav-badge {
   margin-left: auto;
-  background: var(--color-accent, #FAA703);
-  color: #000;
+  background: var(--brand-white);
+  color: var(--brand-blue);
   font-size: 0.72rem;
   font-weight: 700;
   padding: 2px 7px;
@@ -162,14 +162,14 @@
 }
 
 .account-nav-btn.active .nav-badge {
-  background: var(--color-white, #FFFFFF);
-  color: var(--color-ink, #111827);
+  background: var(--brand-white);
+  color: var(--brand-orange);
 }
 
 /* Tab Pane Contents */
 .account-content {
-  background: var(--color-white, #FFFFFF);
-  border: 1px solid var(--color-grey-200, #E5E7EB);
+  background: var(--brand-white);
+  border: 1px solid var(--color-grey-200, var(--brand-border));
   border-radius: var(--radius-lg, 16px);
   padding: 32px;
   min-height: 480px;
@@ -178,19 +178,19 @@
 .pane-header {
   margin-bottom: 24px;
   padding-bottom: 16px;
-  border-bottom: 1px solid var(--color-grey-100, #F3F4F6);
+  border-bottom: 1px solid var(--color-grey-100, var(--brand-border));
 }
 
 .pane-header h2 {
   font-family: var(--font-display, "Playfair Display", Georgia, serif);
   font-size: 1.5rem;
-  color: var(--color-ink, #111827);
+  color: var(--brand-blue);
   margin: 0 0 4px 0;
 }
 
 .pane-subtitle {
   font-size: 0.82rem;
-  color: var(--color-grey-600, #4B5563);
+  color: var(--brand-blue);
 }
 
 /* Empty States */
@@ -207,12 +207,12 @@
 .empty-orders-view h3 {
   font-size: 1.25rem;
   margin-bottom: 6px;
-  color: var(--color-ink);
+  color: var(--brand-blue);
 }
 
 .empty-orders-view p {
   font-size: 0.88rem;
-  color: var(--color-grey-600);
+  color: var(--brand-blue);
   max-width: 360px;
   margin: 0 auto;
 }
@@ -225,37 +225,37 @@
 }
 
 .order-card {
-  border: 1px solid var(--color-grey-200, #E5E7EB);
+  border: 1px solid var(--color-grey-200, var(--brand-border));
   border-radius: var(--radius-md, 12px);
   overflow: hidden;
-  background: var(--color-white);
+  background: var(--brand-white);
   transition: box-shadow var(--dur-fast);
 }
 
 .order-card:hover {
-  box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 24px -6px rgba(9, 21, 37, 0.08);
 }
 
 .order-card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: var(--color-sand-light, #F8F6F0);
+  background: var(--brand-white);
   padding: 14px 20px;
-  border-bottom: 1px solid var(--color-grey-200, #E5E7EB);
+  border-bottom: 1px solid var(--color-grey-200, var(--brand-border));
 }
 
 .order-number {
   font-weight: 700;
   font-size: 0.92rem;
-  color: var(--color-ink);
+  color: var(--brand-blue);
   letter-spacing: 0.05em;
   margin-right: 12px;
 }
 
 .order-date {
   font-size: 0.78rem;
-  color: var(--color-grey-600);
+  color: var(--brand-blue);
 }
 
 .order-status-badge {
@@ -292,7 +292,7 @@
   height: 68px;
   border-radius: 6px;
   overflow: hidden;
-  background: var(--color-sand);
+  background: var(--brand-white);
   flex-shrink: 0;
 }
 
@@ -310,7 +310,7 @@
   justify-content: center;
   font-size: 0.75rem;
   font-weight: 700;
-  color: var(--color-grey-400);
+  color: var(--brand-blue);
 }
 
 .order-item-details {
@@ -320,7 +320,7 @@
 .item-title {
   font-size: 0.88rem;
   font-weight: 600;
-  color: var(--color-ink);
+  color: var(--brand-blue);
   margin: 0 0 4px 0;
 }
 
@@ -328,19 +328,19 @@
   display: flex;
   gap: 10px;
   font-size: 0.76rem;
-  color: var(--color-grey-600);
+  color: var(--brand-blue);
   margin-bottom: 4px;
 }
 
 .item-price {
   font-size: 0.85rem;
   font-weight: 700;
-  color: var(--color-ink);
+  color: var(--brand-blue);
 }
 
 /* Order Summary Column */
 .order-summary-col {
-  border-left: 1px solid var(--color-grey-100, #F3F4F6);
+  border-left: 1px solid var(--color-grey-100, var(--brand-border));
   padding-left: 20px;
   display: flex;
   flex-direction: column;
@@ -353,13 +353,13 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--color-grey-400);
+  color: var(--brand-blue);
   margin-bottom: 4px;
 }
 
 .summary-val {
   font-size: 0.82rem;
-  color: var(--color-ink);
+  color: var(--brand-blue);
   line-height: 1.4;
   margin: 0;
 }
@@ -376,7 +376,7 @@
 
 .summary-total-row strong {
   font-size: 1.15rem;
-  color: var(--color-ink);
+  color: var(--brand-blue);
 }
 
 /* Profile Form */
@@ -392,8 +392,8 @@
   padding: 10px 14px;
   border: 1px solid var(--color-grey-200);
   border-radius: var(--radius-sm, 6px);
-  background: var(--color-sand-light);
-  color: var(--color-ink);
+  background: var(--brand-white);
+  color: var(--brand-blue);
   font-size: 0.88rem;
   outline: none;
   box-sizing: border-box;
@@ -401,18 +401,18 @@
 
 .account-input:focus {
   border-color: var(--color-ink);
-  background: var(--color-white);
+  background: var(--brand-white);
 }
 
 .account-input.disabled {
-  background: #F3F4F6;
-  color: var(--color-grey-500);
+  background: var(--brand-white);
+  color: var(--brand-blue);
   cursor: not-allowed;
 }
 
 .input-helper {
   font-size: 0.72rem;
-  color: var(--color-grey-500);
+  color: var(--brand-blue);
 }
 
 /* Addresses Grid */
@@ -426,7 +426,7 @@
   border: 1px solid var(--color-grey-200);
   border-radius: var(--radius-md, 10px);
   padding: 18px;
-  background: var(--color-sand-light, #F8F6F0);
+  background: var(--brand-white);
 }
 
 .address-card-header {
@@ -441,12 +441,12 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--color-grey-500);
+  color: var(--brand-blue);
 }
 
 .default-pill {
-  background: var(--color-ink);
-  color: var(--color-white);
+  background: var(--brand-white);
+  color: var(--brand-blue);
   font-size: 0.65rem;
   font-weight: 700;
   padding: 2px 6px;
@@ -456,20 +456,20 @@
 
 .address-recipient {
   margin: 0 0 4px 0;
-  color: var(--color-ink);
+  color: var(--brand-blue);
   font-size: 0.9rem;
 }
 
 .address-lines {
   font-size: 0.82rem;
-  color: var(--color-grey-600);
+  color: var(--brand-blue);
   margin: 0 0 2px 0;
   line-height: 1.4;
 }
 
 .address-phone {
   font-size: 0.78rem;
-  color: var(--color-grey-500);
+  color: var(--brand-blue);
   margin-top: 8px;
 }
 
@@ -521,7 +521,7 @@
   gap: 10px;
   margin-top: 14px;
   padding-top: 14px;
-  border-top: 1px dashed var(--color-grey-200, #E5E7EB);
+  border-top: 1px dashed var(--color-grey-200, var(--brand-border));
   flex-wrap: wrap;
 }
 
@@ -535,30 +535,30 @@
   align-items: center;
   gap: 6px;
   transition: all 0.15s ease;
-  border: 1px solid var(--color-grey-300, #D1D5DB);
-  background: #ffffff;
-  color: var(--color-ink, #111827);
+  border: 1px solid var(--color-grey-300, var(--brand-border));
+  background: var(--brand-white);
+  color: var(--brand-blue);
 }
 
 .btn-order-action:hover {
-  background: var(--color-sand-light, #F8F6F0);
-  border-color: #999999;
+  background: var(--brand-white);
+  border-color: var(--brand-orange);
 }
 
 .btn-order-action.cancel {
-  color: #DC2626;
-  border-color: #FCA5A5;
+  color: var(--brand-blue);
+  border-color: var(--brand-border);
 }
 
 .btn-order-action.cancel:hover {
-  background: #FEF2F2;
-  border-color: #DC2626;
+  background: var(--brand-white);
+  border-color: var(--brand-orange);
 }
 
 .cancel-confirm-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.65);
+  background: var(--brand-overlay);
   backdrop-filter: blur(4px);
   z-index: 9999;
   display: flex;
@@ -568,24 +568,24 @@
 }
 
 .cancel-confirm-modal {
-  background: #ffffff;
+  background: var(--brand-white);
   border-radius: 8px;
   max-width: 440px;
   width: 100%;
   padding: 28px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  box-shadow: 0 20px 40px rgba(9, 21, 37, 0.2);
 }
 
 .cancel-confirm-modal h3 {
   font-family: var(--font-display, "Playfair Display", Georgia, serif);
   font-size: 1.25rem;
-  color: #111827;
+  color: var(--brand-blue);
   margin: 0 0 10px 0;
 }
 
 .cancel-confirm-modal p {
   font-size: 0.86rem;
-  color: #4B5563;
+  color: var(--brand-blue);
   line-height: 1.5;
   margin-bottom: 16px;
 }
@@ -594,7 +594,7 @@
   width: 100%;
   min-height: 80px;
   padding: 10px 12px;
-  border: 1px solid #D1D5DB;
+  border: 1px solid var(--brand-border);
   border-radius: 6px;
   font-size: 0.85rem;
   margin-bottom: 20px;
@@ -666,7 +666,7 @@
 .cp-skeleton-shimmer {
   position: relative;
   overflow: hidden;
-  background: var(--sk, #e8e6f4) !important;
+  background: var(--brand-white) !important;
   border-radius: 6px;
 }
 
@@ -675,7 +675,7 @@
   position: absolute;
   inset: 0;
   transform: translateX(-100%);
-  background: linear-gradient(100deg, transparent 20%, var(--sh, rgba(255, 255, 255, 0.75)) 50%, transparent 80%);
+  background: var(--brand-white);
   animation: sweep 1.4s infinite;
 }
 
@@ -687,15 +687,15 @@
 
 .order-card--skeleton {
   pointer-events: none;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background: var(--brand-white);
+  border: 1px solid var(--brand-border);
   border-radius: 12px;
   overflow: hidden;
 }
 
 .order-skeleton-bar {
   border-radius: 6px;
-  background: #eef0f4;
+  background: var(--brand-white);
 }
 
 .order-skeleton-bar--num {
@@ -766,7 +766,7 @@
 .pane-reload-btn {
   background: transparent;
   border: none;
-  color: var(--color-grey-500, #6B7280);
+  color: var(--brand-blue);
   cursor: pointer;
   padding: 4px;
   border-radius: 4px;
@@ -779,6 +779,6 @@
 }
 
 .pane-reload-btn:hover {
-  color: var(--color-ink, #111827);
-  background: var(--color-sand-light, #F8F6F0);
+  color: var(--brand-orange);
+  background: var(--brand-white);
 }

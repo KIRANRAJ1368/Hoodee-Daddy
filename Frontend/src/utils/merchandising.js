@@ -294,7 +294,7 @@ export function generateCatalogJsonLd(products = [], listName = "Featured Collec
           "price": product.price,
           "availability": (product.inStock !== false) ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
           "itemCondition": "https://schema.org/NewCondition",
-          "url": `https://zmwfashion.com/product/${product.id}`,
+          "url": `https://hoodeedaddy.com/product/${product.id}`,
         },
         ...(product.rating ? {
           "aggregateRating": {

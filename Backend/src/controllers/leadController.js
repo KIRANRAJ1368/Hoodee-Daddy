@@ -14,12 +14,26 @@ async function submitLead(req, res) {
   const cleanPhone = String(phone || "").replace(/\D/g, "");
   const cleanPin = String(pincode || "").replace(/\D/g, "");
 
-  if (!cleanPhone || cleanPhone.length < 10) {
+  if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
     throw ApiError.badRequest("Please enter a valid 10-digit mobile number");
   }
 
-  if (!cleanPin || cleanPin.length !== 6) {
+  if (!/^[1-9]\d{5}$/.test(cleanPin)) {
     throw ApiError.badRequest("Please enter a valid 6-digit PIN code");
+  }
+
+  // Lead recognition never creates an authenticated customer session.
+  const existingLead = await VisitorLead.findOne({ where: { phone: cleanPhone }, order: [["id", "ASC"]] });
+  if (existingLead) {
+    return sendSuccess(res, {
+      message: "Welcome back! Your details are already registered.",
+      data: {
+        id: existingLead.id, phone: cleanPhone, pincode: cleanPin,
+        district: district ? String(district).trim() : "",
+        state: state ? String(state).trim() : "",
+        is_existing: true
+      }
+    });
   }
 
   // Determine client IP and user agent
@@ -48,7 +62,7 @@ async function submitLead(req, res) {
   }
 
   // Find the configured admin email
-  let configuredAdminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || env.seedAdmin?.email || "adminzmw@gmail.com";
+  let configuredAdminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || env.seedAdmin?.email || "admin@hoodeedaddy.com";
   try {
     const adminUser = await AdminUser.findOne({ order: [["id", "ASC"]] });
     if (adminUser?.email) {
@@ -88,7 +102,7 @@ async function submitLead(req, res) {
       }
     })
     .catch((err) => {
-      console.warn("[ZMW LEADS] Warning: Failed to dispatch lead notification email:", err.message);
+      console.warn("[HOODEE DADDY LEADS] Warning: Failed to dispatch lead notification email:", err.message);
     });
 
   return sendSuccess(res, {
@@ -99,7 +113,8 @@ async function submitLead(req, res) {
       phone: cleanPhone,
       pincode: cleanPin,
       district: resolvedDistrict,
-      state: resolvedState
+      state: resolvedState,
+      is_existing: false
     }
   });
 }

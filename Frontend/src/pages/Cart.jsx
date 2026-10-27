@@ -32,7 +32,7 @@ const ArrowLeftIcon = () => (
 );
 
 /* ─────────────────────────────────────────────
-   ZMW Clothing Cart Page Component
+   HooDee Daddy Cart Page Component
 ───────────────────────────────────────────── */
 export default function Cart() {
   const navigate = useNavigate();
@@ -121,12 +121,6 @@ export default function Cart() {
       alert("Some items in your cart are currently out of stock. Please remove them before proceeding to checkout.");
       return;
     }
-    if (!isCustomerAuthenticated) {
-      setCheckoutIntent("cart");
-      setPendingCheckout(true);
-      setAuthModalState("register");
-      return;
-    }
     beginCartCheckout(navigate, {
       pincode: shippingPincode.trim().length === 6 ? shippingPincode.trim() : undefined
     });
@@ -154,23 +148,23 @@ export default function Cart() {
 
               <h2 className="cp-empty-title">Your cart is empty</h2>
               <p className="cp-empty-subtitle">
-                Looks like you haven't added anything yet.<br />
-                Explore our curated luxury collections and find your signature style.
+                Looks like you haven't added anything to your bag yet.<br />
+                Explore our heavyweight hoodies, co-ords, and kids everyday streetwear.
               </p>
 
-              <Link to="/collection?category=mens" className="cp-empty-cta">
-                Continue Shopping <ArrowRightIcon />
+              <Link to="/collection" className="cp-empty-cta">
+                Start Shopping <ArrowRightIcon />
               </Link>
 
               <div className="cp-empty-links">
                 <span className="cp-empty-links-label">POPULAR CATEGORIES</span>
                 <div className="cp-empty-chips">
-                  <Link to="/collection?category=mens" className="cp-chip">Men</Link>
-                  <Link to="/collection?category=women" className="cp-chip">Women</Link>
-                  <Link to="/collection?category=boys" className="cp-chip">Boys</Link>
-                  <Link to="/collection?category=girls" className="cp-chip">Girls</Link>
-                  <Link to="/collection?category=babies" className="cp-chip">Babies</Link>
-                  <Link to="/collection?collection=new-arrivals" className="cp-chip">New Arrivals</Link>
+                  <Link to="/collection?category=kids-hoodies" className="cp-chip">Kids Hoodies</Link>
+                  <Link to="/collection?category=kids-pyjamas" className="cp-chip">Kids Pyjamas</Link>
+                  <Link to="/collection?category=kids-co-ords" className="cp-chip">Kids Co-Ords</Link>
+                  <Link to="/collection?category=boys-fashion" className="cp-chip">Boys Fashion</Link>
+                  <Link to="/collection?category=girls-fashion" className="cp-chip">Girls Fashion</Link>
+                  <Link to="/collection?collection=new-arrivals" className="cp-chip">New Arrivals 🔥</Link>
                 </div>
               </div>
             </div>
@@ -217,7 +211,7 @@ export default function Cart() {
               {cart.map((item) => {
                 const key = `${item.id}-${item.color}-${item.size}`;
                 const lineTotal = item.price * item.quantity;
-                const isLinkable = Boolean(item.id && !String(item.id).startsWith("zmw-"));
+                const isLinkable = Boolean(item.id && !String(item.id).startsWith("zmw-") && !String(item.id).startsWith("hd-legacy-"));
                 const liveProd = findProduct ? findProduct(item.id) : null;
                 const liveVariant = liveProd?.variants?.find((v) =>
                   (!v.color || v.color.toLowerCase() === (item.color || "").toLowerCase()) &&

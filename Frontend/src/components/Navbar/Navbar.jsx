@@ -20,18 +20,9 @@ function isCategoryMatching(catSlug, activeNav) {
 
 function sortCategoriesBySequence(cats) {
   if (!Array.isArray(cats)) return [];
-  return [...cats]
-    .map((c) => ({
-      ...c,
-      subcategories: Array.isArray(c.subcategories)
-        ? [...c.subcategories].sort(
-            (a, b) => (Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0)) || ((Number(a.id) || 0) - (Number(b.id) || 0))
-          )
-        : []
-    }))
-    .sort(
-      (a, b) => (Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0)) || ((Number(a.id) || 0) - (Number(b.id) || 0))
-    );
+  return [...cats].sort(
+    (a, b) => (Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0)) || ((Number(a.id) || 0) - (Number(b.id) || 0))
+  );
 }
 
 export default function Navbar() {
@@ -67,7 +58,7 @@ export default function Navbar() {
   // Dynamic Categories from Context / API / localStorage cache
   const [categories, setCategories] = useState(() => {
     try {
-      const cached = localStorage.getItem("zmw_navbar_categories");
+      const cached = localStorage.getItem("hd_navbar_categories");
       return cached ? sortCategoriesBySequence(JSON.parse(cached)) : [];
     } catch {
       return [];
@@ -81,7 +72,7 @@ export default function Navbar() {
       );
       setCategories(activeCats);
       try {
-        localStorage.setItem("zmw_navbar_categories", JSON.stringify(activeCats));
+        localStorage.setItem("hd_navbar_categories", JSON.stringify(activeCats));
       } catch (e) {}
     } else if (Array.isArray(contextCategories) && contextCategories.length > 0) {
       const activeCats = sortCategoriesBySequence(
@@ -89,7 +80,7 @@ export default function Navbar() {
       );
       setCategories(activeCats);
       try {
-        localStorage.setItem("zmw_navbar_categories", JSON.stringify(activeCats));
+        localStorage.setItem("hd_navbar_categories", JSON.stringify(activeCats));
       } catch (e) {}
     } else if (categories.length === 0) {
       storefrontApi
@@ -101,7 +92,7 @@ export default function Navbar() {
             );
             setCategories(activeCats);
             try {
-              localStorage.setItem("zmw_navbar_categories", JSON.stringify(activeCats));
+              localStorage.setItem("hd_navbar_categories", JSON.stringify(activeCats));
             } catch (e) {}
           }
         })
@@ -338,13 +329,13 @@ export default function Navbar() {
               <span className="hamburger-line"></span>
             </button>
 
-            <Link to="/" className="brand-logo" onClick={closeAllMenus} aria-label="ZMW">
+            <Link to="/" className="brand-logo" onClick={closeAllMenus} aria-label="HooDee Daddy home">
               <img
-                src={process.env.PUBLIC_URL + "/images/zmw-logo-transparent.png"}
-                alt="ZMW"
+                src={process.env.PUBLIC_URL + "/images/hoodee-daddy-logo.svg"}
+                alt="HooDee Daddy"
                 className="brand-logo-img"
-                width="142"
-                height="44"
+                width="943"
+                height="733"
               />
             </Link>
 
@@ -373,17 +364,14 @@ export default function Navbar() {
                   {/* 1. Dynamic Categories */}
                   {categories.map((cat) => {
                     const isCatActive = isCategoryMatching(cat.slug, activeNav);
-                    const hasSubcategories = Array.isArray(cat.subcategories) && cat.subcategories.length > 0;
 
                     return (
                       <li
                         key={cat.id || cat.slug}
-                        className={`nav-item ${hasSubcategories ? "has-dropdown" : ""}`}
+                        className="nav-item"
                         ref={(el) => {
                           if (el) itemRefs.current[cat.slug] = el;
                         }}
-                        onMouseEnter={() => hasSubcategories && openDesktopMenuFor(cat.slug)}
-                        onMouseLeave={() => hasSubcategories && closeWithDelay()}
                       >
                         <Link
                           to={`/categories/${encodeURIComponent(cat.slug)}`}
@@ -391,28 +379,8 @@ export default function Navbar() {
                           onClick={() => {
                             closeAllMenus();
                           }}
-                          aria-haspopup={hasSubcategories ? "true" : undefined}
-                          aria-expanded={hasSubcategories ? openDesktopMenu === cat.slug : undefined}
                         >
                           <span>{cat.name}</span>
-                          {hasSubcategories && (
-                            <svg
-                              className="nav-caret"
-                              width="10"
-                              height="10"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2.5"
-                              style={{
-                                transform: openDesktopMenu === cat.slug ? "rotate(180deg)" : "none",
-                                transition: "transform 0.2s ease"
-                              }}
-                              aria-hidden="true"
-                            >
-                              <polyline points="6 9 12 15 18 9"></polyline>
-                            </svg>
-                          )}
                         </Link>
                       </li>
                     );
@@ -422,21 +390,11 @@ export default function Navbar() {
                   <li key="static-new-arrivals">
                     <Link
                       to="/collection?collection=new-arrivals"
-                      className={"nav-link" + (activeNav === "new-arrivals" ? " active" : "")}
+                      className={"nav-link nav-link-new-arrival" + (activeNav === "new-arrivals" ? " active" : "")}
                       onClick={closeAllMenus}
                     >
-                      New Arrivals
-                    </Link>
-                  </li>
-
-                  {/* 3. Static Item: Best Sellers */}
-                  <li key="static-best-sellers">
-                    <Link
-                      to="/collection?collection=best-sellers"
-                      className={"nav-link" + (activeNav === "best-sellers" ? " active" : "")}
-                      onClick={closeAllMenus}
-                    >
-                      Best Sellers
+                      <span className="nav-arrival-dot" aria-hidden="true" />
+                      <span className="nav-arrival-text">New Arrivals</span>
                     </Link>
                   </li>
                 </ul>
@@ -492,8 +450,8 @@ export default function Navbar() {
                         width: 26,
                         height: 26,
                         borderRadius: "50%",
-                        background: "var(--color-accent, #FAA703)",
-                        color: "#111",
+                        background: "var(--color-accent, var(--brand-white))",
+                        color: "var(--brand-blue)",
                         fontSize: 12,
                         fontWeight: 700
                       }}
@@ -515,33 +473,33 @@ export default function Navbar() {
                       top: "100%",
                       right: 0,
                       marginTop: 8,
-                      background: "var(--color-white, #fff)",
-                      border: "1px solid var(--color-grey-200, #e5e7eb)",
+                      background: "var(--color-white, var(--brand-white))",
+                      border: "1px solid var(--color-grey-200, var(--brand-border))",
                       borderRadius: "8px",
-                      boxShadow: "0 10px 25px rgba(0,0,0,0.12)",
+                      boxShadow: "0 10px 25px rgba(9, 21, 37, 0.12)",
                       width: 220,
                       padding: "14px",
                       zIndex: 100,
                       textAlign: "left"
                     }}
                   >
-                    <div style={{ fontSize: 13, fontWeight: 700, color: "var(--color-ink, #111)" }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "var(--color-ink, var(--brand-blue))" }}>
                       {customerUser.name}
                     </div>
-                    <div style={{ fontSize: 11, color: "var(--color-grey-600, #666)", marginBottom: 10, wordBreak: "break-all" }}>
+                    <div style={{ fontSize: 11, color: "var(--color-grey-600, var(--brand-blue))", marginBottom: 10, wordBreak: "break-all" }}>
                       {customerUser.email}
                     </div>
-                    <div style={{ borderTop: "1px solid var(--color-grey-100, #f3f4f6)", paddingTop: 8, display: "flex", flexDirection: "column", gap: 6 }}>
+                    <div style={{ borderTop: "1px solid var(--color-grey-100, var(--brand-border))", paddingTop: 8, display: "flex", flexDirection: "column", gap: 6 }}>
                       <Link
                         to="/account"
-                        style={{ textDecoration: "none", fontSize: 12, textAlign: "left", cursor: "pointer", padding: "4px 0", color: "var(--color-ink, #111)", fontWeight: 600, display: "block" }}
+                        style={{ textDecoration: "none", fontSize: 12, textAlign: "left", cursor: "pointer", padding: "4px 0", color: "var(--color-ink, var(--brand-blue))", fontWeight: 600, display: "block" }}
                         onClick={() => setUserDropdownOpen(false)}
                       >
                         📦 My Account & Orders
                       </Link>
                       <button
                         type="button"
-                        style={{ background: "none", border: "none", fontSize: 12, textAlign: "left", cursor: "pointer", padding: "4px 0", color: "var(--color-ink, #111)" }}
+                        style={{ background: "none", border: "none", fontSize: 12, textAlign: "left", cursor: "pointer", padding: "4px 0", color: "var(--color-ink, var(--brand-blue))" }}
                         onClick={() => {
                           setUserDropdownOpen(false);
                           setIsOrderTrackOpen(true);
@@ -551,7 +509,7 @@ export default function Navbar() {
                       </button>
                       <button
                         type="button"
-                        style={{ background: "none", border: "none", fontSize: 12, textAlign: "left", cursor: "pointer", padding: "4px 0", color: "#dc2626", fontWeight: 600 }}
+                        style={{ background: "none", border: "none", fontSize: 12, textAlign: "left", cursor: "pointer", padding: "4px 0", color: "var(--brand-blue)", fontWeight: 600 }}
                         onClick={() => {
                           setUserDropdownOpen(false);
                           logoutCustomer();
@@ -597,49 +555,7 @@ export default function Navbar() {
           </div>
         </nav>
 
-        {/* Dynamic Mega Dropdown for Active Category (Portaled so it never gets clipped) */}
-        {openDesktopMenu && activeMenuCategory && activeMenuCategory.subcategories?.length > 0 && dropdownCoords && (
-          ReactDOM.createPortal(
-            <div
-              ref={dropdownRef}
-              className="mega-dropdown"
-              onMouseEnter={cancelClose}
-              onMouseLeave={() => closeWithDelay()}
-              style={{
-                position: "fixed",
-                top: `${dropdownCoords.top}px`,
-                left: `${dropdownCoords.left}px`,
-                transform: "translateX(-50%)",
-                zIndex: 1200
-              }}
-            >
-              <div className="mega-dropdown-inner">
-                <ul className="dropdown-col">
-                  <li className="dropdown-heading">{activeMenuCategory.name}'s Apparel</li>
-                  <li>
-                    <Link
-                      to={`/categories/${encodeURIComponent(activeMenuCategory.slug)}`}
-                      onClick={closeAllMenus}
-                    >
-                      Shop all {activeMenuCategory.name}
-                    </Link>
-                  </li>
-                  {activeMenuCategory.subcategories.map((sub) => (
-                    <li key={sub.id || sub.name}>
-                      <Link
-                        to={`/categories/${encodeURIComponent(activeMenuCategory.slug)}/${encodeURIComponent(sub.slug || sub.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"))}`}
-                        onClick={closeAllMenus}
-                      >
-                        {sub.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>,
-            document.body
-          )
-        )}
+
 
         {/* Mobile Slide-Out Menu Drawer */}
         <div
@@ -659,11 +575,11 @@ export default function Navbar() {
               to="/"
               className="mobile-brand-logo"
               onClick={() => setMobileMenuOpen(false)}
-              aria-label="ZMW"
+              aria-label="HooDee Daddy home"
             >
               <img
-                src={process.env.PUBLIC_URL + "/images/zmw-logo-transparent.png"}
-                alt="ZMW"
+                src={process.env.PUBLIC_URL + "/images/hoodee-daddy-logo.svg"}
+                alt="HooDee Daddy"
                 className="mobile-brand-logo-img"
                 width="120"
                 height="38"
@@ -682,74 +598,18 @@ export default function Navbar() {
             {/* 1. Dynamic Categories */}
             {categories.map((cat) => {
               const isCatActive = isCategoryMatching(cat.slug, activeNav);
-              const hasSubcategories = Array.isArray(cat.subcategories) && cat.subcategories.length > 0;
-              const isExpanded = mobileExpandedCats[cat.slug] || false;
 
               return (
-                <li key={cat.id || cat.slug} className={hasSubcategories ? "mobile-nav-expandable" : ""}>
-                  <div className="mobile-nav-expand-row">
-                    <Link
-                      to={`/categories/${encodeURIComponent(cat.slug)}`}
-                      className={isCatActive ? "mobile-nav-active" : ""}
-                      onClick={() => {
-                        setMobileMenuOpen(false);
-                      }}
-                    >
-                      {cat.name}
-                    </Link>
-                    {hasSubcategories && (
-                      <button
-                        type="button"
-                        className="mobile-nav-expand-toggle"
-                        onClick={() =>
-                          setMobileExpandedCats((prev) => ({
-                            ...prev,
-                            [cat.slug]: !prev[cat.slug]
-                          }))
-                        }
-                        aria-label={`Expand ${cat.name} submenu`}
-                        aria-expanded={isExpanded}
-                      >
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          style={{
-                            transform: isExpanded ? "rotate(180deg)" : "none",
-                            transition: "transform 0.2s ease"
-                          }}
-                        >
-                          <polyline points="6 9 12 15 18 9"></polyline>
-                        </svg>
-                      </button>
-                    )}
-                  </div>
-
-                  {hasSubcategories && isExpanded && (
-                    <ul className="mobile-nav-submenu">
-                      <li>
-                        <Link
-                          to={`/categories/${encodeURIComponent(cat.slug)}`}
-                          onClick={() => setMobileMenuOpen(false)}
-                        >
-                          Shop all {cat.name}
-                        </Link>
-                      </li>
-                      {cat.subcategories.map((sub) => (
-                        <li key={sub.id || sub.name}>
-                          <Link
-                            to={`/categories/${encodeURIComponent(cat.slug)}/${encodeURIComponent(sub.slug || sub.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"))}`}
-                            onClick={() => setMobileMenuOpen(false)}
-                          >
-                            {sub.name}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+                <li key={cat.id || cat.slug}>
+                  <Link
+                    to={`/categories/${encodeURIComponent(cat.slug)}`}
+                    className={isCatActive ? "mobile-nav-active" : ""}
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    {cat.name}
+                  </Link>
                 </li>
               );
             })}
@@ -761,18 +621,8 @@ export default function Navbar() {
                 className={activeNav === "new-arrivals" ? "mobile-nav-active" : ""}
                 onClick={() => setMobileMenuOpen(false)}
               >
-                New Arrivals
-              </Link>
-            </li>
-
-            {/* 3. Static Best Sellers */}
-            <li>
-              <Link
-                to="/collection?collection=best-sellers"
-                className={activeNav === "best-sellers" ? "mobile-nav-active" : ""}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Best Sellers
+                <span className="nav-arrival-dot" aria-hidden="true" style={{ display: "inline-block", marginRight: "8px" }} />
+                <span className="nav-arrival-text">New Arrivals</span>
               </Link>
             </li>
 
@@ -817,7 +667,7 @@ export default function Navbar() {
               <button
                 type="button"
                 className="btn btn-primary btn-sm"
-                style={{ width: "100%", marginBottom: "12px" }}
+                style={{ width: "100%", marginBottom: "8px" }}
                 onClick={() => {
                   setMobileMenuOpen(false);
                   setAuthModalState("login");

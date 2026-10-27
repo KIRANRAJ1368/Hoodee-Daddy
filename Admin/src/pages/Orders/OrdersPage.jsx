@@ -326,7 +326,7 @@ export default function OrdersPage() {
           rows={orders}
           rowKey={(row) => row.id}
           emptyTitle="No orders found"
-          emptyDescription="When customers place orders on the ZMW storefront, they will immediately appear here for fulfillment."
+          emptyDescription="When customers place orders on the HooDee Daddy storefront, they will immediately appear here for fulfillment."
           columns={[
             {
               key: "order_number",

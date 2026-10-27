@@ -1,7 +1,7 @@
 
 const PRODUCTS = [
   {
-    id: "zmw-001",
+    id: "hd-001",
     name: "French Linen Tailored Oversized Shirt",
     category: "T-Shirt",
     badge: "Best Seller",
@@ -10,7 +10,7 @@ const PRODUCTS = [
     originalPrice: 110,
     rating: 4.9,
     reviewCount: 142,
-    sku: "ZMW-MEN-01",
+    sku: "HD-MEN-01",
     inStock: true,
     stockCount: 18,
     isNew: false,
@@ -29,7 +29,7 @@ const PRODUCTS = [
     description: "Tailored from 100% Normandy flax linen with natural slub texture, pre-washed for effortless drape. Features a crisp spread collar and natural horn buttons."
   },
   {
-    id: "zmw-002",
+    id: "hd-002",
     name: "Liquid Silk Bias-Cut Slip Dress",
     category: "Dress",
     badge: "New Drop",
@@ -38,7 +38,7 @@ const PRODUCTS = [
     originalPrice: null,
     rating: 5.0,
     reviewCount: 56,
-    sku: "ZMW-DRS-02",
+    sku: "HD-DRS-02",
     inStock: true,
     stockCount: 12,
     isNew: true,
@@ -57,7 +57,7 @@ const PRODUCTS = [
     description: "Liquid silk-crepe woven in Como, Italy. Cut precisely on the bias to skim the silhouette with fluid elegance. Hand-finished delicate rouleau straps."
   },
   {
-    id: "zmw-003",
+    id: "hd-003",
     name: "Emerald Silk Couture Saree Ensemble",
     category: "Dress",
     badge: "Limited Edition",
@@ -66,7 +66,7 @@ const PRODUCTS = [
     originalPrice: 420,
     rating: 5.0,
     reviewCount: 39,
-    sku: "ZMW-ETH-03",
+    sku: "HD-ETH-03",
     inStock: true,
     stockCount: 6,
     isNew: true,
@@ -85,7 +85,7 @@ const PRODUCTS = [
     description: "Bespoke pure mulberry silk saree gown featuring intricate zardozi hand embroidery along the borders and pallu. A timeless fusion of heritage craftsmanship and modern runway silhouette."
   },
   {
-    id: "zmw-004",
+    id: "hd-004",
     name: "Bespoke Sand Linen Tailored Blazer",
     category: "Top",
     badge: "Runway",
@@ -94,7 +94,7 @@ const PRODUCTS = [
     originalPrice: 360,
     rating: 4.9,
     reviewCount: 78,
-    sku: "ZMW-BLZ-04",
+    sku: "HD-BLZ-04",
     inStock: true,
     stockCount: 10,
     isNew: true,
@@ -113,7 +113,7 @@ const PRODUCTS = [
     description: "Lightweight unstructured single-breasted blazer woven from Italian flax linen. Notch lapel, patch pockets, and unlined interior for effortless breathability."
   },
   {
-    id: "zmw-005",
+    id: "hd-005",
     name: "Sculpted Ribbed Merino Mockneck",
     category: "Top",
     badge: "Sale -20%",
@@ -122,7 +122,7 @@ const PRODUCTS = [
     originalPrice: 138,
     rating: 4.8,
     reviewCount: 94,
-    sku: "ZMW-TOP-05",
+    sku: "HD-TOP-05",
     inStock: true,
     stockCount: 15,
     isNew: false,
@@ -141,7 +141,7 @@ const PRODUCTS = [
     description: "Extra-fine Australian merino wool with architectural compact ribbing. Designed to sculpt the frame while delivering supreme cloud-soft thermal comfort."
   },
   {
-    id: "zmw-006",
+    id: "hd-006",
     name: "Kids' Organic Linen Pastel Romper",
     category: "Dress",
     badge: "Boutique Kids",
@@ -150,7 +150,7 @@ const PRODUCTS = [
     originalPrice: 80,
     rating: 4.9,
     reviewCount: 88,
-    sku: "ZMW-KID-06",
+    sku: "HD-KID-06",
     inStock: true,
     stockCount: 22,
     isNew: true,
@@ -169,7 +169,7 @@ const PRODUCTS = [
     description: "GOTS-certified organic cotton and linen weave. Ultra-soft on delicate skin, reinforced wooden button closures, and roomy silhouette for effortless movement."
   },
   {
-    id: "zmw-007",
+    id: "hd-007",
     name: "Liquid Charmeuse Pleated Maxi Skirt",
     category: "Skirt",
     badge: "Handcrafted",
@@ -178,7 +178,7 @@ const PRODUCTS = [
     originalPrice: null,
     rating: 5.0,
     reviewCount: 61,
-    sku: "ZMW-SKT-07",
+    sku: "HD-SKT-07",
     inStock: true,
     stockCount: 16,
     isNew: true,
@@ -197,7 +197,7 @@ const PRODUCTS = [
     description: "Weightless charmeuse skirt with finely gathered knife pleats that move fluidly with every step. Finished with a concealed side zip and a silky smooth inner slip for effortless drape."
   },
   {
-    id: "zmw-008",
+    id: "hd-008",
     name: "Relaxed Boxy Oxford Weave Shirt",
     category: "T-Shirt",
     badge: "Best Seller",
@@ -206,7 +206,7 @@ const PRODUCTS = [
     originalPrice: 120,
     rating: 4.8,
     reviewCount: 129,
-    sku: "ZMW-OXD-08",
+    sku: "HD-OXD-08",
     inStock: true,
     stockCount: 21,
     isNew: false,
@@ -351,7 +351,7 @@ const TESTIMONIALS_DATA = [
     city: "New York, USA",
     rating: 5,
     title: "The silk slip dress of my dreams",
-    comment: "I have worn luxury slip dresses from top runway houses, and ZMW matches and even exceeds their cut. The bias construction falls so smoothly without clinging.",
+    comment: "I have worn luxury slip dresses from top runway houses, and HooDee Daddy matches and even exceeds their cut. The bias construction falls so smoothly without clinging.",
     productPurchased: "Liquid Silk Bias-Cut Slip Dress",
     date: "August 24, 2026"
   },
@@ -392,7 +392,7 @@ const MEN_SUBCATEGORIES = [
  */
 const MEN_PRODUCTS = [
   {
-    id: "zmw-m01",
+    id: "hd-m01",
     name: "Printed Round Neck T-Shirt - Jet Black & Off White",
     category: "T-Shirt",
     subCategory: "Round Neck T-shirt",
@@ -402,7 +402,7 @@ const MEN_PRODUCTS = [
     originalPrice: 58,
     rating: 4.8,
     reviewCount: 231,
-    sku: "ZMW-MEN-OS-01",
+    sku: "HD-MEN-OS-01",
     inStock: true,
     stockCount: 24,
     isNew: false,
@@ -421,7 +421,7 @@ const MEN_PRODUCTS = [
     description: "Heavyweight 240 GSM cotton jersey, boxy drop-shoulder cut with a front graphic print. Garment-washed for a broken-in feel from the first wear."
   },
   {
-    id: "zmw-m02",
+    id: "hd-m02",
     name: "Printed Round Neck T-Shirt - Charcoal & Rust",
     category: "T-Shirt",
     subCategory: "Round Neck T-shirt",
@@ -431,7 +431,7 @@ const MEN_PRODUCTS = [
     originalPrice: null,
     rating: 4.7,
     reviewCount: 88,
-    sku: "ZMW-MEN-OS-02",
+    sku: "HD-MEN-OS-02",
     inStock: true,
     stockCount: 16,
     isNew: true,
@@ -449,7 +449,7 @@ const MEN_PRODUCTS = [
     description: "Motorsport-inspired racer stripe across the chest on a relaxed, drop-shoulder oversized silhouette. Ribbed crew neck for shape retention."
   },
   {
-    id: "zmw-m03",
+    id: "hd-m03",
     name: "Printed Round Neck T-Shirt - Sage Green & Stone Beige",
     category: "T-Shirt",
     subCategory: "Round Neck T-shirt",
@@ -459,7 +459,7 @@ const MEN_PRODUCTS = [
     originalPrice: 52,
     rating: 4.9,
     reviewCount: 164,
-    sku: "ZMW-MEN-OS-03",
+    sku: "HD-MEN-OS-03",
     inStock: true,
     stockCount: 30,
     isNew: false,
@@ -477,7 +477,7 @@ const MEN_PRODUCTS = [
     description: "Embroidered script chest logo on brushed cotton fleece-jersey. Dropped shoulder seams and a slightly cropped body length for an oversized fit."
   },
   {
-    id: "zmw-m04",
+    id: "hd-m04",
     name: "Oversized Round Neck T-Shirt - Ivory & Jet Black",
     category: "T-Shirt",
     subCategory: "Round Neck T-shirt",
@@ -487,7 +487,7 @@ const MEN_PRODUCTS = [
     originalPrice: null,
     rating: 4.6,
     reviewCount: 52,
-    sku: "ZMW-MEN-OS-04",
+    sku: "HD-MEN-OS-04",
     inStock: true,
     stockCount: 12,
     isNew: true,
@@ -505,7 +505,7 @@ const MEN_PRODUCTS = [
     description: "Zip-neck placket on a heavyweight oversized tee, cut long with side vents. A quieter alternative to a full graphic print."
   },
   {
-    id: "zmw-m05",
+    id: "hd-m05",
     name: "Printed Round Neck T-Shirt - Racing Red & Jet Black",
     category: "T-Shirt",
     subCategory: "Round Neck T-shirt",
@@ -515,7 +515,7 @@ const MEN_PRODUCTS = [
     originalPrice: 60,
     rating: 4.9,
     reviewCount: 97,
-    sku: "ZMW-MEN-OS-05",
+    sku: "HD-MEN-OS-05",
     inStock: true,
     stockCount: 9,
     isNew: false,
@@ -533,7 +533,7 @@ const MEN_PRODUCTS = [
     description: "Motorsport graphic print wraps the front and sleeve on a boxy oversized cut. Limited run, numbered inner label."
   },
   {
-    id: "zmw-m06",
+    id: "hd-m06",
     name: "Oversized Round Neck T-Shirt - Olive & Off White",
     category: "T-Shirt",
     subCategory: "Round Neck T-shirt",
@@ -543,7 +543,7 @@ const MEN_PRODUCTS = [
     originalPrice: null,
     rating: 4.7,
     reviewCount: 61,
-    sku: "ZMW-MEN-OS-06",
+    sku: "HD-MEN-OS-06",
     inStock: true,
     stockCount: 20,
     isNew: true,
@@ -562,7 +562,7 @@ const MEN_PRODUCTS = [
     description: "A clean numeral graphic on heavyweight cotton, cut boxy through the body with dropped shoulders for an easy oversized fit."
   },
   {
-    id: "zmw-m07",
+    id: "hd-m07",
     name: "Classic Polo T-Shirt - Ivory & Navy",
     category: "Polo",
     subCategory: "Polo T-shirt",
@@ -572,7 +572,7 @@ const MEN_PRODUCTS = [
     originalPrice: 50,
     rating: 4.8,
     reviewCount: 178,
-    sku: "ZMW-MEN-PL-01",
+    sku: "HD-MEN-PL-01",
     inStock: true,
     stockCount: 27,
     isNew: false,
@@ -590,7 +590,7 @@ const MEN_PRODUCTS = [
     description: "Pique cotton polo with a zip placket in place of buttons, regular fit through the body with a ribbed collar and cuffs."
   },
   {
-    id: "zmw-m08",
+    id: "hd-m08",
     name: "Classic Polo T-Shirt - Maroon & Jet Black",
     category: "Polo",
     subCategory: "Polo T-shirt",
@@ -600,7 +600,7 @@ const MEN_PRODUCTS = [
     originalPrice: null,
     rating: 4.6,
     reviewCount: 44,
-    sku: "ZMW-MEN-PL-02",
+    sku: "HD-MEN-PL-02",
     inStock: true,
     stockCount: 15,
     isNew: true,
@@ -618,7 +618,7 @@ const MEN_PRODUCTS = [
     description: "Oversized pique polo with a tonal chest graphic. Dropped shoulders and a slightly extended hem for a modern streetwear proportion."
   },
   {
-    id: "zmw-m09",
+    id: "hd-m09",
     name: "Classic Polo T-Shirt - Espresso Brown & Off White",
     category: "Polo",
     subCategory: "Polo T-shirt",
@@ -628,7 +628,7 @@ const MEN_PRODUCTS = [
     originalPrice: 55,
     rating: 4.9,
     reviewCount: 132,
-    sku: "ZMW-MEN-PL-03",
+    sku: "HD-MEN-PL-03",
     inStock: true,
     stockCount: 18,
     isNew: false,
@@ -646,7 +646,7 @@ const MEN_PRODUCTS = [
     description: "High-density heavyweight pique polo with a bold collegiate-style chest print, cut oversized with a ribbed placket collar."
   },
   {
-    id: "zmw-m10",
+    id: "hd-m10",
     name: "Classic Polo T-Shirt - Mustard Gold & Jet Black",
     category: "Polo",
     subCategory: "Polo T-shirt",
@@ -656,7 +656,7 @@ const MEN_PRODUCTS = [
     originalPrice: null,
     rating: 4.5,
     reviewCount: 29,
-    sku: "ZMW-MEN-PL-04",
+    sku: "HD-MEN-PL-04",
     inStock: false,
     stockCount: 0,
     isNew: true,
@@ -674,7 +674,7 @@ const MEN_PRODUCTS = [
     description: "High-neck placket polo in brushed pique cotton with contrast trim at the cuffs and collar. Currently out of stock â€” restocking soon."
   },
   {
-    id: "zmw-m11",
+    id: "hd-m11",
     name: "Classic Polo T-Shirt - Sand Beige & Sky Blue",
     category: "Polo",
     subCategory: "Polo T-shirt",
@@ -684,7 +684,7 @@ const MEN_PRODUCTS = [
     originalPrice: 48,
     rating: 4.7,
     reviewCount: 71,
-    sku: "ZMW-MEN-PL-05",
+    sku: "HD-MEN-PL-05",
     inStock: true,
     stockCount: 22,
     isNew: true,
@@ -702,7 +702,7 @@ const MEN_PRODUCTS = [
     description: "A quiet, regular-fit pique polo built for everyday rotation. Soft-washed finish with a two-button placket and side vents."
   },
   {
-    id: "zmw-m12",
+    id: "hd-m12",
     name: "Oversized Round Neck T-Shirt - Crisp White & Sky Blue",
     category: "T-Shirt",
     subCategory: "Round Neck T-shirt",
@@ -712,7 +712,7 @@ const MEN_PRODUCTS = [
     originalPrice: 58,
     rating: 4.8,
     reviewCount: 96,
-    sku: "ZMW-MEN-01-2",
+    sku: "HD-MEN-01-2",
     inStock: true,
     stockCount: 19,
     isNew: false,
@@ -731,7 +731,7 @@ const MEN_PRODUCTS = [
     description: "Oxford-weave cotton in a relaxed boxy cut, no branding â€” a wardrobe staple built to layer under a shirt or blazer."
   },
   {
-    id: "zmw-m13",
+    id: "hd-m13",
     name: "Classic Cotton Round Neck T-Shirt - Beige & Ivory",
     category: "T-Shirt",
     subCategory: "Round Neck T-shirt",
@@ -741,7 +741,7 @@ const MEN_PRODUCTS = [
     originalPrice: null,
     rating: 4.6,
     reviewCount: 33,
-    sku: "ZMW-MEN-PT-02",
+    sku: "HD-MEN-PT-02",
     inStock: true,
     stockCount: 14,
     isNew: true,
@@ -759,7 +759,7 @@ const MEN_PRODUCTS = [
     description: "Fine-gauge cotton long sleeve with a mock-neck placket. Regular fit, minimal branding â€” an easy layering piece."
   },
   {
-    id: "zmw-m14",
+    id: "hd-m14",
     name: "Classic Cotton Round Neck T-Shirt - Jet Black",
     category: "T-Shirt",
     subCategory: "Round Neck T-shirt",
@@ -769,7 +769,7 @@ const MEN_PRODUCTS = [
     originalPrice: 49,
     rating: 4.7,
     reviewCount: 58,
-    sku: "ZMW-MEN-PT-03",
+    sku: "HD-MEN-PT-03",
     inStock: true,
     stockCount: 21,
     isNew: false,
@@ -786,7 +786,7 @@ const MEN_PRODUCTS = [
     description: "Heavyweight cotton full-sleeve tee with a clean crew neck. Solid black, garment-dyed for a deep, even tone."
   },
   {
-    id: "zmw-m19",
+    id: "hd-m19",
     name: "Oversized Round Neck T-Shirt - Navy Blue & White",
     category: "T-Shirt",
     subCategory: "Round Neck T-shirt",
@@ -796,7 +796,7 @@ const MEN_PRODUCTS = [
     originalPrice: 60,
     rating: 4.9,
     reviewCount: 198,
-    sku: "ZMW-MEN-OS-07",
+    sku: "HD-MEN-OS-07",
     inStock: true,
     stockCount: 22,
     isNew: false,
@@ -814,7 +814,7 @@ const MEN_PRODUCTS = [
     description: "Iconic dual-tone Originals 88 graphic with drop-shoulder boxy fit. Spun from 240 GSM combed cotton for a heavy drape."
   },
   {
-    id: "zmw-m20",
+    id: "hd-m20",
     name: "Oversized Round Neck T-Shirt - Off White & Crimson Red",
     category: "T-Shirt",
     subCategory: "Round Neck T-shirt",
@@ -824,7 +824,7 @@ const MEN_PRODUCTS = [
     originalPrice: 65,
     rating: 4.8,
     reviewCount: 84,
-    sku: "ZMW-MEN-OS-08",
+    sku: "HD-MEN-OS-08",
     inStock: true,
     stockCount: 16,
     isNew: true,
@@ -842,7 +842,7 @@ const MEN_PRODUCTS = [
     description: "Street motorsport graphics on an off-white full-sleeve drop-shoulder tee. High-density contrast chest and sleeve prints."
   },
   {
-    id: "zmw-m21",
+    id: "hd-m21",
     name: "Printed Round Neck T-Shirt - Acid Black & Denim Blue",
     category: "T-Shirt",
     subCategory: "Round Neck T-shirt",
@@ -852,7 +852,7 @@ const MEN_PRODUCTS = [
     originalPrice: 62,
     rating: 4.9,
     reviewCount: 142,
-    sku: "ZMW-MEN-OS-09",
+    sku: "HD-MEN-OS-09",
     inStock: true,
     stockCount: 19,
     isNew: false,
@@ -870,7 +870,7 @@ const MEN_PRODUCTS = [
     description: "Mineral acid-washed heavyweight tee with retro motorcycle typography print. Every piece boasts a unique faded vintage patina."
   },
   {
-    id: "zmw-m22",
+    id: "hd-m22",
     name: "Oversized Round Neck T-Shirt - Jet Black & Light Grey",
     category: "T-Shirt",
     subCategory: "Round Neck T-shirt",
@@ -880,7 +880,7 @@ const MEN_PRODUCTS = [
     originalPrice: 56,
     rating: 4.7,
     reviewCount: 95,
-    sku: "ZMW-MEN-OS-10",
+    sku: "HD-MEN-OS-10",
     inStock: true,
     stockCount: 28,
     isNew: false,
@@ -898,7 +898,7 @@ const MEN_PRODUCTS = [
     description: "5-thread contrast lockstitch detail on seams with back racing typography graphic. Super combed heavyweight jersey."
   },
   {
-    id: "zmw-m23",
+    id: "hd-m23",
     name: "Printed Round Neck T-Shirt - Ivory White & Navy Blue",
     category: "T-Shirt",
     subCategory: "Round Neck T-shirt",
@@ -908,7 +908,7 @@ const MEN_PRODUCTS = [
     originalPrice: 58,
     rating: 4.8,
     reviewCount: 176,
-    sku: "ZMW-MEN-OS-11",
+    sku: "HD-MEN-OS-11",
     inStock: true,
     stockCount: 15,
     isNew: false,
@@ -926,7 +926,7 @@ const MEN_PRODUCTS = [
     description: "European football culture meets modern streetwear. Screen-printed back emblem with minimal front chest badge."
   },
   {
-    id: "zmw-m24",
+    id: "hd-m24",
     name: "Printed Round Neck T-Shirt - Jet Black & Hazelnut",
     category: "T-Shirt",
     subCategory: "Round Neck T-shirt",
@@ -936,7 +936,7 @@ const MEN_PRODUCTS = [
     originalPrice: null,
     rating: 4.9,
     reviewCount: 63,
-    sku: "ZMW-MEN-OS-12",
+    sku: "HD-MEN-OS-12",
     inStock: true,
     stockCount: 12,
     isNew: true,
@@ -954,7 +954,7 @@ const MEN_PRODUCTS = [
     description: "Mythological scarab artwork printed in warm hazelnut metallic ink on jet black combed cotton. Seamless side seams for pure boxy drape."
   },
   {
-    id: "zmw-m25",
+    id: "hd-m25",
     name: "Urban Cargo Joggers - Olive",
     category: "Joggers",
 
@@ -964,7 +964,7 @@ const MEN_PRODUCTS = [
     originalPrice: 68,
     rating: 4.8,
     reviewCount: 167,
-    sku: "ZMW-MEN-JG-01",
+    sku: "HD-MEN-JG-01",
     inStock: true,
     stockCount: 25,
     isNew: false,
@@ -983,7 +983,7 @@ const MEN_PRODUCTS = [
     description: "Heavyweight cotton twill joggers with utility cargo pockets. Elasticated waist with drawstring and tapered ankle cuffs for a clean streetwear silhouette."
   },
   {
-    id: "zmw-m26",
+    id: "hd-m26",
     name: "Slim Fit Tech Joggers - Black",
     category: "Joggers",
 
@@ -993,7 +993,7 @@ const MEN_PRODUCTS = [
     originalPrice: null,
     rating: 4.7,
     reviewCount: 89,
-    sku: "ZMW-MEN-JG-02",
+    sku: "HD-MEN-JG-02",
     inStock: true,
     stockCount: 18,
     isNew: true,
@@ -1011,7 +1011,7 @@ const MEN_PRODUCTS = [
     description: "Four-way stretch tech fabric joggers with a tapered slim fit. Moisture-wicking finish with zip pockets and reflective detailing for night runs."
   },
   {
-    id: "zmw-m27",
+    id: "hd-m27",
     name: "Relaxed French Terry Joggers - Sand",
     category: "Joggers",
 
@@ -1021,7 +1021,7 @@ const MEN_PRODUCTS = [
     originalPrice: 58,
     rating: 4.9,
     reviewCount: 134,
-    sku: "ZMW-MEN-JG-03",
+    sku: "HD-MEN-JG-03",
     inStock: true,
     stockCount: 22,
     isNew: false,
@@ -1040,7 +1040,7 @@ const MEN_PRODUCTS = [
     description: "Brushed French terry joggers with a relaxed straight-leg cut. Ribbed cuffs and a soft elastic waistband for all-day comfort and premium drape."
   },
   {
-    id: "zmw-m28",
+    id: "hd-m28",
     name: "Track Joggers with Side Stripes",
     category: "Joggers",
 
@@ -1050,7 +1050,7 @@ const MEN_PRODUCTS = [
     originalPrice: 55,
     rating: 4.6,
     reviewCount: 72,
-    sku: "ZMW-MEN-JG-04",
+    sku: "HD-MEN-JG-04",
     inStock: true,
     stockCount: 15,
     isNew: false,
@@ -1068,7 +1068,7 @@ const MEN_PRODUCTS = [
     description: "Classic track joggers with contrast side stripes. Lightweight poly-cotton blend with zip pockets and elasticated hem."
   },
   {
-    id: "zmw-m29",
+    id: "hd-m29",
     name: "Zip-Up Hoodie - Charcoal Slate & Jet Black",
     category: "Hoodie",
     subCategory: "Mens Hoodies",
@@ -1078,7 +1078,7 @@ const MEN_PRODUCTS = [
     originalPrice: 88,
     rating: 4.9,
     reviewCount: 203,
-    sku: "ZMW-MEN-HD-01",
+    sku: "HD-MEN-HD-01",
     inStock: true,
     stockCount: 20,
     isNew: false,
@@ -1097,7 +1097,7 @@ const MEN_PRODUCTS = [
     description: "400 GSM heavyweight cotton fleece zip hoodie with YKK metal zippers. Kangaroo pocket, ribbed cuffs and hem, and a structured hood with drawstring."
   },
   {
-    id: "zmw-m30",
+    id: "hd-m30",
     name: "Basic Pullover Hoodie",
     category: "Hoodie",
     subCategory: "Mens Hoodies",
@@ -1107,7 +1107,7 @@ const MEN_PRODUCTS = [
     originalPrice: null,
     rating: 4.8,
     reviewCount: 112,
-    sku: "ZMW-MEN-HD-02",
+    sku: "HD-MEN-HD-02",
     inStock: true,
     stockCount: 16,
     isNew: true,
@@ -1125,7 +1125,7 @@ const MEN_PRODUCTS = [
     description: "Oversized pullover hoodie in 380 GSM brushed fleece. Drop-shoulder construction, ribbed hem and cuffs, with a deep kangaroo pocket."
   },
   {
-    id: "zmw-m31",
+    id: "hd-m31",
     name: "Printed Hoodie",
     category: "Hoodie",
     subCategory: "Mens Hoodies",
@@ -1135,7 +1135,7 @@ const MEN_PRODUCTS = [
     originalPrice: 82,
     rating: 4.7,
     reviewCount: 98,
-    sku: "ZMW-MEN-HD-03",
+    sku: "HD-MEN-HD-03",
     inStock: true,
     stockCount: 14,
     isNew: false,
@@ -1153,7 +1153,7 @@ const MEN_PRODUCTS = [
     description: "Vintage acid-washed pullover hoodie with high-density embroidered logo. Soft brushed fleece interior with a relaxed, boxy fit."
   },
   {
-    id: "zmw-m32",
+    id: "hd-m32",
     name: "Zip-Up Hoodie - Ink Black & Slate Grey",
     category: "Hoodie",
     subCategory: "Mens Hoodies",
@@ -1163,7 +1163,7 @@ const MEN_PRODUCTS = [
     originalPrice: null,
     rating: 4.6,
     reviewCount: 45,
-    sku: "ZMW-MEN-HD-04",
+    sku: "HD-MEN-HD-04",
     inStock: true,
     stockCount: 12,
     isNew: true,
@@ -1181,7 +1181,7 @@ const MEN_PRODUCTS = [
     description: "Premium oversized zip hoodie in garment-dyed heavyweight cotton. Dropped shoulders, two-way zip, and hidden media pocket."
   },
   {
-    id: "zmw-m33",
+    id: "hd-m33",
     name: "Heavyweight Crewneck Sweatshirt - Navy",
     category: "Sweatshirt",
 
@@ -1191,7 +1191,7 @@ const MEN_PRODUCTS = [
     originalPrice: 72,
     rating: 4.9,
     reviewCount: 187,
-    sku: "ZMW-MEN-SS-01",
+    sku: "HD-MEN-SS-01",
     inStock: true,
     stockCount: 24,
     isNew: false,
@@ -1210,7 +1210,7 @@ const MEN_PRODUCTS = [
     description: "420 GSM heavyweight French terry crewneck sweatshirt. Ribbed collar, cuffs, and hem with a clean, logo-free design for versatile layering."
   },
   {
-    id: "zmw-m34",
+    id: "hd-m34",
     name: "Half-Zip Sweatshirt - Stone",
     category: "Sweatshirt",
 
@@ -1220,7 +1220,7 @@ const MEN_PRODUCTS = [
     originalPrice: null,
     rating: 4.7,
     reviewCount: 76,
-    sku: "ZMW-MEN-SS-02",
+    sku: "HD-MEN-SS-02",
     inStock: true,
     stockCount: 17,
     isNew: true,
@@ -1238,7 +1238,7 @@ const MEN_PRODUCTS = [
     description: "Half-zip sweatshirt in brushed French terry with a stand collar. Raglan sleeves and a relaxed fit for a sporty-luxe silhouette."
   },
   {
-    id: "zmw-m35",
+    id: "hd-m35",
     name: "Oversized Logo Crewneck Sweatshirt",
     category: "Sweatshirt",
 
@@ -1248,7 +1248,7 @@ const MEN_PRODUCTS = [
     originalPrice: 70,
     rating: 4.8,
     reviewCount: 143,
-    sku: "ZMW-MEN-SS-03",
+    sku: "HD-MEN-SS-03",
     inStock: true,
     stockCount: 20,
     isNew: false,
@@ -1266,7 +1266,7 @@ const MEN_PRODUCTS = [
     description: "Oversized crewneck sweatshirt with tonal embroidered logo across the chest. 360 GSM brushed fleece with drop-shoulder seams."
   },
   {
-    id: "zmw-m36",
+    id: "hd-m36",
     name: "Striped Crewneck Sweatshirt - Retro",
     category: "Sweatshirt",
 
@@ -1276,7 +1276,7 @@ const MEN_PRODUCTS = [
     originalPrice: 62,
     rating: 4.6,
     reviewCount: 62,
-    sku: "ZMW-MEN-SS-04",
+    sku: "HD-MEN-SS-04",
     inStock: true,
     stockCount: 11,
     isNew: false,
@@ -1311,7 +1311,7 @@ const WOMEN_SUBCATEGORIES = ["Round Neck", "V Neck", "Women's Hoodies", "Women's
  */
 const WOMEN_PRODUCTS = [
   {
-    id: "zmw-w01",
+    id: "hd-w01",
     name: "Women's Oversized Tee - Sunflower Yellow & Off White",
     category: "T-Shirt",
     subCategory: "Women's Tees",
@@ -1321,7 +1321,7 @@ const WOMEN_PRODUCTS = [
     originalPrice: 50,
     rating: 4.8,
     reviewCount: 204,
-    sku: "ZMW-WOM-PT-01",
+    sku: "HD-WOM-PT-01",
     inStock: true,
     stockCount: 26,
     isNew: false,
@@ -1340,7 +1340,7 @@ const WOMEN_PRODUCTS = [
     description: "Collegiate varsity graphic on a relaxed boxy tee, garment-washed cotton jersey with dropped shoulders for an easy, oversized fit."
   },
   {
-    id: "zmw-w02",
+    id: "hd-w02",
     name: "Graphic Tee - Jet Black & Sage Green",
     category: "T-Shirt",
     subCategory: "Women's Tees",
@@ -1350,7 +1350,7 @@ const WOMEN_PRODUCTS = [
     originalPrice: null,
     rating: 4.6,
     reviewCount: 61,
-    sku: "ZMW-WOM-PT-02",
+    sku: "HD-WOM-PT-02",
     inStock: true,
     stockCount: 18,
     isNew: true,
@@ -1368,7 +1368,7 @@ const WOMEN_PRODUCTS = [
     description: "Retro cursive script across the chest on soft-washed single jersey. Cropped-through-regular length for easy layering over co-ords."
   },
   {
-    id: "zmw-w03",
+    id: "hd-w03",
     name: "Women's Oversized Tee - Ivory & Blush Pink",
     category: "T-Shirt",
     subCategory: "Women's Tees",
@@ -1378,7 +1378,7 @@ const WOMEN_PRODUCTS = [
     originalPrice: 48,
     rating: 4.9,
     reviewCount: 132,
-    sku: "ZMW-WOM-PT-03",
+    sku: "HD-WOM-PT-03",
     inStock: true,
     stockCount: 21,
     isNew: false,
@@ -1396,7 +1396,7 @@ const WOMEN_PRODUCTS = [
     description: "Hand-drawn floral print on a boxy, relaxed silhouette. Ribbed crew neck and a slightly cropped hem for high-waist styling."
   },
   {
-    id: "zmw-w04",
+    id: "hd-w04",
     name: "Graphic Tee - Racing Red & Jet Black",
     category: "T-Shirt",
     subCategory: "Women's Tees",
@@ -1406,7 +1406,7 @@ const WOMEN_PRODUCTS = [
     originalPrice: null,
     rating: 4.5,
     reviewCount: 39,
-    sku: "ZMW-WOM-PT-04",
+    sku: "HD-WOM-PT-04",
     inStock: true,
     stockCount: 15,
     isNew: true,
@@ -1424,7 +1424,7 @@ const WOMEN_PRODUCTS = [
     description: "Motorsport-inspired chest graphic on breathable cotton jersey, cut with a relaxed body and short dropped sleeves."
   },
   {
-    id: "zmw-w05",
+    id: "hd-w05",
     name: "Women's Oversized Tee - Sunflower Yellow & Ivory",
     category: "T-Shirt",
     subCategory: "Women's Tees",
@@ -1434,7 +1434,7 @@ const WOMEN_PRODUCTS = [
     originalPrice: 52,
     rating: 4.8,
     reviewCount: 176,
-    sku: "ZMW-WOM-PT-05",
+    sku: "HD-WOM-PT-05",
     inStock: true,
     stockCount: 23,
     isNew: false,
@@ -1452,7 +1452,7 @@ const WOMEN_PRODUCTS = [
     description: "Collegiate university crest print in a relaxed, colorblocked boxy tee â€” pairs easily with joggers or a midi skirt."
   },
   {
-    id: "zmw-w06",
+    id: "hd-w06",
     name: "Graphic Tee - Stone Beige",
     category: "T-Shirt",
     subCategory: "Women's Tees",
@@ -1462,7 +1462,7 @@ const WOMEN_PRODUCTS = [
     originalPrice: null,
     rating: 4.6,
     reviewCount: 47,
-    sku: "ZMW-WOM-PT-06",
+    sku: "HD-WOM-PT-06",
     inStock: false,
     stockCount: 0,
     isNew: true,
@@ -1479,7 +1479,7 @@ const WOMEN_PRODUCTS = [
     description: "Delicate single-line art print on lightweight combed cotton. Currently out of stock â€” restocking soon."
   },
   {
-    id: "zmw-w19",
+    id: "hd-w19",
     name: "Women's Oversized Tee - Graphite & Off White",
     category: "T-Shirt",
     subCategory: "Women's Tees",
@@ -1489,7 +1489,7 @@ const WOMEN_PRODUCTS = [
     originalPrice: 50,
     rating: 4.8,
     reviewCount: 88,
-    sku: "ZMW-WOM-PT-05",
+    sku: "HD-WOM-PT-05",
     inStock: true,
     stockCount: 18,
     isNew: false,
@@ -1507,7 +1507,7 @@ const WOMEN_PRODUCTS = [
     description: "Oversized drop-shoulder tee with a high-density downtown skyline print. 240 GSM combed cotton with a soft, boxy drape."
   },
   {
-    id: "zmw-w20",
+    id: "hd-w20",
     name: "Graphic Tee - Sand & Terracotta",
     category: "T-Shirt",
     subCategory: "Women's Tees",
@@ -1517,7 +1517,7 @@ const WOMEN_PRODUCTS = [
     originalPrice: null,
     rating: 4.6,
     reviewCount: 41,
-    sku: "ZMW-WOM-PT-06",
+    sku: "HD-WOM-PT-06",
     inStock: true,
     stockCount: 21,
     isNew: true,
@@ -1535,7 +1535,7 @@ const WOMEN_PRODUCTS = [
     description: "Retro sunset-and-palm screen print on a relaxed-fit tee, garment-washed for a vintage feel and natural softness."
   },
   {
-    id: "zmw-w21",
+    id: "hd-w21",
     name: "Graphic Tee - Ivory & Clay",
     category: "T-Shirt",
     subCategory: "Women's Tees",
@@ -1545,7 +1545,7 @@ const WOMEN_PRODUCTS = [
     originalPrice: 42,
     rating: 4.7,
     reviewCount: 55,
-    sku: "ZMW-WOM-PT-07",
+    sku: "HD-WOM-PT-07",
     inStock: true,
     stockCount: 14,
     isNew: false,
@@ -1563,7 +1563,7 @@ const WOMEN_PRODUCTS = [
     description: "Freehand abstract line-art print on lightweight slub cotton with a slightly cropped, modern silhouette."
   },
   {
-    id: "zmw-w22",
+    id: "hd-w22",
     name: "Graphic Tee - Onyx & Moon Grey",
     category: "T-Shirt",
     subCategory: "Women's Tees",
@@ -1573,7 +1573,7 @@ const WOMEN_PRODUCTS = [
     originalPrice: 46,
     rating: 4.7,
     reviewCount: 63,
-    sku: "ZMW-WOM-PT-08",
+    sku: "HD-WOM-PT-08",
     inStock: true,
     stockCount: 16,
     isNew: true,
@@ -1591,7 +1591,7 @@ const WOMEN_PRODUCTS = [
     description: "High-contrast celestial print on a cropped boxy tee, cut from heavyweight cotton with ribbed neckline."
   },
   {
-    id: "zmw-w23",
+    id: "hd-w23",
     name: "Linen Blend Co-ord Set - Sage",
     category: "Co-ord",
     badge: "Best Seller",
@@ -1600,7 +1600,7 @@ const WOMEN_PRODUCTS = [
     originalPrice: 115,
     rating: 4.9,
     reviewCount: 156,
-    sku: "ZMW-WOM-CO-01",
+    sku: "HD-WOM-CO-01",
     inStock: true,
     stockCount: 18,
     isNew: false,
@@ -1619,7 +1619,7 @@ const WOMEN_PRODUCTS = [
     description: "Matching linen-blend crop top and wide-leg trouser set. Breathable weave with a relaxed drape, perfect for effortless summer styling."
   },
   {
-    id: "zmw-w24",
+    id: "hd-w24",
     name: "Ribbed Knit Co-ord - Espresso",
     category: "Co-ord",
     badge: "New Drop",
@@ -1628,7 +1628,7 @@ const WOMEN_PRODUCTS = [
     originalPrice: null,
     rating: 4.7,
     reviewCount: 88,
-    sku: "ZMW-WOM-CO-02",
+    sku: "HD-WOM-CO-02",
     inStock: true,
     stockCount: 14,
     isNew: true,
@@ -1646,7 +1646,7 @@ const WOMEN_PRODUCTS = [
     description: "Form-fitting ribbed knit co-ord with a mock-neck crop top and high-waisted midi skirt. Stretchy, soft, and endlessly versatile."
   },
   {
-    id: "zmw-w25",
+    id: "hd-w25",
     name: "Cotton Poplin Co-ord Set - White",
     category: "Co-ord",
     badge: "Trending",
@@ -1655,7 +1655,7 @@ const WOMEN_PRODUCTS = [
     originalPrice: 105,
     rating: 4.8,
     reviewCount: 132,
-    sku: "ZMW-WOM-CO-03",
+    sku: "HD-WOM-CO-03",
     inStock: true,
     stockCount: 20,
     isNew: false,
@@ -1673,7 +1673,7 @@ const WOMEN_PRODUCTS = [
     description: "Structured cotton poplin co-ord with a relaxed button-front shirt and tailored high-waisted trousers. Clean lines for polished ease."
   },
   {
-    id: "zmw-w26",
+    id: "hd-w26",
     name: "Oversized Tee & Mini Skirt Co-ord - Noir",
     category: "Co-ord",
     badge: null,
@@ -1682,7 +1682,7 @@ const WOMEN_PRODUCTS = [
     originalPrice: null,
     rating: 4.6,
     reviewCount: 44,
-    sku: "ZMW-WOM-CO-04",
+    sku: "HD-WOM-CO-04",
     inStock: true,
     stockCount: 12,
     isNew: true,
@@ -1745,7 +1745,7 @@ const BABIES_SUBCATEGORIES = [
  */
 const KIDS_PRODUCTS = [
   {
-    id: "zmw-k01",
+    id: "hd-k01",
     name: "Dino Explorer Graphic Tee & Shorts Set",
     category: "T-Shirt Set",
     subCategory: "Shorts",
@@ -1755,7 +1755,7 @@ const KIDS_PRODUCTS = [
     originalPrice: 30,
     rating: 4.9,
     reviewCount: 178,
-    sku: "ZMW-KID-BY-01",
+    sku: "HD-KID-BY-01",
     inStock: true,
     stockCount: 34,
     isNew: false,
@@ -1774,7 +1774,7 @@ const KIDS_PRODUCTS = [
     description: "Soft-washed cotton tee with a playful dino print, paired with elastic-waist shorts for easy on-off. Built for a full day of play."
   },
   {
-    id: "zmw-k03",
+    id: "hd-k03",
     name: "Space Mission Graphic Tee",
     category: "T-Shirt",
     subCategory: "Round Neck",
@@ -1784,7 +1784,7 @@ const KIDS_PRODUCTS = [
     originalPrice: 22,
     rating: 4.8,
     reviewCount: 112,
-    sku: "ZMW-KID-BY-03",
+    sku: "HD-KID-BY-03",
     inStock: true,
     stockCount: 40,
     isNew: false,
@@ -1802,7 +1802,7 @@ const KIDS_PRODUCTS = [
     description: "Glow-in-the-dark rocket graphic on breathable single jersey cotton. Reinforced neckline stitching for wear after wear."
   },
   {
-    id: "zmw-k07",
+    id: "hd-k07",
     name: "Ruffle Sleeve Graphic Tee",
     category: "T-Shirt",
     subCategory: "Round Neck",
@@ -1812,7 +1812,7 @@ const KIDS_PRODUCTS = [
     originalPrice: 20,
     rating: 4.8,
     reviewCount: 91,
-    sku: "ZMW-KID-GL-03",
+    sku: "HD-KID-GL-03",
     inStock: true,
     stockCount: 33,
     isNew: false,
@@ -1831,7 +1831,7 @@ const KIDS_PRODUCTS = [
     description: "Ruffle-sleeve tee with a glitter-free heart print, soft-washed for a broken-in feel from the first wear."
   },
   {
-    id: "zmw-k13",
+    id: "hd-k13",
     name: "Varsity Stripe Polo & Shorts Set",
     category: "T-Shirt Set",
     subCategory: "Shorts",
@@ -1841,7 +1841,7 @@ const KIDS_PRODUCTS = [
     originalPrice: 33,
     rating: 4.8,
     reviewCount: 88,
-    sku: "ZMW-KID-BY-05",
+    sku: "HD-KID-BY-05",
     inStock: true,
     stockCount: 24,
     isNew: false,
@@ -1859,7 +1859,7 @@ const KIDS_PRODUCTS = [
     description: "Pique polo with contrast stripe collar, paired with matching shorts. Breathable and easy to layer for school or play."
   },
   {
-    id: "zmw-k17",
+    id: "hd-k17",
     name: "Shark Attack Graphic Tee",
     category: "T-Shirt",
     subCategory: "Round Neck",
@@ -1869,7 +1869,7 @@ const KIDS_PRODUCTS = [
     originalPrice: 20,
     rating: 4.8,
     reviewCount: 73,
-    sku: "ZMW-KID-BY-07",
+    sku: "HD-KID-BY-07",
     inStock: true,
     stockCount: 26,
     isNew: false,
@@ -1887,7 +1887,7 @@ const KIDS_PRODUCTS = [
     description: "Playful shark graphic on breathable single-jersey cotton with reinforced neckline stitching and a tagless back."
   },
   {
-    id: "zmw-k18",
+    id: "hd-k18",
     name: "Rainbow Hearts Graphic Tee",
     category: "T-Shirt",
     subCategory: "Round Neck",
@@ -1897,7 +1897,7 @@ const KIDS_PRODUCTS = [
     originalPrice: 19,
     rating: 4.7,
     reviewCount: 58,
-    sku: "ZMW-KID-GL-07",
+    sku: "HD-KID-GL-07",
     inStock: true,
     stockCount: 31,
     isNew: false,
@@ -1915,7 +1915,7 @@ const KIDS_PRODUCTS = [
     description: "Rainbow heart print on a soft-washed tee with flutter sleeves â€” breathable and comfortable for all-day play."
   },
   {
-    id: "zmw-k19",
+    id: "hd-k19",
     name: "Construction Crew Graphic Tee",
     category: "T-Shirt",
     subCategory: "Round Neck",
@@ -1925,7 +1925,7 @@ const KIDS_PRODUCTS = [
     originalPrice: 22,
     rating: 4.6,
     reviewCount: 44,
-    sku: "ZMW-KID-BY-08",
+    sku: "HD-KID-BY-08",
     inStock: true,
     stockCount: 19,
     isNew: true,
@@ -1943,7 +1943,7 @@ const KIDS_PRODUCTS = [
     description: "Construction-truck print in high-density inks on a sturdy everyday tee, made to survive the sandbox and the slide."
   },
   {
-    id: "zmw-k20",
+    id: "hd-k20",
     name: "Butterfly Garden Print Tee",
     category: "T-Shirt",
     subCategory: "Round Neck",
@@ -1953,7 +1953,7 @@ const KIDS_PRODUCTS = [
     originalPrice: 20,
     rating: 4.8,
     reviewCount: 67,
-    sku: "ZMW-KID-GL-08",
+    sku: "HD-KID-GL-08",
     inStock: true,
     stockCount: 28,
     isNew: false,
@@ -1971,7 +1971,7 @@ const KIDS_PRODUCTS = [
     description: "Butterfly garden print with soft watercolor-style inks on combed cotton, cut for easy on-off wear."
   },
   {
-    id: "zmw-k21",
+    id: "hd-k21",
     name: "Astro Rocket Friend Tee",
     category: "T-Shirt",
     subCategory: "Round Neck",
@@ -1981,7 +1981,7 @@ const KIDS_PRODUCTS = [
     originalPrice: null,
     rating: 4.5,
     reviewCount: 29,
-    sku: "ZMW-KID-BY-09",
+    sku: "HD-KID-BY-09",
     inStock: true,
     stockCount: 17,
     isNew: true,
@@ -1999,7 +1999,7 @@ const KIDS_PRODUCTS = [
     description: "Friendly cartoon rocket print with glow-in-the-dark accents. Soft single-jersey cotton in a relaxed play fit."
   },
   {
-    id: "zmw-k22",
+    id: "hd-k22",
     name: "Sweet Treats Hearts Tee",
     category: "T-Shirt",
     subCategory: "Round Neck",
@@ -2009,7 +2009,7 @@ const KIDS_PRODUCTS = [
     originalPrice: 19,
     rating: 4.7,
     reviewCount: 52,
-    sku: "ZMW-KID-GL-09",
+    sku: "HD-KID-GL-09",
     inStock: true,
     stockCount: 23,
     isNew: false,
@@ -2035,7 +2035,7 @@ const KIDS_PRODUCTS = [
  */
 const BOYS_PRODUCTS = [
   {
-    id: "zmw-b01",
+    id: "hd-b01",
     name: "Printed Round Neck T-Shirt",
     category: "T-Shirt",
     subCategory: "Round Neck",
@@ -2045,7 +2045,7 @@ const BOYS_PRODUCTS = [
     originalPrice: 20,
     rating: 4.9,
     reviewCount: 156,
-    sku: "ZMW-BOY-TS-01",
+    sku: "HD-BOY-TS-01",
     inStock: true,
     stockCount: 38,
     isNew: false,
@@ -2064,7 +2064,7 @@ const BOYS_PRODUCTS = [
     description: "Soft-washed combed cotton tee with a bold wave graphic. Ribbed crew neck and reinforced seams for daily play."
   },
   {
-    id: "zmw-b02",
+    id: "hd-b02",
     name: "Printed Round Neck T-Shirt - Sky Blue & Crisp White",
     category: "T-Shirt",
     subCategory: "Round Neck",
@@ -2074,7 +2074,7 @@ const BOYS_PRODUCTS = [
     originalPrice: 21,
     rating: 4.8,
     reviewCount: 98,
-    sku: "ZMW-BOY-TS-02",
+    sku: "HD-BOY-TS-02",
     inStock: true,
     stockCount: 31,
     isNew: false,
@@ -2092,7 +2092,7 @@ const BOYS_PRODUCTS = [
     description: "Nautical stripe tee in breathable single jersey with a tagless neck and pre-shrunk cotton finish."
   },
   {
-    id: "zmw-b03",
+    id: "hd-b03",
     name: "Boys High Neck T-Shirt",
     category: "High Neck",
     subCategory: "High Neck",
@@ -2102,7 +2102,7 @@ const BOYS_PRODUCTS = [
     originalPrice: 24,
     rating: 4.7,
     reviewCount: 74,
-    sku: "ZMW-BOY-HN-01",
+    sku: "HD-BOY-HN-01",
     inStock: true,
     stockCount: 26,
     isNew: true,
@@ -2120,7 +2120,7 @@ const BOYS_PRODUCTS = [
     description: "Brushed fleece high-neck top with a covered mock neckline. Warm, soft and easy to layer under hoodies."
   },
   {
-    id: "zmw-b04",
+    id: "hd-b04",
     name: "Boys Zip High Neck T-Shirt",
     category: "High Neck",
     subCategory: "High Neck",
@@ -2130,7 +2130,7 @@ const BOYS_PRODUCTS = [
     originalPrice: 26,
     rating: 4.8,
     reviewCount: 67,
-    sku: "ZMW-BOY-HN-02",
+    sku: "HD-BOY-HN-02",
     inStock: true,
     stockCount: 19,
     isNew: false,
@@ -2148,7 +2148,7 @@ const BOYS_PRODUCTS = [
     description: "Sporty zip-neck high top with contrast trim. Lightweight French terry with soft-brushed interior."
   },
   {
-    id: "zmw-b05",
+    id: "hd-b05",
     name: "Boys Cotton Shorts",
     category: "Shorts",
     subCategory: "Shorts",
@@ -2158,7 +2158,7 @@ const BOYS_PRODUCTS = [
     originalPrice: 21,
     rating: 4.8,
     reviewCount: 143,
-    sku: "ZMW-BOY-SH-01",
+    sku: "HD-BOY-SH-01",
     inStock: true,
     stockCount: 34,
     isNew: false,
@@ -2176,7 +2176,7 @@ const BOYS_PRODUCTS = [
     description: "Sturdy cotton twill shorts with utility cargo pockets and an elasticated waist for easy on-off."
   },
   {
-    id: "zmw-b06",
+    id: "hd-b06",
     name: "Casual Shorts",
     category: "Shorts",
     subCategory: "Shorts",
@@ -2186,7 +2186,7 @@ const BOYS_PRODUCTS = [
     originalPrice: 20,
     rating: 4.7,
     reviewCount: 88,
-    sku: "ZMW-BOY-SH-02",
+    sku: "HD-BOY-SH-02",
     inStock: true,
     stockCount: 27,
     isNew: true,
@@ -2204,7 +2204,7 @@ const BOYS_PRODUCTS = [
     description: "Brushed fleece jogger shorts with ribbed cuffs and a drawstring waist for a snug, comfy fit."
   },
   {
-    id: "zmw-b07",
+    id: "hd-b07",
     name: "Boys Cotton Sweatshirt",
     category: "Sweatshirt",
     subCategory: "Sweatshirts",
@@ -2214,7 +2214,7 @@ const BOYS_PRODUCTS = [
     originalPrice: 28,
     rating: 4.8,
     reviewCount: 121,
-    sku: "ZMW-BOY-SW-01",
+    sku: "HD-BOY-SW-01",
     inStock: true,
     stockCount: 24,
     isNew: false,
@@ -2232,7 +2232,7 @@ const BOYS_PRODUCTS = [
     description: "Heavyweight French terry crewneck with a ribbed collar, cuffs and hem. Built for rough-and-tumble days."
   },
   {
-    id: "zmw-b08",
+    id: "hd-b08",
     name: "Printed Sweatshirt",
     category: "Sweatshirt",
     subCategory: "Sweatshirts",
@@ -2242,7 +2242,7 @@ const BOYS_PRODUCTS = [
     originalPrice: 27,
     rating: 4.7,
     reviewCount: 66,
-    sku: "ZMW-BOY-SW-02",
+    sku: "HD-BOY-SW-02",
     inStock: true,
     stockCount: 20,
     isNew: true,
@@ -2260,7 +2260,7 @@ const BOYS_PRODUCTS = [
     description: "Sporty color-block sweatshirt in soft brushed fleece with a bold contrast chest panel."
   },
   {
-    id: "zmw-b09",
+    id: "hd-b09",
     name: "Boys Zip-Up Hoodie",
     category: "Hoodie",
     subCategory: "Hoodies",
@@ -2270,7 +2270,7 @@ const BOYS_PRODUCTS = [
     originalPrice: 32,
     rating: 4.9,
     reviewCount: 132,
-    sku: "ZMW-BOY-HD-01",
+    sku: "HD-BOY-HD-01",
     inStock: true,
     stockCount: 22,
     isNew: false,
@@ -2289,7 +2289,7 @@ const BOYS_PRODUCTS = [
     description: "Zip-up hoodie in brushed cotton rich fleece with a kangaroo pocket and drawcord hood."
   },
   {
-    id: "zmw-b10",
+    id: "hd-b10",
     name: "Boys Pullover Hoodie",
     category: "Hoodie",
     subCategory: "Hoodies",
@@ -2299,7 +2299,7 @@ const BOYS_PRODUCTS = [
     originalPrice: 30,
     rating: 4.8,
     reviewCount: 79,
-    sku: "ZMW-BOY-HD-02",
+    sku: "HD-BOY-HD-02",
     inStock: true,
     stockCount: 18,
     isNew: true,
@@ -2326,7 +2326,7 @@ const BOYS_PRODUCTS = [
  */
 const GIRLS_PRODUCTS = [
   {
-    id: "zmw-g01",
+    id: "hd-g01",
     name: "Printed T-Shirt",
     category: "T-Shirt",
     subCategory: "Round Neck",
@@ -2336,7 +2336,7 @@ const GIRLS_PRODUCTS = [
     originalPrice: 19,
     rating: 4.9,
     reviewCount: 165,
-    sku: "ZMW-GIR-TS-01",
+    sku: "HD-GIR-TS-01",
     inStock: true,
     stockCount: 36,
     isNew: false,
@@ -2355,7 +2355,7 @@ const GIRLS_PRODUCTS = [
     description: "Buttercup print tee in soft-washed cotton with flutter-sleeve detail and a gentle rounded hem."
   },
   {
-    id: "zmw-g02",
+    id: "hd-g02",
     name: "Printed T-Shirt - Peony & Vanilla",
     category: "T-Shirt",
     subCategory: "Round Neck",
@@ -2365,7 +2365,7 @@ const GIRLS_PRODUCTS = [
     originalPrice: 20,
     rating: 4.8,
     reviewCount: 104,
-    sku: "ZMW-GIR-TS-02",
+    sku: "HD-GIR-TS-02",
     inStock: true,
     stockCount: 29,
     isNew: false,
@@ -2383,7 +2383,7 @@ const GIRLS_PRODUCTS = [
     description: "Charming heart print tee in breathable single jersey, garment-washed for softness from the first wear."
   },
   {
-    id: "zmw-g03",
+    id: "hd-g03",
     name: "Girls High Neck T-Shirt",
     category: "High Neck",
     subCategory: "High Neck",
@@ -2393,7 +2393,7 @@ const GIRLS_PRODUCTS = [
     originalPrice: 25,
     rating: 4.8,
     reviewCount: 87,
-    sku: "ZMW-GIR-HN-01",
+    sku: "HD-GIR-HN-01",
     inStock: true,
     stockCount: 24,
     isNew: true,
@@ -2411,7 +2411,7 @@ const GIRLS_PRODUCTS = [
     description: "Pretty high-neck top with airy flutter sleeves and soft ruffle trims in lightweight cotton."
   },
   {
-    id: "zmw-g04",
+    id: "hd-g04",
     name: "Full Sleeve High Neck",
     category: "High Neck",
     subCategory: "High Neck",
@@ -2421,7 +2421,7 @@ const GIRLS_PRODUCTS = [
     originalPrice: 23,
     rating: 4.7,
     reviewCount: 62,
-    sku: "ZMW-GIR-HN-02",
+    sku: "HD-GIR-HN-02",
     inStock: true,
     stockCount: 21,
     isNew: false,
@@ -2439,7 +2439,7 @@ const GIRLS_PRODUCTS = [
     description: "Stretchy ribbed knit long sleeve with a snug high neck for cozy warmth on cooler days."
   },
   {
-    id: "zmw-g05",
+    id: "hd-g05",
     name: "Girls Cotton Shorts - Dusky Peach & Sage Mint",
     category: "Shorts",
     subCategory: "Shorts",
@@ -2449,7 +2449,7 @@ const GIRLS_PRODUCTS = [
     originalPrice: 21,
     rating: 4.8,
     reviewCount: 118,
-    sku: "ZMW-GIR-SH-01",
+    sku: "HD-GIR-SH-01",
     inStock: true,
     stockCount: 30,
     isNew: false,
@@ -2467,7 +2467,7 @@ const GIRLS_PRODUCTS = [
     description: "Tiered ruffle shorts in soft woven cotton with an elasticated waist and full cotton lining."
   },
   {
-    id: "zmw-g06",
+    id: "hd-g06",
     name: "Girls Cotton Shorts - Lavender & Off White",
     category: "Shorts",
     subCategory: "Shorts",
@@ -2477,7 +2477,7 @@ const GIRLS_PRODUCTS = [
     originalPrice: 20,
     rating: 4.7,
     reviewCount: 73,
-    sku: "ZMW-GIR-SH-02",
+    sku: "HD-GIR-SH-02",
     inStock: true,
     stockCount: 26,
     isNew: true,
@@ -2495,7 +2495,7 @@ const GIRLS_PRODUCTS = [
     description: "Tulip-waist shorts with a sweet bow detail, cut from breathable cotton twill for all-day comfort."
   },
   {
-    id: "zmw-g07",
+    id: "hd-g07",
     name: "Printed Sweatshirt - Blush Pink & Stone Beige",
     category: "Sweatshirt",
     subCategory: "Sweatshirts",
@@ -2505,7 +2505,7 @@ const GIRLS_PRODUCTS = [
     originalPrice: 28,
     rating: 4.9,
     reviewCount: 139,
-    sku: "ZMW-GIR-SW-01",
+    sku: "HD-GIR-SW-01",
     inStock: true,
     stockCount: 23,
     isNew: false,
@@ -2523,7 +2523,7 @@ const GIRLS_PRODUCTS = [
     description: "Snuggly crewneck with a tonal heart embroidery, cut from brushed cotton fleece with ribbed trims."
   },
   {
-    id: "zmw-g08",
+    id: "hd-g08",
     name: "Printed Sweatshirt - Rainbow Cream & Pastel Mix",
     category: "Sweatshirt",
     subCategory: "Sweatshirts",
@@ -2533,7 +2533,7 @@ const GIRLS_PRODUCTS = [
     originalPrice: 27,
     rating: 4.8,
     reviewCount: 91,
-    sku: "ZMW-GIR-SW-02",
+    sku: "HD-GIR-SW-02",
     inStock: true,
     stockCount: 19,
     isNew: false,
@@ -2551,7 +2551,7 @@ const GIRLS_PRODUCTS = [
     description: "Cheerful rainbow-stripe sweatshirt in soft French terry with a relaxed, comfy fit."
   },
   {
-    id: "zmw-g09",
+    id: "hd-g09",
     name: "Printed Hoodie - Lilac & Cream",
     category: "Hoodie",
     subCategory: "Hoodies",
@@ -2561,7 +2561,7 @@ const GIRLS_PRODUCTS = [
     originalPrice: 31,
     rating: 4.8,
     reviewCount: 96,
-    sku: "ZMW-GIR-HD-01",
+    sku: "HD-GIR-HD-01",
     inStock: true,
     stockCount: 21,
     isNew: false,
@@ -2580,7 +2580,7 @@ const GIRLS_PRODUCTS = [
     description: "Cloud-print zip hoodie in brushed fleece with a drawcord hood and cozy kangaroo pocket."
   },
   {
-    id: "zmw-g10",
+    id: "hd-g10",
     name: "Girls Pullover Hoodie",
     category: "Hoodie",
     subCategory: "Hoodies",
@@ -2590,7 +2590,7 @@ const GIRLS_PRODUCTS = [
     originalPrice: 32,
     rating: 4.9,
     reviewCount: 84,
-    sku: "ZMW-GIR-HD-02",
+    sku: "HD-GIR-HD-02",
     inStock: true,
     stockCount: 17,
     isNew: true,
@@ -2608,7 +2608,7 @@ const GIRLS_PRODUCTS = [
     description: "Ultra-soft oversized pullover hoodie in plush brushed fleece with dropped shoulders for a relaxed drape."
   },
   {
-    id: "zmw-g11",
+    id: "hd-g11",
     name: "Girls Casual Top - Ice Pink & Mint",
     category: "Pyjama Set",
     subCategory: "Casual Wear",
@@ -2618,7 +2618,7 @@ const GIRLS_PRODUCTS = [
     originalPrice: 34,
     rating: 4.9,
     reviewCount: 127,
-    sku: "ZMW-GIR-NW-01",
+    sku: "HD-GIR-NW-01",
     inStock: true,
     stockCount: 25,
     isNew: false,
@@ -2636,7 +2636,7 @@ const GIRLS_PRODUCTS = [
     description: "Sweet two-piece pyjama set with satin piped trim and flutter sleeves. Buttery-soft cotton for dreamy sleep."
   },
   {
-    id: "zmw-g12",
+    id: "hd-g12",
     name: "Girls Casual Top - Oatmeal & Dusty Grey",
     category: "Pyjama Set",
     subCategory: "Casual Wear",
@@ -2646,7 +2646,7 @@ const GIRLS_PRODUCTS = [
     originalPrice: 30,
     rating: 4.8,
     reviewCount: 88,
-    sku: "ZMW-GIR-NW-02",
+    sku: "HD-GIR-NW-02",
     inStock: true,
     stockCount: 22,
     isNew: true,
@@ -2664,7 +2664,7 @@ const GIRLS_PRODUCTS = [
     description: "Cozy nightwear set with a relaxed tee and cuffed pants, garment-washed for cloud-soft comfort."
   },
   {
-    id: "zmw-g13",
+    id: "hd-g13",
     name: "Girls Party Gown",
     category: "Gown",
     subCategory: "Long Gown",
@@ -2674,7 +2674,7 @@ const GIRLS_PRODUCTS = [
     originalPrice: 48,
     rating: 4.9,
     reviewCount: 76,
-    sku: "ZMW-GIR-LG-01",
+    sku: "HD-GIR-LG-01",
     inStock: true,
     stockCount: 14,
     isNew: false,
@@ -2692,7 +2692,7 @@ const GIRLS_PRODUCTS = [
     description: "Elegant long gown with a delicate lace collar, smocked back and gently flared floor-sweeping skirt."
   },
   {
-    id: "zmw-g14",
+    id: "hd-g14",
     name: "Girls Party Gown - Blush & Champagne",
     category: "Gown",
     subCategory: "Long Gown",
@@ -2702,7 +2702,7 @@ const GIRLS_PRODUCTS = [
     originalPrice: 54,
     rating: 4.8,
     reviewCount: 69,
-    sku: "ZMW-GIR-LG-02",
+    sku: "HD-GIR-LG-02",
     inStock: true,
     stockCount: 12,
     isNew: true,
@@ -2729,7 +2729,7 @@ const GIRLS_PRODUCTS = [
  */
 const BABIES_PRODUCTS = [
   {
-    id: "zmw-bab01",
+    id: "hd-bab01",
     name: "Baby Cotton Romper",
     category: "Romper",
     subCategory: "Romper",
@@ -2739,7 +2739,7 @@ const BABIES_PRODUCTS = [
     originalPrice: 24,
     rating: 4.9,
     reviewCount: 158,
-    sku: "ZMW-BAB-RM-01",
+    sku: "HD-BAB-RM-01",
     inStock: true,
     stockCount: 42,
     isNew: false,
@@ -2758,7 +2758,7 @@ const BABIES_PRODUCTS = [
     description: "Snap-button cotton romper with reinforced poppers and roomy cuffs for wriggly little ones."
   },
   {
-    id: "zmw-bab02",
+    id: "hd-bab02",
     name: "Baby Cotton Romper - Mustard & Off White",
     category: "Romper",
     subCategory: "Romper",
@@ -2768,7 +2768,7 @@ const BABIES_PRODUCTS = [
     originalPrice: 25,
     rating: 4.8,
     reviewCount: 112,
-    sku: "ZMW-BAB-RM-02",
+    sku: "HD-BAB-RM-02",
     inStock: true,
     stockCount: 35,
     isNew: false,
@@ -2786,7 +2786,7 @@ const BABIES_PRODUCTS = [
     description: "Plush terry knit romper with a snug hood and front pocket. Extreme softness for naptime and playtime."
   },
   {
-    id: "zmw-bab03",
+    id: "hd-bab03",
     name: "Baby Cotton T-Shirt",
     category: "T-Shirt",
     subCategory: "T-shirt",
@@ -2796,7 +2796,7 @@ const BABIES_PRODUCTS = [
     originalPrice: 16,
     rating: 4.9,
     reviewCount: 174,
-    sku: "ZMW-BAB-TS-01",
+    sku: "HD-BAB-TS-01",
     inStock: true,
     stockCount: 48,
     isNew: false,
@@ -2814,7 +2814,7 @@ const BABIES_PRODUCTS = [
     description: "GOTS-certified organic cotton tee with a tagless neck and flat-locked seams that never rub."
   },
   {
-    id: "zmw-bab04",
+    id: "hd-bab04",
     name: "Printed Baby T-Shirt",
     category: "T-Shirt",
     subCategory: "T-shirt",
@@ -2824,7 +2824,7 @@ const BABIES_PRODUCTS = [
     originalPrice: 17,
     rating: 4.8,
     reviewCount: 101,
-    sku: "ZMW-BAB-TS-02",
+    sku: "HD-BAB-TS-02",
     inStock: true,
     stockCount: 39,
     isNew: true,
@@ -2842,7 +2842,7 @@ const BABIES_PRODUCTS = [
     description: "Sweet heart-print baby tee in supersoft washed cotton, cut generously for easy on-off dressing."
   },
   {
-    id: "zmw-bab05",
+    id: "hd-bab05",
     name: "Printed Pyjama - Grey Stripe & Blue Stripe",
     category: "Pyjama",
     subCategory: "Babies Pyjama",
@@ -2852,7 +2852,7 @@ const BABIES_PRODUCTS = [
     originalPrice: 28,
     rating: 4.8,
     reviewCount: 96,
-    sku: "ZMW-BAB-PJ-01",
+    sku: "HD-BAB-PJ-01",
     inStock: true,
     stockCount: 27,
     isNew: true,
@@ -2870,7 +2870,7 @@ const BABIES_PRODUCTS = [
     description: "One-piece footed fleece pyjama with a front zip and snap-free design for safe, easy night changes."
   },
   {
-    id: "zmw-bab06",
+    id: "hd-bab06",
     name: "Baby Cotton Pyjama",
     category: "Pyjama",
     subCategory: "Babies Pyjama",
@@ -2880,7 +2880,7 @@ const BABIES_PRODUCTS = [
     originalPrice: 30,
     rating: 4.9,
     reviewCount: 88,
-    sku: "ZMW-BAB-PJ-02",
+    sku: "HD-BAB-PJ-02",
     inStock: true,
     stockCount: 24,
     isNew: false,
@@ -2898,7 +2898,7 @@ const BABIES_PRODUCTS = [
     description: "Cozy one-piece sleep sack pyjama in breathable cotton knit with gentle elasticated cuffs."
   },
   {
-    id: "zmw-bab07",
+    id: "hd-bab07",
     name: "Baby Cotton Sweatshirt",
     category: "Sweatshirt",
     subCategory: "Sweatshirts",
@@ -2908,7 +2908,7 @@ const BABIES_PRODUCTS = [
     originalPrice: 27,
     rating: 4.8,
     reviewCount: 84,
-    sku: "ZMW-BAB-SW-01",
+    sku: "HD-BAB-SW-01",
     inStock: true,
     stockCount: 26,
     isNew: false,
@@ -2926,7 +2926,7 @@ const BABIES_PRODUCTS = [
     description: "Quilted-style sweatshirt in double-brushed fleece with a fold-over mitt-free cuff and snap shoulder."
   },
   {
-    id: "zmw-bab08",
+    id: "hd-bab08",
     name: "Baby Pullover Hoodie",
     category: "Hoodie",
     subCategory: "Babies Hoodies",
@@ -2936,7 +2936,7 @@ const BABIES_PRODUCTS = [
     originalPrice: 32,
     rating: 4.8,
     reviewCount: 92,
-    sku: "ZMW-BAB-HD-01",
+    sku: "HD-BAB-HD-01",
     inStock: true,
     stockCount: 21,
     isNew: true,
@@ -2954,7 +2954,7 @@ const BABIES_PRODUCTS = [
     description: "Plush teddy-fleece hoodie with a soft-lining hood, snap-front closure and cozy ribbed trims."
   },
   {
-    id: "zmw-bab09",
+    id: "hd-bab09",
     name: "Baby Zip-Up Hoodie",
     category: "Hoodie",
     subCategory: "Babies Hoodies",
@@ -2964,7 +2964,7 @@ const BABIES_PRODUCTS = [
     originalPrice: 30,
     rating: 4.7,
     reviewCount: 76,
-    sku: "ZMW-BAB-HD-02",
+    sku: "HD-BAB-HD-02",
     inStock: true,
     stockCount: 23,
     isNew: false,
@@ -2982,7 +2982,7 @@ const BABIES_PRODUCTS = [
     description: "Easy zip-front baby hoodie in brushed French terry with a cozy hood and chunky safe zipper."
   },
   {
-    id: "zmw-bab10",
+    id: "hd-bab10",
     name: "Baby Cotton Pants",
     category: "Bottoms",
     subCategory: "Babies Bottoms",
@@ -2992,7 +2992,7 @@ const BABIES_PRODUCTS = [
     originalPrice: 18,
     rating: 4.8,
     reviewCount: 121,
-    sku: "ZMW-BAB-BT-01",
+    sku: "HD-BAB-BT-01",
     inStock: true,
     stockCount: 44,
     isNew: false,
@@ -3010,7 +3010,7 @@ const BABIES_PRODUCTS = [
     description: "Soft pull-on bottoms with a gentle elastic waist and ribbed ankle cuffs for a secure, comfy fit."
   },
   {
-    id: "zmw-bab11",
+    id: "hd-bab11",
     name: "Baby Joggers",
     category: "Bottoms",
     subCategory: "Babies Bottoms",
@@ -3020,7 +3020,7 @@ const BABIES_PRODUCTS = [
     originalPrice: 19,
     rating: 4.8,
     reviewCount: 87,
-    sku: "ZMW-BAB-BT-02",
+    sku: "HD-BAB-BT-02",
     inStock: true,
     stockCount: 31,
     isNew: true,
@@ -3046,17 +3046,17 @@ const BABIES_PRODUCTS = [
 function normalizeProduct(p, sourceCategory = null) {
   let category = sourceCategory;
   if (!category) {
-    if (p.id.startsWith("zmw-m") || (p.sku && p.sku.includes("-MEN-")) || p.id === "zmw-001" || p.id === "zmw-004" || p.id === "zmw-008") {
+    if (p.id.startsWith("hd-m") || (p.sku && p.sku.includes("-MEN-")) || p.id === "hd-001" || p.id === "hd-004" || p.id === "hd-008") {
       category = "mens";
-    } else if (p.id.startsWith("zmw-w") || (p.sku && (p.sku.includes("-WOM-") || p.sku.includes("-DRS-") || p.sku.includes("-ETH-") || p.sku.includes("-SKT-"))) || p.id === "zmw-002" || p.id === "zmw-003" || p.id === "zmw-005" || p.id === "zmw-007") {
+    } else if (p.id.startsWith("hd-w") || (p.sku && (p.sku.includes("-WOM-") || p.sku.includes("-DRS-") || p.sku.includes("-ETH-") || p.sku.includes("-SKT-"))) || p.id === "hd-002" || p.id === "hd-003" || p.id === "hd-005" || p.id === "hd-007") {
       category = "women";
-    } else if (p.id.startsWith("zmw-b") || (p.sku && p.sku.includes("-KID-BY-"))) {
+    } else if (p.id.startsWith("hd-b") || (p.sku && p.sku.includes("-KID-BY-"))) {
       category = "boys";
-    } else if (p.id.startsWith("zmw-g") || (p.sku && p.sku.includes("-KID-GL-"))) {
+    } else if (p.id.startsWith("hd-g") || (p.sku && p.sku.includes("-KID-GL-"))) {
       category = "girls";
-    } else if (p.id.startsWith("zmw-bab") || (p.sku && p.sku.includes("-BAB-"))) {
+    } else if (p.id.startsWith("hd-bab") || (p.sku && p.sku.includes("-BAB-"))) {
       category = "babies";
-    } else if (p.id.startsWith("zmw-k") || (p.sku && p.sku.includes("-KID-")) || p.id === "zmw-006") {
+    } else if (p.id.startsWith("hd-k") || (p.sku && p.sku.includes("-KID-")) || p.id === "hd-006") {
       category = "kids";
     } else {
       category = "mens";
@@ -3121,7 +3121,7 @@ function normalizeProduct(p, sourceCategory = null) {
 }
 
 /**
- * Single unified product catalog for the entire ZMW store.
+ * Single unified product catalog for the entire HooDee Daddy store.
  * Merges MEN_PRODUCTS, WOMEN_PRODUCTS, BOYS_PRODUCTS, GIRLS_PRODUCTS,
  * KIDS_PRODUCTS, BABIES_PRODUCTS and PRODUCTS without duplicating any item.
  */
@@ -3148,10 +3148,10 @@ const UNIFIED_PRODUCTS = (() => {
           if (p.sku && p.sku.includes("-KID-BY-")) sourceCategory = "boys";
           else if (p.sku && p.sku.includes("-KID-GL-")) sourceCategory = "girls";
           else if (p.sku && p.sku.includes("-BAB-")) sourceCategory = "babies";
-          else if (p.id.startsWith("zmw-bab")) sourceCategory = "babies";
-          else if (p.id.startsWith("zmw-b")) sourceCategory = "boys";
-          else if (p.id.startsWith("zmw-g")) sourceCategory = "girls";
-          else if (p.id.startsWith("zmw-k")) sourceCategory = "kids";
+          else if (p.id.startsWith("hd-bab")) sourceCategory = "babies";
+          else if (p.id.startsWith("hd-b")) sourceCategory = "boys";
+          else if (p.id.startsWith("hd-g")) sourceCategory = "girls";
+          else if (p.id.startsWith("hd-k")) sourceCategory = "kids";
         }
         list.push(normalizeProduct(p, sourceCategory));
       }

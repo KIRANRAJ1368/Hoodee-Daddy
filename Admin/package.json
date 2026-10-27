@@ -1,9 +1,9 @@
 {
-  "name": "zmw-admin",
+  "name": "hoodee-daddy-admin",
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "ZMW Clothing — admin panel (React + Vite, plain CSS)",
+  "description": "HooDee Daddy — admin panel (React + Vite, plain CSS)",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

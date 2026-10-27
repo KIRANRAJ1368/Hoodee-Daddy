@@ -5,8 +5,8 @@
   break between the cream feature banner and the white testimonials.
 */
 .stats {
-  background: var(--color-grey-100);
-  color: var(--color-ink);
+  background: var(--brand-white);
+  color: var(--brand-blue);
   padding-block: var(--space-2xl);
 }
 
@@ -20,13 +20,13 @@
 .stat-value {
   font-family: var(--font-display);
   font-size: clamp(2.2rem, 3vw, 3.2rem);
-  color: var(--color-accent-deep);
+  color: var(--brand-blue);
 }
 
 .stat-label {
   margin-top: 0.6rem;
   font-size: var(--text-small);
-  color: var(--color-grey-600);
+  color: var(--brand-blue);
   max-width: 22ch;
   margin-inline: auto;
 }

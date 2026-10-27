@@ -1,7 +1,7 @@
 /* Category Stories (CrazyMonk Circular Showcase) */
 .category-stories-section {
   padding: clamp(20px, 3vw, 32px) 0;
-  background-color: var(--color-white);
+  background-color: var(--brand-white);
   border-bottom: 1px solid var(--color-grey-200);
 }
 
@@ -27,14 +27,14 @@
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--color-accent-deep);
+  color: var(--brand-blue);
 }
 
 .live-dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background-color: var(--color-accent);
+  background-color: var(--brand-white);
   box-shadow: 0 0 8px var(--color-accent);
   display: inline-block;
   animation: pulseLive 1.8s infinite;
@@ -50,7 +50,7 @@
   font-family: var(--font-display);
   font-size: clamp(1.2rem, 2vw, 1.55rem);
   font-weight: 800;
-  color: var(--color-ink);
+  color: var(--brand-blue);
   letter-spacing: -0.02em;
 }
 
@@ -62,16 +62,16 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--color-ink);
+  color: var(--brand-blue);
   padding: 6px 12px;
   border-radius: var(--radius-pill);
-  background-color: var(--color-grey-100);
+  background-color: var(--brand-white);
   transition: all var(--dur-fast) var(--ease-smooth);
 }
 
 .stories-view-all:hover {
-  background-color: var(--color-ink);
-  color: var(--color-white);
+  background-color: var(--brand-white);
+  color: var(--brand-orange);
   transform: translateX(2px);
 }
 
@@ -113,18 +113,18 @@
   height: clamp(74px, 9vw, 96px);
   border-radius: 50%;
   padding: 3px;
-  background: linear-gradient(135deg, #FFC043 0%, #FAA703 50%, #E09500 100%);
-  box-shadow: 0 4px 14px rgba(250, 167, 3, 0.22);
+  background: var(--brand-white);
+  box-shadow: 0 4px 14px rgba(9, 21, 37, 0.22);
   transition: all var(--dur-fast) var(--ease-smooth);
 }
 
 .story-item:nth-child(even) .story-ring {
-  background: linear-gradient(135deg, #FFFFFF 0%, #CBD5E1 50%, #94A3B8 100%);
-  box-shadow: 0 4px 14px rgba(148, 163, 184, 0.22);
+  background: var(--brand-white);
+  box-shadow: 0 4px 14px rgba(9, 21, 37, 0.22);
 }
 
 .story-item:hover .story-ring {
-  box-shadow: 0 6px 20px rgba(250, 167, 3, 0.45);
+  box-shadow: 0 6px 20px rgba(9, 21, 37, 0.45);
   transform: scale(1.05);
 }
 
@@ -134,7 +134,7 @@
   border-radius: 50%;
   overflow: hidden;
   border: 2px solid var(--color-white);
-  background-color: var(--color-grey-100);
+  background-color: var(--brand-white);
 }
 
 .story-avatar-img {
@@ -161,7 +161,7 @@
   text-transform: uppercase;
   white-space: nowrap;
   border-radius: var(--radius-pill);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 6px rgba(9, 21, 37, 0.2);
   z-index: 2;
   border: 1.5px solid var(--color-white);
 }
@@ -170,7 +170,7 @@
   margin-top: 12px;
   font-size: clamp(0.74rem, 1vw, 0.82rem);
   font-weight: 700;
-  color: var(--color-ink);
+  color: var(--brand-blue);
   text-align: center;
   line-height: 1.25;
   transition: color var(--dur-fast);
@@ -181,7 +181,7 @@
 }
 
 .story-item:hover .story-title {
-  color: var(--color-accent-deep);
+  color: var(--brand-orange);
 }
 
 @media (max-width: 576px) {

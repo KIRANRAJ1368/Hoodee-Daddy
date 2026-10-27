@@ -4,6 +4,7 @@ import { useShop } from "../../context/ShopContext";
 import { storefrontApi } from "../../services/storefrontApi";
 import { lookupPincodeLocation } from "../../utils/pincodeLookup";
 import { isValidEmail, isValidPhone, cleanPhoneInput, cleanPincodeInput, isValidPincode, isNonEmpty } from "../../utils/validators";
+import { readVisitorDetails } from "../../utils/visitorAccess";
 import "./CheckoutModal.css";
 
 const PAYMENT_METHODS = [
@@ -31,24 +32,15 @@ export default function CheckoutModal() {
     logoutCustomer
   } = useShop();
 
-  const getSavedVisitor = () => {
-    try {
-      if (typeof window !== "undefined") {
-        const raw = localStorage.getItem("zmw_visitor_details");
-        return raw ? JSON.parse(raw) : null;
-      }
-    } catch {}
-    return null;
-  };
-  const savedVisitor = getSavedVisitor();
+  const savedVisitor = readVisitorDetails();
 
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
+    firstName: savedVisitor?.fullName?.trim().split(/\s+/)[0] || "",
+    lastName: savedVisitor?.fullName?.trim().split(/\s+/).slice(1).join(" ") || "",
     email: "",
-    address: "",
-    city: savedVisitor?.district || "",
+    address: [savedVisitor?.address, savedVisitor?.apartment].filter(Boolean).join(", "),
+    city: savedVisitor?.city || savedVisitor?.district || "",
     state: savedVisitor?.state || "",
     postalCode: savedVisitor?.pincode || "",
     country: "India",
@@ -62,6 +54,21 @@ export default function CheckoutModal() {
   const [orderRef, setOrderRef] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+
+  useEffect(() => {
+    if (!isCheckoutOpen) return;
+    const saved = readVisitorDetails();
+    if (!saved) return;
+    setFormData(prev => ({
+      ...prev,
+      firstName: prev.firstName || saved.fullName?.trim().split(/\s+/)[0] || "",
+      lastName: prev.lastName || saved.fullName?.trim().split(/\s+/).slice(1).join(" ") || "",
+      address: prev.address || [saved.address, saved.apartment].filter(Boolean).join(", "),
+      city: prev.city || saved.city || saved.district || "",
+      state: prev.state || saved.state || "", postalCode: prev.postalCode || saved.pincode || "",
+      phone: prev.phone || saved.phone || ""
+    }));
+  }, [isCheckoutOpen]);
 
   // Auto-populate customer fields when authenticated user is present
   useEffect(() => {
@@ -195,13 +202,13 @@ export default function CheckoutModal() {
         orderNumber = order.order_number;
       } else {
         // Static fallback data
-        orderNumber = "ZMW-" + Math.floor(10000 + Math.random() * 90000);
+        orderNumber = "HD-" + Math.floor(10000 + Math.random() * 90000);
       }
 
       setOrderRef(orderNumber);
       setIsOrdered(true);
       clearCart();
-      addToast(`Order ${orderNumber} confirmed! Thank you for choosing ZMW Clothing.`, "success");
+      addToast(`Order ${orderNumber} confirmed! Thank you for choosing HooDee Daddy.`, "success");
     } catch (error) {
       setSubmitError(error.message || "We could not place your order. Please try again.");
     } finally {
@@ -285,16 +292,6 @@ export default function CheckoutModal() {
                     <span className="cab-title">Checking out as <strong>Guest</strong></span>
                     <span className="cab-sub">No account required. Fast and direct checkout.</span>
                   </div>
-                  <button
-                    type="button"
-                    className="cab-action-btn"
-                    onClick={() => {
-                      setIsCheckoutOpen(false);
-                      setAuthModalState("login");
-                    }}
-                  >
-                    Sign In
-                  </button>
                 </div>
               )}
 
@@ -527,7 +524,7 @@ export default function CheckoutModal() {
                   : `Complete Order • ${formatPrice(cartTotal)}`}
               </button>
 
-              {submitError && <p role="alert" className="auth-error" style={{ color: "#dc2626", marginTop: 10, fontSize: 13 }}>{submitError}</p>}
+              {submitError && <p role="alert" className="auth-error" style={{ color: "var(--brand-blue)", marginTop: 10, fontSize: 13 }}>{submitError}</p>}
 
               <div className="checkout-trust-icons">
                 <span>🔒 Encrypted 256-bit SSL</span>

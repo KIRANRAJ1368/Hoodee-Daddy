@@ -27,8 +27,10 @@ export default function ImageUploadField({
   async function handleFiles(files) {
     if (!files || files.length === 0) return;
     const file = files[0];
-    if (!file.type.startsWith("image/")) {
-      toast.error("Please select a valid image file (JPG, PNG, WEBP, or GIF).");
+    const isImage = (file.type && (file.type.startsWith("image/") || file.type.includes("jfif") || file.type.includes("jpeg"))) ||
+      /\.(jfif|jpe?g|png|webp|gif|svg)$/i.test(file.name || "");
+    if (!isImage) {
+      toast.error("Please select a valid image file (JPG, JPEG, JFIF, PNG, WEBP, or GIF).");
       return;
     }
 
@@ -102,7 +104,7 @@ export default function ImageUploadField({
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp,image/gif"
+        accept="image/jpeg,image/png,image/webp,image/gif,image/jfif,image/pjpeg,.jfif,.jpg,.jpeg,.png,.webp,.gif"
         style={{ display: "none" }}
         onChange={(e) => handleFiles(e.target.files)}
         disabled={isUploading}
@@ -194,7 +196,7 @@ export default function ImageUploadField({
           </div>
           <div className="upload-dropzone-text">
             <strong>{isUploading ? "Uploading image, please wait..." : "Click to select or drag & drop photo"}</strong>
-            <p>Supported formats: JPG, PNG, WEBP, GIF (Max 10MB per image)</p>
+            <p>Supported formats: JPG, JFIF, PNG, WEBP, GIF (Max 10MB per image)</p>
           </div>
           <button
             type="button"

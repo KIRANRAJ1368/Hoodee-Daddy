@@ -13,7 +13,7 @@ import {
   Sliders,
   Palette
 } from "lucide-react";
-import { productsApi, categoriesApi, subcategoriesApi, uploadApi } from "../../services/resources";
+import { productsApi, categoriesApi, uploadApi } from "../../services/resources";
 import { useToast } from "../../context/ToastContext";
 import { ApiError } from "../../services/api";
 import { slugify } from "../../utils/slugify";
@@ -22,16 +22,15 @@ import { formatINR } from "../../utils/formatPrice";
 import ImageLightboxModal from "../../components/ImageLightboxModal/ImageLightboxModal";
 import FormField from "../../components/FormField/FormField";
 import LoadingState from "../../components/LoadingState/LoadingState";
+import { getAgePresetsForCategory, isBabiesCategory, BABIES_AGE_PRESETS, KIDS_AGE_PRESETS } from "../../utils/agePresets";
 import "./ProductFormPage.css";
 
-const SIZE_PRESETS = ["Free Size", "XS", "S", "M", "L", "XL", "XXL", "3XL"];
-
-function makeColorGroup(overrides = {}) {
+function makeColorGroup(overrides = {}, defaultPreset = "2–4 Years") {
   return {
     id: `color-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     name: "",
     hex: "#181715",
-    sizes: ["Free Size"],
+    sizes: overrides.sizes || [defaultPreset],
     samePriceAndStock: true,
     shared: { salePrice: "", mrp: "", stock: "0" },
     sizeValues: {},
@@ -51,12 +50,11 @@ const BLANK_FORM = {
   slug: "",
   sku: "",
   category_id: "",
-  subcategory_id: "",
   product_type: "",
   description: "",
   color_name: "",
   color_code: "#181715",
-  size: "Free Size",
+  size: "2–4 Years",
   price: "",
   original_price: "",
   stock_count: 0,
@@ -72,17 +70,25 @@ const BLANK_FORM = {
 
 function broadcastCatalogUpdate() {
   try {
-    const channel = new BroadcastChannel("zmw_catalog_channel");
+    const channel = new BroadcastChannel("hd_catalog_channel");
     channel.postMessage({ type: "CATALOG_UPDATED", timestamp: Date.now() });
     channel.close();
   } catch {}
   try {
-    localStorage.setItem("zmw_catalog_updated_at", String(Date.now()));
+    localStorage.setItem("hd_catalog_updated_at", String(Date.now()));
   } catch {}
 }
 
+function isImageFile(file) {
+  if (!file) return false;
+  if (file.type && (file.type.startsWith("image/") || file.type.includes("jfif") || file.type.includes("jpeg"))) {
+    return true;
+  }
+  return /\.(jfif|jpe?g|png|webp|gif|svg)$/i.test(file.name || "");
+}
+
 async function compressImageFile(file, maxDimension = 1600, quality = 0.85) {
-  if (!file || !file.type.startsWith("image/") || file.size <= 300 * 1024) {
+  if (!file || !isImageFile(file) || file.size <= 300 * 1024) {
     return file;
   }
   return new Promise((resolve) => {
@@ -142,7 +148,6 @@ export default function ProductFormPage() {
 
   const [form, setForm] = useState(BLANK_FORM);
   const [categories, setCategories] = useState([]);
-  const [subcategories, setSubcategories] = useState([]);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(isEdit);
   const [isSaving, setIsSaving] = useState(false);
@@ -169,12 +174,22 @@ export default function ProductFormPage() {
   const [lightboxImg, setLightboxImg] = useState(null);
   const [slugTouched, setSlugTouched] = useState(isEdit);
 
+  // ── Load Categories for Selection ──
   useEffect(() => {
-    categoriesApi.list().then(({ data }) => setCategories(data || []));
+    categoriesApi
+      .list()
+      .then(({ data }) => {
+        setCategories(data || []);
+      })
+      .catch((err) => {
+        toast.error(err.message || "Failed to load categories");
+      });
   }, []);
 
+  // ── Load Product Details if in Edit Mode ──
   useEffect(() => {
     if (!isEdit) return;
+    setIsLoading(true);
     productsApi
       .getById(id)
       .then((res) => {
@@ -184,126 +199,104 @@ export default function ProductFormPage() {
           navigate("/products");
           return;
         }
+
         const loadedImgs = Array.isArray(p.images) ? p.images : [];
         setFrontImage(loadedImgs[0] || "");
         setBackImage(loadedImgs[1] || "");
         setThumbnailImages(loadedImgs.slice(2) || []);
 
-        if (Array.isArray(p.specifications) && p.specifications.length >= 3) {
-          setSpecifications(p.specifications);
-        }
-
-        const variantRows = Array.isArray(p.variants) ? p.variants : [];
-
-        const loadedColors = Array.isArray(p.colors) && p.colors.length
-          ? p.colors
-          : [...new Map(variantRows.filter((v) => v.color).map((v) => [v.color.toLowerCase(), { name: v.color, hex: v.colorHex }])).values()];
-        if (loadedColors.length) {
-          const baseColor = loadedColors[0];
-          const baseName = (baseColor.name || "").toLowerCase();
-          const ownVariants = variantRows.filter((variant) => (variant.color || "").toLowerCase() === baseName);
-          const sizes = ownVariants.length
-            ? [...new Set(ownVariants.map((variant) => variant.size).filter(Boolean))]
-            : (p.sizes || []).map((size) => typeof size === "string" ? size : size.label).filter(Boolean);
-          const values = Object.fromEntries(ownVariants.map((variant) => [variant.size, {
-            salePrice: String(variant.priceOverride ?? p.price ?? ""),
-            mrp: String(variant.originalPriceOverride ?? p.originalPrice ?? ""),
-            stock: String(variant.stockCount ?? 0),
-            salesCount: Number(variant.salesCount ?? variant.sales_count ?? 0),
-            createdAt: variant.createdAt || variant.created_at || null
-          }]));
-          const firstValue = values[sizes[0]] || { salePrice: String(p.price ?? ""), mrp: String(p.originalPrice ?? ""), stock: "0", salesCount: 0 };
-          const everyValueSame = sizes.every((size) => {
-            const value = values[size] || firstValue;
-            return value.salePrice === firstValue.salePrice && value.mrp === firstValue.mrp && value.stock === firstValue.stock;
-          });
-          const baseGroup = makeColorGroup({
-            id: "base-color",
-            name: baseColor.name || "",
-            hex: baseColor.hex || baseColor.hexCode || "#181715",
-            sizes: sizes.length ? sizes : ["Free Size"],
-            samePriceAndStock: everyValueSame,
-            shared: { ...firstValue },
-            sizeValues: values
-          });
-          setColorGroups([baseGroup]);
-          setActiveColorId(baseGroup.id);
-          const otherNames = new Set(loadedColors.slice(1).map((color) => (color.name || "").toLowerCase()));
-          setAdditionalColorDefinitions(loadedColors.slice(1).map((color) => ({ name: color.name, hex: color.hex || color.hexCode || "#181715" })));
-          setAdditionalVariants(variantRows.filter((variant) => otherNames.has((variant.color || "").toLowerCase())));
-        }
-
-        const firstColorName = p.colors?.[0]?.name || variantRows[0]?.color || "";
-        const firstColorHex = p.colors?.[0]?.hex || p.colors?.[0]?.hexCode || variantRows[0]?.colorHex || "#181715";
-
-        let initialSize = "Free Size";
-        if (Array.isArray(p.sizes) && p.sizes.length > 0) {
-          initialSize = p.sizes
-            .map((s) => (typeof s === "string" ? s : s.label || s.size))
-            .filter(Boolean)
-            .join(", ");
-        } else if (variantRows.length > 0) {
-          const uniqSizes = [...new Set(variantRows.map((v) => v.size).filter(Boolean))];
-          if (uniqSizes.length > 0) initialSize = uniqSizes.join(", ");
-        }
-
         setForm({
-          name: p.name,
-          slug: p.slug,
-          sku: p.sku,
-          category_id: p.categoryId ?? "",
-          subcategory_id: p.subcategoryId ?? "",
-          product_type: p.productType || "",
+          name: p.name || "",
+          slug: p.slug || "",
+          sku: p.sku || "",
+          category_id: p.categoryId ?? p.category_id ?? "",
+          product_type: p.productType || p.product_type || "",
           description: p.description || "",
-          price: p.price,
-          original_price: p.originalPrice ?? "",
-          stock_count: p.stockCount ?? 0,
-          in_stock: p.inStock ?? true,
-          is_best_seller: p.isBestSeller ?? false,
-          is_new_arrival: p.isNewArrival ?? false,
-          is_sale: p.isSale ?? false,
-          badge_label: p.badge || "",
-          badge_type: p.badgeType || "",
-          is_active: p.isActive ?? true,
-          images: loadedImgs,
-          color_name: firstColorName,
-          color_code: firstColorHex,
-          size: initialSize || "Free Size",
-          _categorySlug: p.category,
-          _subcategoryName: p.subCategory
+          price: p.price !== undefined && p.price !== null ? p.price : "",
+          original_price: p.originalPrice ?? p.original_price ?? "",
+          stock_count: p.stockCount ?? p.stock_count ?? 0,
+          in_stock: p.inStock ?? p.in_stock ?? true,
+          is_best_seller: p.isBestSeller ?? p.is_best_seller ?? false,
+          is_new_arrival: p.isNewArrival ?? p.is_new_arrival ?? false,
+          is_sale: p.isSale ?? p.is_sale ?? false,
+          badge_label: p.badge || p.badge_label || "",
+          badge_type: p.badgeType || p.badge_type || "",
+          meta_title: p.metaTitle || p.meta_title || "",
+          meta_description: p.metaDescription || p.meta_description || "",
+          meta_keywords: p.metaKeywords || p.meta_keywords || "",
+          canonical_url: p.canonicalUrl || p.canonical_url || "",
+          _categorySlug: p.category || ""
         });
+
+        if (Array.isArray(p.specifications) && p.specifications.length > 0) {
+          setSpecifications(
+            p.specifications.map((s) => ({
+              title: s.title || "",
+              value: s.value || ""
+            }))
+          );
+        }
+
+        const matchedCat = categories.find((c) => String(c.id) === String(p.category_id || p.categoryId));
+        const defaultPreset = getAgePresetsForCategory(matchedCat)[0];
+        const rawSizes = Array.isArray(p.sizes) && p.sizes.length > 0
+          ? p.sizes.map((s) => typeof s === "object" && s !== null ? (s.label || s.size || s.name) : String(s)).filter(Boolean)
+          : [];
+        const primarySizes = rawSizes.length > 0 ? rawSizes : [defaultPreset];
+
+        if (Array.isArray(p.colors) && p.colors.length > 0) {
+          const firstColor = p.colors[0];
+          setColorGroups([
+            makeColorGroup({
+              name: firstColor.name || "",
+              hex: firstColor.hex || firstColor.hex_code || "#181715",
+              sizes: primarySizes,
+              shared: {
+                salePrice: String(p.price || ""),
+                mrp: String(p.originalPrice || p.original_price || ""),
+                stock: String(p.stockCount || p.stock_count || "0")
+              }
+            }, defaultPreset)
+          ]);
+          setAdditionalColorDefinitions(
+            p.colors.slice(1).map((c) => ({ name: c.name, hex: c.hex || c.hex_code }))
+          );
+        } else {
+          setColorGroups([
+            makeColorGroup({
+              name: "Default",
+              hex: "#181715",
+              sizes: primarySizes,
+              shared: {
+                salePrice: String(p.price || ""),
+                mrp: String(p.originalPrice || p.original_price || ""),
+                stock: String(p.stockCount || p.stock_count || "0")
+              }
+            }, defaultPreset)
+          ]);
+        }
+
+        if (Array.isArray(p.variants) && p.variants.length > 0) {
+          setAdditionalVariants(p.variants);
+        }
       })
       .catch((err) => {
-        toast.error(err.message || "Product not found");
+        toast.error(err.message || "Failed to load product details");
         navigate("/products");
       })
-      .finally(() => setIsLoading(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, [id, isEdit]);
 
-  // Resolve category slug -> id once categories are loaded (edit mode only).
+  // ── Sync Category Slug to ID if Needed ──
   useEffect(() => {
     if (!form._categorySlug || categories.length === 0) return;
     const match = categories.find((c) => c.slug === form._categorySlug);
-    if (match) setForm((f) => ({ ...f, category_id: match.id }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form._categorySlug, categories]);
-
-  useEffect(() => {
-    if (!form.category_id) {
-      setSubcategories([]);
-      return;
+    if (match) {
+      setForm((f) => ({ ...f, category_id: match.id, _categorySlug: undefined }));
     }
-    const category = categories.find((c) => c.id === Number(form.category_id));
-    subcategoriesApi.list({ category: category?.slug }).then(({ data }) => {
-      setSubcategories(data || []);
-      if (form._subcategoryName) {
-        const match = data?.find((s) => s.name === form._subcategoryName);
-        if (match) setForm((f) => ({ ...f, subcategory_id: match.id, _subcategoryName: undefined }));
-      }
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form.category_id, categories]);
+  }, [form._categorySlug, categories]);
 
 
   function update(field, value) {
@@ -327,9 +320,9 @@ export default function ProductFormPage() {
   // ── Images Management (Dual Primary + Up to 10 Thumbnails) ──
   async function handleFrontImageUpload(fileList) {
     if (!fileList || fileList.length === 0) return;
-    const file = Array.from(fileList).find((f) => f.type.startsWith("image/"));
+    const file = Array.from(fileList).find(isImageFile);
     if (!file) {
-      toast.error("Please select a valid image file (JPG, PNG, or WEBP).");
+      toast.error("Please select a valid image file (JPG, JPEG, JFIF, PNG, or WEBP).");
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
@@ -370,9 +363,9 @@ export default function ProductFormPage() {
 
   async function handleBackImageUpload(fileList) {
     if (!fileList || fileList.length === 0) return;
-    const file = Array.from(fileList).find((f) => f.type.startsWith("image/"));
+    const file = Array.from(fileList).find(isImageFile);
     if (!file) {
-      toast.error("Please select a valid image file (JPG, PNG, or WEBP).");
+      toast.error("Please select a valid image file (JPG, JPEG, JFIF, PNG, or WEBP).");
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
@@ -407,9 +400,9 @@ export default function ProductFormPage() {
 
   async function handleThumbnailUpload(fileList) {
     if (!fileList || fileList.length === 0) return;
-    const files = Array.from(fileList).filter((f) => f.type.startsWith("image/"));
+    const files = Array.from(fileList).filter(isImageFile);
     if (files.length === 0) {
-      toast.error("Please select valid image files (JPG, PNG, or WEBP).");
+      toast.error("Please select valid image files (JPG, JPEG, JFIF, PNG, or WEBP).");
       return;
     }
     const oversized = files.filter((f) => f.size > 10 * 1024 * 1024);
@@ -546,6 +539,47 @@ export default function ProductFormPage() {
   }, [additionalVariants, form.original_price, form.price, variantPreviewRows]);
   const allVariantPreviewRows = [...variantPreviewRows, ...additionalVariantPreviewRows];
 
+  const selectedCategory = useMemo(() => {
+    return categories.find((c) => String(c.id) === String(form.category_id)) || null;
+  }, [categories, form.category_id]);
+
+  const isBabies = useMemo(() => {
+    return isBabiesCategory(selectedCategory);
+  }, [selectedCategory]);
+
+  const currentAgePresets = useMemo(() => {
+    return getAgePresetsForCategory(selectedCategory);
+  }, [selectedCategory]);
+
+  const handleCategoryChange = (e) => {
+    const nextCatId = e.target.value;
+    update("category_id", nextCatId);
+
+    const nextCat = categories.find((c) => String(c.id) === String(nextCatId));
+    const nextPresets = getAgePresetsForCategory(nextCat);
+
+    if (!isEdit) {
+      setColorGroups((prevGroups) =>
+        prevGroups.map((group) => {
+          const onlyHasStandardPresets = group.sizes.every((s) =>
+            ["Free Size", "XS", "S", "M", "L", "XL", "XXL", "3XL", ...BABIES_AGE_PRESETS, ...KIDS_AGE_PRESETS].includes(s)
+          );
+          if (group.sizes.length === 0 || onlyHasStandardPresets) {
+            const firstPreset = nextPresets[0];
+            return {
+              ...group,
+              sizes: [firstPreset],
+              sizeValues: {
+                [firstPreset]: group.sizeValues[group.sizes[0]] || group.shared
+              }
+            };
+          }
+          return group;
+        })
+      );
+    }
+  };
+
   function patchColorGroup(colorId, patch) {
     setColorGroups((previous) => previous.map((group) => group.id === colorId ? { ...group, ...patch } : group));
   }
@@ -553,11 +587,11 @@ export default function ProductFormPage() {
   function toggleGroupSize(colorId, size) {
     setColorGroups((previous) => previous.map((group) => {
       if (group.id !== colorId) return group;
-      let sizes = group.sizes.includes(size) ? group.sizes.filter((item) => item !== size) : [...group.sizes, size];
-      if (size === "Free Size" && sizes.includes(size)) sizes = [size];
-      else if (size !== "Free Size") sizes = sizes.filter((item) => item !== "Free Size");
+      const sizes = group.sizes.includes(size) ? group.sizes.filter((item) => item !== size) : [...group.sizes, size];
       const sizeValues = { ...group.sizeValues };
-      if (!group.sizes.includes(size)) sizeValues[size] = { ...group.shared, salesCount: 0, createdAt: null };
+      if (!group.sizes.includes(size)) {
+        sizeValues[size] = { ...group.shared, salesCount: 0, createdAt: null };
+      }
       return { ...group, sizes, sizeValues };
     }));
   }
@@ -607,7 +641,7 @@ export default function ProductFormPage() {
 
     const defaultColor = colorGroups[0];
     if (!defaultColor?.name.trim()) validationErrors.variants = "Enter the default product color name.";
-    if (!defaultColor?.sizes.length) validationErrors.variants = "Select at least one size for the default product color.";
+    if (!defaultColor?.sizes.length) validationErrors.variants = "Select at least one age option for the default product color.";
     const colorsForSave = [
       { name: defaultColor?.name || "", hex: defaultColor?.hex || "#181715" },
       ...additionalColorDefinitions.map((color) => ({ name: color.name || "", hex: color.hex || "#181715" }))
@@ -653,7 +687,6 @@ export default function ProductFormPage() {
       const payload = {
         ...form,
         category_id: Number(form.category_id),
-        subcategory_id: form.subcategory_id ? Number(form.subcategory_id) : null,
         price: firstVariant.salePrice,
         original_price: firstVariant.mrp,
         stock_count: totalStock,
@@ -665,7 +698,6 @@ export default function ProductFormPage() {
         sizes: [...new Set([...defaultColor.sizes, ...additionalVariantPreviewRows.map((row) => row.size)])]
       };
       delete payload._categorySlug;
-      delete payload._subcategoryName;
       delete payload.color_name;
       delete payload.color_code;
       delete payload.size;
@@ -686,7 +718,7 @@ export default function ProductFormPage() {
         created_at: variant.createdAt || variant.created_at || undefined,
         color: variant.color,
         colorHex: variant.colorHex || "#181715",
-        size: variant.size || "Free Size",
+        size: variant.size || (defaultColor.sizes[0] || "2–4 Years"),
         stock_count: Number(variant.stockCount ?? 0),
         sales_count: Number(variant.salesCount ?? variant.sales_count ?? 0),
         price_override: variant.priceOverride ?? null,
@@ -736,7 +768,7 @@ export default function ProductFormPage() {
             <p className="page-subtitle">
               {isEdit
                 ? `SKU: ${form.sku} • Adjust pricing, photos, and product details`
-                : "Create and publish a premium apparel piece to the ZMW storefront"}
+                : "Create and publish a premium apparel piece to the HooDee Daddy storefront"}
             </p>
           </div>
           {isEdit && (
@@ -797,39 +829,21 @@ export default function ProductFormPage() {
             </FormField>
           </div>
 
-          <div className="form-grid">
-            <FormField label="Category *" htmlFor="p-category" error={errors.category_id}>
-              <select
-                id="p-category"
-                value={form.category_id}
-                onChange={(e) => update("category_id", e.target.value)}
-                required
-              >
-                <option value="">Select a category...</option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-            </FormField>
-
-            <FormField label="Subcategory" htmlFor="p-subcategory" hint="Item classification within category">
-              <select
-                id="p-subcategory"
-                value={form.subcategory_id}
-                onChange={(e) => update("subcategory_id", e.target.value)}
-                disabled={subcategories.length === 0}
-              >
-                <option value="">All / None</option>
-                {subcategories.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name}
-                  </option>
-                ))}
-              </select>
-            </FormField>
-          </div>
+          <FormField label="Category *" htmlFor="p-category" error={errors.category_id} hint="Assign this product directly to a category">
+            <select
+              id="p-category"
+              value={form.category_id}
+              onChange={handleCategoryChange}
+              required
+            >
+              <option value="">Select a category...</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </FormField>
 
           <FormField label="Product Description" htmlFor="p-desc" hint="Fabric composition, fit, GSM weight, washing care instructions">
             <textarea
@@ -847,8 +861,8 @@ export default function ProductFormPage() {
           <div className="section-card-heading">
             <div className="section-icon-wrap"><Palette size={18} /></div>
             <div>
-              <h3 className="section-title">Default Color &amp; Sizes</h3>
-              <p className="section-sub">Set up the primary color here. Front, back, and gallery images above belong to the whole product.</p>
+              <h3 className="section-title">Default Color &amp; Age Options</h3>
+              <p className="section-sub">Set up the primary color and age ranges here. Front, back, and gallery images above belong to the whole product.</p>
             </div>
           </div>
 
@@ -866,26 +880,51 @@ export default function ProductFormPage() {
             </div>
 
             <div className="form-field-group product-size-picker">
-              <label className="field-label-custom">Available sizes * <span className="field-hint-custom">Choose every size stocked in this default color.</span></label>
+              <div className="size-picker-header-row">
+                <label className="field-label-custom">
+                  Available Age Options *
+                  <span className="field-hint-custom">
+                    {isBabies
+                      ? "Choose baby age sizes (Months) for this product:"
+                      : "Choose kids age sizes (Years) for this product:"}
+                  </span>
+                </label>
+                {selectedCategory && (
+                  <span className="category-age-badge">
+                    Category: <strong>{selectedCategory.name}</strong> ({isBabies ? "Babies" : "Boys / Girls / Kids"})
+                  </span>
+                )}
+              </div>
               <div className="size-presets-bar">
-                {SIZE_PRESETS.map((size) => (
+                {currentAgePresets.map((size) => (
                   <label key={size} className={`size-pill-btn ${activeColor.sizes.includes(size) ? "is-active" : ""}`}>
                     <input type="checkbox" checked={activeColor.sizes.includes(size)} onChange={() => toggleGroupSize(activeColor.id, size)} /> {size}
                   </label>
                 ))}
               </div>
               <div className="product-custom-size-row">
-                <input value={customSizeInput} placeholder="Custom size, e.g. 32 or Oversized M" onChange={(e) => setCustomSizeInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustomSize(); } }} />
-                <button type="button" className="btn btn-secondary" onClick={addCustomSize}><Plus size={15} /> Add size</button>
+                <input
+                  value={customSizeInput}
+                  placeholder={isBabies ? "Custom age option (e.g. 12–18 Months)" : "Custom age option (e.g. 14–16 Years)"}
+                  onChange={(e) => setCustomSizeInput(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustomSize(); } }}
+                />
+                <button type="button" className="btn btn-secondary" onClick={addCustomSize}><Plus size={15} /> Add age option</button>
               </div>
-              {!!activeColor.sizes.length && <div className="product-selected-sizes">
-                {activeColor.sizes.map((size) => <button type="button" key={size} onClick={() => toggleGroupSize(activeColor.id, size)}>{size} <span>×</span></button>)}
-              </div>}
+              {!!activeColor.sizes.length && (
+                <div className="product-selected-sizes">
+                  {activeColor.sizes.map((size) => (
+                    <button type="button" key={size} onClick={() => toggleGroupSize(activeColor.id, size)} title="Click to remove">
+                      {size} <span>×</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             <label className="product-same-variant-check">
               <input type="checkbox" checked={activeColor.samePriceAndStock} onChange={() => toggleSamePriceAndStock(activeColor)} />
-              <span><strong>All selected sizes have the same MRP / Sale / Stock</strong><small>Uncheck to enter separate values for each size. Values copy across when you switch modes.</small></span>
+              <span><strong>All selected age options have the same MRP / Sale / Stock</strong><small>Uncheck to enter separate values for each age option. Values copy across when you switch modes.</small></span>
             </label>
 
             {activeColor.samePriceAndStock ? (
@@ -912,7 +951,7 @@ export default function ProductFormPage() {
           <div className="product-variant-preview-wrap">
             <div className="product-variant-preview-heading"><h4>Variant preview</h4><span>{allVariantPreviewRows.length} variants · {allVariantPreviewRows.reduce((sum, row) => sum + (Number.isFinite(row.stock) ? row.stock : 0), 0)} total stock</span></div>
             <div className="table-responsive"><table className="product-variant-preview-table">
-              <thead><tr><th>Color</th><th>Size</th><th>MRP</th><th>Sale price</th><th>Discount</th><th>Stock</th></tr></thead>
+              <thead><tr><th>Color</th><th>Age / Size</th><th>MRP</th><th>Sale price</th><th>Discount</th><th>Stock</th></tr></thead>
               <tbody>{allVariantPreviewRows.map((row, index) => {
                 const discount = row.mrp > row.salePrice ? Math.round(((row.mrp - row.salePrice) / row.mrp) * 100) : 0;
                 return <tr key={`${row.groupId}-${row.size}-${index}`}><td><span className="preview-color-dot" style={{ backgroundColor: row.colorHex }} />{row.color || "Color name required"}</td><td>{row.size}</td><td>{Number.isFinite(row.mrp) && row.mrp > 0 ? formatINR(row.mrp) : "—"}</td><td>{Number.isFinite(row.salePrice) && row.salePrice > 0 ? formatINR(row.salePrice) : "—"}</td><td>{discount}%</td><td>{Number.isFinite(row.stock) ? row.stock : "—"}</td></tr>;
@@ -998,7 +1037,7 @@ export default function ProductFormPage() {
               onChange={(e) => update("is_active", e.target.checked)}
             />
             <label htmlFor="p-active">
-              <strong>Active Product (Live on ZMW Storefront)</strong>
+              <strong>Active Product (Live on HooDee Daddy Storefront)</strong>
             </label>
           </div>
 
@@ -1106,7 +1145,7 @@ export default function ProductFormPage() {
                   <strong className="main-upload-title">
                     {isUploadingFront ? "Uploading Front View..." : "Upload Front View Image"}
                   </strong>
-                  <p className="main-upload-sub">PNG, JPG or WEBP up to 10MB</p>
+                  <p className="main-upload-sub">PNG, JPG, JFIF or WEBP up to 10MB</p>
                   <span className="main-compulsory-tag">Required — Primary Cover</span>
                 </div>
               )}
@@ -1114,7 +1153,7 @@ export default function ProductFormPage() {
               <input
                 ref={frontFileInputRef}
                 type="file"
-                accept="image/jpeg,image/png,image/webp,image/gif"
+                accept="image/jpeg,image/png,image/webp,image/gif,image/jfif,image/pjpeg,.jfif,.jpg,.jpeg,.png,.webp"
                 hidden
                 onChange={(e) => handleFrontImageUpload(e.target.files)}
                 disabled={isUploadingFront}
@@ -1203,7 +1242,7 @@ export default function ProductFormPage() {
                   <strong className="main-upload-title">
                     {isUploadingBack ? "Uploading Back View..." : "Upload Back View Image"}
                   </strong>
-                  <p className="main-upload-sub">PNG, JPG or WEBP up to 10MB</p>
+                  <p className="main-upload-sub">PNG, JPG, JFIF or WEBP up to 10MB</p>
                   <span className="main-compulsory-tag" style={{ background: "rgba(107,114,128,0.12)", color: "var(--color-grey-600)" }}>Optional — Secondary Angle</span>
                 </div>
               )}
@@ -1211,7 +1250,7 @@ export default function ProductFormPage() {
               <input
                 ref={backFileInputRef}
                 type="file"
-                accept="image/jpeg,image/png,image/webp,image/gif"
+                accept="image/jpeg,image/png,image/webp,image/gif,image/jfif,image/pjpeg,.jfif,.jpg,.jpeg,.png,.webp"
                 hidden
                 onChange={(e) => handleBackImageUpload(e.target.files)}
                 disabled={isUploadingBack}
@@ -1257,7 +1296,7 @@ export default function ProductFormPage() {
             <input
               ref={thumbnailFileInputRef}
               type="file"
-              accept="image/jpeg,image/png,image/webp,image/gif"
+              accept="image/jpeg,image/png,image/webp,image/gif,image/jfif,image/pjpeg,.jfif,.jpg,.jpeg,.png,.webp"
               multiple
               hidden
               onChange={(e) => handleThumbnailUpload(e.target.files)}

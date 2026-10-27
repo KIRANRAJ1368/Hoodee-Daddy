@@ -96,6 +96,10 @@ export default function QuickViewModal() {
     return set;
   }, [quickViewProduct, selectedColor, colorSizes]);
 
+  const hasAgeSizes = useMemo(() => {
+    return colorSizes.some((s) => /month|year/i.test(s));
+  }, [colorSizes]);
+
   const currentVariant = useMemo(() => {
     if (!quickViewProduct?.variants || quickViewProduct.variants.length === 0) return null;
     const exact = quickViewProduct.variants.find((v) => {
@@ -243,7 +247,7 @@ export default function QuickViewModal() {
 
           {/* Product Details & Variant Selectors */}
           <div className="quickview-details">
-            <span className="quickview-category">{quickViewProduct.subCategory || quickViewProduct.category}</span>
+            <span className="quickview-category">{quickViewProduct.category}</span>
             <h2 className="quickview-title">{quickViewProduct.name}</h2>
 
             {/* Rating & SKU */}
@@ -313,14 +317,14 @@ export default function QuickViewModal() {
               <div className="variant-block">
                 <div className="size-header">
                   <span className="variant-label">
-                    Size: <strong>{selectedSize}</strong>
+                    {hasAgeSizes ? "Select Age:" : "Size:"} <strong>{selectedSize}</strong>
                   </span>
                   <button
                     className="size-guide-btn"
                     type="button"
                     onClick={() => setIsSizeGuideOpen(true)}
                   >
-                    Size Guide
+                    {hasAgeSizes ? "Age & Size Guide" : "Size Guide"}
                   </button>
                 </div>
                 <div className="size-pill-list">

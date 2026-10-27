@@ -4,7 +4,7 @@
  * or when an inactive/non-existent category URL is accessed.
  */
 
-export const CATEGORY_HISTORY_KEY = "zmw_categories_order_history";
+export const CATEGORY_HISTORY_KEY = "hd_categories_order_history";
 
 export function isCategoryMatch(catSlug, targetSlug) {
   if (!catSlug || !targetSlug) return false;

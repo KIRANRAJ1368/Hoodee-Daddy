@@ -433,7 +433,7 @@ export default function Dashboard() {
                 {Number(summary?.categoryCount ?? 0).toLocaleString("en-IN")}
               </p>
               <p className="dash-scard-sub">
-                {summary?.subcategoryCount ?? 0} subcategories
+                {summary?.activeCategoryCount ?? 0} active on store
               </p>
             </div>
             <div className="dash-scard-arrow">
@@ -562,9 +562,7 @@ export default function Dashboard() {
                             <Tag size={10} />
                             {prod.category || "—"}
                           </span>
-                          {prod.subCategory && (
-                            <span className="dash-table-subcat">{prod.subCategory}</span>
-                          )}
+
                         </div>
                       </td>
                       <td>

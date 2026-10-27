@@ -4,11 +4,12 @@ import { useShop } from "../context/ShopContext";
 import { storefrontApi } from "../services/storefrontApi";
 import { lookupPincodeLocation } from "../utils/pincodeLookup";
 import { imageUrl } from "../utils/imageUrl";
-import { ZMW_LOGO_DATA_URI } from "../utils/zmwLogo";
+import { ZMW_LOGO_DATA_URI, HOODEE_DADDY_LOGO_DATA_URI } from "../utils/zmwLogo";
+import { readVisitorDetails, saveVisitorDetails } from "../utils/visitorAccess";
 import "./Checkout.css";
 
 /* ─────────────────────────────────────────────
-   Supported Payment Methods (ZMW Supported)
+   Supported Payment Methods (HooDee Daddy Supported)
 ───────────────────────────────────────────── */
 const PAYMENT_METHODS = [
   {
@@ -87,38 +88,21 @@ export default function Checkout() {
   const checkoutSubtotal = checkoutItems.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 1), 0);
   const checkoutCount = checkoutItems.reduce((sum, item) => sum + Number(item.quantity || 1), 0);
 
-  useEffect(() => {
-    if (isCustomerAuthenticated) return;
-    setCheckoutIntent((location.state?.buyNow || checkoutIntent === "buy-now") ? "buy-now" : "cart");
-    setPendingCheckout(true);
-    setAuthModalState("register");
-    navigate(-1, { replace: true });
-  }, [isCustomerAuthenticated, location.state?.buyNow, checkoutIntent, navigate, setAuthModalState, setCheckoutIntent, setPendingCheckout]);
 
   // Progress Step: 1 = Contact, 2 = Delivery, 3 = Payment
-  const [currentStep, setCurrentStep] = useState(2);
+  const [currentStep, setCurrentStep] = useState(1);
 
-  // Auto-fetch saved customer details from first-visit submission (Requirement 2)
-  const getSavedVisitor = () => {
-    try {
-      if (typeof window !== "undefined") {
-        const raw = localStorage.getItem("zmw_visitor_details");
-        return raw ? JSON.parse(raw) : null;
-      }
-    } catch {}
-    return null;
-  };
-  const savedVisitor = getSavedVisitor();
+  const savedVisitor = readVisitorDetails();
 
   // Form Fields
   const [formData, setFormData] = useState({
     email: "",
     phone: savedVisitor?.phone || "",
     keepUpdated: true,
-    fullName: "",
-    address: "",
-    apartment: "",
-    city: savedVisitor?.district || "",
+    fullName: savedVisitor?.fullName || "",
+    address: savedVisitor?.address || "",
+    apartment: savedVisitor?.apartment || "",
+    city: savedVisitor?.city || savedVisitor?.district || "",
     state: savedVisitor?.state || "",
     postalCode: initialPostalCode || savedVisitor?.pincode || "",
     country: "India",
@@ -147,12 +131,22 @@ export default function Checkout() {
     return () => { active = false; };
   }, []);
 
+  // Pre-fill first-time visitor welcome coupon if unlocked
+  useEffect(() => {
+    try {
+      const savedFirstCoupon = localStorage.getItem("hoodee_first_order_coupon");
+      if (savedFirstCoupon && !couponInput && !appliedCoupon) {
+        setCouponInput(savedFirstCoupon);
+      }
+    } catch {}
+  }, [appliedCoupon]);
+
   // Auto-populate customer fields if signed in
   useEffect(() => {
     if (customerUser) {
       setFormData((prev) => ({
         ...prev,
-        fullName: customerUser.name || prev.fullName,
+        fullName: prev.fullName || customerUser.name,
         email: customerUser.email || prev.email,
         phone: customerUser.phone ? customerUser.phone.replace(/\D/g, "").slice(-10) : prev.phone
       }));
@@ -191,7 +185,7 @@ export default function Checkout() {
           setPostOffices(result.postOffices || []);
           setFormData((prev) =>
             prev.postalCode.replace(/\D/g, "") === pin
-              ? { ...prev, city: result.district, state: result.state }
+              ? { ...prev, city: prev.city || result.district, state: prev.state || result.state }
               : prev
           );
           if (stepErrors.postalCode) {
@@ -407,6 +401,12 @@ export default function Checkout() {
     }
 
     setStepErrors({});
+    const visitor = readVisitorDetails();
+    if (visitor) saveVisitorDetails({
+      ...visitor, fullName: formData.fullName.trim(), address: formData.address.trim(),
+      apartment: formData.apartment.trim(), city: formData.city.trim(), state: formData.state.trim(),
+      pincode: formData.postalCode, addressReminder: { version: 3, count: 1, status: "dismissed", nextAt: null }
+    });
     setCurrentStep(3);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -538,7 +538,7 @@ export default function Checkout() {
           orderNumber = order?.order_number || order?.orderNumber;
         } else {
           // Fallback reference for static catalog items
-          orderNumber = "ZMW-" + Math.floor(10000 + Math.random() * 90000);
+          orderNumber = "HD-" + Math.floor(10000 + Math.random() * 90000);
         }
 
         const receipt = {
@@ -609,9 +609,9 @@ export default function Checkout() {
         key: razorpayKey,
         amount: rzpData.amount, // in paise calculated securely by backend
         currency: rzpData.currency || "INR",
-        name: "ZMW Clothing",
+        name: "HooDee Daddy",
         description: `Order Checkout (${activeCount} ${activeCount === 1 ? "item" : "items"})`,
-        image: ZMW_LOGO_DATA_URI || (typeof window !== "undefined" ? `${window.location.origin}/images/zmw-logo.png` : ""),
+        image: (HOODEE_DADDY_LOGO_DATA_URI || ZMW_LOGO_DATA_URI || (typeof window !== "undefined" ? `${window.location.origin}/images/hoodee-daddy-logo.png` : "")),
         order_id: rzpData.razorpay_order_id,
         prefill: {
           name: formData.fullName.trim(),
@@ -619,7 +619,7 @@ export default function Checkout() {
           contact: (formData.phone || "").replace(/\D/g, "").slice(-10) || formData.phone.trim()
         },
         theme: {
-          color: "#FAA703" // ZMW signature gold accent
+          color: "#091525" // Match the supplied logo navy.
         },
         modal: {
           ondismiss: () => {
@@ -721,9 +721,6 @@ export default function Checkout() {
             <div className="cko-success-badge">✓</div>
             <span className="cko-kicker">SECURE ORDER CONFIRMED</span>
             <h1 className="cko-success-title">Thank You For Your Order!</h1>
-            <p className="cko-success-subtitle">
-              Your order <strong className="cko-highlight">{orderReceipt.orderNumber}</strong> has been received and routed to our central dispatch hub.
-            </p>
 
             {/* Quick Summary Strip */}
             <div className="cko-order-quick-strip">
@@ -858,11 +855,46 @@ export default function Checkout() {
               >
                 TRACK ORDER 🔍
               </button>
-              {customerUser && (
+              {customerUser ? (
                 <Link to="/my-orders" className="cko-btn-outline">
                   VIEW MY ORDERS 📦
                 </Link>
+              ) : (
+                <button
+                  type="button"
+                  className="cko-btn-outline"
+                  onClick={() => setAuthModalState("login")}
+                >
+                  VIEW MY ORDERS 📦
+                </button>
               )}
+            </div>
+
+            {/* Product Return & Unboxing Video Warning Message */}
+            <div className="cko-return-warning" role="alert" aria-live="polite">
+              <div className="cko-warning-header">
+                <svg
+                  className="cko-warning-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                  <line x1="12" y1="9" x2="12" y2="13" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+                <strong className="cko-warning-heading">IMPORTANT RETURN POLICY NOTICE</strong>
+              </div>
+              <p className="cko-warning-text">
+                Please ensure you <strong>record a clear unboxing video while opening your parcel</strong>. An unboxing video is mandatory and may be required for any <strong>product return or damage claims</strong>.
+              </p>
+              <p className="cko-warning-subtext">
+                Note: Return or damage claims cannot be processed without a valid parcel unboxing video.
+              </p>
             </div>
           </div>
         </div>
@@ -995,15 +1027,8 @@ export default function Checkout() {
                       <div className="cko-ab-icon">⚡</div>
                       <div className="cko-ab-text">
                         <span className="cko-ab-name">Checking out as <strong>Guest</strong></span>
-                        <span className="cko-ab-sub">Fast and direct checkout. Have an account?</span>
+                        <span className="cko-ab-sub">Fast, direct & secure checkout</span>
                       </div>
-                      <button
-                        type="button"
-                        className="cko-ab-btn"
-                        onClick={() => setAuthModalState("login")}
-                      >
-                        Sign In
-                      </button>
                     </div>
                   )}
 
@@ -1251,10 +1276,10 @@ export default function Checkout() {
                     {shippingRateData?.is_serviceable && shippingRateData?.available_couriers?.length > 0 ? (
                       <div className="cko-couriers-group" style={{ margin: "16px 0" }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                          <label style={{ fontSize: "0.82rem", fontWeight: 700, color: "#1e293b", textTransform: "uppercase", letterSpacing: "0.4px" }}>
+                          <label style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--brand-blue)", textTransform: "uppercase", letterSpacing: "0.4px" }}>
                             Select Courier Partner (Shiprocket)
                           </label>
-                          <span style={{ fontSize: "0.75rem", color: "#64748b" }}>
+                          <span style={{ fontSize: "0.75rem", color: "var(--brand-blue)" }}>
                             Delivery to PIN {shippingRateData.delivery_pincode}
                           </span>
                         </div>
@@ -1276,31 +1301,31 @@ export default function Checkout() {
                                   alignItems: "center",
                                   padding: "12px 16px",
                                   borderRadius: "8px",
-                                  border: isSelected ? "2px solid #faa703" : "1.5px solid #e2e8f0",
-                                  background: isSelected ? "#fffdf5" : "#fff",
+                                  border: isSelected ? "2px solid var(--brand-border)" : "1.5px solid var(--brand-border)",
+                                  background: isSelected ? "var(--brand-white)" : "var(--brand-white)",
                                   cursor: "pointer",
                                   transition: "all 0.15s ease-in-out"
                                 }}
                               >
                                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                                  <span style={{ color: isSelected ? "#faa703" : "#cbd5e1", fontSize: "1.1rem" }}>
+                                  <span style={{ color: isSelected ? "var(--brand-blue)" : "var(--brand-blue)", fontSize: "1.1rem" }}>
                                     {isSelected ? "●" : "○"}
                                   </span>
                                   <div>
                                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                      <strong style={{ fontSize: "0.92rem", color: "#0f172a" }}>{courier.courier_name}</strong>
+                                      <strong style={{ fontSize: "0.92rem", color: "var(--brand-blue)" }}>{courier.courier_name}</strong>
                                       {courier.recommended && (
-                                        <span style={{ fontSize: "0.68rem", fontWeight: 700, padding: "2px 6px", borderRadius: 4, background: "#ecfdf5", color: "#059669", border: "1px solid #a7f3d0" }}>
+                                        <span style={{ fontSize: "0.68rem", fontWeight: 700, padding: "2px 6px", borderRadius: 4, background: "var(--brand-white)", color: "var(--brand-blue)", border: "1px solid var(--brand-border)" }}>
                                           RECOMMENDED
                                         </span>
                                       )}
                                     </div>
-                                    <span style={{ fontSize: "0.78rem", color: "#64748b" }}>
+                                    <span style={{ fontSize: "0.78rem", color: "var(--brand-blue)" }}>
                                       Est. Delivery: {courier.estimated_delivery || "3–5 Days"}
                                     </span>
                                   </div>
                                 </div>
-                                <strong style={{ fontSize: "0.95rem", color: isSelected ? "#b45309" : "#334155" }}>
+                                <strong style={{ fontSize: "0.95rem", color: isSelected ? "var(--brand-blue)" : "var(--brand-blue)" }}>
                                   {courier.shipping_fee === 0 ? "FREE" : formatPrice(courier.shipping_fee)}
                                 </strong>
                               </div>
@@ -1333,9 +1358,9 @@ export default function Checkout() {
                           {isCalculatingShipping ? (
                             "..."
                           ) : shippingRateData && !shippingRateData.is_serviceable ? (
-                            <span style={{ fontSize: "0.82rem", color: "#EF4444" }}>Not Serviceable</span>
+                            <span style={{ fontSize: "0.82rem", color: "var(--brand-blue)" }}>Not Serviceable</span>
                           ) : !hasValidPincode ? (
-                            <span style={{ fontSize: "0.85rem", color: "#64748B" }}>By PIN Code</span>
+                            <span style={{ fontSize: "0.85rem", color: "var(--brand-blue)" }}>By PIN Code</span>
                           ) : (
                             formatPrice(effectiveShippingCost)
                           )}
@@ -1535,7 +1560,7 @@ export default function Checkout() {
                         <p className="cko-item-variants">
                           {item.color && item.color !== "Standard" ? item.color : "Default"}
                           {item.size && item.size !== "Standard" ? ` • ${item.size}` : ""}
-                          {isOut && <span style={{ color: "#DC2626", fontWeight: 700, marginLeft: "8px" }}>• Out of stock</span>}
+                          {isOut && <span style={{ color: "var(--brand-blue)", fontWeight: 700, marginLeft: "8px" }}>• Out of stock</span>}
                         </p>
                         {item.sku && <span className="cko-item-sku">SKU: {item.sku}</span>}
                         <span className="cko-item-price">{formatPrice(lineTotal)}</span>
@@ -1567,7 +1592,7 @@ export default function Checkout() {
                     <div className="cko-coupon-input-wrap">
                       <input
                         type="text"
-                        placeholder="ENTER CODE (E.G. ZMW10)"
+                        placeholder="ENTER CODE (E.G. HD10)"
                         value={couponInput}
                         onChange={(e) => setCouponInput(e.target.value)}
                         className="cko-coupon-input"

@@ -1,12 +1,11 @@
 const { Op, fn, col, where: sequelizeWhere } = require("sequelize");
 const { randomBytes } = require("crypto");
-const { Product, Category, Subcategory, ProductImage, ProductColor, ProductSize, ProductVariant, sequelize } = require("../models");
+const { Product, Category, ProductImage, ProductColor, ProductSize, ProductVariant, sequelize } = require("../models");
 const ApiError = require("../utils/ApiError");
 const { getPagination, buildMeta } = require("../utils/pagination");
 
 const PRODUCT_INCLUDES = [
   { model: Category, as: "category", attributes: ["id", "name", "slug"] },
-  { model: Subcategory, as: "subcategory", attributes: ["id", "name", "slug"] },
   { model: ProductImage, as: "images", separate: true, order: [["sort_order", "ASC"], ["id", "ASC"]] },
   { model: ProductColor, as: "colors", separate: true, order: [["sort_order", "ASC"], ["id", "ASC"]] },
   { model: ProductSize, as: "sizes", separate: true, order: [["sort_order", "ASC"], ["id", "ASC"]] },
@@ -119,7 +118,7 @@ async function generateUniqueSku(name, transaction) {
     .slice(0, 32) || "PRODUCT";
 
   for (let attempt = 0; attempt < 5; attempt += 1) {
-    const sku = `ZMW-${nameToken}-${randomBytes(4).toString("hex").toUpperCase()}`;
+    const sku = `HD-${nameToken}-${randomBytes(4).toString("hex").toUpperCase()}`;
     const existing = await Product.findOne({ where: { sku }, transaction });
     if (!existing) return sku;
   }
@@ -169,9 +168,6 @@ async function listProducts(query) {
       ...(where[Op.and] || []),
       sequelizeWhere(fn("LOWER", col("Product.product_type")), { [Op.like]: needle })
     ];
-    // OR against the subcategory name too, matching the frontend's dual check.
-    const subInc = include.find((inc) => inc.as === "subcategory");
-    if (subInc) subInc.required = false;
   }
 
   if (query.collection === "best-sellers") where.is_best_seller = true;
@@ -476,7 +472,7 @@ async function createProduct(body) {
         slug: body.slug,
         sku,
         category_id: body.category_id,
-        subcategory_id: body.subcategory_id || null,
+        subcategory_id: null,
         product_type: body.product_type || null,
         description: body.description || null,
         price: body.price,
@@ -534,7 +530,6 @@ async function updateProduct(productOrId, body) {
       "name",
       "slug",
       "category_id",
-      "subcategory_id",
       "product_type",
       "description",
       "price",

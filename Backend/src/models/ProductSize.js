@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
       product_id: { type: DataTypes.INTEGER.UNSIGNED, allowNull: false },
       // Free-text label so both letter sizes ("S".."XXL") and age-band
       // sizes ("2-3Y") used by the Kids/Boys/Girls/Babies catalogs work.
-      label: { type: DataTypes.STRING(20), allowNull: false },
+      label: { type: DataTypes.STRING(60), allowNull: false },
       sort_order: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 }
     },
     { tableName: "product_sizes" }

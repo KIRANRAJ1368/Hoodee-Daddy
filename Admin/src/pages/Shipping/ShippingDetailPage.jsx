@@ -328,7 +328,7 @@ export default function ShippingDetailPage() {
               <h3 className="panel-title">Origin Dispatch Hub</h3>
             </div>
             <p style={{ fontSize: 12.5, color: "var(--text-main)", fontWeight: 600 }}>
-              ZMW Logistics & Dispatch Center
+              HooDee Daddy Logistics & Dispatch Center
             </p>
             <p style={{ fontSize: 12, color: "var(--text-muted)", margin: "4px 0" }}>
               123, Avinashi Road, Peelamedu, Coimbatore, Tamil Nadu - 641004

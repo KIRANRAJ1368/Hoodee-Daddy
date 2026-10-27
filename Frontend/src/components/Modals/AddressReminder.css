@@ -1,0 +1,429 @@
+/* ============================================================
+   ADDRESS REMINDER MODAL — IMPRESSIVE, COMPACT & COLORFUL
+   UI/UX Pro Max upgrade: Clean close button, verified mobile badge,
+   vibrant gradient accent, 2-column location grid, and trust pill.
+   ============================================================ */
+
+.address-reminder-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99990;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 24px;
+  background: rgba(9, 21, 37, 0.52);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: addressReminderFade 0.25s ease-out both;
+}
+
+@keyframes addressReminderFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ── Popup Card Container ── */
+.address-reminder {
+  box-sizing: border-box;
+  position: relative;
+  width: 375px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100dvh - 36px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  background: #ffffff;
+  color: #091525;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 115, 0, 0.25);
+  box-shadow:
+    0 24px 64px -10px rgba(9, 21, 37, 0.32),
+    0 12px 24px -6px rgba(9, 21, 37, 0.14),
+    0 0 0 1px rgba(9, 21, 37, 0.04);
+  animation: addressReminderPop 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.address-reminder::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes addressReminderPop {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Top Vibrant Gradient Bar */
+.address-reminder-top-bar {
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #FF7300 0%, #FF9500 45%, #FF5500 85%, #FFC33A 100%);
+}
+
+/* ── Close Button ── */
+.address-reminder-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid rgba(9, 21, 37, 0.08);
+  background: #F8FAFC;
+  color: #64748B;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10;
+  padding: 0;
+}
+
+.address-reminder-close:hover {
+  background: #FFF7ED;
+  color: #FF7300;
+  border-color: rgba(255, 115, 0, 0.35);
+  transform: rotate(90deg);
+}
+
+/* ── Header ── */
+.address-reminder-header {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 16px 18px 0;
+}
+
+.address-reminder-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: linear-gradient(135deg, rgba(255, 115, 0, 0.12) 0%, rgba(255, 195, 58, 0.18) 100%);
+  border: 1px solid rgba(255, 115, 0, 0.32);
+  color: #FF7300;
+  box-shadow: 0 2px 8px rgba(255, 115, 0, 0.15);
+}
+
+.address-reminder-header-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.address-reminder-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #FF7300;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.address-reminder-eyebrow-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #FF7300;
+}
+
+.address-reminder h2 {
+  font-family: var(--font-display, "Outfit", sans-serif);
+  font-size: 19px;
+  font-weight: 800;
+  color: #091525;
+  letter-spacing: -0.025em;
+  margin: 0;
+  line-height: 1.15;
+}
+
+.address-reminder-desc {
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: #5A6B82;
+  margin: 4px 0 10px;
+  padding: 0 18px;
+}
+
+/* ── Verified Phone Banner ── */
+.address-reminder-phone {
+  margin: 0 18px 12px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+  border: 1px solid #E2E8F0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.address-reminder-phone-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.address-reminder-phone-tag {
+  font-size: 8.5px;
+  font-weight: 750;
+  color: #64748B;
+  letter-spacing: 0.08em;
+}
+
+.address-reminder-phone-num {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #091525;
+  letter-spacing: 0.02em;
+}
+
+.address-reminder-verified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #047857;
+  background: #ECFDF5;
+  border: 1px solid #A7F3D0;
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+
+.address-reminder-verified-badge svg {
+  color: #10B981;
+}
+
+/* ── Form & Compact Field Layout ── */
+.address-reminder-form {
+  padding: 0 18px 16px;
+  text-align: left;
+}
+
+.address-reminder-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.address-field-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.address-field-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.address-field-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #1E293B;
+}
+
+.address-field-req {
+  color: #FF7300;
+}
+
+.address-field-hint {
+  font-size: 10.5px;
+  color: #8E9CAE;
+  font-weight: 500;
+}
+
+.address-field-wrap input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 38px;
+  padding: 0 11px;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 9px;
+  background: #FFFFFF;
+  color: #091525;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 550;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.address-field-wrap input::placeholder {
+  color: #94A3B8;
+  font-weight: 400;
+}
+
+.address-field-wrap input:hover {
+  border-color: #94A3B8;
+}
+
+.address-field-wrap input:focus {
+  border-color: #FF7300;
+  box-shadow: 0 0 0 3px rgba(255, 115, 0, 0.16);
+}
+
+/* 2-column City & State Row */
+.address-fields-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* Error Message */
+.address-reminder-error {
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  border-left: 3px solid #EF4444;
+  color: #B91C1C;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: 7px;
+  margin: 0 18px 10px;
+}
+
+/* ── Primary Submit Button ── */
+.address-reminder-save {
+  box-sizing: border-box;
+  width: 100%;
+  height: 44px;
+  margin-top: 14px;
+  background: linear-gradient(135deg, #FF7300 0%, #FF8A00 50%, #FF5500 100%);
+  color: #FFFFFF !important;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  border: none;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(255, 115, 0, 0.35);
+  transition: all 0.2s ease;
+}
+
+.address-reminder-save:hover {
+  background: linear-gradient(135deg, #E66500 0%, #FF7300 50%, #E04800 100%);
+  box-shadow: 0 8px 24px rgba(255, 115, 0, 0.48);
+  transform: translateY(-1px);
+}
+
+.address-reminder-save:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.address-reminder-save svg {
+  transition: transform 0.2s ease;
+}
+
+.address-reminder-save:hover svg {
+  transform: translateX(3px);
+}
+
+/* ── Secondary Later Action ── */
+.address-reminder-later {
+  box-sizing: border-box;
+  width: 100%;
+  height: 30px;
+  margin-top: 6px;
+  background: none;
+  border: none;
+  color: #64748B;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  padding: 4px;
+  transition: color 0.2s ease;
+}
+
+.address-reminder-later:hover {
+  color: #FF7300;
+}
+
+/* ── Trust / Security Note ── */
+.address-reminder-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin: 6px 0 0;
+  padding-top: 8px;
+  border-top: 1px solid #F1F5F9;
+  font-size: 9.5px;
+  font-weight: 500;
+  color: #64748B;
+}
+
+.address-reminder-note svg {
+  color: #10B981;
+  flex-shrink: 0;
+}
+
+/* ── Responsive Adaptations ── */
+@media (max-width: 480px) {
+  .address-reminder-backdrop {
+    padding: 12px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .address-reminder {
+    width: 100%;
+    max-width: 360px;
+    border-radius: 18px;
+  }
+
+  .address-reminder-header {
+    padding: 14px 16px 0;
+  }
+
+  .address-reminder-desc {
+    padding: 0 16px;
+    margin-bottom: 8px;
+  }
+
+  .address-reminder-phone {
+    margin: 0 16px 10px;
+  }
+
+  .address-reminder-form {
+    padding: 0 16px 14px;
+  }
+
+  .address-field-wrap input {
+    height: 36px;
+    font-size: 13px;
+  }
+
+  .address-reminder-save {
+    height: 42px;
+    font-size: 12.5px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .address-reminder { animation: none; }
+  .address-reminder-close { transition: none; }
+  .address-reminder-save { transition: none; }
+}
+
+

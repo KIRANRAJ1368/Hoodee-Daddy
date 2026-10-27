@@ -14,7 +14,6 @@ function productRules() {
       .withMessage("Slug may only contain lowercase letters, numbers and hyphens"),
     body("sku").optional({ values: "falsy" }).trim().isLength({ max: 60 }),
     body("category_id").isInt().withMessage("category_id is required"),
-    body("subcategory_id").optional({ values: "null" }).isInt(),
     body("product_type").optional({ values: "null" }).isString().isLength({ max: 60 }),
     body("description").optional({ values: "null" }).isString(),
     body("price").isFloat({ min: 0.01 }).withMessage("Selling price must be greater than zero"),

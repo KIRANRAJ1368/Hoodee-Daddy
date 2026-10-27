@@ -13,13 +13,13 @@ const ShopContext = createContext();
 const CURRENCIES = {
   INR: { symbol: CURRENCY_SYMBOL, rate: 1, name: "INR (₹)", locale: CURRENCY_LOCALE }
 };
-const RECENTLY_VIEWED_KEY = "zmw_recently_viewed";
+const RECENTLY_VIEWED_KEY = "hd_recently_viewed";
 const MAX_RECENTLY_VIEWED = 4;
-const HOME_CACHE_KEY = "zmw_home_data";
+const HOME_CACHE_KEY = "hd_home_data";
 
 const readCachedHomeData = () => {
   try {
-    const cached = localStorage.getItem(HOME_CACHE_KEY);
+    const cached = localStorage.getItem(HOME_CACHE_KEY) || localStorage.getItem("zmw_home_data");
     if (!cached) return null;
     const parsed = JSON.parse(cached);
     // Never retain stale product lists across sessions so deleted/added products reflect immediately
@@ -31,7 +31,7 @@ const readCachedHomeData = () => {
 
 const readRecentlyViewedIds = () => {
   try {
-    const saved = JSON.parse(localStorage.getItem(RECENTLY_VIEWED_KEY) || "[]");
+    const saved = JSON.parse(localStorage.getItem(RECENTLY_VIEWED_KEY) || localStorage.getItem("zmw_recently_viewed") || "[]");
     return Array.isArray(saved)
       ? [...new Set(saved.filter((id) => typeof id === "string"))].slice(0, MAX_RECENTLY_VIEWED)
       : [];
@@ -94,7 +94,7 @@ export const ShopProvider = ({ children }) => {
 
     let channel = null;
     try {
-      channel = new BroadcastChannel("zmw_catalog_channel");
+      channel = new BroadcastChannel("hd_catalog_channel");
       channel.onmessage = (e) => {
         if (e?.data?.type === "CATALOG_UPDATED") {
           refreshHomeData({ force: true });
@@ -103,7 +103,7 @@ export const ShopProvider = ({ children }) => {
     } catch {}
 
     const handleStorage = (e) => {
-      if (e.key === "zmw_catalog_updated_at") {
+      if ((e.key === "hd_catalog_updated_at" || e.key === "zmw_catalog_updated_at")) {
         refreshHomeData({ force: true });
       }
     };
@@ -210,7 +210,7 @@ export const ShopProvider = ({ children }) => {
   // Cart state
   const [cart, setCart] = useState(() => {
     try {
-      const saved = JSON.parse(localStorage.getItem("zmw_cart") || "[]");
+      const saved = JSON.parse(localStorage.getItem("hd_cart") || localStorage.getItem("zmw_cart") || "[]");
       return Array.isArray(saved) ? saved : [];
     } catch {
       return [];
@@ -218,7 +218,7 @@ export const ShopProvider = ({ children }) => {
   });
   const [buyNowItems, setBuyNowItems] = useState(() => {
     try {
-      const saved = sessionStorage.getItem("zmw_buy_now_items");
+      const saved = sessionStorage.getItem("hd_buy_now_items") || sessionStorage.getItem("zmw_buy_now_items");
       return saved ? JSON.parse(saved) : null;
     } catch {
       return null;
@@ -226,7 +226,7 @@ export const ShopProvider = ({ children }) => {
   });
   const [checkoutIntent, setCheckoutIntent] = useState(() => {
     try {
-      return sessionStorage.getItem("zmw_checkout_intent") || null;
+      return sessionStorage.getItem("hd_checkout_intent") || sessionStorage.getItem("zmw_checkout_intent") || null;
     } catch {
       return null;
     }
@@ -235,7 +235,7 @@ export const ShopProvider = ({ children }) => {
   // Wishlist state
   const [wishlist, setWishlist] = useState(() => {
     try {
-      const saved = localStorage.getItem("zmw_wishlist");
+      const saved = localStorage.getItem("hd_wishlist") || localStorage.getItem("zmw_wishlist");
       if (!saved) return [];
       const parsed = JSON.parse(saved);
       if (!Array.isArray(parsed)) return [];
@@ -269,6 +269,7 @@ export const ShopProvider = ({ children }) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [authModalState, setAuthModalState] = useState(null); // 'login' | 'register' | 'forgot' | null
+  const [welcomeCouponModal, setWelcomeCouponModal] = useState(null);
   const [isOrderTrackOpen, setIsOrderTrackOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(null);
@@ -279,7 +280,7 @@ export const ShopProvider = ({ children }) => {
   // Customer Authentication state
   const [customerToken, setCustomerToken] = useState(() => {
     try {
-      return localStorage.getItem("zmw_customer_token") || null;
+      return localStorage.getItem("hd_customer_token") || localStorage.getItem("zmw_customer_token") || null;
     } catch {
       return null;
     }
@@ -287,7 +288,7 @@ export const ShopProvider = ({ children }) => {
 
   const [customerUser, setCustomerUser] = useState(() => {
     try {
-      const saved = localStorage.getItem("zmw_customer_user");
+      const saved = localStorage.getItem("hd_customer_user") || localStorage.getItem("zmw_customer_user");
       return saved ? JSON.parse(saved) : null;
     } catch {
       return null;
@@ -306,7 +307,7 @@ export const ShopProvider = ({ children }) => {
         if (data?.user) {
           setCustomerUser(data.user);
           try {
-            localStorage.setItem("zmw_customer_user", JSON.stringify(data.user));
+            localStorage.setItem("hd_customer_user", JSON.stringify(data.user));
           } catch (e) {
             console.warn("Storage error", e);
           }
@@ -324,6 +325,50 @@ export const ShopProvider = ({ children }) => {
       });
   }, [customerToken]);
 
+  /**
+   * Evaluates eligibility and displays the welcome coupon popup:
+   * - Displayed only to first-time users who have not received the offer before.
+   * - Never shown again to returning users or on subsequent logins.
+   */
+  const triggerWelcomeOfferIfEligible = (user) => {
+    if (!user || !user.id) return;
+    try {
+      const userId = user.id;
+      const email = (user.email || "").trim().toLowerCase();
+      const phone = (user.phone || "").trim();
+
+      // 1. Check if offer was already received/claimed by this user
+      if (localStorage.getItem(`hoodee_welcome_offer_claimed_${userId}`) === "true") return;
+      if (email && localStorage.getItem(`hoodee_welcome_offer_claimed_${email}`) === "true") return;
+      if (phone && localStorage.getItem(`hoodee_welcome_offer_claimed_${phone}`) === "true") return;
+
+      // 2. Check if user is a returning customer who already placed orders
+      if (Number(user.orderCount || 0) > 0 || user.isFirstTimeUser === false) {
+        localStorage.setItem(`hoodee_welcome_offer_claimed_${userId}`, "true");
+        if (email) localStorage.setItem(`hoodee_welcome_offer_claimed_${email}`, "true");
+        return;
+      }
+
+      // Mark immediately as received so it will NEVER be shown again on future logins or refreshes
+      localStorage.setItem(`hoodee_welcome_offer_claimed_${userId}`, "true");
+      if (email) localStorage.setItem(`hoodee_welcome_offer_claimed_${email}`, "true");
+      if (phone) localStorage.setItem(`hoodee_welcome_offer_claimed_${phone}`, "true");
+      localStorage.setItem("hoodee_first_order_coupon", "WELCOME10");
+
+      // Smooth timeout to let login/auth transition complete before coupon popup opens
+      setTimeout(() => {
+        setWelcomeCouponModal({
+          isOpen: true,
+          couponCode: "WELCOME10",
+          discountText: "10% OFF",
+          userName: user.name || "Member"
+        });
+      }, 450);
+    } catch (e) {
+      console.warn("Welcome coupon check failed", e);
+    }
+  };
+
   const loginCustomer = async (email, password) => {
     setIsAuthLoading(true);
     try {
@@ -332,12 +377,13 @@ export const ShopProvider = ({ children }) => {
       setCustomerToken(token);
       setCustomerUser(user);
       try {
-        localStorage.setItem("zmw_customer_token", token);
-        localStorage.setItem("zmw_customer_user", JSON.stringify(user));
+        localStorage.setItem("hd_customer_token", token);
+        localStorage.setItem("hd_customer_user", JSON.stringify(user));
       } catch (e) {
         console.warn("Storage error", e);
       }
       addToast(`Welcome back, ${user.name}! ✨`, "success");
+      triggerWelcomeOfferIfEligible(user);
       return user;
     } finally {
       setIsAuthLoading(false);
@@ -352,12 +398,13 @@ export const ShopProvider = ({ children }) => {
       setCustomerToken(token);
       setCustomerUser(user);
       try {
-        localStorage.setItem("zmw_customer_token", token);
-        localStorage.setItem("zmw_customer_user", JSON.stringify(user));
+        localStorage.setItem("hd_customer_token", token);
+        localStorage.setItem("hd_customer_user", JSON.stringify(user));
       } catch (e) {
         console.warn("Storage error", e);
       }
-      addToast(`Welcome to ZMW Clothing, ${user.name}! ✨`, "success");
+      addToast(`Welcome to HooDee Daddy, ${user.name}! ✨`, "success");
+      triggerWelcomeOfferIfEligible(user);
       return user;
     } finally {
       setIsAuthLoading(false);
@@ -428,8 +475,8 @@ export const ShopProvider = ({ children }) => {
     }];
     setBuyNowItems(items);
     try {
-      sessionStorage.setItem("zmw_buy_now_items", JSON.stringify(items));
-      sessionStorage.setItem("zmw_checkout_intent", "buy-now");
+      sessionStorage.setItem("hd_buy_now_items", JSON.stringify(items));
+      sessionStorage.setItem("hd_checkout_intent", "buy-now");
     } catch {}
     setCheckoutIntent("buy-now");
     setAppliedCoupon(null);
@@ -441,7 +488,7 @@ export const ShopProvider = ({ children }) => {
   const beginCartCheckout = (navigateFn, state = {}) => {
     setCheckoutIntent("cart");
     try {
-      sessionStorage.setItem("zmw_checkout_intent", "cart");
+      sessionStorage.setItem("hd_checkout_intent", "cart");
     } catch {}
     setIsCartOpen(false);
     setIsCheckoutOpen(false);
@@ -460,7 +507,7 @@ export const ShopProvider = ({ children }) => {
   // Save Cart to LocalStorage
   useEffect(() => {
     try {
-      localStorage.setItem("zmw_cart", JSON.stringify(cart));
+      localStorage.setItem("hd_cart", JSON.stringify(cart));
     } catch (e) {
       console.warn("Storage error", e);
     }
@@ -469,7 +516,7 @@ export const ShopProvider = ({ children }) => {
   // Save Wishlist to LocalStorage
   useEffect(() => {
     try {
-      localStorage.setItem("zmw_wishlist", JSON.stringify(wishlist));
+      localStorage.setItem("hd_wishlist", JSON.stringify(wishlist));
     } catch (e) {
       console.warn("Storage error", e);
     }
@@ -488,7 +535,7 @@ export const ShopProvider = ({ children }) => {
         });
         if (clean.length !== prev.length) {
           try {
-            localStorage.setItem("zmw_wishlist", JSON.stringify(clean));
+            localStorage.setItem("hd_wishlist", JSON.stringify(clean));
           } catch (e) {
             console.warn("Storage error", e);
           }
@@ -712,7 +759,7 @@ export const ShopProvider = ({ children }) => {
   const clearWishlist = useCallback(() => {
     setWishlist([]);
     try {
-      localStorage.removeItem("zmw_wishlist");
+      localStorage.removeItem("hd_wishlist"); localStorage.removeItem("zmw_wishlist");
     } catch (e) {
       console.warn("Storage error", e);
     }
@@ -845,14 +892,6 @@ export const ShopProvider = ({ children }) => {
   const sortedCategories = useMemo(() => {
     return (homeData?.categories || [])
       .slice()
-      .map((c) => ({
-        ...c,
-        subcategories: Array.isArray(c.subcategories)
-          ? [...c.subcategories].sort(
-              (a, b) => (Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0)) || ((Number(a.id) || 0) - (Number(b.id) || 0))
-            )
-          : []
-      }))
       .sort(
         (a, b) => (Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0)) || ((Number(a.id) || 0) - (Number(b.id) || 0))
       );
@@ -929,6 +968,8 @@ export const ShopProvider = ({ children }) => {
         // Auth
         authModalState,
         setAuthModalState,
+        welcomeCouponModal,
+        setWelcomeCouponModal,
         customerToken,
         customerUser,
         isCustomerAuthenticated: Boolean(customerUser),

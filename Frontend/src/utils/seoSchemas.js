@@ -9,12 +9,12 @@
  * - FAQPage
  */
 
-export function buildOrganizationSchema(baseUrlOrSettings = "https://zmwclothing.com", settings = {}) {
-  let cleanBase = "https://zmwclothing.com";
+export function buildOrganizationSchema(baseUrlOrSettings = "https://hoodeedaddy.com", settings = {}) {
+  let cleanBase = "https://hoodeedaddy.com";
   let effectiveSettings = settings;
   if (typeof baseUrlOrSettings === "object" && baseUrlOrSettings !== null) {
     effectiveSettings = baseUrlOrSettings;
-    cleanBase = (effectiveSettings.canonical_base_url || "https://zmwclothing.com").replace(/\/+$/, "");
+    cleanBase = (effectiveSettings.canonical_base_url || "https://hoodeedaddy.com").replace(/\/+$/, "");
   } else if (typeof baseUrlOrSettings === "string") {
     cleanBase = baseUrlOrSettings.replace(/\/+$/, "");
   }
@@ -22,13 +22,13 @@ export function buildOrganizationSchema(baseUrlOrSettings = "https://zmwclothing
     "@context": "https://schema.org",
     "@type": "ClothingStore",
     "@id": `${cleanBase}/#organization`,
-    name: settings.organization_name || "ZMW Clothing",
+    name: settings.organization_name || "HooDee Daddy",
     url: cleanBase,
-    logo: `${cleanBase}/images/zmw-logo.png`,
+    logo: `${cleanBase}/images/hoodee-daddy-logo.svg`,
     image: `${cleanBase}/images/dept-family-banner.jpg`,
     description: "Luxury fashion atelier offering handcrafted menswear, womenswear, and bespoke streetwear pieces.",
     telephone: settings.organization_telephone || "+919876543210",
-    email: settings.organization_email || "zmw@gmail.com",
+    email: settings.organization_email || "support@hoodeedaddy.com",
     address: {
       "@type": "PostalAddress",
       streetAddress: "123, Avinashi Road, Peelamedu",
@@ -56,14 +56,14 @@ export function buildOrganizationSchema(baseUrlOrSettings = "https://zmwclothing
   };
 }
 
-export function buildWebSiteSchema(baseUrl = "https://zmwclothing.com") {
+export function buildWebSiteSchema(baseUrl = "https://hoodeedaddy.com") {
   const cleanBase = baseUrl.replace(/\/+$/, "");
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "@id": `${cleanBase}/#website`,
     url: cleanBase,
-    name: "ZMW Clothing",
+    name: "HooDee Daddy",
     potentialAction: {
       "@type": "SearchAction",
       target: {
@@ -75,7 +75,7 @@ export function buildWebSiteSchema(baseUrl = "https://zmwclothing.com") {
   };
 }
 
-export function buildProductSchema(product, baseUrl = "https://zmwclothing.com", activePrice = null) {
+export function buildProductSchema(product, baseUrl = "https://hoodeedaddy.com", activePrice = null) {
   if (!product) return null;
   const cleanBase = baseUrl.replace(/\/+$/, "");
   const productUrl = `${cleanBase}/products/${product.slug || product.id}`;
@@ -87,7 +87,7 @@ export function buildProductSchema(product, baseUrl = "https://zmwclothing.com",
 
   const images = Array.isArray(product.images) && product.images.length > 0
     ? product.images.map((img) => (typeof img === "string" ? (img.startsWith("http") ? img : `${cleanBase}${img}`) : img.url))
-    : [`${cleanBase}/images/zmw-logo.png`];
+    : [`${cleanBase}/images/hoodee-daddy-logo.svg`];
 
   const schema = {
     "@context": "https://schema.org",
@@ -95,12 +95,12 @@ export function buildProductSchema(product, baseUrl = "https://zmwclothing.com",
     "@id": `${productUrl}/#product`,
     name: product.name,
     image: images,
-    description: product.description || `${product.name} crafted by ZMW Clothing.`,
-    sku: product.sku || `ZMW-${product.id}`,
+    description: product.description || `${product.name} crafted by HooDee Daddy.`,
+    sku: product.sku || `HD-${product.id}`,
     category: product.category || "Apparel",
     brand: {
       "@type": "Brand",
-      name: "ZMW Clothing"
+      name: "HooDee Daddy"
     },
     offers: {
       "@type": "Offer",
@@ -115,7 +115,7 @@ export function buildProductSchema(product, baseUrl = "https://zmwclothing.com",
           : "https://schema.org/OutOfStock",
       seller: {
         "@type": "Organization",
-        name: "ZMW Clothing"
+        name: "HooDee Daddy"
       }
     }
   };
@@ -133,7 +133,7 @@ export function buildProductSchema(product, baseUrl = "https://zmwclothing.com",
   return schema;
 }
 
-export function buildBreadcrumbSchema(items = [], baseUrl = "https://zmwclothing.com") {
+export function buildBreadcrumbSchema(items = [], baseUrl = "https://hoodeedaddy.com") {
   const cleanBase = baseUrl.replace(/\/+$/, "");
   return {
     "@context": "https://schema.org",
@@ -147,7 +147,7 @@ export function buildBreadcrumbSchema(items = [], baseUrl = "https://zmwclothing
   };
 }
 
-export function buildCategorySchema(categoryName, categorySlug, products = [], baseUrl = "https://zmwclothing.com") {
+export function buildCategorySchema(categoryName, categorySlug, products = [], baseUrl = "https://hoodeedaddy.com") {
   const cleanBase = baseUrl.replace(/\/+$/, "");
   const categoryUrl = `${cleanBase}/categories/${categorySlug}`;
 
@@ -156,7 +156,7 @@ export function buildCategorySchema(categoryName, categorySlug, products = [], b
     "@type": "CollectionPage",
     "@id": `${categoryUrl}/#collection`,
     url: categoryUrl,
-    name: `${categoryName} Collection — ZMW Clothing`,
+    name: `${categoryName} Collection — HooDee Daddy`,
     description: `Explore our premium ${categoryName.toLowerCase()} essentials crafted for everyday comfort and modern style.`,
     mainEntity: {
       "@type": "ItemList",

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   ZMW CLOTHING — BESPOKE FASHION-TECH DESIGN SYSTEM
+   HooDee Daddy CLOTHING — BESPOKE FASHION-TECH DESIGN SYSTEM
    Brand Palette:
      - Gold Accent:     #FAA703 (Metallic Amber Gold)
      - Dark Obsidian:   #111827 (Deep Slate Charcoal)
@@ -14,7 +14,7 @@
   --sk: #e8e6f4;
   --sh: rgba(255, 255, 255, 0.75);
 
-  /* ── ZMW SIGNATURE BRAND COLOR PALETTE ── */
+  /* ── HooDee Daddy SIGNATURE BRAND COLOR PALETTE ── */
   --primary-gold: #FAA703;
   --primary: #FAA703;
   --primary-hover: #E09600;
@@ -223,7 +223,7 @@ p {
   pointer-events: none;
 }
 
-/* ZMW Signature Gold Capsule Button - High Contrast Dark Slate on Gold */
+/* HooDee Daddy Signature Gold Capsule Button - High Contrast Dark Slate on Gold */
 .btn-accent {
   background: var(--primary);
   color: #0F172A;
@@ -238,7 +238,7 @@ p {
   color: #0F172A;
 }
 
-/* ZMW Primary Button */
+/* HooDee Daddy Primary Button */
 .btn-primary {
   background: var(--primary);
   color: #0F172A;
@@ -674,4 +674,35 @@ p {
     transform: translateY(0);
   }
 }
+
+/* ==========================================================================
+   ENFORCE DISPLAY: NONE ON ALL SUBCATEGORY UI ELEMENTS & SELECTORS
+   ========================================================================== */
+[href*="subcategories"],
+[href*="subcategory"],
+[data-nav*="subcategor"],
+[data-section*="subcategor"],
+.subcategory,
+.subcategories,
+.subcategories-list,
+.subcategory-badge,
+.db-subcategories-list,
+.db-subcat-badge,
+.subcategory-chip,
+.subcategory-chips,
+.subcat-pill,
+.subcategory-tag-ref,
+.subcategory-field,
+.subcategory-select,
+.subcategory-option,
+.subcat-col,
+th.subcategories-col,
+td.subcategories-col,
+.subcategories-table,
+.subcategory-form,
+.subcategory-container,
+.nav-subcategories {
+  display: none !important;
+}
+
 

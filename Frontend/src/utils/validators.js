@@ -1,5 +1,5 @@
 /**
- * Centralized Form Validation Utilities for ZMW
+ * Centralized Form Validation Utilities for HooDee Daddy
  */
 
 export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

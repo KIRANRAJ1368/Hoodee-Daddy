@@ -7,14 +7,12 @@ import "./TopAnnouncementBar.css";
 export default function TopAnnouncementBar() {
   const { homeData } = useShop();
   const [announcement, setAnnouncement] = useState(() => homeData?.activeAnnouncement || null);
-  const [isDismissed, setIsDismissed] = useState(false);
-  const [isClosing, setIsClosing] = useState(false);
   const barRef = useRef(null);
 
   // Sync when homeData is loaded/refreshed
   useEffect(() => {
-    if (homeData?.activeAnnouncement) {
-      setAnnouncement(homeData.activeAnnouncement);
+    if (homeData && "activeAnnouncement" in homeData) {
+      setAnnouncement(homeData.activeAnnouncement || null);
     }
   }, [homeData?.activeAnnouncement]);
 
@@ -40,11 +38,10 @@ export default function TopAnnouncementBar() {
     let bc = null;
     try {
       if (typeof BroadcastChannel !== "undefined") {
-        bc = new BroadcastChannel("zmw_catalog_channel");
+        bc = new BroadcastChannel("hd_catalog_channel");
         bc.onmessage = (event) => {
           if (event?.data?.action?.includes("ANNOUNCEMENT")) {
             loadAnnouncement();
-            setIsDismissed(false);
           }
         };
       }
@@ -60,18 +57,9 @@ export default function TopAnnouncementBar() {
     };
   }, []);
 
-  // Check if this specific version was dismissed in current session
-  useEffect(() => {
-    if (announcement?.id) {
-      const dismissKey = `zmw_announcement_dismissed_${announcement.id}_${announcement.updatedAt || ""}`;
-      const dismissed = sessionStorage.getItem(dismissKey);
-      setIsDismissed(Boolean(dismissed));
-    }
-  }, [announcement?.id, announcement?.updatedAt]);
-
   // Dynamically inform the header spacer of the announcement bar height
   useEffect(() => {
-    if (!announcement || !announcement.is_active || isDismissed) {
+    if (!announcement || !announcement.is_active) {
       document.documentElement.style.setProperty("--announcement-bar-height", "0px");
       return;
     }
@@ -92,25 +80,9 @@ export default function TopAnnouncementBar() {
       window.removeEventListener("resize", updateHeight);
       document.documentElement.style.setProperty("--announcement-bar-height", "0px");
     };
-  }, [announcement, isDismissed]);
+  }, [announcement]);
 
-  const handleDismiss = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsClosing(true);
-    document.documentElement.style.setProperty("--announcement-bar-height", "0px");
-
-    setTimeout(() => {
-      if (announcement?.id) {
-        const dismissKey = `zmw_announcement_dismissed_${announcement.id}_${announcement.updatedAt || ""}`;
-        sessionStorage.setItem(dismissKey, "true");
-      }
-      setIsDismissed(true);
-      setIsClosing(false);
-    }, 240);
-  };
-
-  if (!announcement || !announcement.is_active || isDismissed) {
+  if (!announcement || !announcement.is_active) {
     return null;
   }
 
@@ -164,7 +136,7 @@ export default function TopAnnouncementBar() {
   return (
     <aside
       ref={barRef}
-      className={`top-announcement-bar ${isClosing ? "is-closing" : ""}`}
+      className="top-announcement-bar"
       role="region"
       aria-label="Promotional announcement ticker"
     >
@@ -180,29 +152,6 @@ export default function TopAnnouncementBar() {
         </div>
       </div>
 
-      {/* Dismiss / Close Button */}
-      <button
-        type="button"
-        className="top-announcement-close-btn"
-        onClick={handleDismiss}
-        aria-label="Dismiss announcement"
-        title="Close announcement"
-      >
-        <svg
-          width="12"
-          height="12"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-        >
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
-      </button>
     </aside>
   );
 }

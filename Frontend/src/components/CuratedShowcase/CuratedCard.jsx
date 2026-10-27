@@ -209,6 +209,9 @@ export default function CuratedCard({ product, badgeLabel, badgeTone = "hot", cl
             {displayOriginalPrice && (
               <span className="curated-price-original">{formatPrice(displayOriginalPrice)}</span>
             )}
+            {pricing.savingsPercent > 0 && (
+              <span className="curated-price-discount">({pricing.savingsPercent}% OFF)</span>
+            )}
           </div>
         </div>
       </div>

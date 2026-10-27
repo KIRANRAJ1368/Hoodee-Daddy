@@ -5,6 +5,8 @@ import { isCategoryMatch, resolveFallbackCategory } from "./utils/categoryFallba
 import { imageUrl } from "./utils/imageUrl";
 import "./styles/global.css";
 
+import AddressReminder from "./components/Modals/AddressReminder";
+import FirstVisitModal from "./components/Modals/FirstVisitModal";
 import Navbar from "./components/Navbar/Navbar";
 import Footer from "./components/Footer/Footer";
 import ScrollToTop from "./components/ScrollToTop/ScrollToTop";
@@ -37,19 +39,16 @@ const SearchModal = lazy(() => import("./components/Modals/SearchModal"));
 const AuthModal = lazy(() => import("./components/Modals/AuthModal"));
 const OrderTrackModal = lazy(() => import("./components/Modals/OrderTrackModal"));
 const LightboxModal = lazy(() => import("./components/Modals/LightboxModal"));
+const WelcomeCouponModal = lazy(() => import("./components/Modals/WelcomeCouponModal"));
 const ToastContainer = lazy(() => import("./components/Widgets/ToastContainer"));
-const FirstVisitModal = lazy(() => import("./components/Modals/FirstVisitModal"));
 
 /**
  * CategoryRedirect preserves any existing query parameters when redirecting
  * from legacy paths like /men?category=Oversized%20T-Shirts to /collection?category=Oversized%20T-Shirts.
  */
 function CategoryAliasRedirect() {
-  const { categorySlug, subcategorySlug } = useParams();
-  const target = subcategorySlug
-    ? `/categories/${categorySlug}/${subcategorySlug}`
-    : `/categories/${categorySlug}`;
-  return <Navigate to={target} replace />;
+  const { categorySlug } = useParams();
+  return <Navigate to={`/categories/${categorySlug}`} replace />;
 }
 
 function CategoryRedirect({ defaultCategory, defaultCollection }) {
@@ -101,11 +100,7 @@ function CollectionEntry() {
   return <Collection />;
 }
 
-function AuthRouteHandler({ state }) {
-  const { setAuthModalState } = useShop();
-  useEffect(() => {
-    setAuthModalState(state);
-  }, [state, setAuthModalState]);
+function AuthRouteHandler() {
   return <Navigate to="/" replace />;
 }
 
@@ -128,8 +123,9 @@ function AppLoadingManager() {
       // Double rAF ensures the browser DOM updates and styles have rendered
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          if (!isCancelled && typeof window.__dismissZmwLoader === "function") {
-            window.__dismissZmwLoader();
+          const dismissLoader = window.__dismissHdLoader || window.__dismissZmwLoader;
+          if (!isCancelled && typeof dismissLoader === "function") {
+            dismissLoader();
           }
         });
       });
@@ -175,90 +171,104 @@ function AppLoadingManager() {
   return null;
 }
 
+function DeliveryAddressReminder() {
+  const { pathname } = useLocation();
+  const shop = useShop();
+  const paused = pathname === "/checkout" || Boolean(shop.authModalState || shop.isCartOpen ||
+    shop.isWishlistOpen || shop.isSearchOpen || shop.isOrderTrackOpen || shop.isCheckoutOpen ||
+    shop.quickViewProduct || shop.lightboxIndex != null);
+  return <AddressReminder paused={paused} onSaved={() => shop.addToast("Delivery address saved for checkout.", "success")} />;
+}
+
 export default function App() {
   return (
     <ShopProvider>
       <AppLoadingManager />
-      <ScrollToTop />
-      <Navbar />
+      <FirstVisitModal>
+        <DeliveryAddressReminder />
+        <div id="storefront-content">
+        <ScrollToTop />
+        <Navbar />
 
-      <main id="main-content">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/collection" element={<CollectionEntry />} />
-          <Route path="/shop-all" element={<Navigate to="/categories/mens" replace />} />
+        <main id="main-content">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/collection" element={<CollectionEntry />} />
+            <Route path="/shop-all" element={<Navigate to="/categories/mens" replace />} />
 
-          {/* Clean SEO-friendly Category URLs & Subcategories */}
-          <Route path="/categories/:categorySlug" element={<Collection />} />
-          <Route path="/categories/:categorySlug/:subcategorySlug" element={<Collection />} />
-          <Route path="/category/:categorySlug" element={<CategoryAliasRedirect />} />
-          <Route path="/category/:categorySlug/:subcategorySlug" element={<CategoryAliasRedirect />} />
+            {/* Clean SEO-friendly Category URLs & Subcategories */}
+            <Route path="/categories/:categorySlug" element={<Collection />} />
+            <Route path="/categories/:categorySlug/:subcategorySlug" element={<CategoryAliasRedirect />} />
+            <Route path="/category/:categorySlug" element={<CategoryAliasRedirect />} />
+            <Route path="/category/:categorySlug/:subcategorySlug" element={<CategoryAliasRedirect />} />
 
-          {/* Query-preserving category redirects */}
-          <Route path="/men" element={<CategoryRedirect defaultCategory="mens" />} />
-          <Route path="/mens" element={<CategoryRedirect defaultCategory="mens" />} />
-          <Route path="/women" element={<CategoryRedirect defaultCategory="women" />} />
-          <Route path="/kids" element={<CategoryRedirect defaultCategory="kids" />} />
-          <Route path="/boys" element={<CategoryRedirect defaultCategory="boys" />} />
-          <Route path="/girls" element={<CategoryRedirect defaultCategory="girls" />} />
-          <Route path="/babies" element={<CategoryRedirect defaultCategory="babies" />} />
-          <Route path="/best-sellers" element={<CategoryRedirect defaultCollection="best-sellers" />} />
-          <Route path="/best-seller" element={<CategoryRedirect defaultCollection="best-sellers" />} />
-          <Route path="/new-arrivals" element={<CategoryRedirect defaultCollection="new-arrivals" />} />
-          <Route path="/new-arrival" element={<CategoryRedirect defaultCollection="new-arrivals" />} />
+            {/* Query-preserving category redirects */}
+            <Route path="/men" element={<CategoryRedirect defaultCategory="mens" />} />
+            <Route path="/mens" element={<CategoryRedirect defaultCategory="mens" />} />
+            <Route path="/women" element={<CategoryRedirect defaultCategory="women" />} />
+            <Route path="/kids" element={<CategoryRedirect defaultCategory="kids" />} />
+            <Route path="/boys" element={<CategoryRedirect defaultCategory="boys" />} />
+            <Route path="/girls" element={<CategoryRedirect defaultCategory="girls" />} />
+            <Route path="/babies" element={<CategoryRedirect defaultCategory="babies" />} />
+            <Route path="/best-sellers" element={<CategoryRedirect defaultCollection="best-sellers" />} />
+            <Route path="/best-seller" element={<CategoryRedirect defaultCollection="best-sellers" />} />
+            <Route path="/new-arrivals" element={<CategoryRedirect defaultCollection="new-arrivals" />} />
+            <Route path="/new-arrival" element={<CategoryRedirect defaultCollection="new-arrivals" />} />
 
-          {/* New Informational & Policy Pages */}
-          <Route path="/about" element={<AboutUs />} />
-          <Route path="/about-us" element={<AboutUs />} />
-          <Route path="/contact" element={<ContactUs />} />
-          <Route path="/contact-us" element={<ContactUs />} />
-          <Route path="/faq" element={<FAQ />} />
-          <Route path="/faqs" element={<FAQ />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/privacy" element={<PrivacyPolicy />} />
-          <Route path="/terms-conditions" element={<TermsConditions />} />
-          <Route path="/terms" element={<TermsConditions />} />
-          <Route path="/return-refund-policy" element={<ReturnRefundPolicy />} />
-          <Route path="/returns" element={<ReturnRefundPolicy />} />
-          <Route path="/shipping-policy" element={<ShippingPolicy />} />
-          <Route path="/shipping" element={<ShippingPolicy />} />
-          <Route path="/size-guide" element={<SizeGuide />} />
-          <Route path="/size-chart" element={<SizeGuide />} />
+            {/* New Informational & Policy Pages */}
+            <Route path="/about" element={<AboutUs />} />
+            <Route path="/about-us" element={<AboutUs />} />
+            <Route path="/contact" element={<ContactUs />} />
+            <Route path="/contact-us" element={<ContactUs />} />
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/faqs" element={<FAQ />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms-conditions" element={<TermsConditions />} />
+            <Route path="/terms" element={<TermsConditions />} />
+            <Route path="/return-refund-policy" element={<ReturnRefundPolicy />} />
+            <Route path="/returns" element={<ReturnRefundPolicy />} />
+            <Route path="/shipping-policy" element={<ShippingPolicy />} />
+            <Route path="/shipping" element={<ShippingPolicy />} />
+            <Route path="/size-guide" element={<SizeGuide />} />
+            <Route path="/size-chart" element={<SizeGuide />} />
 
-          {/* SEO-friendly Product URLs */}
-          <Route path="/products/:slug" element={<ProductDetail />} />
-          <Route path="/product/:productId" element={<ProductDetail />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/wishlist" element={<Wishlist />} />
-          <Route path="/account" element={<CustomerProfile />} />
-          <Route path="/profile" element={<CustomerProfile />} />
-          <Route path="/my-orders" element={<CustomerProfile />} />
-          <Route path="/login" element={<AuthRouteHandler state="login" />} />
-          <Route path="/register" element={<AuthRouteHandler state="register" />} />
-          <Route path="/signup" element={<AuthRouteHandler state="register" />} />
-          <Route path="/forgot-password" element={<AuthRouteHandler state="forgot" />} />
-          <Route path="/reset-password" element={<AuthRouteHandler state="forgot" />} />
-          <Route path="*" element={<ComingSoon title="Page Not Found" />} />
-        </Routes>
-      </main>
+            {/* SEO-friendly Product URLs */}
+            <Route path="/products/:slug" element={<ProductDetail />} />
+            <Route path="/product/:productId" element={<ProductDetail />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/wishlist" element={<Wishlist />} />
+            <Route path="/account" element={<CustomerProfile />} />
+            <Route path="/profile" element={<CustomerProfile />} />
+            <Route path="/my-orders" element={<CustomerProfile />} />
+            <Route path="/login" element={<Navigate to="/" replace />} />
+            <Route path="/register" element={<Navigate to="/" replace />} />
+            <Route path="/signup" element={<Navigate to="/" replace />} />
+            <Route path="/forgot-password" element={<Navigate to="/" replace />} />
+            <Route path="/reset-password" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<ComingSoon title="Page Not Found" />} />
+          </Routes>
+        </main>
 
-      <Footer />
+        <Footer />
 
-      <SocialFloatWidget />
+        <SocialFloatWidget />
 
-      {/* Global Interactive Layer — Modals, Drawers, Toasts */}
-      <Suspense fallback={null}>
-        <CartDrawer />
-        <WishlistDrawer />
-        <QuickViewModal />
-        <SearchModal />
-        <AuthModal />
-        <OrderTrackModal />
-        <LightboxModal />
-        <ToastContainer />
-        <FirstVisitModal />
-      </Suspense>
+        {/* Global Interactive Layer — Modals, Drawers, Toasts */}
+        <Suspense fallback={null}>
+          <CartDrawer />
+          <WishlistDrawer />
+          <QuickViewModal />
+          <SearchModal />
+          <AuthModal />
+          <OrderTrackModal />
+          <LightboxModal />
+          <WelcomeCouponModal />
+          <ToastContainer />
+        </Suspense>
+        </div>
+      </FirstVisitModal>
     </ShopProvider>
   );
 }

@@ -1,7 +1,7 @@
 /* Tabbed Showcase Styles — CrazyMonk Trending Drops */
 
 .tabbed-showcase-section {
-  background: var(--color-sand);
+  background: var(--brand-white);
   border-bottom: 1px solid var(--color-grey-200);
 }
 
@@ -13,11 +13,11 @@
 
 .showcase-tabs {
   display: inline-flex;
-  background-color: var(--color-white);
+  background-color: var(--brand-white);
   padding: 6px;
   border-radius: var(--radius-pill);
   gap: 8px;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 4px 16px rgba(9, 21, 37, 0.06);
   border: 1px solid var(--color-grey-200);
 }
 
@@ -25,7 +25,7 @@
   padding: 10px 24px;
   font-size: var(--text-small);
   font-weight: 700;
-  color: var(--color-grey-600);
+  color: var(--brand-blue);
   border-radius: var(--radius-pill);
   transition: all var(--dur-fast) var(--ease-smooth);
   cursor: pointer;
@@ -34,14 +34,14 @@
 }
 
 .showcase-tab:hover {
-  color: var(--color-ink);
+  color: var(--brand-orange);
 }
 
 .showcase-tab.active {
-  background: var(--color-accent-gradient);
-  color: var(--color-ink-deep);
+  background: var(--brand-white);
+  color: var(--brand-orange);
   font-weight: 800;
-  box-shadow: 0 3px 12px rgba(245, 158, 11, 0.35);
+  box-shadow: 0 3px 12px rgba(9, 21, 37, 0.35);
 }
 
 .tabbed-product-grid {
@@ -53,7 +53,7 @@
 .tabbed-product-card {
   display: flex;
   flex-direction: column;
-  background-color: var(--color-white);
+  background-color: var(--brand-white);
   border-radius: var(--radius-md);
   border: 1px solid var(--color-grey-200);
   box-shadow: var(--shadow-sm);
@@ -63,7 +63,7 @@
 
 .tabbed-product-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+  box-shadow: 0 12px 28px rgba(9, 21, 37, 0.12);
   border-color: var(--color-accent);
 }
 
@@ -72,7 +72,7 @@
   width: 100%;
   aspect-ratio: 3 / 4;
   overflow: hidden;
-  background-color: var(--color-grey-100);
+  background-color: var(--brand-white);
 }
 
 .tabbed-img {
@@ -107,26 +107,26 @@
   width: 34px;
   height: 34px;
   border-radius: var(--radius-xs);
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--brand-white);
   backdrop-filter: blur(4px);
   border: 1px solid var(--color-grey-200);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-ink);
+  color: var(--brand-blue);
   box-shadow: var(--shadow-sm);
   transition: all var(--dur-fast);
   cursor: pointer;
 }
 
 .tabbed-action-btn:hover {
-  background: var(--color-accent);
+  background: var(--brand-white);
   border-color: var(--color-accent);
-  color: var(--color-ink-deep);
+  color: var(--brand-orange);
 }
 
 .tabbed-action-btn.saved {
-  color: #EF4444;
+  color: var(--brand-blue);
 }
 
 .tabbed-info {
@@ -148,7 +148,7 @@
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--color-grey-400);
+  color: var(--brand-blue);
   font-weight: 700;
 }
 
@@ -159,14 +159,14 @@
   gap: 2px;
   font-size: 0.75rem;
   font-weight: 700;
-  color: #F59E0B;
+  color: var(--brand-blue);
 }
 
 .tabbed-title {
   font-family: var(--font-display);
   font-size: 0.95rem;
   font-weight: 700;
-  color: var(--color-ink);
+  color: var(--brand-blue);
   margin-bottom: 8px;
   cursor: pointer;
   white-space: nowrap;
@@ -175,7 +175,7 @@
 }
 
 .tabbed-title:hover {
-  color: var(--color-accent-deep);
+  color: var(--brand-orange);
 }
 
 .tabbed-price-row {
@@ -188,13 +188,13 @@
 .tabbed-price-row .price-current {
   font-size: 1.05rem;
   font-weight: 800;
-  color: var(--color-ink);
+  color: var(--brand-blue);
 }
 
 .tabbed-price-row .price-original {
   font-size: 0.82rem;
   font-weight: 400;
-  color: var(--color-grey-400);
+  color: var(--brand-blue);
   text-decoration: line-through;
 }
 
@@ -202,8 +202,8 @@
   margin-top: auto;
   width: 100%;
   padding: 10px;
-  background-color: var(--color-grey-100);
-  color: var(--color-ink);
+  background-color: var(--brand-white);
+  color: var(--brand-blue);
   border-radius: var(--radius-pill);
   border: 1px solid var(--color-grey-200);
   font-size: 0.75rem;
@@ -215,10 +215,10 @@
 }
 
 .btn-quick-add:hover {
-  background: var(--color-accent-gradient);
-  color: var(--color-ink-deep);
+  background: var(--brand-white);
+  color: var(--brand-orange);
   border-color: var(--color-accent);
-  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+  box-shadow: 0 4px 14px rgba(9, 21, 37, 0.3);
 }
 
 @media (max-width: 1100px) {

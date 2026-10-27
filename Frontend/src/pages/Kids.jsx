@@ -383,7 +383,7 @@ export default function Kids() {
                         aria-hidden="true"
                       >
                         {isActive && (
-                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3">
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--brand-blue)" strokeWidth="3">
                             <polyline points="20 6 9 17 4 12"></polyline>
                           </svg>
                         )}
@@ -510,7 +510,7 @@ export default function Kids() {
 
             {/* 1. PRIMARY OFFER HEADING */}
             <div className="hero-offer-block">
-              <div className="hero-offer-heading" style={{ background: "linear-gradient(135deg, #FFFFFF 15%, #FFD166 60%, #FAA703 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+              <div className="hero-offer-heading" style={{ background: "linear-gradient(135deg, var(--brand-white) 15%, var(--brand-white) 60%, var(--brand-white) 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                 FLAT 25% OFF
               </div>
               <span className="hero-offer-tag">
@@ -524,7 +524,7 @@ export default function Kids() {
 
             {/* 2. SUPPORTING TEXT & CAMPAIGN HEADLINE */}
             <div className="hero-campaign-info">
-              <h2 className="hero-campaign-headline" style={{ color: "#FFFFFF" }}>
+              <h2 className="hero-campaign-headline" style={{ color: "var(--brand-blue)" }}>
                 BUILT FOR PLAY
               </h2>
               <p className="hero-subtitle">
@@ -544,7 +544,7 @@ export default function Kids() {
               </div>
               <div className="hero-perk-item">
                 <span className="hero-perk-icon">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="#FAA703" stroke="#FAA703" strokeWidth="1">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--brand-blue)" stroke="var(--brand-blue)" strokeWidth="1">
                     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                   </svg>
                 </span>
@@ -950,7 +950,7 @@ export default function Kids() {
         </div>
       </section>
 
-      {/* Shared Trust Strip from ZMW */}
+      {/* Shared Trust Strip from HooDee Daddy */}
       <TrustFeatures />
       <RecentlyViewed />
     </div>

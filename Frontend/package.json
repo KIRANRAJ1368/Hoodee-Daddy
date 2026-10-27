@@ -1,9 +1,9 @@
 {
-  "name": "zmw",
+  "name": "hoodee-daddy",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "ZMW E-commerce",
+  "description": "HooDee Daddy E-commerce",
   "scripts": {
     "dev": "vite",
     "start": "vite",

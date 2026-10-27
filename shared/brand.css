@@ -1,0 +1,232 @@
+/* Brand colors sampled from the supplied Hoo Dee Doo Dee logo.
+   All application surfaces are white; product imagery and product swatches
+   retain their original colors because they describe the merchandise. */
+:root {
+  color-scheme: light;
+  --brand-white: #ffffff;
+  --brand-blue: #091525;
+  --brand-orange: #ff7300;
+  --brand-border: rgba(9, 21, 37, 0.2);
+  --brand-shadow: rgba(9, 21, 37, 0.08);
+  --brand-overlay: rgba(255, 255, 255, 0.88);
+  --brand-transition: 200ms ease;
+  --header-logo-height: 84px;
+  --header-nav-height: calc(var(--header-logo-height) + 4px);
+}
+
+html, body, #root {
+  background-color: var(--brand-white);
+  color: var(--brand-blue);
+}
+
+::selection {
+  color: var(--brand-blue);
+  background: var(--brand-orange);
+}
+
+:is(a, button, input, select, textarea, summary):not(.top-announcement-bar *, .social-float-btn) {
+  -webkit-tap-highlight-color: transparent;
+  accent-color: var(--brand-blue);
+  transition: color var(--brand-transition), border-color var(--brand-transition),
+    background-color var(--brand-transition), box-shadow var(--brand-transition);
+}
+
+/* Only plain text links and simple summary tags change color on hover */
+:is(a:not([class*="btn"]):not([class*="cta"]):not([class*="badge"]):not([class*="chip"]):not([class*="cart"]):not([class*="wishlist"]), summary):not(.top-announcement-bar *, .social-float-btn):is(:hover, :focus-visible) {
+  color: var(--brand-orange) !important;
+}
+
+:is(a, button, input, select, textarea, summary, [tabindex]):not(.top-announcement-bar *, .pd-grid-image-item, .product-image-box, .product-card, .product-card *):focus-visible {
+  outline: 2px solid var(--brand-blue) !important;
+  outline-offset: 4px;
+}
+
+:is(button, [role="button"], .btn, [class*="cta"]):not(.top-announcement-bar *, .pd-grid-image-item, .product-image-box, .product-card, .product-card *):is(:hover, :focus-visible) {
+  border-color: var(--brand-orange);
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--brand-blue);
+  opacity: 0.7;
+}
+
+:is(button, input, select, textarea):disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* Preserve the supplied square logo without filters, stretching or cropping. */
+.brand-logo-img, .navbar-scrolled .brand-logo-img,
+.mobile-brand-logo-img {
+  width: auto !important;
+  height: var(--header-logo-height) !important;
+  max-width: 100% !important;
+  object-fit: contain !important;
+  filter: none !important;
+  image-rendering: auto !important;
+}
+
+.footer-brand-logo-img {
+  height: clamp(84px, 8vw, 104px) !important;
+  width: auto !important;
+  max-width: 240px !important;
+  object-fit: contain !important;
+  object-position: left center !important;
+}
+.invoice-brand-logo { width: 88px; height: 88px; object-fit: contain; }
+
+/* Fit the header to the logo with only 2px of clearance above and below. */
+.main-navbar .navbar-inner,
+.main-navbar.navbar-scrolled .navbar-inner {
+  height: var(--header-nav-height);
+}
+
+.site-header-spacer {
+  height: calc(var(--header-nav-height) + var(--announcement-bar-height, 0px) + 1px);
+}
+
+/* High-Energy Streetwear & Luxury Primary CTAs & Checkout Buttons — Always 100% Crisp Visible White */
+:is(
+  .hd-primary-cta,
+  .btn-split-cta,
+  .btn-primary,
+  .cp-checkout-btn,
+  .cp-proceed-checkout-btn,
+  .cart-checkout-btn,
+  .cart-drawer-checkout-btn,
+  .btn-checkout,
+  .cko-btn-primary,
+  .btn-buy-now,
+  .btn-dark,
+  .wishlist-empty-btn,
+  .cp-empty-cta,
+  .coll-hero-cta,
+  [class*="checkout-btn"],
+  [class*="primary-cta"]
+) {
+  background: linear-gradient(135deg, #FF7300 0%, #FF8A00 50%, #FF5500 100%) !important;
+  color: #FFFFFF !important;
+  border: none !important;
+  box-shadow: 0 4px 18px rgba(255, 115, 0, 0.38) !important;
+  font-weight: 700 !important;
+  transition: all var(--brand-transition);
+}
+
+:is(
+  .hd-primary-cta,
+  .btn-split-cta,
+  .btn-primary,
+  .cp-checkout-btn,
+  .cp-proceed-checkout-btn,
+  .cart-checkout-btn,
+  .cart-drawer-checkout-btn,
+  .btn-checkout,
+  .cko-btn-primary,
+  .btn-buy-now,
+  .btn-dark,
+  .wishlist-empty-btn,
+  .cp-empty-cta,
+  .coll-hero-cta,
+  [class*="checkout-btn"],
+  [class*="primary-cta"]
+):is(:hover, :focus, :focus-visible, :active) {
+  background: linear-gradient(135deg, #FF8A00 0%, #FF7300 50%, #E64A00 100%) !important;
+  color: #FFFFFF !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 115, 0, 0.52) !important;
+}
+
+:is(
+  .hd-primary-cta,
+  .btn-split-cta,
+  .btn-primary,
+  .cp-checkout-btn,
+  .cp-proceed-checkout-btn,
+  .cart-checkout-btn,
+  .cart-drawer-checkout-btn,
+  .btn-checkout,
+  .cko-btn-primary,
+  .btn-buy-now,
+  .btn-dark,
+  .wishlist-empty-btn,
+  .cp-empty-cta,
+  .coll-hero-cta,
+  [class*="checkout-btn"],
+  [class*="primary-cta"]
+) :is(span, svg, strong, small, em),
+:is(
+  .hd-primary-cta,
+  .btn-split-cta,
+  .btn-primary,
+  .cp-checkout-btn,
+  .cp-proceed-checkout-btn,
+  .cart-checkout-btn,
+  .cart-drawer-checkout-btn,
+  .btn-checkout,
+  .cko-btn-primary,
+  .btn-buy-now,
+  .btn-dark,
+  .wishlist-empty-btn,
+  .cp-empty-cta,
+  .coll-hero-cta,
+  [class*="checkout-btn"],
+  [class*="primary-cta"]
+):is(:hover, :focus, :focus-visible, :active) :is(span, svg, strong, small, em) {
+  color: #FFFFFF !important;
+  fill: currentColor !important;
+}
+
+.hamburger-line,
+.about-factory-badge-dot {
+  background-color: var(--brand-blue) !important;
+}
+
+.stock-dot, .live-dot, .eyebrow-dot,
+.offer-banner-pulse-dot, .vip-pulse-dot, .online-dot,
+.cp-stock-dot, .cko-trust-dot {
+  background-color: var(--brand-orange) !important;
+  box-shadow: 0 0 8px rgba(255, 115, 0, 0.6);
+}
+
+.progress-fill, .cp-shipping-fill {
+  background: linear-gradient(90deg, #FF7300 0%, #FFB800 100%) !important;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(9, 21, 37, 0.25) !important;
+}
+
+@media (max-width: 992px) {
+  :root {
+    --header-logo-height: 72px;
+  }
+}
+
+@media (max-width: 600px) {
+  :root {
+    --header-logo-height: 64px;
+  }
+  .footer-brand-logo-img {
+    height: 72px !important;
+    max-width: 190px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  :root {
+    --header-logo-height: 60px;
+  }
+  .footer-brand-logo-img {
+    height: 62px !important;
+    max-width: 160px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

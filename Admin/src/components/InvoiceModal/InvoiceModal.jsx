@@ -58,12 +58,12 @@ export default function InvoiceModal({ order, onClose }) {
           {/* Header */}
           <div className="invoice-header">
             <div className="invoice-brand">
-              <h1 className="brand-logo-text">ZMW</h1>
-              <p className="brand-sub">HAUTE COUTURE &amp; LUXURY APPAREL</p>
+              <h1 className="brand-logo-text">HooDee Daddy</h1>
+              <p className="brand-sub">KIDS HOODIES &amp; EVERYDAY FASHION</p>
               <div className="brand-address">
-                <p>ZMW Luxury Flagship &amp; Atelier</p>
+                <p>HooDee Daddy Flagship &amp; Dispatch</p>
                 <p>123, Avinashi Road, Peelamedu, Coimbatore, TN - 641004</p>
-                <p>GSTIN: 33AAAAZ0000A1Z5 | contact@zmwclothing.com</p>
+                <p>GSTIN: 33AAAAZ0000A1Z5 | support@hoodeedaddy.com</p>
               </div>
             </div>
 
@@ -162,7 +162,7 @@ export default function InvoiceModal({ order, onClose }) {
                             )}
                             <div>
                               <div className="item-title">
-                                {item.product_name_snapshot || item.title || item.product_name || "ZMW Signature Piece"}
+                                {item.product_name_snapshot || item.title || item.product_name || "HooDee Daddy Signature Piece"}
                               </div>
                               <div className="item-variants">
                                 {item.sku_snapshot && <span>SKU: {item.sku_snapshot}</span>}
@@ -182,7 +182,7 @@ export default function InvoiceModal({ order, onClose }) {
                   <tr>
                     <td>1</td>
                     <td>
-                      <div className="item-title">ZMW Order #{order.order_number || order.id}</div>
+                      <div className="item-title">Order #{order.order_number || order.id}</div>
                     </td>
                     <td style={{ textAlign: "center" }}>1</td>
                     <td style={{ textAlign: "right" }}>{formatINR(total)}</td>
@@ -197,9 +197,9 @@ export default function InvoiceModal({ order, onClose }) {
           <div className="invoice-summary-section">
             <div className="invoice-notes">
               <h4>Terms &amp; Policy:</h4>
-              <p>• Certified authentic handcrafted ZMW luxury apparel.</p>
+              <p>• Certified authentic handcrafted HooDee Daddy apparel.</p>
               <p>• 7-day hassle-free return and exchange policy from date of delivery.</p>
-              <p>• For inquiries, logistics, or support, email concierge@zmwclothing.com.</p>
+              <p>• For inquiries, logistics, or support, email support@hoodeedaddy.com.</p>
             </div>
 
             <div className="invoice-breakdown">
@@ -239,7 +239,7 @@ export default function InvoiceModal({ order, onClose }) {
             <div className="authorized-sign">
               <div className="sign-line" />
               <p>Authorized Signatory</p>
-              <p className="sign-company">ZMW Clothing Atelier</p>
+              <p className="sign-company">HooDee Daddy</p>
             </div>
           </div>
         </div>

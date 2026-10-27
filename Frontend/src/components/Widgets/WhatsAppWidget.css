@@ -16,22 +16,22 @@
   width: 58px;
   height: 58px;
   border-radius: 50%;
-  background-color: #25D366;
-  color: #ffffff;
+  background-color: var(--brand-white);
+  color: var(--brand-blue);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 6px 24px rgba(37, 211, 102, 0.5);
+  box-shadow: 0 6px 24px rgba(9, 21, 37, 0.5);
   transition: all var(--dur-fast) var(--ease-spring);
 }
 
 .whatsapp-fab:hover {
   transform: scale(1.1);
-  box-shadow: 0 8px 28px rgba(37, 211, 102, 0.65);
+  box-shadow: 0 8px 28px rgba(9, 21, 37, 0.65);
 }
 
 .whatsapp-fab.open {
-  background-color: var(--color-ink);
+  background-color: var(--brand-white);
   box-shadow: var(--shadow-lg);
 }
 
@@ -39,7 +39,7 @@
 .whatsapp-popup {
   width: min(320px, calc(100vw - 24px));
   max-width: 100%;
-  background-color: var(--color-white);
+  background-color: var(--brand-white);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-xl);
   overflow: hidden;
@@ -47,8 +47,8 @@
 }
 
 .whatsapp-popup-header {
-  background: linear-gradient(135deg, #075e54 0%, #128c7e 100%);
-  color: white;
+  background: var(--brand-white);
+  color: var(--brand-blue);
   padding: 14px 16px;
   display: flex;
   align-items: center;
@@ -67,14 +67,14 @@
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.15);
+  background: var(--brand-white);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.6rem;
   font-weight: 800;
   letter-spacing: 0.05em;
-  color: white;
+  color: var(--brand-blue);
   flex-shrink: 0;
 }
 
@@ -85,8 +85,8 @@
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background-color: #25D366;
-  border: 2px solid white;
+  background-color: var(--brand-white);
+  border: 2px solid var(--brand-border);
 }
 
 .agent-info {
@@ -97,7 +97,7 @@
 .agent-name {
   font-size: 0.85rem;
   font-weight: 700;
-  color: white;
+  color: var(--brand-blue);
 }
 
 .agent-status {
@@ -106,7 +106,7 @@
 }
 
 .whatsapp-close {
-  color: white;
+  color: var(--brand-blue);
   opacity: 0.75;
   font-size: 1rem;
   padding: 4px;
@@ -114,7 +114,7 @@
 
 .whatsapp-popup-body {
   padding: 16px;
-  background-color: #ece5dd;
+  background-color: var(--brand-white);
   min-height: 140px;
   display: flex;
   flex-direction: column;
@@ -122,23 +122,23 @@
 }
 
 .chat-bubble {
-  background: white;
+  background: var(--brand-white);
   border-radius: 0 12px 12px 12px;
   padding: 10px 14px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 4px rgba(9, 21, 37, 0.08);
   max-width: 90%;
 }
 
 .chat-bubble p {
   font-size: 0.85rem;
-  color: var(--color-ink);
+  color: var(--brand-blue);
   line-height: 1.5;
   margin-bottom: 4px;
 }
 
 .chat-time {
   font-size: 0.65rem;
-  color: var(--color-grey-400);
+  color: var(--brand-blue);
 }
 
 .quick-questions-box {
@@ -150,15 +150,15 @@
 .quick-label {
   font-size: 0.7rem;
   font-weight: 600;
-  color: var(--color-grey-600);
+  color: var(--brand-blue);
   text-transform: uppercase;
   letter-spacing: 0.07em;
 }
 
 .quick-q-btn {
-  background: white;
-  color: #128c7e;
-  border: 1px solid rgba(18, 140, 126, 0.3);
+  background: var(--brand-white);
+  color: var(--brand-blue);
+  border: 1px solid var(--brand-border);
   border-radius: var(--radius-pill);
   padding: 6px 12px;
   font-size: 0.75rem;
@@ -168,14 +168,14 @@
 }
 
 .quick-q-btn:hover {
-  background-color: #075e54;
-  color: white;
-  border-color: #075e54;
+  background-color: var(--brand-white);
+  color: var(--brand-orange);
+  border-color: var(--brand-orange);
 }
 
 .whatsapp-popup-footer {
   padding: 10px 12px;
-  background-color: #f0f0f0;
+  background-color: var(--brand-white);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -188,16 +188,16 @@
   border: none;
   font-size: 0.8rem;
   outline: none;
-  background: white;
-  color: var(--color-ink);
+  background: var(--brand-white);
+  color: var(--brand-blue);
 }
 
 .whatsapp-send-btn {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background-color: #25D366;
-  color: white;
+  background-color: var(--brand-white);
+  color: var(--brand-blue);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -206,7 +206,7 @@
 }
 
 .whatsapp-send-btn:hover {
-  background-color: #128c7e;
+  background-color: var(--brand-white);
 }
 
 @media (max-width: 425px) {

@@ -422,11 +422,6 @@ export default function InventoryPage() {
                         <span className="prod-inv-cat-pill">
                           {product.category || "Apparel"}
                         </span>
-                        {product.subCategory && (
-                          <span className="prod-inv-subcat-pill">
-                            {product.subCategory}
-                          </span>
-                        )}
                       </div>
                       <div className="prod-inv-sku-row">
                         <span>SKU: <strong>{product.sku}</strong></span>

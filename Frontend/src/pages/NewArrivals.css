@@ -8,15 +8,15 @@
 
 /* ── 1. Page wrapper ─────────────────────────────────────── */
 .na-page {
-  background-color: var(--color-cream);
+  background-color: var(--brand-white);
   min-height: 100vh;
-  color: var(--color-ink);
+  color: var(--brand-blue);
 }
 
 /* ── 2. Page Hero Banner ─────────────────────────────────── */
 .na-hero {
-  background-color: var(--color-ink-deep);
-  color: var(--color-white);
+  background-color: var(--brand-white);
+  color: var(--brand-blue);
   padding: clamp(48px, 7vw, 88px) 0 clamp(36px, 5vw, 64px);
   text-align: center;
   position: relative;
@@ -28,7 +28,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at 40% 0%, rgba(16, 185, 129, 0.15) 0%, transparent 60%);
+  background: var(--brand-white);
   pointer-events: none;
 }
 
@@ -39,9 +39,9 @@
 
 .na-hero .section-eyebrow {
   display: inline-block;
-  background-color: rgba(16, 185, 129, 0.18);
-  color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.35);
+  background-color: var(--brand-white);
+  color: var(--brand-blue);
+  border: 1px solid var(--brand-border);
   margin-bottom: 14px;
 }
 
@@ -50,14 +50,14 @@
   font-size: clamp(2rem, 5vw, 3.4rem);
   font-weight: 700;
   letter-spacing: -0.03em;
-  color: var(--color-white);
+  color: var(--brand-blue);
   margin-bottom: 14px;
   line-height: 1.1;
 }
 
 .na-hero-subtitle {
   font-size: clamp(0.9rem, 1.5vw, 1.05rem);
-  color: rgba(255, 255, 255, 0.72);
+  color: var(--brand-blue);
   max-width: 540px;
   margin: 0 auto 28px;
   line-height: 1.6;
@@ -65,14 +65,14 @@
 
 /* Gender tab pills — inherit from BestSellers.css but with green active */
 .na-gender-tab.active {
-  background-color: var(--color-white);
-  color: var(--color-ink);
+  background-color: var(--brand-white);
+  color: var(--brand-orange);
   border-color: var(--color-white);
 }
 
 /* ── 3. Catalog section ──────────────────────────────────── */
 .na-catalog-section {
-  background-color: var(--color-white);
+  background-color: var(--brand-white);
   border-top: 1px solid var(--color-grey-200);
 }
 

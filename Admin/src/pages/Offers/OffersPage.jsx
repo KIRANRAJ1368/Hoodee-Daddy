@@ -13,7 +13,7 @@ import {
   CheckCircle2,
   Percent
 } from "lucide-react";
-import { offersApi, productsApi, categoriesApi, subcategoriesApi } from "../../services/resources";
+import { offersApi, productsApi, categoriesApi } from "../../services/resources";
 import { useToast } from "../../context/ToastContext";
 
 function toLocalDatetimeInput(dateObj) {
@@ -32,7 +32,7 @@ const defaultDates = () => {
 
 const blankForm = () => ({
   name: "",
-  target_type: "all", // 'all' | 'category' | 'subcategory' | 'product'
+  target_type: "all", // 'all' | 'category' | 'product'
   target_ids: [],
   discount_type: "percentage",
   discount_value: "",
@@ -44,32 +44,28 @@ export default function OffersPage() {
   const [offers, setOffers] = useState([]);
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [subs, setSubs] = useState([]);
 
   const [form, setForm] = useState(blankForm());
   const [editingId, setEditingId] = useState(null);
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
 
-  // Cascading filter states for Subcategory & Particular Product selection
+  // Filter state for Particular Product selection
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
-  const [selectedSubcategoryId, setSelectedSubcategoryId] = useState("");
   const [search, setSearch] = useState("");
 
   const toast = useToast();
 
   async function load() {
     try {
-      const [o, p, c, s] = await Promise.all([
+      const [o, p, c] = await Promise.all([
         offersApi.list(),
         productsApi.list({ limit: 200 }),
         categoriesApi.list({ includeInactive: false }),
-        subcategoriesApi.list({ includeInactive: false })
       ]);
       setOffers(o.data || []);
       setProducts(p.data || []);
       setCategories(c.data || []);
-      setSubs(s.data || []);
     } catch (e) {
       toast.error(e.message || "Could not load offers");
     }
@@ -79,32 +75,12 @@ export default function OffersPage() {
     load();
   }, []);
 
-  // Subcategories filtered by the chosen Category
-  const filteredSubcategories = useMemo(() => {
-    let list = subs;
-    if (selectedCategoryId) {
-      list = list.filter(
-        (sub) => Number(sub.category_id ?? sub.categoryId) === Number(selectedCategoryId)
-      );
-    }
-    if (search.trim() && form.target_type === "subcategory") {
-      const q = search.trim().toLowerCase();
-      list = list.filter((sub) => (sub.name || "").toLowerCase().includes(q));
-    }
-    return list;
-  }, [subs, selectedCategoryId, search, form.target_type]);
-
-  // Products filtered by Category -> Subcategory -> Search
+  // Products filtered by Category -> Search
   const filteredProducts = useMemo(() => {
     let list = products;
     if (selectedCategoryId) {
       list = list.filter(
         (p) => Number(p.categoryId ?? p.category_id) === Number(selectedCategoryId)
-      );
-    }
-    if (selectedSubcategoryId) {
-      list = list.filter(
-        (p) => Number(p.subcategoryId ?? p.subcategory_id) === Number(selectedSubcategoryId)
       );
     }
     if (search.trim() && form.target_type === "product") {
@@ -116,7 +92,7 @@ export default function OffersPage() {
       );
     }
     return list;
-  }, [products, selectedCategoryId, selectedSubcategoryId, search, form.target_type]);
+  }, [products, selectedCategoryId, search, form.target_type]);
 
   // Categories filtered by search when in 'category' mode
   const filteredCategories = useMemo(() => {
@@ -132,7 +108,6 @@ export default function OffersPage() {
       target_ids: []
     }));
     setSelectedCategoryId("");
-    setSelectedSubcategoryId("");
     setSearch("");
   }
 
@@ -193,7 +168,6 @@ export default function OffersPage() {
       is_active: offer.is_active !== false
     });
     setSelectedCategoryId("");
-    setSelectedSubcategoryId("");
     setSearch("");
     setOpen(true);
   }
@@ -202,7 +176,6 @@ export default function OffersPage() {
     setEditingId(null);
     setForm(blankForm());
     setSelectedCategoryId("");
-    setSelectedSubcategoryId("");
     setSearch("");
     setOpen(true);
   }
@@ -213,8 +186,6 @@ export default function OffersPage() {
       toast.error(
         form.target_type === "category"
           ? "Please select at least one Category."
-          : form.target_type === "subcategory"
-          ? "Please select at least one Subcategory."
           : "Please select at least one Particular Product."
       );
       return;
@@ -276,13 +247,6 @@ export default function OffersPage() {
     return categories.find((c) => Number(c.id) === Number(catId))?.name || `Category #${catId}`;
   }
 
-  function getSubcategoryName(subId) {
-    const sub = subs.find((s) => Number(s.id) === Number(subId));
-    if (!sub) return `Subcategory #${subId}`;
-    const catName = getCategoryName(sub.category_id ?? sub.categoryId);
-    return `${catName} → ${sub.name}`;
-  }
-
   function getProductName(prodId) {
     const prod = products.find((p) => Number(p.id) === Number(prodId));
     return prod ? `${prod.name} (₹${prod.originalPrice || prod.price})` : `Product #${prodId}`;
@@ -296,10 +260,6 @@ export default function OffersPage() {
     if (offer.target_type === "category") {
       const names = ids.map(getCategoryName);
       return `Category Offer (${ids.length}): ${names.join(", ") || "None"}`;
-    }
-    if (offer.target_type === "subcategory") {
-      const names = ids.map(getSubcategoryName);
-      return `Subcategory Offer (${ids.length}): ${names.join(", ") || "None"}`;
     }
     const names = ids.slice(0, 4).map(getProductName);
     const extra = ids.length > 4 ? ` +${ids.length - 4} more` : "";
@@ -329,7 +289,7 @@ export default function OffersPage() {
             <span className="pill-badge badge-gold">{offers.length} Offer{offers.length === 1 ? "" : "s"}</span>
           </h1>
           <p className="page-subtitle">
-            Set flexible discounts across the Overall Shop, specific Categories, Subcategories, or Particular Products with automatic dropdown selection.
+            Set flexible discounts across the Overall Shop, specific Categories, or Particular Products with automatic dropdown selection.
           </p>
         </div>
         <button
@@ -391,17 +351,7 @@ export default function OffersPage() {
                 </div>
               </button>
 
-              <button
-                type="button"
-                className={`offer-type-card ${form.target_type === "subcategory" ? "active" : ""}`}
-                onClick={() => handleTargetTypeChange("subcategory")}
-              >
-                <Tags size={18} />
-                <div>
-                  <strong>Subcategory Wise</strong>
-                  <span>Category → Subcategory</span>
-                </div>
-              </button>
+
 
               <button
                 type="button"
@@ -411,7 +361,7 @@ export default function OffersPage() {
                 <Shirt size={18} />
                 <div>
                   <strong>Particular Product</strong>
-                  <span>Category → Subcategory → Product</span>
+                  <span>Category → Product</span>
                 </div>
               </button>
             </div>
@@ -551,109 +501,9 @@ export default function OffersPage() {
               </div>
             )}
 
-            {/* MODE C: SUBCATEGORY WISE (Category -> Subcategory) */}
-            {form.target_type === "subcategory" && (
-              <div style={{ display: "grid", gap: 12 }}>
-                <div className="offer-cascade-row">
-                  <label style={{ flex: 1 }}>
-                    Step 1: Filter by Category
-                    <select
-                      value={selectedCategoryId}
-                      onChange={(e) => setSelectedCategoryId(e.target.value)}
-                    >
-                      <option value="">All Categories ({categories.length})</option>
-                      {categories.map((cat) => (
-                        <option key={cat.id} value={cat.id}>
-                          {cat.name}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
 
-                  <label style={{ flex: 1.4 }}>
-                    Step 2: Automatic Subcategory Dropdown (Select to Add)
-                    <select
-                      value=""
-                      onChange={(e) => addTargetFromDropdown(e.target.value)}
-                    >
-                      <option value="">
-                        -- Choose a Subcategory to Add ({filteredSubcategories.length} available) --
-                      </option>
-                      {filteredSubcategories.map((sub) => {
-                        const isSelected = form.target_ids.includes(Number(sub.id));
-                        return (
-                          <option key={sub.id} value={sub.id}>
-                            {isSelected ? "✓ " : ""}{getSubcategoryName(sub.id)}
-                          </option>
-                        );
-                      })}
-                    </select>
-                  </label>
 
-                  <div className="cascade-quick-btns">
-                    <button
-                      type="button"
-                      className="btn btn-secondary btn-sm"
-                      onClick={() => selectAllCurrentTargets(filteredSubcategories)}
-                    >
-                      Select All Shown ({filteredSubcategories.length})
-                    </button>
-                    {form.target_ids.length > 0 && (
-                      <button
-                        type="button"
-                        className="btn btn-secondary btn-sm"
-                        onClick={clearSelectedTargets}
-                      >
-                        Clear ({form.target_ids.length})
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                {/* Selected Subcategory Chips */}
-                {form.target_ids.length > 0 && (
-                  <div className="selected-pills">
-                    {form.target_ids.map((id) => (
-                      <span key={id} className="selected-pill">
-                        <span>{getSubcategoryName(id)}</span>
-                        <button type="button" onClick={() => toggleTargetId(id)} title="Remove">
-                          <X size={13} />
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                {/* Subcategory Checkbox List */}
-                <div className="offer-target-list">
-                  {filteredSubcategories.length > 0 ? (
-                    filteredSubcategories.map((sub) => {
-                      const chosen = form.target_ids.includes(Number(sub.id));
-                      const count = products.filter(
-                        (p) => Number(p.subcategoryId ?? p.subcategory_id) === Number(sub.id)
-                      ).length;
-                      return (
-                        <label key={sub.id} className={chosen ? "chosen-row" : ""}>
-                          <input
-                            type="checkbox"
-                            checked={chosen}
-                            onChange={() => toggleTargetId(sub.id)}
-                          />
-                          <span>{getSubcategoryName(sub.id)}</span>
-                          <small style={{ color: "#475569" }}>{count} product{count === 1 ? "" : "s"}</small>
-                        </label>
-                      );
-                    })
-                  ) : (
-                    <div style={{ padding: 16, color: "#64748b", fontSize: 13 }}>
-                      No subcategories found for this category filter.
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* MODE D: PARTICULAR PRODUCT (Category -> Subcategory -> Automatic Product Dropdown) */}
+            {/* MODE C: PARTICULAR PRODUCT (Category -> Automatic Product Dropdown) */}
             {form.target_type === "product" && (
               <div style={{ display: "grid", gap: 12 }}>
                 <div className="offer-cascade-row">
@@ -663,7 +513,6 @@ export default function OffersPage() {
                       value={selectedCategoryId}
                       onChange={(e) => {
                         setSelectedCategoryId(e.target.value);
-                        setSelectedSubcategoryId("");
                       }}
                     >
                       <option value="">All Categories ({categories.length})</option>
@@ -675,22 +524,7 @@ export default function OffersPage() {
                     </select>
                   </label>
 
-                  <label style={{ flex: 1 }}>
-                    Filter by Subcategory
-                    <select
-                      value={selectedSubcategoryId}
-                      onChange={(e) => setSelectedSubcategoryId(e.target.value)}
-                    >
-                      <option value="">
-                        All Subcategories ({filteredSubcategories.length})
-                      </option>
-                      {filteredSubcategories.map((sub) => (
-                        <option key={sub.id} value={sub.id}>
-                          {sub.name}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+
 
                   <label style={{ flex: 1.6 }}>
                     Automatic Particular Product Dropdown (Select to Add) *
@@ -798,7 +632,7 @@ export default function OffersPage() {
                     })
                   ) : (
                     <div style={{ padding: 16, color: "#64748b", fontSize: 13 }}>
-                      No products match the selected Category / Subcategory filter.
+                      No products match the selected Category filter.
                     </div>
                   )}
                 </div>
@@ -904,7 +738,7 @@ export default function OffersPage() {
         ) : (
           <div className="offer-empty">
             <p style={{ margin: "0 0 10px 0", fontSize: 14 }}>
-              No product or shop offers created yet. Click <strong>Create Offer</strong> to set an Overall Shop, Category, Subcategory, or Particular Product discount.
+              No product or shop offers created yet. Click <strong>Create Offer</strong> to set an Overall Shop, Category, or Particular Product discount.
             </p>
             <button type="button" className="btn btn-accent" onClick={handleOpenCreate}>
               <Plus size={15} />

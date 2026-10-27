@@ -6,8 +6,8 @@ export default function PrivacyPolicy() {
   return (
     <div className="policy-page">
       <SeoHead
-        title="Privacy Policy — Data Protection & Security | ZMW Clothing"
-        description="Learn how ZMW Clothing collects, uses, and protects your personal information and transactions with bank-grade SSL encryption."
+        title="Privacy Policy — Data Protection & Security | HooDee Daddy"
+        description="Learn how HooDee Daddy collects, uses, and protects your personal information and transactions with bank-grade SSL encryption."
         canonicalPath="/privacy-policy"
       />
       <section className="policy-hero" aria-label="Privacy Policy">
@@ -23,7 +23,7 @@ export default function PrivacyPolicy() {
           <div className="policy-card">
             <h2>1. Introduction</h2>
             <p>
-              Welcome to ZMW ("we", "our", or "us"). We value your privacy and are committed to protecting the personal information you share with us. This Privacy Policy outlines our practices regarding the collection, use, and disclosure of your details when you visit and shop on our website.
+              Welcome to HooDee Daddy ("we", "our", or "us"). We value your privacy and are committed to protecting the personal information you share with us. This Privacy Policy outlines our practices regarding the collection, use, and disclosure of your details when you visit and shop on our website.
             </p>
 
             <h2>2. Information We Collect</h2>
@@ -67,10 +67,10 @@ export default function PrivacyPolicy() {
               If you have any questions, concerns, or requests regarding this Privacy Policy or your personal information, please contact our team:
             </p>
             <p>
-              <strong>Company / Store Name:</strong> ZMW Clothing / ZWMStore
+              <strong>Company / Store Name:</strong> HooDee Daddy / ZWMStore
               <br />
               <strong>Official Contact Email:</strong>{" "}
-              <a href="mailto:zmw@gmail.com" style={{ color: "inherit", textDecoration: "underline" }}>zmw@gmail.com</a>
+              <a href="mailto:support@hoodeedaddy.com" style={{ color: "inherit", textDecoration: "underline" }}>support@hoodeedaddy.com</a>
               <br />
               <strong>Helpline / Mobile:</strong>{" "}
               <a href="tel:+919876543210" style={{ color: "inherit", textDecoration: "underline" }}>+91 9876543210</a>

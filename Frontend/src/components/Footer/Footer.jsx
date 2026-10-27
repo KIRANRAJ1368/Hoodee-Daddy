@@ -5,8 +5,8 @@ import SizeGuideModal from "../Modals/SizeGuideModal";
 import "./Footer.css";
 
 const QUICK_LINKS = [
-  { label: "Men's Collection", href: "/categories/mens" },
-  { label: "Women's Collection", href: "/categories/women" },
+  { label: "Newborn Babies", href: "/categories/mens" },
+  { label: "Kids Hoodies", href: "/categories/kidshoodies" },
   { label: "Best Sellers", href: "/collection?collection=best-sellers" },
   { label: "New Arrivals", href: "/collection?collection=new-arrivals" }
 ];
@@ -37,16 +37,16 @@ export default function Footer() {
         <div className="footer-grid">
           {/* Brand Column */}
           <div className="footer-brand-col">
-            <Link to="/" className="footer-logo" aria-label="ZMW">
+            <Link to="/" className="footer-logo" aria-label="HooDee Daddy home">
               <img
-                src={process.env.PUBLIC_URL + "/images/zmw-logo-transparent.png"}
-                alt="ZMW"
+                src={process.env.PUBLIC_URL + "/images/hoodee-daddy-logo.svg"}
+                alt="HooDee Daddy"
                 className="footer-brand-logo-img"
               />
             </Link>
 
             <p className="footer-brand-tagline">
-              ZMW — Everyday Streetwear & Essentials. Heavyweight combed cotton, deliberate oversized cuts, and durable pieces crafted for real life.
+              HooDee Daddy — Everyday Streetwear & Essentials. Heavyweight combed cotton, deliberate oversized cuts, and durable pieces crafted for real life.
             </p>
 
             <div className="footer-contact-list">
@@ -68,7 +68,7 @@ export default function Footer() {
                   <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
                   <polyline points="22,6 12,13 2,6"></polyline>
                 </svg>
-                <a href="mailto:zmw@gmail.com" className="footer-contact-link">zmw@gmail.com</a>
+                <a href="mailto:support@hoodeedaddy.com" className="footer-contact-link">support@hoodeedaddy.com</a>
               </div>
             </div>
 
@@ -99,7 +99,10 @@ export default function Footer() {
             <ul className="footer-link-list">
               {QUICK_LINKS.map((l) => (
                 <li key={l.label}>
-                  <Link to={l.href} className="footer-nav-link">{l.label}</Link>
+                  <Link to={l.href} className="footer-nav-link">
+                    <span className="footer-link-chevron">›</span>
+                    <span className="footer-link-text">{l.label}</span>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -116,12 +119,15 @@ export default function Footer() {
                       type="button"
                       className="footer-nav-link"
                       onClick={() => setIsSizeGuideOpen(true)}
-                      style={{ background: "none", border: "none", padding: 0, margin: 0, cursor: "pointer", fontFamily: "inherit", textAlign: "left" }}
                     >
-                      {l.label}
+                      <span className="footer-link-chevron">›</span>
+                      <span className="footer-link-text">{l.label}</span>
                     </button>
                   ) : (
-                    <Link to={l.href} className="footer-nav-link">{l.label}</Link>
+                    <Link to={l.href} className="footer-nav-link">
+                      <span className="footer-link-chevron">›</span>
+                      <span className="footer-link-text">{l.label}</span>
+                    </Link>
                   )}
                 </li>
               ))}
@@ -139,12 +145,15 @@ export default function Footer() {
                       type="button"
                       className="footer-nav-link"
                       onClick={() => setIsOrderTrackOpen(true)}
-                      style={{ background: "none", border: "none", padding: 0, margin: 0, cursor: "pointer", fontFamily: "inherit", textAlign: "left" }}
                     >
-                      {l.label}
+                      <span className="footer-link-chevron">›</span>
+                      <span className="footer-link-text">{l.label}</span>
                     </button>
                   ) : (
-                    <Link to={l.href} className="footer-nav-link">{l.label}</Link>
+                    <Link to={l.href} className="footer-nav-link">
+                      <span className="footer-link-chevron">›</span>
+                      <span className="footer-link-text">{l.label}</span>
+                    </Link>
                   )}
                 </li>
               ))}
@@ -157,7 +166,7 @@ export default function Footer() {
       <div className="footer-bottom">
         <div className="container footer-bottom-inner">
           <p className="footer-copyright">
-            Copyright © 2026 ZWMStore
+            Copyright © 2026 HooDee Daddy. All rights reserved.
           </p>
 
           <p className="footer-credit">

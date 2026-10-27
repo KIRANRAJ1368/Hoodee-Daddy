@@ -16,14 +16,14 @@ function handleSmtpAuthError(err, context = "dispatch") {
       smtpAuthNoticeLogged = true;
       // eslint-disable-next-line no-console
       console.warn(
-        `\n[ZMW NODEMAILER] ⚠️ Gmail SMTP authentication notice: ${err.message}\n` +
-        `[ZMW NODEMAILER] 💡 To send live emails, generate an App Password in Google Account Security and configure SMTP_PASS in Backend/.env.\n` +
-        `[ZMW NODEMAILER] ℹ️ Outgoing emails will be recorded in simulation mode so checkout and OTP flows execute smoothly without terminal errors.\n`
+        `\n[HOODEE DADDY NODEMAILER] ⚠️ Gmail SMTP authentication notice: ${err.message}\n` +
+        `[HOODEE DADDY NODEMAILER] 💡 To send live emails, generate an App Password in Google Account Security and configure SMTP_PASS in Backend/.env.\n` +
+        `[HOODEE DADDY NODEMAILER] ℹ️ Outgoing emails will be recorded in simulation mode so checkout and OTP flows execute smoothly without terminal errors.\n`
       );
     }
   } else {
     // eslint-disable-next-line no-console
-    console.error(`[ZMW NODEMAILER] ❌ Failed to ${context} via SMTP:`, err.message);
+    console.error(`[HOODEE DADDY NODEMAILER] ❌ Failed to ${context} via SMTP:`, err.message);
   }
 }
 
@@ -75,8 +75,8 @@ function getTransporter() {
 async function sendPasswordResetOtp(email, otp) {
   const { user, pass, from } = env.smtp;
 
-  const subject = `${otp} is your ZMW Clothing verification code`;
-  const text = `Hello,\n\nYour password reset verification code is: ${otp}\n\nThis OTP is valid for 10 minutes. If you did not request this, please ignore this email.\n\nBest regards,\nZMW Clothing Team`;
+  const subject = `${otp} is your HooDee Daddy verification code`;
+  const text = `Hello,\n\nYour password reset verification code is: ${otp}\n\nThis OTP is valid for 10 minutes. If you did not request this, please ignore this email.\n\nBest regards,\nHooDee Daddy Team`;
 
   const html = `
 <!DOCTYPE html>
@@ -84,12 +84,12 @@ async function sendPasswordResetOtp(email, otp) {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ZMW Clothing - Password Reset Code</title>
+  <title>HooDee Daddy - Password Reset Code</title>
 </head>
 <body style="margin: 0; padding: 24px 0; background-color: #f7f7f8; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1f2937;">
   <div style="max-width: 520px; margin: 0 auto; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
     <div style="background-color: #111827; padding: 28px 24px; text-align: center;">
-      <span style="font-size: 13px; font-weight: 700; letter-spacing: 3px; color: #d4af37; text-transform: uppercase;">ZMW CLOTHING</span>
+      <span style="font-size: 13px; font-weight: 700; letter-spacing: 3px; color: #d4af37; text-transform: uppercase;">HOODEE DADDY</span>
       <h1 style="color: #ffffff; font-size: 20px; font-weight: 600; margin: 10px 0 0 0; letter-spacing: 0.5px;">Password Reset Verification</h1>
     </div>
     <div style="padding: 32px 28px;">
@@ -97,7 +97,7 @@ async function sendPasswordResetOtp(email, otp) {
         Hello,
       </p>
       <p style="font-size: 15px; line-height: 1.6; color: #374151; margin: 0 0 24px 0;">
-        We received a request to reset your <strong>ZMW Clothing</strong> account password. Use the verification code below to complete your password reset:
+        We received a request to reset your <strong>HooDee Daddy</strong> account password. Use the verification code below to complete your password reset:
       </p>
       
       <div style="background: #f3f4f6; border: 2px dashed #d1d5db; border-radius: 10px; padding: 22px; text-align: center; margin: 24px 0;">
@@ -118,7 +118,7 @@ async function sendPasswordResetOtp(email, otp) {
 
     <div style="background: #f9fafb; border-top: 1px solid #f3f4f6; padding: 18px 24px; text-align: center;">
       <p style="font-size: 12px; color: #9ca3af; margin: 0;">
-        &copy; ${new Date().getFullYear()} ZMW Clothing. All rights reserved.
+        &copy; ${new Date().getFullYear()} HooDee Daddy. All rights reserved.
       </p>
     </div>
   </div>
@@ -128,28 +128,28 @@ async function sendPasswordResetOtp(email, otp) {
 
   // Always log prominently to terminal console
   console.log("\n=======================================================");
-  console.log(`[ZMW NODEMAILER] 🔑 PASSWORD RESET OTP DISPATCHED`);
+  console.log(`[HOODEE DADDY NODEMAILER] 🔑 PASSWORD RESET OTP DISPATCHED`);
   console.log(`[Recipient] : ${email}`);
   console.log(`[OTP Code]  : ${otp}`);
   console.log(`[Expires In]: 10 minutes`);
   console.log("=======================================================\n");
 
   if (!user || !pass || smtpAuthDisabled) {
-    console.log(`[ZMW NODEMAILER] ℹ️ SMTP is not configured or in simulated mode. OTP code displayed in terminal above.`);
+    console.log(`[HOODEE DADDY NODEMAILER] ℹ️ SMTP is not configured or in simulated mode. OTP code displayed in terminal above.`);
     return { success: true, simulated: true };
   }
 
   try {
     const transport = getTransporter();
     const info = await transport.sendMail({
-      from: from || `ZMW Clothing <${user}>`,
+      from: from || `HooDee Daddy <${user}>`,
       to: email,
       subject,
       text,
       html
     });
 
-    console.log(`[ZMW NODEMAILER] ✅ Real email sent successfully to ${email}. (Message ID: ${info.messageId})`);
+    console.log(`[HOODEE DADDY NODEMAILER] ✅ Real email sent successfully to ${email}. (Message ID: ${info.messageId})`);
     return { success: true, messageId: info.messageId };
   } catch (err) {
     handleSmtpAuthError(err, "dispatch OTP");
@@ -170,8 +170,8 @@ async function sendOrderConfirmationEmail(email, order) {
   const discount = Number(order.discount_amount || 0);
   const shipping = Number(order.shipping_fee || 0);
 
-  const subject = `Order Confirmed: ${orderNumber} — ZMW Clothing Concierge`;
-  const text = `Dear ${customerName},\n\nThank you for choosing ZMW Clothing. Your order ${orderNumber} for ₹${total} has been confirmed.\n\nShipping Address: ${order.shipping_address}, ${order.city || ""}\n\nWe will notify you once dispatched.\n\nZMW Clothing Atelier`;
+  const subject = `Order Confirmed: ${orderNumber} — HooDee Daddy Concierge`;
+  const text = `Dear ${customerName},\n\nThank you for choosing HooDee Daddy. Your order ${orderNumber} for ₹${total} has been confirmed.\n\nShipping Address: ${order.shipping_address}, ${order.city || ""}\n\nWe will notify you once dispatched.\n\nHooDee Daddy Atelier`;
 
   const itemsHtml = items.map((it) => {
     const title = it.product_name_snapshot || it.title || "Signature Piece";
@@ -195,12 +195,12 @@ async function sendOrderConfirmationEmail(email, order) {
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Order Confirmation - ZMW Clothing</title>
+  <title>Order Confirmation - HooDee Daddy</title>
 </head>
 <body style="margin: 0; padding: 24px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8f6f0; color: #111827;">
   <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb; box-shadow: 0 4px 16px rgba(0,0,0,0.06);">
     <div style="background: #111111; padding: 28px 24px; text-align: center;">
-      <h1 style="color: #c5a059; font-size: 26px; letter-spacing: 0.18em; margin: 0; font-weight: 700;">ZMW</h1>
+      <h1 style="color: #c5a059; font-size: 26px; letter-spacing: 0.18em; margin: 0; font-weight: 700;">HooDee Daddy</h1>
       <p style="color: #d1d5db; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; margin: 6px 0 0 0;">Haute Couture & Luxury Apparel</p>
     </div>
 
@@ -267,35 +267,35 @@ async function sendOrderConfirmationEmail(email, order) {
       </div>
 
       <div style="background: #f9fafb; border-radius: 6px; padding: 14px; text-align: center; font-size: 12px; color: #6b7280;">
-        Questions or special tailoring instructions? Reach our concierge at <a href="mailto:zmw@gmail.com" style="color: #c5a059; text-decoration: none; font-weight: 600;">zmw@gmail.com</a> or WhatsApp <strong>+91 9876543210</strong>.
+        Questions or special tailoring instructions? Reach our concierge at <a href="mailto:support@hoodeedaddy.com" style="color: #c5a059; text-decoration: none; font-weight: 600;">support@hoodeedaddy.com</a> or WhatsApp <strong>+91 9876543210</strong>.
       </div>
     </div>
 
     <div style="background: #111111; padding: 16px; text-align: center; font-size: 11px; color: #9ca3af;">
-      &copy; ${new Date().getFullYear()} ZMW Clothing Atelier, 123 Avinashi Road, Coimbatore. All rights reserved.
+      &copy; ${new Date().getFullYear()} HooDee Daddy Atelier, 123 Avinashi Road, Coimbatore. All rights reserved.
     </div>
   </div>
 </body>
 </html>
   `;
 
-  console.log(`\n[ZMW NODEMAILER] 📦 ORDER CONFIRMATION EMAIL PREPARED for ${email} (Order ${orderNumber})`);
+  console.log(`\n[HOODEE DADDY NODEMAILER] 📦 ORDER CONFIRMATION EMAIL PREPARED for ${email} (Order ${orderNumber})`);
 
   if (!user || !pass || smtpAuthDisabled) {
-    console.log(`[ZMW NODEMAILER] ℹ️ SMTP not active or in simulated mode. Order confirmation recorded for ${email}.`);
+    console.log(`[HOODEE DADDY NODEMAILER] ℹ️ SMTP not active or in simulated mode. Order confirmation recorded for ${email}.`);
     return { success: true, simulated: true };
   }
 
   try {
     const transport = getTransporter();
     const info = await transport.sendMail({
-      from: from || `ZMW Clothing Concierge <${user}>`,
+      from: from || `HooDee Daddy Concierge <${user}>`,
       to: email,
       subject,
       text,
       html
     });
-    console.log(`[ZMW NODEMAILER] ✅ Order confirmation dispatched to ${email}. (Message ID: ${info.messageId})`);
+    console.log(`[HOODEE DADDY NODEMAILER] ✅ Order confirmation dispatched to ${email}. (Message ID: ${info.messageId})`);
     return { success: true, messageId: info.messageId };
   } catch (err) {
     handleSmtpAuthError(err, "dispatch order confirmation");
@@ -314,20 +314,20 @@ async function sendRefundConfirmationEmail(email, order) {
   const utr = order.refund_utr_number || "BANK-REF-COMPLETED";
   const upiId = order.refund_upi_id || "Direct Account Transfer";
 
-  const subject = `Refund Processed: ₹${amount} for Order ${orderNumber} — ZMW Clothing`;
-  const text = `Dear ${customerName},\n\nYour refund of ₹${amount} for order ${orderNumber} has been processed successfully to your UPI ID: ${upiId}.\n\nBank / UPI Reference Number (UTR): ${utr}\n\nThank you for choosing ZMW Clothing.\n\nZMW Clothing Atelier`;
+  const subject = `Refund Processed: ₹${amount} for Order ${orderNumber} — HooDee Daddy`;
+  const text = `Dear ${customerName},\n\nYour refund of ₹${amount} for order ${orderNumber} has been processed successfully to your UPI ID: ${upiId}.\n\nBank / UPI Reference Number (UTR): ${utr}\n\nThank you for choosing HooDee Daddy.\n\nHooDee Daddy Atelier`;
 
   const html = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Refund Confirmation - ZMW Clothing</title>
+  <title>Refund Confirmation - HooDee Daddy</title>
 </head>
 <body style="margin: 0; padding: 24px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8f6f0; color: #111827;">
   <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb; box-shadow: 0 4px 16px rgba(0,0,0,0.06);">
     <div style="background: #111111; padding: 28px 24px; text-align: center;">
-      <h1 style="color: #c5a059; font-size: 26px; letter-spacing: 0.18em; margin: 0; font-weight: 700;">ZMW</h1>
+      <h1 style="color: #c5a059; font-size: 26px; letter-spacing: 0.18em; margin: 0; font-weight: 700;">HooDee Daddy</h1>
       <p style="color: #d1d5db; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; margin: 6px 0 0 0;">Haute Couture & Luxury Apparel</p>
     </div>
 
@@ -364,35 +364,35 @@ async function sendRefundConfirmationEmail(email, order) {
       </div>
 
       <div style="background: #f9fafb; border-radius: 6px; padding: 14px; text-align: center; font-size: 12px; color: #6b7280;">
-        Need assistance with your refund? Contact our concierge at <a href="mailto:zmw@gmail.com" style="color: #c5a059; text-decoration: none; font-weight: 600;">zmw@gmail.com</a>.
+        Need assistance with your refund? Contact our concierge at <a href="mailto:support@hoodeedaddy.com" style="color: #c5a059; text-decoration: none; font-weight: 600;">support@hoodeedaddy.com</a>.
       </div>
     </div>
 
     <div style="background: #111111; padding: 16px; text-align: center; font-size: 11px; color: #9ca3af;">
-      &copy; ${new Date().getFullYear()} ZMW Clothing Atelier. All rights reserved.
+      &copy; ${new Date().getFullYear()} HooDee Daddy Atelier. All rights reserved.
     </div>
   </div>
 </body>
 </html>
   `;
 
-  console.log(`\n[ZMW NODEMAILER] 💸 REFUND EMAIL PREPARED for ${email} (Order ${orderNumber}, UTR: ${utr})`);
+  console.log(`\n[HOODEE DADDY NODEMAILER] 💸 REFUND EMAIL PREPARED for ${email} (Order ${orderNumber}, UTR: ${utr})`);
 
   if (!user || !pass || smtpAuthDisabled) {
-    console.log(`[ZMW NODEMAILER] ℹ️ SMTP not active or in simulated mode. Refund record generated for ${email}.`);
+    console.log(`[HOODEE DADDY NODEMAILER] ℹ️ SMTP not active or in simulated mode. Refund record generated for ${email}.`);
     return { success: true, simulated: true };
   }
 
   try {
     const transport = getTransporter();
     const info = await transport.sendMail({
-      from: from || `ZMW Clothing Concierge <${user}>`,
+      from: from || `HooDee Daddy Concierge <${user}>`,
       to: email,
       subject,
       text,
       html
     });
-    console.log(`[ZMW NODEMAILER] ✅ Refund email dispatched to ${email}. (Message ID: ${info.messageId})`);
+    console.log(`[HOODEE DADDY NODEMAILER] ✅ Refund email dispatched to ${email}. (Message ID: ${info.messageId})`);
     return { success: true, messageId: info.messageId };
   } catch (err) {
     handleSmtpAuthError(err, "dispatch refund confirmation");
@@ -434,17 +434,17 @@ function buildOrderStatusEmailHtml(order, newStatus, prevStatus = null, extra = 
   // Status configuration definitions (colors, subjects, headings, descriptions)
   const statusMeta = {
     confirmed: {
-      subject: `Order Confirmed: ${orderNumber} — ZMW Clothing Atelier`,
+      subject: `Order Confirmed: ${orderNumber} — HooDee Daddy Atelier`,
       badge: "ORDER CONFIRMED",
       badgeBg: "#eff6ff",
       badgeBorder: "#bfdbfe",
       badgeColor: "#1d4ed8",
       headline: "Your Order is Confirmed & Verified",
-      lead: `Thank you for choosing ZMW Clothing, ${customerName}. Your order <strong>${orderNumber}</strong> has been verified by our atelier. Our master artisans are now preparing your pieces for express dispatch.`,
+      lead: `Thank you for choosing HooDee Daddy, ${customerName}. Your order <strong>${orderNumber}</strong> has been verified by our atelier. Our master artisans are now preparing your pieces for express dispatch.`,
       nextStep: "Our atelier is inspecting the tailoring and packaging your pieces in our signature luxury box."
     },
     packed: {
-      subject: `Order Packed & Ready for Dispatch: ${orderNumber} — ZMW Clothing`,
+      subject: `Order Packed & Ready for Dispatch: ${orderNumber} — HooDee Daddy`,
       badge: "PACKED & SECURED",
       badgeBg: "#fef3c7",
       badgeBorder: "#fde68a",
@@ -464,17 +464,17 @@ function buildOrderStatusEmailHtml(order, newStatus, prevStatus = null, extra = 
       nextStep: "You can track your package in real-time below as it travels to your city."
     },
     delivered: {
-      subject: `Delivered: ${orderNumber} — Thank You for Choosing ZMW Clothing`,
+      subject: `Delivered: ${orderNumber} — Thank You for Choosing HooDee Daddy`,
       badge: "DELIVERED SUCCESSFULLY",
       badgeBg: "#ecfdf5",
       badgeBorder: "#a7f3d0",
       badgeColor: "#047857",
       headline: "Your Package Has Been Delivered",
-      lead: `We are delighted to confirm that your order <strong>${orderNumber}</strong> has been successfully delivered. We hope you adore the fit, fabric, and craftsmanship of your new ZMW pieces.`,
+      lead: `We are delighted to confirm that your order <strong>${orderNumber}</strong> has been successfully delivered. We hope you adore the fit, fabric, and craftsmanship of your new HooDee Daddy pieces.`,
       nextStep: "If you have any questions or require styling adjustments, our atelier concierge is always at your service."
     },
     cancelled: {
-      subject: `Order Cancellation Notice: ${orderNumber} — ZMW Clothing`,
+      subject: `Order Cancellation Notice: ${orderNumber} — HooDee Daddy`,
       badge: "ORDER CANCELLED",
       badgeBg: "#fef2f2",
       badgeBorder: "#fecaca",
@@ -486,7 +486,7 @@ function buildOrderStatusEmailHtml(order, newStatus, prevStatus = null, extra = 
         : "As this order was placed with Cash on Delivery (COD), no payment was charged."
     },
     returned: {
-      subject: `Return Received & Verified: ${orderNumber} — ZMW Clothing`,
+      subject: `Return Received & Verified: ${orderNumber} — HooDee Daddy`,
       badge: "RETURN INSPECTION COMPLETE",
       badgeBg: "#f5f3ff",
       badgeBorder: "#ddd6fe",
@@ -498,7 +498,7 @@ function buildOrderStatusEmailHtml(order, newStatus, prevStatus = null, extra = 
   };
 
   const meta = statusMeta[status] || {
-    subject: `Order Status Update: ${orderNumber} (${status.toUpperCase()}) — ZMW Clothing`,
+    subject: `Order Status Update: ${orderNumber} (${status.toUpperCase()}) — HooDee Daddy`,
     badge: `STATUS: ${status.toUpperCase()}`,
     badgeBg: "#f3f4f6",
     badgeBorder: "#e5e7eb",
@@ -589,7 +589,7 @@ function buildOrderStatusEmailHtml(order, newStatus, prevStatus = null, extra = 
   // Items table
   const itemsHtml = Array.isArray(items) && items.length > 0
     ? items.map((it) => {
-        const title = it.product_name_snapshot || it.title || it.name || "ZMW Signature Piece";
+        const title = it.product_name_snapshot || it.title || it.name || "HooDee Daddy Signature Piece";
         const qty = it.quantity || 1;
         const price = Number(it.unit_price || it.price || 0).toLocaleString("en-IN");
         const metaList = [it.size ? `Size: ${it.size}` : "", it.color ? `Color: ${it.color}` : ""].filter(Boolean).join(" | ");
@@ -617,7 +617,7 @@ function buildOrderStatusEmailHtml(order, newStatus, prevStatus = null, extra = 
   <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb; box-shadow: 0 4px 16px rgba(0,0,0,0.06);">
     <!-- Brand Luxury Banner -->
     <div style="background: #111111; padding: 28px 24px; text-align: center;">
-      <h1 style="color: #c5a059; font-size: 26px; letter-spacing: 0.18em; margin: 0; font-weight: 700;">ZMW</h1>
+      <h1 style="color: #c5a059; font-size: 26px; letter-spacing: 0.18em; margin: 0; font-weight: 700;">HooDee Daddy</h1>
       <p style="color: #d1d5db; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; margin: 6px 0 0 0;">Haute Couture & Luxury Apparel</p>
     </div>
 
@@ -714,13 +714,13 @@ function buildOrderStatusEmailHtml(order, newStatus, prevStatus = null, extra = 
 
       <!-- Atelier Concierge Contact -->
       <div style="background: #f9fafb; border-radius: 6px; padding: 14px; text-align: center; font-size: 12px; color: #6b7280;">
-        Have questions about your order delivery? Reach our dedicated atelier concierge anytime at <a href="mailto:zmw@gmail.com" style="color: #c5a059; text-decoration: none; font-weight: 600;">zmw@gmail.com</a> or WhatsApp <strong>+91 9876543210</strong>.
+        Have questions about your order delivery? Reach our dedicated atelier concierge anytime at <a href="mailto:support@hoodeedaddy.com" style="color: #c5a059; text-decoration: none; font-weight: 600;">support@hoodeedaddy.com</a> or WhatsApp <strong>+91 9876543210</strong>.
       </div>
     </div>
 
     <!-- Luxury Footer -->
     <div style="background: #111111; padding: 16px; text-align: center; font-size: 11px; color: #9ca3af;">
-      &copy; ${new Date().getFullYear()} ZMW Clothing Atelier, 123 Avinashi Road, Coimbatore. All rights reserved.
+      &copy; ${new Date().getFullYear()} HooDee Daddy Atelier, 123 Avinashi Road, Coimbatore. All rights reserved.
     </div>
   </div>
 </body>
@@ -728,13 +728,13 @@ function buildOrderStatusEmailHtml(order, newStatus, prevStatus = null, extra = 
   `;
 
   const text = `Dear ${customerName},\n\n` +
-    `Your ZMW Clothing order ${orderNumber} status has been updated to: ${status.toUpperCase()}.\n\n` +
+    `Your HooDee Daddy order ${orderNumber} status has been updated to: ${status.toUpperCase()}.\n\n` +
     `${meta.headline}\n` +
     `${meta.lead.replace(/<[^>]*>/g, "")}\n\n` +
     `${awbCode ? `Courier: ${courierName}\nAWB / Tracking Number: ${awbCode}\n` : ""}` +
     `Total: ₹${total}\n` +
     `Shipping Address: ${order.shipping_address || ""}, ${order.city || ""}\n\n` +
-    `Best regards,\nZMW Clothing Atelier Concierge`;
+    `Best regards,\nHooDee Daddy Atelier Concierge`;
 
   return {
     subject: meta.subject,
@@ -767,14 +767,14 @@ async function sendOrderStatusUpdateEmail(email, order, newStatus, prevStatus = 
 
   const recipientEmail = email || order.email || (order.user && order.user.email);
   if (!recipientEmail) {
-    console.warn(`[ZMW NODEMAILER] ⚠️ Cannot send order status update email: no recipient email for Order ${order?.order_number || order?.id}`);
+    console.warn(`[HOODEE DADDY NODEMAILER] ⚠️ Cannot send order status update email: no recipient email for Order ${order?.order_number || order?.id}`);
     return { success: false, reason: "No recipient email" };
   }
 
   const { subject, html, text, status, orderNumber, awbCode, courierName } = buildOrderStatusEmailHtml(order, newStatus, prevStatus, extra);
 
   console.log(`\n=======================================================`);
-  console.log(`[ZMW NODEMAILER] 🔔 ORDER STATUS UPDATE EMAIL DISPATCHED`);
+  console.log(`[HOODEE DADDY NODEMAILER] 🔔 ORDER STATUS UPDATE EMAIL DISPATCHED`);
   console.log(`[Recipient] : ${recipientEmail}`);
   console.log(`[Order Ref] : ${orderNumber}`);
   console.log(`[New Status]: ${status.toUpperCase()}`);
@@ -783,21 +783,21 @@ async function sendOrderStatusUpdateEmail(email, order, newStatus, prevStatus = 
   console.log(`=======================================================\n`);
 
   if (!user || !pass || smtpAuthDisabled) {
-    console.log(`[ZMW NODEMAILER] ℹ️ SMTP in simulated mode. Status update email successfully recorded for ${recipientEmail}.`);
+    console.log(`[HOODEE DADDY NODEMAILER] ℹ️ SMTP in simulated mode. Status update email successfully recorded for ${recipientEmail}.`);
     return { success: true, simulated: true };
   }
 
   try {
     const transport = getTransporter();
     const info = await transport.sendMail({
-      from: from || `ZMW Clothing Concierge <${user}>`,
+      from: from || `HooDee Daddy Concierge <${user}>`,
       to: recipientEmail,
       subject,
       text,
       html
     });
 
-    console.log(`[ZMW NODEMAILER] ✅ Live order status email dispatched to ${recipientEmail}. (Message ID: ${info.messageId})`);
+    console.log(`[HOODEE DADDY NODEMAILER] ✅ Live order status email dispatched to ${recipientEmail}. (Message ID: ${info.messageId})`);
     return { success: true, messageId: info.messageId };
   } catch (err) {
     handleSmtpAuthError(err, `dispatch order status update (${status})`);
@@ -814,7 +814,7 @@ function buildWelcomeEmailHtml(customer = {}) {
   const customerPhone = customer.phone || "On File";
   const storeUrl = process.env.STOREFRONT_URL || "http://localhost:3000";
 
-  const subject = `Welcome to ZMW Clothing Atelier, ${customerName}! — Your Luxury Account is Ready`;
+  const subject = `Welcome to HooDee Daddy Atelier, ${customerName}! — Your Luxury Account is Ready`;
 
   const html = `
 <!DOCTYPE html>
@@ -828,7 +828,7 @@ function buildWelcomeEmailHtml(customer = {}) {
   <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb; box-shadow: 0 4px 16px rgba(0,0,0,0.06);">
     <!-- Brand Luxury Banner -->
     <div style="background: #111111; padding: 32px 24px; text-align: center;">
-      <h1 style="color: #c5a059; font-size: 28px; letter-spacing: 0.2em; margin: 0; font-weight: 700;">ZMW</h1>
+      <h1 style="color: #c5a059; font-size: 28px; letter-spacing: 0.2em; margin: 0; font-weight: 700;">HooDee Daddy</h1>
       <p style="color: #d1d5db; font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; margin: 6px 0 0 0;">Haute Couture &amp; Luxury Apparel</p>
     </div>
 
@@ -841,11 +841,11 @@ function buildWelcomeEmailHtml(customer = {}) {
       </div>
 
       <h2 style="font-size: 22px; color: #111827; margin: 0 0 14px 0;">
-        Welcome to ZMW Clothing, ${customerName}!
+        Welcome to HooDee Daddy, ${customerName}!
       </h2>
 
       <p style="font-size: 14px; line-height: 1.65; color: #4b5563; margin: 0 0 20px 0;">
-        Thank you for registering with <strong>ZMW Clothing Atelier</strong>. Your personal member profile has been activated, giving you seamless access to our Mens, Womens, Girls, and Babies collections, real-time order notifications, and express doorstep delivery.
+        Thank you for registering with <strong>HooDee Daddy Atelier</strong>. Your personal member profile has been activated, giving you seamless access to our Mens, Womens, Girls, and Babies collections, real-time order notifications, and express doorstep delivery.
       </p>
 
       <!-- Account Details Box -->
@@ -875,7 +875,7 @@ function buildWelcomeEmailHtml(customer = {}) {
 
       <!-- Member Perks -->
       <h3 style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: #111827; margin: 0 0 12px 0; border-bottom: 2px solid #111111; padding-bottom: 6px;">
-        Your ZMW Member Privileges
+        Your HooDee Daddy Member Privileges
       </h3>
       <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 13px; color: #374151;">
         <tr>
@@ -903,18 +903,18 @@ function buildWelcomeEmailHtml(customer = {}) {
       <!-- CTA Button -->
       <div style="text-align: center; margin: 28px 0;">
         <a href="${storeUrl}" target="_blank" style="display: inline-block; background-color: #111827; color: #c5a059; text-decoration: none; padding: 12px 28px; border-radius: 6px; font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; border: 1px solid #c5a059;">
-          Explore ZMW Collections &rarr;
+          Explore HooDee Daddy Collections &rarr;
         </a>
       </div>
 
       <div style="background: #f9fafb; border-radius: 6px; padding: 14px; text-align: center; font-size: 12px; color: #6b7280;">
-        Need styling advice or assistance? Reach our atelier concierge at <a href="mailto:zmw@gmail.com" style="color: #c5a059; text-decoration: none; font-weight: 600;">zmw@gmail.com</a> or WhatsApp <strong>+91 9876543210</strong>.
+        Need styling advice or assistance? Reach our atelier concierge at <a href="mailto:support@hoodeedaddy.com" style="color: #c5a059; text-decoration: none; font-weight: 600;">support@hoodeedaddy.com</a> or WhatsApp <strong>+91 9876543210</strong>.
       </div>
     </div>
 
     <!-- Luxury Footer -->
     <div style="background: #111111; padding: 16px; text-align: center; font-size: 11px; color: #9ca3af;">
-      &copy; ${new Date().getFullYear()} ZMW Clothing Atelier, 123 Avinashi Road, Coimbatore. All rights reserved.
+      &copy; ${new Date().getFullYear()} HooDee Daddy Atelier, 123 Avinashi Road, Coimbatore. All rights reserved.
     </div>
   </div>
 </body>
@@ -922,11 +922,11 @@ function buildWelcomeEmailHtml(customer = {}) {
   `;
 
   const text =
-    `Welcome to ZMW Clothing Atelier, ${customerName}!\n\n` +
+    `Welcome to HooDee Daddy Atelier, ${customerName}!\n\n` +
     `Thank you for registering your account (${customerEmail}).\n` +
     `Your profile is now active. You will receive real-time email notifications at ${customerEmail} for every order status update (Confirmed, Packed, Shipped, and Delivered).\n\n` +
     `Explore our collections: ${storeUrl}\n\n` +
-    `Warm regards,\nZMW Clothing Atelier Concierge`;
+    `Warm regards,\nHooDee Daddy Atelier Concierge`;
 
   return {
     subject,
@@ -951,7 +951,7 @@ async function sendWelcomeEmail(email, customer = {}) {
 
   const recipientEmail = email || customer.email;
   if (!recipientEmail) {
-    console.warn("[ZMW NODEMAILER] ⚠️ Cannot send welcome email: no recipient email provided.");
+    console.warn("[HOODEE DADDY NODEMAILER] ⚠️ Cannot send welcome email: no recipient email provided.");
     return { success: false, reason: "No recipient email" };
   }
 
@@ -961,28 +961,28 @@ async function sendWelcomeEmail(email, customer = {}) {
   });
 
   console.log(`\n=======================================================`);
-  console.log(`[ZMW NODEMAILER] 🎉 CUSTOMER WELCOME EMAIL DISPATCHED`);
+  console.log(`[HOODEE DADDY NODEMAILER] 🎉 CUSTOMER WELCOME EMAIL DISPATCHED`);
   console.log(`[Recipient]    : ${recipientEmail}`);
   console.log(`[Customer Name]: ${customerName}`);
   console.log(`[Subject]      : ${subject}`);
   console.log(`=======================================================\n`);
 
   if (!user || !pass || smtpAuthDisabled) {
-    console.log(`[ZMW NODEMAILER] ℹ️ SMTP in simulated mode. Welcome email recorded for ${recipientEmail}.`);
+    console.log(`[HOODEE DADDY NODEMAILER] ℹ️ SMTP in simulated mode. Welcome email recorded for ${recipientEmail}.`);
     return { success: true, simulated: true };
   }
 
   try {
     const transport = getTransporter();
     const info = await transport.sendMail({
-      from: from || `ZMW Clothing Concierge <${user}>`,
+      from: from || `HooDee Daddy Concierge <${user}>`,
       to: recipientEmail,
       subject,
       text,
       html
     });
 
-    console.log(`[ZMW NODEMAILER] ✅ Live welcome email dispatched to ${recipientEmail}. (Message ID: ${info.messageId})`);
+    console.log(`[HOODEE DADDY NODEMAILER] ✅ Live welcome email dispatched to ${recipientEmail}. (Message ID: ${info.messageId})`);
     return { success: true, messageId: info.messageId };
   } catch (err) {
     handleSmtpAuthError(err, "dispatch welcome email");
@@ -998,7 +998,7 @@ async function sendWelcomeEmail(email, customer = {}) {
  */
 async function sendFirstVisitLeadNotification(adminEmail, leadData = {}) {
   const { user, pass, from } = env.smtp;
-  const recipientEmail = adminEmail || env.seedAdmin?.email || "adminzmw@gmail.com";
+  const recipientEmail = adminEmail || env.seedAdmin?.email || "adminsupport@hoodeedaddy.com";
   const { phone, pincode, district, state, ip, userAgent, submittedAt } = leadData;
 
   const locationSummary = [district, state].filter(Boolean).join(", ") || "India";
@@ -1006,7 +1006,7 @@ async function sendFirstVisitLeadNotification(adminEmail, leadData = {}) {
 
   const subject = `🔔 New Customer Visit Lead: +91 ${phone} | PIN ${pincode} (${locationSummary})`;
 
-  const text = `ZMW CLOTHING - NEW CUSTOMER FIRST-VISIT LEAD
+  const text = `HOODEE DADDY - NEW CUSTOMER FIRST-VISIT LEAD
 ======================================================
 A customer has submitted their contact & delivery details on their first visit to the storefront.
 
@@ -1019,7 +1019,7 @@ IP Address     : ${ip || "N/A"}
 
 You can use these details for customer outreach, marketing broadcasts, or checkout support.
 Best regards,
-ZMW Clothing System`;
+HooDee Daddy System`;
 
   const html = `
 <!DOCTYPE html>
@@ -1027,7 +1027,7 @@ ZMW Clothing System`;
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>New Customer Lead - ZMW Clothing</title>
+  <title>New Customer Lead - HooDee Daddy</title>
 </head>
 <body style="margin: 0; padding: 24px 0; background-color: #0f172a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b;">
   <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: #0f172a;">
@@ -1038,7 +1038,7 @@ ZMW Clothing System`;
           <tr>
             <td style="background: linear-gradient(135deg, #111827 0%, #1f2937 100%); padding: 32px 28px; text-align: center; border-bottom: 3px solid #d4af37;">
               <span style="display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: 3px; color: #d4af37; text-transform: uppercase; background: rgba(212, 175, 55, 0.12); padding: 4px 12px; border-radius: 999px; margin-bottom: 12px; border: 1px solid rgba(212, 175, 55, 0.25);">
-                ZMW CLOTHING ADMIN ALERT
+                HOODEE DADDY ADMIN ALERT
               </span>
               <h1 style="color: #ffffff; font-size: 22px; font-weight: 700; margin: 0; letter-spacing: 0.3px;">
                 New Customer Visit Lead
@@ -1053,7 +1053,7 @@ ZMW Clothing System`;
           <tr>
             <td style="padding: 32px 28px;">
               <p style="font-size: 14.5px; line-height: 1.6; color: #475569; margin: 0 0 20px 0;">
-                Hello <strong>Admin</strong>, a new potential customer visited the <strong>ZMW Clothing</strong> website and shared their contact and location details:
+                Hello <strong>Admin</strong>, a new potential customer visited the <strong>HooDee Daddy</strong> website and shared their contact and location details:
               </p>
 
               <!-- Main Details Card -->
@@ -1119,7 +1119,7 @@ ZMW Clothing System`;
               <!-- Admin Call to Action -->
               <div style="text-align: center; margin-top: 26px;">
                 <a href="http://localhost:5173" style="display: inline-block; background-color: #111827; color: #ffffff; text-decoration: none; font-size: 13.5px; font-weight: 600; padding: 13px 28px; border-radius: 8px; letter-spacing: 0.3px; box-shadow: 0 4px 12px rgba(17, 24, 39, 0.2);">
-                  Open ZMW Admin Panel &rarr;
+                  Open HooDee Daddy Admin Panel &rarr;
                 </a>
               </div>
             </td>
@@ -1128,8 +1128,8 @@ ZMW Clothing System`;
           <!-- Footer -->
           <tr>
             <td style="background-color: #f8fafc; padding: 20px 28px; text-align: center; border-top: 1px solid #f1f5f9; font-size: 12px; color: #94a3b8;">
-              <p style="margin: 0 0 6px 0;">This is an automated notification from your ZMW Clothing eCommerce platform.</p>
-              <p style="margin: 0; font-size: 11px; color: #cbd5e1;">© ${new Date().getFullYear()} ZMW Clothing. All rights reserved.</p>
+              <p style="margin: 0 0 6px 0;">This is an automated notification from your HooDee Daddy eCommerce platform.</p>
+              <p style="margin: 0; font-size: 11px; color: #cbd5e1;">© ${new Date().getFullYear()} HooDee Daddy. All rights reserved.</p>
             </td>
           </tr>
         </table>
@@ -1142,7 +1142,7 @@ ZMW Clothing System`;
 
   if (!user || !pass || smtpAuthDisabled) {
     console.log(`\n======================================================`);
-    console.log(`[ZMW NODEMAILER] ℹ️ First-visit lead notification (SIMULATED):`);
+    console.log(`[HOODEE DADDY NODEMAILER] ℹ️ First-visit lead notification (SIMULATED):`);
     console.log(`To Admin     : ${recipientEmail}`);
     console.log(`Subject      : ${subject}`);
     console.log(`Customer Phone : +91 ${phone} | PIN: ${pincode} (${locationSummary})`);
@@ -1160,7 +1160,7 @@ ZMW Clothing System`;
       html
     });
 
-    console.log(`[ZMW NODEMAILER] ✅ Live first-visit lead notification dispatched to ${recipientEmail}. (Message ID: ${info.messageId})`);
+    console.log(`[HOODEE DADDY NODEMAILER] ✅ Live first-visit lead notification dispatched to ${recipientEmail}. (Message ID: ${info.messageId})`);
     return { success: true, messageId: info.messageId };
   } catch (err) {
     handleSmtpAuthError(err, "dispatch first-visit lead email");

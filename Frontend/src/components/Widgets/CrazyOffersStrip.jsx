@@ -21,15 +21,15 @@ export default function CrazyOffersStrip() {
             <div className="offer-main-content">
               <span className="offer-subhead">BUY 2 & GET</span>
               <h3 className="offer-value">₹200 OFF</h3>
-              <p className="offer-code-hint">Auto-applied or use code: <strong>ZMW200</strong></p>
+              <p className="offer-code-hint">Auto-applied or use code: <strong>HD200</strong></p>
             </div>
             <div className="offer-actions">
               <button
                 type="button"
                 className="offer-copy-btn"
-                onClick={() => handleCopy("ZMW200")}
+                onClick={() => handleCopy("HD200")}
               >
-                {copiedCode === "ZMW200" ? "COPIED! ✓" : "COPY CODE"}
+                {copiedCode === "HD200" ? "COPIED! ✓" : "COPY CODE"}
               </button>
               <Link to="/collection" className="offer-explore-link">
                 EXPLORE &rarr;
@@ -50,15 +50,15 @@ export default function CrazyOffersStrip() {
             <div className="offer-main-content">
               <span className="offer-subhead">BUY 4 & GET</span>
               <h3 className="offer-value">₹500 OFF</h3>
-              <p className="offer-code-hint">Auto-applied or use code: <strong>ZMW500</strong></p>
+              <p className="offer-code-hint">Auto-applied or use code: <strong>HD500</strong></p>
             </div>
             <div className="offer-actions">
               <button
                 type="button"
                 className="offer-copy-btn"
-                onClick={() => handleCopy("ZMW500")}
+                onClick={() => handleCopy("HD500")}
               >
-                {copiedCode === "ZMW500" ? "COPIED! ✓" : "COPY CODE"}
+                {copiedCode === "HD500" ? "COPIED! ✓" : "COPY CODE"}
               </button>
               <Link to="/collection" className="offer-explore-link">
                 EXPLORE &rarr;

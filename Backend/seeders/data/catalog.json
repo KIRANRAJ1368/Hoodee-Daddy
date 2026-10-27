@@ -163,10 +163,10 @@
   ],
   "products": [
     {
-      "legacy_id": "zmw-m01",
+      "legacy_id": "hd-m01",
       "name": "Printed Round Neck T-Shirt - Jet Black & Off White",
       "slug": "printed-round-neck-t-shirt-jet-black-off-white",
-      "sku": "ZMW-MEN-OS-01",
+      "sku": "HD-MEN-OS-01",
       "category_slug": "mens",
       "subcategory_name": "Round Neck T-shirt",
       "product_type": "T-Shirts",
@@ -209,10 +209,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-m02",
+      "legacy_id": "hd-m02",
       "name": "Printed Round Neck T-Shirt - Charcoal & Rust",
       "slug": "printed-round-neck-t-shirt-charcoal-rust",
-      "sku": "ZMW-MEN-OS-02",
+      "sku": "HD-MEN-OS-02",
       "category_slug": "mens",
       "subcategory_name": "Round Neck T-shirt",
       "product_type": "T-Shirts",
@@ -250,10 +250,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-m03",
+      "legacy_id": "hd-m03",
       "name": "Printed Round Neck T-Shirt - Sage Green & Stone Beige",
       "slug": "printed-round-neck-t-shirt-sage-green-stone-beige",
-      "sku": "ZMW-MEN-OS-03",
+      "sku": "HD-MEN-OS-03",
       "category_slug": "mens",
       "subcategory_name": "Round Neck T-shirt",
       "product_type": "T-Shirts",
@@ -291,10 +291,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-m04",
+      "legacy_id": "hd-m04",
       "name": "Oversized Round Neck T-Shirt - Ivory & Jet Black",
       "slug": "oversized-round-neck-t-shirt-ivory-jet-black",
-      "sku": "ZMW-MEN-OS-04",
+      "sku": "HD-MEN-OS-04",
       "category_slug": "mens",
       "subcategory_name": "Round Neck T-shirt",
       "product_type": "T-Shirts",
@@ -332,10 +332,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-m05",
+      "legacy_id": "hd-m05",
       "name": "Printed Round Neck T-Shirt - Racing Red & Jet Black",
       "slug": "printed-round-neck-t-shirt-racing-red-jet-black",
-      "sku": "ZMW-MEN-OS-05",
+      "sku": "HD-MEN-OS-05",
       "category_slug": "mens",
       "subcategory_name": "Round Neck T-shirt",
       "product_type": "T-Shirts",
@@ -373,10 +373,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-m06",
+      "legacy_id": "hd-m06",
       "name": "Oversized Round Neck T-Shirt - Olive & Off White",
       "slug": "oversized-round-neck-t-shirt-olive-off-white",
-      "sku": "ZMW-MEN-OS-06",
+      "sku": "HD-MEN-OS-06",
       "category_slug": "mens",
       "subcategory_name": "Round Neck T-shirt",
       "product_type": "T-Shirts",
@@ -419,10 +419,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-m07",
+      "legacy_id": "hd-m07",
       "name": "Classic Polo T-Shirt - Ivory & Navy",
       "slug": "classic-polo-t-shirt-ivory-navy",
-      "sku": "ZMW-MEN-PL-01",
+      "sku": "HD-MEN-PL-01",
       "category_slug": "mens",
       "subcategory_name": "Polo T-shirt",
       "product_type": "Polos",
@@ -460,10 +460,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-m08",
+      "legacy_id": "hd-m08",
       "name": "Classic Polo T-Shirt - Maroon & Jet Black",
       "slug": "classic-polo-t-shirt-maroon-jet-black",
-      "sku": "ZMW-MEN-PL-02",
+      "sku": "HD-MEN-PL-02",
       "category_slug": "mens",
       "subcategory_name": "Polo T-shirt",
       "product_type": "Polos",
@@ -501,10 +501,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-m09",
+      "legacy_id": "hd-m09",
       "name": "Classic Polo T-Shirt - Espresso Brown & Off White",
       "slug": "classic-polo-t-shirt-espresso-brown-off-white",
-      "sku": "ZMW-MEN-PL-03",
+      "sku": "HD-MEN-PL-03",
       "category_slug": "mens",
       "subcategory_name": "Polo T-shirt",
       "product_type": "Polos",
@@ -542,10 +542,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-m10",
+      "legacy_id": "hd-m10",
       "name": "Classic Polo T-Shirt - Mustard Gold & Jet Black",
       "slug": "classic-polo-t-shirt-mustard-gold-jet-black",
-      "sku": "ZMW-MEN-PL-04",
+      "sku": "HD-MEN-PL-04",
       "category_slug": "mens",
       "subcategory_name": "Polo T-shirt",
       "product_type": "Polos",
@@ -582,10 +582,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-m11",
+      "legacy_id": "hd-m11",
       "name": "Classic Polo T-Shirt - Sand Beige & Sky Blue",
       "slug": "classic-polo-t-shirt-sand-beige-sky-blue",
-      "sku": "ZMW-MEN-PL-05",
+      "sku": "HD-MEN-PL-05",
       "category_slug": "mens",
       "subcategory_name": "Polo T-shirt",
       "product_type": "Polos",
@@ -624,10 +624,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-m12",
+      "legacy_id": "hd-m12",
       "name": "Oversized Round Neck T-Shirt - Crisp White & Sky Blue",
       "slug": "oversized-round-neck-t-shirt-crisp-white-sky-blue",
-      "sku": "ZMW-MEN-01-2",
+      "sku": "HD-MEN-01-2",
       "category_slug": "mens",
       "subcategory_name": "Round Neck T-shirt",
       "product_type": "Shirts",
@@ -669,10 +669,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-m13",
+      "legacy_id": "hd-m13",
       "name": "Classic Cotton Round Neck T-Shirt - Beige & Ivory",
       "slug": "classic-cotton-round-neck-t-shirt-beige-ivory",
-      "sku": "ZMW-MEN-PT-02",
+      "sku": "HD-MEN-PT-02",
       "category_slug": "mens",
       "subcategory_name": "Round Neck T-shirt",
       "product_type": "T-Shirts",
@@ -710,10 +710,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-m14",
+      "legacy_id": "hd-m14",
       "name": "Classic Cotton Round Neck T-Shirt - Jet Black",
       "slug": "classic-cotton-round-neck-t-shirt-jet-black",
-      "sku": "ZMW-MEN-PT-03",
+      "sku": "HD-MEN-PT-03",
       "category_slug": "mens",
       "subcategory_name": "Round Neck T-shirt",
       "product_type": "T-Shirts",
@@ -748,10 +748,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-m19",
+      "legacy_id": "hd-m19",
       "name": "Oversized Round Neck T-Shirt - Navy Blue & White",
       "slug": "oversized-round-neck-t-shirt-navy-blue-white",
-      "sku": "ZMW-MEN-OS-07",
+      "sku": "HD-MEN-OS-07",
       "category_slug": "mens",
       "subcategory_name": "Round Neck T-shirt",
       "product_type": "T-Shirts",
@@ -790,10 +790,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-m20",
+      "legacy_id": "hd-m20",
       "name": "Oversized Round Neck T-Shirt - Off White & Crimson Red",
       "slug": "oversized-round-neck-t-shirt-off-white-crimson-red",
-      "sku": "ZMW-MEN-OS-08",
+      "sku": "HD-MEN-OS-08",
       "category_slug": "mens",
       "subcategory_name": "Round Neck T-shirt",
       "product_type": "T-Shirts",
@@ -832,10 +832,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-m21",
+      "legacy_id": "hd-m21",
       "name": "Printed Round Neck T-Shirt - Acid Black & Denim Blue",
       "slug": "printed-round-neck-t-shirt-acid-black-denim-blue",
-      "sku": "ZMW-MEN-OS-09",
+      "sku": "HD-MEN-OS-09",
       "category_slug": "mens",
       "subcategory_name": "Round Neck T-shirt",
       "product_type": "T-Shirts",
@@ -874,10 +874,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-m22",
+      "legacy_id": "hd-m22",
       "name": "Oversized Round Neck T-Shirt - Jet Black & Light Grey",
       "slug": "oversized-round-neck-t-shirt-jet-black-light-grey",
-      "sku": "ZMW-MEN-OS-10",
+      "sku": "HD-MEN-OS-10",
       "category_slug": "mens",
       "subcategory_name": "Round Neck T-shirt",
       "product_type": "T-Shirts",
@@ -915,10 +915,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-m23",
+      "legacy_id": "hd-m23",
       "name": "Printed Round Neck T-Shirt - Ivory White & Navy Blue",
       "slug": "printed-round-neck-t-shirt-ivory-white-navy-blue",
-      "sku": "ZMW-MEN-OS-11",
+      "sku": "HD-MEN-OS-11",
       "category_slug": "mens",
       "subcategory_name": "Round Neck T-shirt",
       "product_type": "T-Shirts",
@@ -957,10 +957,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-m24",
+      "legacy_id": "hd-m24",
       "name": "Printed Round Neck T-Shirt - Jet Black & Hazelnut",
       "slug": "printed-round-neck-t-shirt-jet-black-hazelnut",
-      "sku": "ZMW-MEN-OS-12",
+      "sku": "HD-MEN-OS-12",
       "category_slug": "mens",
       "subcategory_name": "Round Neck T-shirt",
       "product_type": "T-Shirts",
@@ -999,10 +999,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-m25",
+      "legacy_id": "hd-m25",
       "name": "Urban Cargo Joggers - Olive",
       "slug": "urban-cargo-joggers-olive",
-      "sku": "ZMW-MEN-JG-01",
+      "sku": "HD-MEN-JG-01",
       "category_slug": "mens",
       "subcategory_name": null,
       "product_type": "Joggers",
@@ -1045,10 +1045,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-m26",
+      "legacy_id": "hd-m26",
       "name": "Slim Fit Tech Joggers - Black",
       "slug": "slim-fit-tech-joggers-black",
-      "sku": "ZMW-MEN-JG-02",
+      "sku": "HD-MEN-JG-02",
       "category_slug": "mens",
       "subcategory_name": null,
       "product_type": "Joggers",
@@ -1086,10 +1086,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-m27",
+      "legacy_id": "hd-m27",
       "name": "Relaxed French Terry Joggers - Sand",
       "slug": "relaxed-french-terry-joggers-sand",
-      "sku": "ZMW-MEN-JG-03",
+      "sku": "HD-MEN-JG-03",
       "category_slug": "mens",
       "subcategory_name": null,
       "product_type": "Joggers",
@@ -1132,10 +1132,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-m28",
+      "legacy_id": "hd-m28",
       "name": "Track Joggers with Side Stripes",
       "slug": "track-joggers-with-side-stripes",
-      "sku": "ZMW-MEN-JG-04",
+      "sku": "HD-MEN-JG-04",
       "category_slug": "mens",
       "subcategory_name": null,
       "product_type": "Joggers",
@@ -1173,10 +1173,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-m29",
+      "legacy_id": "hd-m29",
       "name": "Zip-Up Hoodie - Charcoal Slate & Jet Black",
       "slug": "zip-up-hoodie-charcoal-slate-jet-black",
-      "sku": "ZMW-MEN-HD-01",
+      "sku": "HD-MEN-HD-01",
       "category_slug": "mens",
       "subcategory_name": "Mens Hoodies",
       "product_type": "Hoodies",
@@ -1219,10 +1219,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-m30",
+      "legacy_id": "hd-m30",
       "name": "Basic Pullover Hoodie",
       "slug": "basic-pullover-hoodie",
-      "sku": "ZMW-MEN-HD-02",
+      "sku": "HD-MEN-HD-02",
       "category_slug": "mens",
       "subcategory_name": "Mens Hoodies",
       "product_type": "Hoodies",
@@ -1261,10 +1261,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-m31",
+      "legacy_id": "hd-m31",
       "name": "Printed Hoodie",
       "slug": "printed-hoodie",
-      "sku": "ZMW-MEN-HD-03",
+      "sku": "HD-MEN-HD-03",
       "category_slug": "mens",
       "subcategory_name": "Mens Hoodies",
       "product_type": "Hoodies",
@@ -1302,10 +1302,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-m32",
+      "legacy_id": "hd-m32",
       "name": "Zip-Up Hoodie - Ink Black & Slate Grey",
       "slug": "zip-up-hoodie-ink-black-slate-grey",
-      "sku": "ZMW-MEN-HD-04",
+      "sku": "HD-MEN-HD-04",
       "category_slug": "mens",
       "subcategory_name": "Mens Hoodies",
       "product_type": "Hoodies",
@@ -1344,10 +1344,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-m33",
+      "legacy_id": "hd-m33",
       "name": "Heavyweight Crewneck Sweatshirt - Navy",
       "slug": "heavyweight-crewneck-sweatshirt-navy",
-      "sku": "ZMW-MEN-SS-01",
+      "sku": "HD-MEN-SS-01",
       "category_slug": "mens",
       "subcategory_name": null,
       "product_type": "Sweatshirts",
@@ -1390,10 +1390,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-m34",
+      "legacy_id": "hd-m34",
       "name": "Half-Zip Sweatshirt - Stone",
       "slug": "half-zip-sweatshirt-stone",
-      "sku": "ZMW-MEN-SS-02",
+      "sku": "HD-MEN-SS-02",
       "category_slug": "mens",
       "subcategory_name": null,
       "product_type": "Sweatshirts",
@@ -1431,10 +1431,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-m35",
+      "legacy_id": "hd-m35",
       "name": "Oversized Logo Crewneck Sweatshirt",
       "slug": "oversized-logo-crewneck-sweatshirt",
-      "sku": "ZMW-MEN-SS-03",
+      "sku": "HD-MEN-SS-03",
       "category_slug": "mens",
       "subcategory_name": null,
       "product_type": "Sweatshirts",
@@ -1473,10 +1473,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-m36",
+      "legacy_id": "hd-m36",
       "name": "Striped Crewneck Sweatshirt - Retro",
       "slug": "striped-crewneck-sweatshirt-retro",
-      "sku": "ZMW-MEN-SS-04",
+      "sku": "HD-MEN-SS-04",
       "category_slug": "mens",
       "subcategory_name": null,
       "product_type": "Sweatshirts",
@@ -1514,10 +1514,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-w01",
+      "legacy_id": "hd-w01",
       "name": "Women's Oversized Tee - Sunflower Yellow & Off White",
       "slug": "women-s-oversized-tee-sunflower-yellow-off-white",
-      "sku": "ZMW-WOM-PT-01",
+      "sku": "HD-WOM-PT-01",
       "category_slug": "women",
       "subcategory_name": "Women's Tees",
       "product_type": "T-Shirts",
@@ -1560,10 +1560,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-w02",
+      "legacy_id": "hd-w02",
       "name": "Graphic Tee - Jet Black & Sage Green",
       "slug": "graphic-tee-jet-black-sage-green",
-      "sku": "ZMW-WOM-PT-02",
+      "sku": "HD-WOM-PT-02",
       "category_slug": "women",
       "subcategory_name": "Women's Tees",
       "product_type": "T-Shirts",
@@ -1601,10 +1601,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-w03",
+      "legacy_id": "hd-w03",
       "name": "Women's Oversized Tee - Ivory & Blush Pink",
       "slug": "women-s-oversized-tee-ivory-blush-pink",
-      "sku": "ZMW-WOM-PT-03",
+      "sku": "HD-WOM-PT-03",
       "category_slug": "women",
       "subcategory_name": "Women's Tees",
       "product_type": "T-Shirts",
@@ -1642,10 +1642,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-w04",
+      "legacy_id": "hd-w04",
       "name": "Graphic Tee - Racing Red & Jet Black",
       "slug": "graphic-tee-racing-red-jet-black",
-      "sku": "ZMW-WOM-PT-04",
+      "sku": "HD-WOM-PT-04",
       "category_slug": "women",
       "subcategory_name": "Women's Tees",
       "product_type": "T-Shirts",
@@ -1684,10 +1684,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-w05",
+      "legacy_id": "hd-w05",
       "name": "Women's Oversized Tee - Sunflower Yellow & Ivory",
       "slug": "women-s-oversized-tee-sunflower-yellow-ivory",
-      "sku": "ZMW-WOM-PT-05",
+      "sku": "HD-WOM-PT-05",
       "category_slug": "women",
       "subcategory_name": "Women's Tees",
       "product_type": "T-Shirts",
@@ -1725,10 +1725,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-w06",
+      "legacy_id": "hd-w06",
       "name": "Graphic Tee - Stone Beige",
       "slug": "graphic-tee-stone-beige",
-      "sku": "ZMW-WOM-PT-06",
+      "sku": "HD-WOM-PT-06",
       "category_slug": "women",
       "subcategory_name": "Women's Tees",
       "product_type": "T-Shirts",
@@ -1761,10 +1761,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-w19",
+      "legacy_id": "hd-w19",
       "name": "Women's Oversized Tee - Graphite & Off White",
       "slug": "women-s-oversized-tee-graphite-off-white",
-      "sku": "ZMW-WOM-PT-05-2",
+      "sku": "HD-WOM-PT-05-2",
       "category_slug": "women",
       "subcategory_name": "Women's Tees",
       "product_type": "T-Shirts",
@@ -1802,10 +1802,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-w20",
+      "legacy_id": "hd-w20",
       "name": "Graphic Tee - Sand & Terracotta",
       "slug": "graphic-tee-sand-terracotta",
-      "sku": "ZMW-WOM-PT-06-2",
+      "sku": "HD-WOM-PT-06-2",
       "category_slug": "women",
       "subcategory_name": "Women's Tees",
       "product_type": "Sets",
@@ -1844,10 +1844,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-w21",
+      "legacy_id": "hd-w21",
       "name": "Graphic Tee - Ivory & Clay",
       "slug": "graphic-tee-ivory-clay",
-      "sku": "ZMW-WOM-PT-07",
+      "sku": "HD-WOM-PT-07",
       "category_slug": "women",
       "subcategory_name": "Women's Tees",
       "product_type": "T-Shirts",
@@ -1885,10 +1885,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-w22",
+      "legacy_id": "hd-w22",
       "name": "Graphic Tee - Onyx & Moon Grey",
       "slug": "graphic-tee-onyx-moon-grey",
-      "sku": "ZMW-WOM-PT-08",
+      "sku": "HD-WOM-PT-08",
       "category_slug": "women",
       "subcategory_name": "Women's Tees",
       "product_type": "T-Shirts",
@@ -1925,10 +1925,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-w23",
+      "legacy_id": "hd-w23",
       "name": "Linen Blend Co-ord Set - Sage",
       "slug": "linen-blend-co-ord-set-sage",
-      "sku": "ZMW-WOM-CO-01",
+      "sku": "HD-WOM-CO-01",
       "category_slug": "women",
       "subcategory_name": null,
       "product_type": "Co-ords",
@@ -1971,10 +1971,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-w24",
+      "legacy_id": "hd-w24",
       "name": "Ribbed Knit Co-ord - Espresso",
       "slug": "ribbed-knit-co-ord-espresso",
-      "sku": "ZMW-WOM-CO-02",
+      "sku": "HD-WOM-CO-02",
       "category_slug": "women",
       "subcategory_name": null,
       "product_type": "Co-ords",
@@ -2012,10 +2012,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-w25",
+      "legacy_id": "hd-w25",
       "name": "Cotton Poplin Co-ord Set - White",
       "slug": "cotton-poplin-co-ord-set-white",
-      "sku": "ZMW-WOM-CO-03",
+      "sku": "HD-WOM-CO-03",
       "category_slug": "women",
       "subcategory_name": null,
       "product_type": "Co-ords",
@@ -2054,10 +2054,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-w26",
+      "legacy_id": "hd-w26",
       "name": "Oversized Tee & Mini Skirt Co-ord - Noir",
       "slug": "oversized-tee-mini-skirt-co-ord-noir",
-      "sku": "ZMW-WOM-CO-04",
+      "sku": "HD-WOM-CO-04",
       "category_slug": "women",
       "subcategory_name": null,
       "product_type": "Co-ords",
@@ -2095,10 +2095,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-b01",
+      "legacy_id": "hd-b01",
       "name": "Printed Round Neck T-Shirt",
       "slug": "printed-round-neck-t-shirt",
-      "sku": "ZMW-BOY-TS-01",
+      "sku": "HD-BOY-TS-01",
       "category_slug": "boys",
       "subcategory_name": "Round Neck",
       "product_type": "T-Shirts",
@@ -2142,10 +2142,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-b02",
+      "legacy_id": "hd-b02",
       "name": "Printed Round Neck T-Shirt - Sky Blue & Crisp White",
       "slug": "printed-round-neck-t-shirt-sky-blue-crisp-white",
-      "sku": "ZMW-BOY-TS-02",
+      "sku": "HD-BOY-TS-02",
       "category_slug": "boys",
       "subcategory_name": "Round Neck",
       "product_type": "T-Shirts",
@@ -2185,10 +2185,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-b03",
+      "legacy_id": "hd-b03",
       "name": "Boys High Neck T-Shirt",
       "slug": "boys-high-neck-t-shirt",
-      "sku": "ZMW-BOY-HN-01",
+      "sku": "HD-BOY-HN-01",
       "category_slug": "boys",
       "subcategory_name": "High Neck",
       "product_type": "T-Shirts",
@@ -2227,10 +2227,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-b04",
+      "legacy_id": "hd-b04",
       "name": "Boys Zip High Neck T-Shirt",
       "slug": "boys-zip-high-neck-t-shirt",
-      "sku": "ZMW-BOY-HN-02",
+      "sku": "HD-BOY-HN-02",
       "category_slug": "boys",
       "subcategory_name": "High Neck",
       "product_type": "T-Shirts",
@@ -2268,10 +2268,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-b05",
+      "legacy_id": "hd-b05",
       "name": "Boys Cotton Shorts",
       "slug": "boys-cotton-shorts",
-      "sku": "ZMW-BOY-SH-01",
+      "sku": "HD-BOY-SH-01",
       "category_slug": "boys",
       "subcategory_name": "Shorts",
       "product_type": "T-Shirts",
@@ -2311,10 +2311,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-b06",
+      "legacy_id": "hd-b06",
       "name": "Casual Shorts",
       "slug": "casual-shorts",
-      "sku": "ZMW-BOY-SH-02",
+      "sku": "HD-BOY-SH-02",
       "category_slug": "boys",
       "subcategory_name": "Shorts",
       "product_type": "Joggers",
@@ -2353,10 +2353,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-b07",
+      "legacy_id": "hd-b07",
       "name": "Boys Cotton Sweatshirt",
       "slug": "boys-cotton-sweatshirt",
-      "sku": "ZMW-BOY-SW-01",
+      "sku": "HD-BOY-SW-01",
       "category_slug": "boys",
       "subcategory_name": "Sweatshirts",
       "product_type": "Sweatshirts",
@@ -2396,10 +2396,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-b08",
+      "legacy_id": "hd-b08",
       "name": "Printed Sweatshirt",
       "slug": "printed-sweatshirt",
-      "sku": "ZMW-BOY-SW-02",
+      "sku": "HD-BOY-SW-02",
       "category_slug": "boys",
       "subcategory_name": "Sweatshirts",
       "product_type": "Sweatshirts",
@@ -2438,10 +2438,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-b09",
+      "legacy_id": "hd-b09",
       "name": "Boys Zip-Up Hoodie",
       "slug": "boys-zip-up-hoodie",
-      "sku": "ZMW-BOY-HD-01",
+      "sku": "HD-BOY-HD-01",
       "category_slug": "boys",
       "subcategory_name": "Hoodies",
       "product_type": "Hoodies",
@@ -2485,10 +2485,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-b10",
+      "legacy_id": "hd-b10",
       "name": "Boys Pullover Hoodie",
       "slug": "boys-pullover-hoodie",
-      "sku": "ZMW-BOY-HD-02",
+      "sku": "HD-BOY-HD-02",
       "category_slug": "boys",
       "subcategory_name": "Hoodies",
       "product_type": "Hoodies",
@@ -2528,10 +2528,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-g01",
+      "legacy_id": "hd-g01",
       "name": "Printed T-Shirt",
       "slug": "printed-t-shirt",
-      "sku": "ZMW-GIR-TS-01",
+      "sku": "HD-GIR-TS-01",
       "category_slug": "girls",
       "subcategory_name": "Round Neck",
       "product_type": "T-Shirts",
@@ -2575,10 +2575,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-g02",
+      "legacy_id": "hd-g02",
       "name": "Printed T-Shirt - Peony & Vanilla",
       "slug": "printed-t-shirt-peony-vanilla",
-      "sku": "ZMW-GIR-TS-02",
+      "sku": "HD-GIR-TS-02",
       "category_slug": "girls",
       "subcategory_name": "Round Neck",
       "product_type": "T-Shirts",
@@ -2617,10 +2617,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-g03",
+      "legacy_id": "hd-g03",
       "name": "Girls High Neck T-Shirt",
       "slug": "girls-high-neck-t-shirt",
-      "sku": "ZMW-GIR-HN-01",
+      "sku": "HD-GIR-HN-01",
       "category_slug": "girls",
       "subcategory_name": "High Neck",
       "product_type": "T-Shirts",
@@ -2659,10 +2659,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-g04",
+      "legacy_id": "hd-g04",
       "name": "Full Sleeve High Neck",
       "slug": "full-sleeve-high-neck",
-      "sku": "ZMW-GIR-HN-02",
+      "sku": "HD-GIR-HN-02",
       "category_slug": "girls",
       "subcategory_name": "High Neck",
       "product_type": "T-Shirts",
@@ -2700,10 +2700,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-g05",
+      "legacy_id": "hd-g05",
       "name": "Girls Cotton Shorts - Dusky Peach & Sage Mint",
       "slug": "girls-cotton-shorts-dusky-peach-sage-mint",
-      "sku": "ZMW-GIR-SH-01",
+      "sku": "HD-GIR-SH-01",
       "category_slug": "girls",
       "subcategory_name": "Shorts",
       "product_type": "T-Shirts",
@@ -2742,10 +2742,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-g06",
+      "legacy_id": "hd-g06",
       "name": "Girls Cotton Shorts - Lavender & Off White",
       "slug": "girls-cotton-shorts-lavender-off-white",
-      "sku": "ZMW-GIR-SH-02",
+      "sku": "HD-GIR-SH-02",
       "category_slug": "girls",
       "subcategory_name": "Shorts",
       "product_type": "T-Shirts",
@@ -2784,10 +2784,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-g07",
+      "legacy_id": "hd-g07",
       "name": "Printed Sweatshirt - Blush Pink & Stone Beige",
       "slug": "printed-sweatshirt-blush-pink-stone-beige",
-      "sku": "ZMW-GIR-SW-01",
+      "sku": "HD-GIR-SW-01",
       "category_slug": "girls",
       "subcategory_name": "Sweatshirts",
       "product_type": "Sweatshirts",
@@ -2827,10 +2827,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-g08",
+      "legacy_id": "hd-g08",
       "name": "Printed Sweatshirt - Rainbow Cream & Pastel Mix",
       "slug": "printed-sweatshirt-rainbow-cream-pastel-mix",
-      "sku": "ZMW-GIR-SW-02",
+      "sku": "HD-GIR-SW-02",
       "category_slug": "girls",
       "subcategory_name": "Sweatshirts",
       "product_type": "Sweatshirts",
@@ -2869,10 +2869,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-g09",
+      "legacy_id": "hd-g09",
       "name": "Printed Hoodie - Lilac & Cream",
       "slug": "printed-hoodie-lilac-cream",
-      "sku": "ZMW-GIR-HD-01",
+      "sku": "HD-GIR-HD-01",
       "category_slug": "girls",
       "subcategory_name": "Hoodies",
       "product_type": "Hoodies",
@@ -2916,10 +2916,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-g10",
+      "legacy_id": "hd-g10",
       "name": "Girls Pullover Hoodie",
       "slug": "girls-pullover-hoodie",
-      "sku": "ZMW-GIR-HD-02",
+      "sku": "HD-GIR-HD-02",
       "category_slug": "girls",
       "subcategory_name": "Hoodies",
       "product_type": "Hoodies",
@@ -2959,10 +2959,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-g11",
+      "legacy_id": "hd-g11",
       "name": "Girls Casual Top - Ice Pink & Mint",
       "slug": "girls-casual-top-ice-pink-mint",
-      "sku": "ZMW-GIR-NW-01",
+      "sku": "HD-GIR-NW-01",
       "category_slug": "girls",
       "subcategory_name": "Casual Wear",
       "product_type": "Sets",
@@ -3002,10 +3002,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-g12",
+      "legacy_id": "hd-g12",
       "name": "Girls Casual Top - Oatmeal & Dusty Grey",
       "slug": "girls-casual-top-oatmeal-dusty-grey",
-      "sku": "ZMW-GIR-NW-02",
+      "sku": "HD-GIR-NW-02",
       "category_slug": "girls",
       "subcategory_name": "Casual Wear",
       "product_type": "Sets",
@@ -3045,10 +3045,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-g13",
+      "legacy_id": "hd-g13",
       "name": "Girls Party Gown",
       "slug": "girls-party-gown",
-      "sku": "ZMW-GIR-LG-01",
+      "sku": "HD-GIR-LG-01",
       "category_slug": "girls",
       "subcategory_name": "Long Gown",
       "product_type": "T-Shirts",
@@ -3088,10 +3088,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-g14",
+      "legacy_id": "hd-g14",
       "name": "Girls Party Gown - Blush & Champagne",
       "slug": "girls-party-gown-blush-champagne",
-      "sku": "ZMW-GIR-LG-02",
+      "sku": "HD-GIR-LG-02",
       "category_slug": "girls",
       "subcategory_name": "Long Gown",
       "product_type": "T-Shirts",
@@ -3130,10 +3130,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-k01",
+      "legacy_id": "hd-k01",
       "name": "Dino Explorer Graphic Tee & Shorts Set",
       "slug": "dino-explorer-graphic-tee-shorts-set",
-      "sku": "ZMW-KID-BY-01",
+      "sku": "HD-KID-BY-01",
       "category_slug": "kids",
       "subcategory_name": "Shorts",
       "product_type": "Sets",
@@ -3177,10 +3177,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-k03",
+      "legacy_id": "hd-k03",
       "name": "Space Mission Graphic Tee",
       "slug": "space-mission-graphic-tee",
-      "sku": "ZMW-KID-BY-03",
+      "sku": "HD-KID-BY-03",
       "category_slug": "kids",
       "subcategory_name": "Round Neck",
       "product_type": "T-Shirts",
@@ -3219,10 +3219,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-k07",
+      "legacy_id": "hd-k07",
       "name": "Ruffle Sleeve Graphic Tee",
       "slug": "ruffle-sleeve-graphic-tee",
-      "sku": "ZMW-KID-GL-03",
+      "sku": "HD-KID-GL-03",
       "category_slug": "kids",
       "subcategory_name": "Round Neck",
       "product_type": "T-Shirts",
@@ -3265,10 +3265,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-k13",
+      "legacy_id": "hd-k13",
       "name": "Varsity Stripe Polo & Shorts Set",
       "slug": "varsity-stripe-polo-shorts-set",
-      "sku": "ZMW-KID-BY-05",
+      "sku": "HD-KID-BY-05",
       "category_slug": "kids",
       "subcategory_name": "Shorts",
       "product_type": "Polos",
@@ -3308,10 +3308,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-k17",
+      "legacy_id": "hd-k17",
       "name": "Shark Attack Graphic Tee",
       "slug": "shark-attack-graphic-tee",
-      "sku": "ZMW-KID-BY-07",
+      "sku": "HD-KID-BY-07",
       "category_slug": "kids",
       "subcategory_name": "Round Neck",
       "product_type": "T-Shirts",
@@ -3351,10 +3351,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-k18",
+      "legacy_id": "hd-k18",
       "name": "Rainbow Hearts Graphic Tee",
       "slug": "rainbow-hearts-graphic-tee",
-      "sku": "ZMW-KID-GL-07",
+      "sku": "HD-KID-GL-07",
       "category_slug": "kids",
       "subcategory_name": "Round Neck",
       "product_type": "T-Shirts",
@@ -3393,10 +3393,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-k19",
+      "legacy_id": "hd-k19",
       "name": "Construction Crew Graphic Tee",
       "slug": "construction-crew-graphic-tee",
-      "sku": "ZMW-KID-BY-08",
+      "sku": "HD-KID-BY-08",
       "category_slug": "kids",
       "subcategory_name": "Round Neck",
       "product_type": "T-Shirts",
@@ -3435,10 +3435,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-k20",
+      "legacy_id": "hd-k20",
       "name": "Butterfly Garden Print Tee",
       "slug": "butterfly-garden-print-tee",
-      "sku": "ZMW-KID-GL-08",
+      "sku": "HD-KID-GL-08",
       "category_slug": "kids",
       "subcategory_name": "Round Neck",
       "product_type": "T-Shirts",
@@ -3478,10 +3478,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-k21",
+      "legacy_id": "hd-k21",
       "name": "Astro Rocket Friend Tee",
       "slug": "astro-rocket-friend-tee",
-      "sku": "ZMW-KID-BY-09",
+      "sku": "HD-KID-BY-09",
       "category_slug": "kids",
       "subcategory_name": "Round Neck",
       "product_type": "T-Shirts",
@@ -3519,10 +3519,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-k22",
+      "legacy_id": "hd-k22",
       "name": "Sweet Treats Hearts Tee",
       "slug": "sweet-treats-hearts-tee",
-      "sku": "ZMW-KID-GL-09",
+      "sku": "HD-KID-GL-09",
       "category_slug": "kids",
       "subcategory_name": "Round Neck",
       "product_type": "T-Shirts",
@@ -3561,10 +3561,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-bab01",
+      "legacy_id": "hd-bab01",
       "name": "Baby Cotton Romper",
       "slug": "baby-cotton-romper",
-      "sku": "ZMW-BAB-RM-01",
+      "sku": "HD-BAB-RM-01",
       "category_slug": "babies",
       "subcategory_name": "Romper",
       "product_type": "Sets",
@@ -3606,10 +3606,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-bab02",
+      "legacy_id": "hd-bab02",
       "name": "Baby Cotton Romper - Mustard & Off White",
       "slug": "baby-cotton-romper-mustard-off-white",
-      "sku": "ZMW-BAB-RM-02",
+      "sku": "HD-BAB-RM-02",
       "category_slug": "babies",
       "subcategory_name": "Romper",
       "product_type": "Sets",
@@ -3647,10 +3647,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-bab03",
+      "legacy_id": "hd-bab03",
       "name": "Baby Cotton T-Shirt",
       "slug": "baby-cotton-t-shirt",
-      "sku": "ZMW-BAB-TS-01",
+      "sku": "HD-BAB-TS-01",
       "category_slug": "babies",
       "subcategory_name": "T-shirt",
       "product_type": "T-Shirts",
@@ -3688,10 +3688,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-bab04",
+      "legacy_id": "hd-bab04",
       "name": "Printed Baby T-Shirt",
       "slug": "printed-baby-t-shirt",
-      "sku": "ZMW-BAB-TS-02",
+      "sku": "HD-BAB-TS-02",
       "category_slug": "babies",
       "subcategory_name": "T-shirt",
       "product_type": "T-Shirts",
@@ -3729,10 +3729,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-bab05",
+      "legacy_id": "hd-bab05",
       "name": "Printed Pyjama - Grey Stripe & Blue Stripe",
       "slug": "printed-pyjama-grey-stripe-blue-stripe",
-      "sku": "ZMW-BAB-PJ-01",
+      "sku": "HD-BAB-PJ-01",
       "category_slug": "babies",
       "subcategory_name": "Babies Pyjama",
       "product_type": "T-Shirts",
@@ -3770,10 +3770,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-bab06",
+      "legacy_id": "hd-bab06",
       "name": "Baby Cotton Pyjama",
       "slug": "baby-cotton-pyjama",
-      "sku": "ZMW-BAB-PJ-02",
+      "sku": "HD-BAB-PJ-02",
       "category_slug": "babies",
       "subcategory_name": "Babies Pyjama",
       "product_type": "T-Shirts",
@@ -3811,10 +3811,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-bab07",
+      "legacy_id": "hd-bab07",
       "name": "Baby Cotton Sweatshirt",
       "slug": "baby-cotton-sweatshirt",
-      "sku": "ZMW-BAB-SW-01",
+      "sku": "HD-BAB-SW-01",
       "category_slug": "babies",
       "subcategory_name": "Sweatshirts",
       "product_type": "Sweatshirts",
@@ -3852,10 +3852,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-bab08",
+      "legacy_id": "hd-bab08",
       "name": "Baby Pullover Hoodie",
       "slug": "baby-pullover-hoodie",
-      "sku": "ZMW-BAB-HD-01",
+      "sku": "HD-BAB-HD-01",
       "category_slug": "babies",
       "subcategory_name": "Babies Hoodies",
       "product_type": "Hoodies",
@@ -3893,10 +3893,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-bab09",
+      "legacy_id": "hd-bab09",
       "name": "Baby Zip-Up Hoodie",
       "slug": "baby-zip-up-hoodie",
-      "sku": "ZMW-BAB-HD-02",
+      "sku": "HD-BAB-HD-02",
       "category_slug": "babies",
       "subcategory_name": "Babies Hoodies",
       "product_type": "Hoodies",
@@ -3934,10 +3934,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-bab10",
+      "legacy_id": "hd-bab10",
       "name": "Baby Cotton Pants",
       "slug": "baby-cotton-pants",
-      "sku": "ZMW-BAB-BT-01",
+      "sku": "HD-BAB-BT-01",
       "category_slug": "babies",
       "subcategory_name": "Babies Bottoms",
       "product_type": "T-Shirts",
@@ -3975,10 +3975,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-bab11",
+      "legacy_id": "hd-bab11",
       "name": "Baby Joggers",
       "slug": "baby-joggers",
-      "sku": "ZMW-BAB-BT-02",
+      "sku": "HD-BAB-BT-02",
       "category_slug": "babies",
       "subcategory_name": "Babies Bottoms",
       "product_type": "T-Shirts",
@@ -4016,10 +4016,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-001",
+      "legacy_id": "hd-001",
       "name": "French Linen Tailored Oversized Shirt",
       "slug": "french-linen-tailored-oversized-shirt",
-      "sku": "ZMW-MEN-01",
+      "sku": "HD-MEN-01",
       "category_slug": "mens",
       "subcategory_name": null,
       "product_type": "Shirts",
@@ -4062,10 +4062,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-002",
+      "legacy_id": "hd-002",
       "name": "Liquid Silk Bias-Cut Slip Dress",
       "slug": "liquid-silk-bias-cut-slip-dress",
-      "sku": "ZMW-DRS-02",
+      "sku": "HD-DRS-02",
       "category_slug": "women",
       "subcategory_name": null,
       "product_type": "Dresses",
@@ -4107,10 +4107,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-003",
+      "legacy_id": "hd-003",
       "name": "Emerald Silk Couture Saree Ensemble",
       "slug": "emerald-silk-couture-saree-ensemble",
-      "sku": "ZMW-ETH-03",
+      "sku": "HD-ETH-03",
       "category_slug": "women",
       "subcategory_name": null,
       "product_type": "Dresses",
@@ -4153,10 +4153,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-004",
+      "legacy_id": "hd-004",
       "name": "Bespoke Sand Linen Tailored Blazer",
       "slug": "bespoke-sand-linen-tailored-blazer",
-      "sku": "ZMW-BLZ-04",
+      "sku": "HD-BLZ-04",
       "category_slug": "mens",
       "subcategory_name": null,
       "product_type": "Blazers",
@@ -4198,10 +4198,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-005",
+      "legacy_id": "hd-005",
       "name": "Sculpted Ribbed Merino Mockneck",
       "slug": "sculpted-ribbed-merino-mockneck",
-      "sku": "ZMW-TOP-05",
+      "sku": "HD-TOP-05",
       "category_slug": "women",
       "subcategory_name": null,
       "product_type": "T-Shirts",
@@ -4244,10 +4244,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-006",
+      "legacy_id": "hd-006",
       "name": "Kids' Organic Linen Pastel Romper",
       "slug": "kids-organic-linen-pastel-romper",
-      "sku": "ZMW-KID-06",
+      "sku": "HD-KID-06",
       "category_slug": "kids",
       "subcategory_name": null,
       "product_type": "Dresses",
@@ -4290,10 +4290,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-007",
+      "legacy_id": "hd-007",
       "name": "Liquid Charmeuse Pleated Maxi Skirt",
       "slug": "liquid-charmeuse-pleated-maxi-skirt",
-      "sku": "ZMW-SKT-07",
+      "sku": "HD-SKT-07",
       "category_slug": "women",
       "subcategory_name": null,
       "product_type": "Skirts",
@@ -4335,10 +4335,10 @@
       ]
     },
     {
-      "legacy_id": "zmw-008",
+      "legacy_id": "hd-008",
       "name": "Relaxed Boxy Oxford Weave Shirt",
       "slug": "relaxed-boxy-oxford-weave-shirt-zmw-008",
-      "sku": "ZMW-OXD-08",
+      "sku": "HD-OXD-08",
       "category_slug": "mens",
       "subcategory_name": null,
       "product_type": "Shirts",

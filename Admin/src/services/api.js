@@ -2,7 +2,8 @@ const getDefaultApiUrl = () => {
   if (typeof window !== "undefined" && window.location?.hostname) {
     const host = window.location.hostname;
     if (host && host !== "localhost" && host !== "127.0.0.1") {
-      return `http://${host}:5000`;
+      const proto = window.location.protocol === "https:" ? "https:" : "http:";
+      return `${proto}//${host}:5000`;
     }
   }
   return "http://localhost:5000";
@@ -10,15 +11,19 @@ const getDefaultApiUrl = () => {
 
 const RAW_API_URL = ((import.meta.env?.VITE_API_URL) || getDefaultApiUrl()).trim().replace(/\/+$/, "");
 const API_URL = RAW_API_URL.replace(/\/api$/, "");
-const TOKEN_KEY = "zmw_admin_token";
+const TOKEN_KEY = "hd_admin_token";
 
 export function getToken() {
-  return localStorage.getItem(TOKEN_KEY);
+  return localStorage.getItem(TOKEN_KEY) || localStorage.getItem("zmw_admin_token");
 }
 
 export function setToken(token) {
-  if (token) localStorage.setItem(TOKEN_KEY, token);
-  else localStorage.removeItem(TOKEN_KEY);
+  if (token) {
+    localStorage.setItem(TOKEN_KEY, token);
+  } else {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem("zmw_admin_token");
+  }
 }
 
 /**

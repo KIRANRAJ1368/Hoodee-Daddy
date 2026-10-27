@@ -365,10 +365,13 @@ describe("Admin-managed homepage hero banners", () => {
       }));
     });
 
-    assert.equal(container.querySelectorAll(".hero-slide-item").length, 2);
-    assert.match(container.textContent, /Admin Hero Slide/);
-    assert.match(container.textContent, /Legacy Hero Slide/);
-    assert.doesNotMatch(container.textContent, /Inactive Hero Slide/);
-    assert.equal(container.querySelector('.hero-slide-item img[src="http://localhost:5000/uploads/admin-hero.jpg"]') !== null, true);
+    const slides = container.querySelectorAll(".hero-pure-slide");
+    assert.equal(slides.length, 2);
+    assert.ok(container.querySelector('img[alt="Admin Hero Slide"]'));
+    assert.ok(container.querySelector('img[alt="Legacy Hero Slide"]'));
+    assert.equal(container.querySelector('img[alt="Inactive Hero Slide"]'), null);
+    assert.equal(container.querySelectorAll("#home button").length, 0);
+    assert.equal(container.querySelector("#home").textContent.trim(), "");
+    assert.equal(container.querySelector('.hero-pure-slide img[src="http://localhost:5000/uploads/admin-hero.jpg"]') !== null, true);
   });
 });

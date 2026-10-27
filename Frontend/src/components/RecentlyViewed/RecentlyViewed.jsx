@@ -13,7 +13,6 @@ export default function RecentlyViewed() {
     <section className="recently-viewed-section" aria-labelledby="recently-viewed-title">
       <div className="container">
         <div className="section-header">
-          <span className="section-eyebrow">YOUR ZMW EDIT</span>
           <h2 id="recently-viewed-title" className="section-title">Recently Viewed Products</h2>
           <p className="section-subtitle">
             Pick up where you left off with pieces you have explored recently.

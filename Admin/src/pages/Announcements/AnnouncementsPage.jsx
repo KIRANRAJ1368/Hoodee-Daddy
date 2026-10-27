@@ -17,7 +17,7 @@ export default function AnnouncementsPage() {
   function broadcastAnnouncementUpdate(actionType) {
     try {
       if (typeof BroadcastChannel !== "undefined") {
-        const bc = new BroadcastChannel("zmw_catalog_channel");
+        const bc = new BroadcastChannel("hd_catalog_channel");
         bc.postMessage({ action: actionType, timestamp: Date.now() });
         bc.close();
       }
@@ -85,8 +85,8 @@ export default function AnnouncementsPage() {
                 width: 38,
                 height: 38,
                 borderRadius: 8,
-                background: "#fef2f2",
-                color: "#dc2626",
+                background: "rgba(255, 115, 0, 0.12)",
+                color: "#ff7300",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center"
@@ -99,7 +99,7 @@ export default function AnnouncementsPage() {
                 Top Announcement Bar
               </h1>
               <p className="page-subtitle" style={{ margin: "2px 0 0 0", fontSize: 13, color: "var(--text-muted)" }}>
-                Manage the promotional red announcement bar displayed at the very top of the website
+                Manage the promotional orange announcement bar displayed at the very top of the website
               </p>
             </div>
           </div>
@@ -136,7 +136,7 @@ export default function AnnouncementsPage() {
         {announcement && announcement.is_active ? (
           <div
             style={{
-              backgroundColor: "#DC2626",
+              backgroundColor: "#FF6700",
               color: "#FFFFFF",
               borderRadius: 8,
               padding: "10px 48px 10px 20px",
@@ -148,7 +148,7 @@ export default function AnnouncementsPage() {
               alignItems: "center",
               justifyContent: "center",
               textAlign: "center",
-              boxShadow: "0 2px 8px rgba(220, 38, 38, 0.25)",
+              boxShadow: "0 2px 8px rgba(255, 103, 0, 0.25)",
               minHeight: 42,
               overflow: "hidden"
             }}
@@ -192,8 +192,8 @@ export default function AnnouncementsPage() {
             }}
           >
             {announcement
-              ? "The announcement is currently disabled. Toggle it active to display the red announcement bar on the storefront."
-              : "No announcement is configured yet. Click \"Add Announcement\" to show a promotional red bar at the top of the website."}
+              ? "The announcement is currently disabled. Toggle it active to display the orange announcement bar on the storefront."
+              : "No announcement is configured yet. Click \"Add Announcement\" to show a promotional orange bar at the top of the website."}
           </div>
         )}
       </div>
@@ -332,12 +332,12 @@ export default function AnnouncementsPage() {
           </div>
         ) : (
           <div style={{ padding: "40px 20px", textAlign: "center" }}>
-            <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#fef2f2", color: "#dc2626", display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: 12 }}>
+            <div style={{ width: 48, height: 48, borderRadius: "50%", background: "rgba(255, 115, 0, 0.12)", color: "#ff7300", display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: 12 }}>
               <Megaphone size={24} />
             </div>
             <h4 style={{ margin: "0 0 6px 0", fontSize: 16, fontWeight: 700 }}>No Top Announcement Added</h4>
             <p style={{ margin: "0 0 16px 0", fontSize: 13, color: "#64748b" }}>
-              Add a red top announcement bar to promote sales, free shipping, or special discounts on the website.
+              Add an orange top announcement bar to promote sales, free shipping, or special discounts on the website.
             </p>
             <button
               type="button"

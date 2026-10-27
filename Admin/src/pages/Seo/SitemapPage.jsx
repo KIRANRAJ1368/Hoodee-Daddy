@@ -455,7 +455,7 @@ export default function SitemapPage() {
                 Disallow: /my-orders<br />
                 Disallow: /login<br />
                 Disallow: /register<br />
-                Sitemap: {summary?.baseUrl || "https://zmwclothing.com"}/sitemap.xml
+                Sitemap: {summary?.baseUrl || "https://hoodeedaddy.com"}/sitemap.xml
               </code>
             </div>
           </div>

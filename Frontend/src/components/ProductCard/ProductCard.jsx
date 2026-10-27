@@ -7,10 +7,18 @@ import "./ProductCard.css";
 
 function getProductBadge(product) {
   if (product.badge) {
-    const typeMap = { hot: "trending", new: "newdrop", sale: "sale" };
+    const raw = String(product.badge).trim().toUpperCase();
+    if (raw.includes("ESSENTIAL")) return { text: product.badge, type: "essential" };
+    if (raw.includes("BEST")) return { text: "BEST SELLER", type: "bestseller" };
+    if (raw.includes("DROP") || raw === "NEW" || raw.includes("NEW")) return { text: "NEW DROP", type: "newdrop" };
+    if (raw.includes("LIMIT")) return { text: "LIMITED", type: "limited" };
+    if (raw.includes("TREND")) return { text: "TRENDING", type: "trending" };
+    if (raw.includes("SALE") || product.isSale) return { text: "SALE", type: "sale" };
+    const typeMap = { hot: "trending", new: "newdrop", sale: "sale", essential: "essential" };
     return { text: product.badge, type: typeMap[product.badgeType] || "trending" };
   }
-  const raw = (product.badge || "").trim().toUpperCase();
+  const raw = (product.category || product.name || "").trim().toUpperCase();
+  if (raw.includes("ESSENTIAL")) return { text: "ESSENTIAL", type: "essential" };
   if (raw.includes("BEST")) return { text: "BEST SELLER", type: "bestseller" };
   if (raw.includes("DROP") || raw === "NEW" || raw.includes("NEW")) return { text: "NEW DROP", type: "newdrop" };
   if (raw.includes("LIMIT")) return { text: "LIMITED", type: "limited" };
@@ -73,7 +81,7 @@ export default function ProductCard({ product, className = "", style = {} }) {
         {/* Primary & Secondary Images */}
         <img
           src={imageUrl(primaryImg)}
-          alt={product.name ? `${product.name} - ZMW Clothing` : "ZMW Clothing Product"}
+          alt={product.name ? `${product.name} - HooDee Daddy` : "HooDee Daddy Product"}
           className="product-img-primary"
           loading="lazy"
           onError={(event) => {
@@ -84,7 +92,7 @@ export default function ProductCard({ product, className = "", style = {} }) {
         {hasSecondaryImg && (
           <img
             src={imageUrl(secondaryImg)}
-            alt={product.name ? `${product.name} - alternate view` : "ZMW Clothing alternate view"}
+            alt={product.name ? `${product.name} - alternate view` : "HooDee Daddy alternate view"}
             className="product-img-secondary"
             loading="lazy"
             onError={(event) => {
@@ -131,7 +139,7 @@ export default function ProductCard({ product, className = "", style = {} }) {
             title={isSaved ? "Remove from Wishlist" : "Add to Wishlist"}
             aria-label={isSaved ? "Remove from Wishlist" : "Add to Wishlist"}
           >
-            <svg width="17" height="17" viewBox="0 0 24 24" fill={isSaved ? "#DC2626" : "none"} stroke={isSaved ? "#DC2626" : "currentColor"} strokeWidth="2">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill={isSaved ? "var(--brand-blue)" : "none"} stroke={isSaved ? "var(--brand-blue)" : "currentColor"} strokeWidth="2">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
           </button>
@@ -171,12 +179,11 @@ export default function ProductCard({ product, className = "", style = {} }) {
               e.stopPropagation();
               navigate(`${productUrl}#customer-reviews`);
             }}
-            style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "12px", color: "#d97706", marginBottom: "4px" }}
             title="Click to view verified customer reviews"
           >
-            <span>★</span>
-            <span style={{ fontWeight: 600 }}>{Number(product.rating || 0).toFixed(1)}</span>
-            <span style={{ color: "#6b7280", fontSize: "11px" }}>({product.reviewCount})</span>
+            <span className="rating-star">★</span>
+            <span className="rating-score">{Number(product.rating || 0).toFixed(1)}</span>
+            <span className="rating-count">({product.reviewCount} Ratings)</span>
           </div>
         )}
         <h3 className="product-name" onClick={handleCardClick} title={product.name}>
@@ -189,6 +196,9 @@ export default function ProductCard({ product, className = "", style = {} }) {
           <span className="price-current">{formatPrice(shownPrice)}</span>
           {displayOriginalPrice && (
             <span className="price-original">{formatPrice(displayOriginalPrice)}</span>
+          )}
+          {pricing.savingsPercent > 0 && (
+            <span className="price-discount">({pricing.savingsPercent}% OFF)</span>
           )}
         </div>
       </div>

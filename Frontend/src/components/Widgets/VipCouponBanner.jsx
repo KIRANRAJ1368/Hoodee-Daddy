@@ -7,10 +7,13 @@ export default function VipCouponBanner() {
   const [subscribed, setSubscribed] = useState(false);
   const [emailError, setEmailError] = useState("");
 
-  const couponCode = "ZMW10";
+  const couponCode = "WELCOME10";
 
   const handleCopy = () => {
     navigator.clipboard?.writeText(couponCode);
+    try {
+      localStorage.setItem("hoodee_first_order_coupon", couponCode);
+    } catch {}
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
   };
@@ -73,10 +76,10 @@ export default function VipCouponBanner() {
                     }}
                     required
                     className="vip-input"
-                    style={emailError ? { borderColor: "#DC2626" } : {}}
+                    style={emailError ? { borderColor: "var(--brand-border)" } : {}}
                   />
                   {emailError && (
-                    <span style={{ color: "#DC2626", fontSize: "0.78rem", marginTop: "4px", textAlign: "left" }}>
+                    <span style={{ color: "var(--brand-blue)", fontSize: "0.78rem", marginTop: "4px", textAlign: "left" }}>
                       {emailError}
                     </span>
                   )}

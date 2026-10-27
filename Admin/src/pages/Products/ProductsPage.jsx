@@ -55,12 +55,12 @@ export default function ProductsPage() {
 
   function broadcastCatalogUpdate() {
     try {
-      const channel = new BroadcastChannel("zmw_catalog_channel");
+      const channel = new BroadcastChannel("hd_catalog_channel");
       channel.postMessage({ type: "CATALOG_UPDATED", timestamp: Date.now() });
       channel.close();
     } catch {}
     try {
-      localStorage.setItem("zmw_catalog_updated_at", String(Date.now()));
+      localStorage.setItem("hd_catalog_updated_at", String(Date.now()));
     } catch {}
   }
 
@@ -336,9 +336,6 @@ export default function ProductsPage() {
                       <Tag size={11} />
                       <span>{row.category || "—"}</span>
                     </span>
-                    {row.subCategory && (
-                      <span className="subcategory-tag-ref">{row.subCategory}</span>
-                    )}
                   </div>
                 )
               },

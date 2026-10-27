@@ -110,3 +110,9 @@ export function buildHeroTree({ homeData, allProducts = [] }) {
     </MemoryRouter>
   );
 }
+export { default as FirstVisitModal } from "../../src/components/Modals/FirstVisitModal";
+export { storefrontApi } from "../../src/services/storefrontApi";
+
+export { default as AddressReminder } from "../../src/components/Modals/AddressReminder";
+export { default as Checkout } from "../../src/pages/Checkout";
+export { checkoutVisitorFields } from "../../src/utils/visitorAccess";

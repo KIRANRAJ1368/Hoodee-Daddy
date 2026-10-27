@@ -58,7 +58,7 @@ export default function ReportsPage() {
   function exportCsv() {
     let headers = [];
     let rows = [];
-    let filename = `ZMW_${activeTab}_report_${new Date().toISOString().split("T")[0]}.csv`;
+    let filename = `HooDeeDaddy_${activeTab}_report_${new Date().toISOString().split("T")[0]}.csv`;
 
     if (activeTab === "sales") {
       headers = ["Date", "Orders Count", "Subtotal (INR)", "Discounts (INR)", "Shipping (INR)", "Total (INR)"];

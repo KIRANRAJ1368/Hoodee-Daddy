@@ -77,8 +77,8 @@ export default function Login() {
           <div className="login-brand-header">
             <div className="login-logo-wrap">
               <img
-                src="/images/zmw-logo-transparent.png"
-                alt="ZMW Clothing"
+                src="/images/hoodee-daddy-logo.png"
+                alt="HooDee Daddy"
                 className="login-logo-image"
               />
             </div>
@@ -128,7 +128,7 @@ export default function Login() {
                 <Mail size={18} className="login-input-icon" />
                 <input
                   id="login-email"
-                  name="zmw_admin_login_email"
+                  name="hd_admin_login_email"
                   type="text"
                   placeholder="Enter your email or username"
                   autoComplete="off"
@@ -154,7 +154,7 @@ export default function Login() {
                 <Lock size={18} className="login-input-icon" />
                 <input
                   id="login-password"
-                  name="zmw_admin_login_secret"
+                  name="hd_admin_login_secret"
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   autoComplete="new-password"

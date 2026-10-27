@@ -42,13 +42,13 @@
   justify-content: space-between;
   border-radius: 16px;
   background-color: #FFFFFF;
-  border: 1.5px solid #E2E8F0;
-  border-left: 5px solid #FAA703;
+  border: 1.5px solid var(--brand-border);
+  border-left: 5px solid #FF7300;
   padding: 22px 26px;
   overflow: hidden;
   cursor: pointer;
-  box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.07),
-              0 2px 6px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 8px 24px -4px rgba(9, 21, 37, 0.07),
+              0 2px 6px rgba(9, 21, 37, 0.04);
   transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow 280ms cubic-bezier(0.16, 1, 0.3, 1),
               border-color 280ms ease;
@@ -61,17 +61,17 @@
 }
 
 .offer-banner-card:focus-visible {
-  border-color: #FAA703;
-  box-shadow: 0 0 0 3px rgba(250, 167, 3, 0.35),
-              0 12px 32px rgba(15, 23, 42, 0.12);
+  border-color: #FF7300;
+  box-shadow: 0 0 0 3px rgba(255, 115, 0, 0.35),
+              0 12px 32px rgba(9, 21, 37, 0.12);
 }
 
 .offer-banner-card:hover {
   transform: translateY(-4px);
-  border-color: #FAA703;
-  border-left-color: #E09500;
-  box-shadow: 0 16px 36px -8px rgba(15, 23, 42, 0.12),
-              0 0 20px rgba(250, 167, 3, 0.16);
+  border-color: #FF7300;
+  border-left-color: #FF7300;
+  box-shadow: 0 16px 36px -8px rgba(9, 21, 37, 0.12),
+              0 0 20px rgba(255, 115, 0, 0.22);
 }
 
 /* ── Left Content Column ── */
@@ -99,19 +99,19 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #FAA703;
-  border: 1px solid #FAA703;
-  color: #0F172A;
+  background: linear-gradient(135deg, #FF7300 0%, #FF5500 100%);
+  border: none;
+  color: #FFFFFF;
   font-family: var(--font-primary, "Plus Jakarta Sans", sans-serif);
   font-size: 0.74rem;
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  padding: 4.5px 12px;
+  padding: 5px 13px;
   border-radius: 9999px;
   line-height: 1;
   white-space: nowrap;
-  box-shadow: 0 2px 8px rgba(250, 167, 3, 0.32);
+  box-shadow: 0 3px 12px rgba(255, 115, 0, 0.4);
   transition: transform 200ms ease;
   animation: crazymonkOfferPulse 2.4s ease-in-out infinite;
 }
@@ -119,11 +119,11 @@
 @keyframes crazymonkOfferPulse {
   0%, 100% {
     transform: scale(1);
-    box-shadow: 0 2px 8px rgba(250, 167, 3, 0.32);
+    box-shadow: 0 3px 12px rgba(255, 115, 0, 0.4);
   }
   50% {
     transform: scale(1.035);
-    box-shadow: 0 4px 14px rgba(250, 167, 3, 0.55);
+    box-shadow: 0 5px 16px rgba(255, 115, 0, 0.6);
   }
 }
 
@@ -133,21 +133,21 @@
 }
 
 .offer-banner-lightning-icon {
-  color: #0F172A;
+  color: #FFE600;
   flex-shrink: 0;
 }
 
 .offer-banner-discount-value {
-  color: #0F172A;
+  color: #FFFFFF;
   font-weight: 900;
 }
 
 .offer-banner-discount-scope {
-  color: rgba(15, 23, 42, 0.85);
+  color: rgba(255, 255, 255, 0.9);
   font-weight: 700;
   font-size: 0.66rem;
   padding-left: 6px;
-  border-left: 1px solid rgba(15, 23, 42, 0.3);
+  border-left: 1px solid rgba(255, 255, 255, 0.4);
 }
 
 /* Secondary Event Tag Pill */
@@ -155,9 +155,9 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #F8FAFC;
-  border: 1px solid #E2E8F0;
-  color: #475569;
+  background: #FFF7ED;
+  border: 1px solid rgba(255, 115, 0, 0.25);
+  color: #EA580C;
   font-family: var(--font-primary, "Plus Jakarta Sans", sans-serif);
   font-size: 0.68rem;
   font-weight: 700;
@@ -172,18 +172,18 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background-color: #FAA703;
+  background-color: #FF7300;
   animation: crazymonkDotPulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 @keyframes crazymonkDotPulse {
   0%, 100% {
     transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(250, 167, 3, 0.75);
+    box-shadow: 0 0 0 0 rgba(255, 115, 0, 0.75);
   }
   50% {
     transform: scale(1.25);
-    box-shadow: 0 0 0 4px rgba(250, 167, 3, 0);
+    box-shadow: 0 0 0 4px rgba(255, 115, 0, 0);
   }
 }
 
@@ -194,7 +194,7 @@
   font-weight: 900;
   letter-spacing: -0.01em;
   text-transform: uppercase;
-  color: #0F172A;
+  color: var(--brand-blue);
   line-height: 1.2;
   margin: 0 0 8px 0;
   display: -webkit-box;
@@ -230,36 +230,34 @@
   align-items: center;
   gap: 7px;
   border-radius: 9999px;
-  background: #0F172A;
+  background: #091525;
   color: #FFFFFF;
-  border: 1.5px solid #0F172A;
-  padding: 8px 20px;
+  border: none;
+  padding: 8px 22px;
   font-family: var(--font-primary, "Plus Jakarta Sans", sans-serif);
   font-weight: 800;
   font-size: 0.76rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.16);
+  box-shadow: 0 4px 14px rgba(9, 21, 37, 0.25);
   transition: all 250ms cubic-bezier(0.16, 1, 0.3, 1);
   white-space: nowrap;
 }
 
 .offer-banner-arrow {
   flex-shrink: 0;
-  color: #FAA703;
+  color: currentColor;
   transition: all 250ms ease;
 }
 
 .offer-banner-card:hover .offer-banner-open-btn {
-  background: #FAA703;
-  color: #0F172A;
-  border-color: #FAA703;
-  box-shadow: 0 6px 20px rgba(250, 167, 3, 0.4);
-  transform: translateX(3px);
+  background: linear-gradient(135deg, #FF7300, #FF5500);
+  color: #FFFFFF;
+  box-shadow: 0 6px 20px rgba(255, 115, 0, 0.45);
+  transform: translateY(-2px);
 }
 
 .offer-banner-card:hover .offer-banner-arrow {
-  color: #0F172A;
   transform: translateX(4px);
 }
 
@@ -271,9 +269,9 @@
   border-radius: 12px;
   overflow: hidden;
   position: relative;
-  border: 1px solid #E2E8F0;
-  background: #F1F5F9;
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+  border: 1px solid var(--brand-border);
+  background: var(--brand-white);
+  box-shadow: 0 4px 14px rgba(9, 21, 37, 0.06);
 }
 
 .offer-banner-thumb-img {
@@ -291,7 +289,7 @@
 .offer-banner-visual-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, rgba(15, 23, 42, 0.08) 100%);
+  background: transparent;
   pointer-events: none;
 }
 
@@ -302,11 +300,7 @@
   left: 0;
   width: 45%;
   height: 100%;
-  background: radial-gradient(
-    circle at 5% 50%,
-    rgba(250, 167, 3, 0.06) 0%,
-    transparent 65%
-  );
+  background: var(--brand-white);
   pointer-events: none;
 }
 
@@ -316,12 +310,7 @@
   left: -100%;
   width: 40%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.6) 50%,
-    transparent 100%
-  );
+  background: var(--brand-white);
   transform: skewX(-20deg);
   pointer-events: none;
   transition: left 800ms ease;

@@ -68,7 +68,7 @@ module.exports = {
   },
 
   seedAdmin: {
-    name: process.env.SEED_ADMIN_NAME || "ZMW Admin",
+    name: process.env.SEED_ADMIN_NAME || "HooDee Daddy Admin",
     email: process.env.SEED_ADMIN_EMAIL,
     password: process.env.SEED_ADMIN_PASSWORD
   },
@@ -79,7 +79,7 @@ module.exports = {
     secure: process.env.SMTP_SECURE === "true" || process.env.SMTP_PORT === "465",
     user: process.env.SMTP_USER || "",
     pass: process.env.SMTP_PASS || "",
-    from: process.env.SMTP_FROM || "ZMW Clothing <no-reply@zmwclothing.com>"
+    from: process.env.SMTP_FROM || "HooDee Daddy <no-reply@hoodeedaddy.com>"
   },
 
   razorpay: {

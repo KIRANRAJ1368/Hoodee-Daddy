@@ -35,7 +35,7 @@ const FAQ_DATA = [
     categoryLabel: "Orders & Tracking",
     question: "Can I modify or cancel my order after placing it?",
     answer:
-      "Orders are processed quickly within 24 to 48 hours. If you need to change your delivery address or cancel an item, please contact our support team immediately at +91 9876543210 or email zmw@gmail.com before dispatch. Once an order is handed to our courier partner, it cannot be modified in transit."
+      "Orders are processed quickly within 24 to 48 hours. If you need to change your delivery address or cancel an item, please contact our support team immediately at +91 9876543210 or email support@hoodeedaddy.com before dispatch. Once an order is handed to our courier partner, it cannot be modified in transit."
   },
   {
     id: "ord-3",
@@ -113,7 +113,7 @@ const FAQ_DATA = [
     categoryLabel: "Returns & Refunds",
     question: "How do I exchange an item for a different size?",
     answer:
-      "To request a size replacement, contact our customer care team with your Order ID via email at zmw@gmail.com or WhatsApp +91 9876543210. Once verified, we schedule a convenient reverse courier pickup."
+      "To request a size replacement, contact our customer care team with your Order ID via email at support@hoodeedaddy.com or WhatsApp +91 9876543210. Once verified, we schedule a convenient reverse courier pickup."
   },
   {
     id: "ret-3",
@@ -173,13 +173,13 @@ const FAQ_DATA = [
     categoryLabel: "General",
     question: "How can I contact the customer support team?",
     answer:
-      "Our support desk is active Monday through Saturday from 10:00 AM to 5:00 PM IST. You can reach us via email at zmw@gmail.com, phone at +91 9876543210, or directly through our website WhatsApp chat."
+      "Our support desk is active Monday through Saturday from 10:00 AM to 5:00 PM IST. You can reach us via email at support@hoodeedaddy.com, phone at +91 9876543210, or directly through our website WhatsApp chat."
   }
 ];
 
 export default function FAQ() {
   const { seoSettings } = useShop();
-  const baseUrl = (seoSettings?.canonical_base_url || "https://zmwclothing.com").replace(/\/+$/, "");
+  const baseUrl = (seoSettings?.canonical_base_url || "https://hoodeedaddy.com").replace(/\/+$/, "");
   const [activeCategory, setActiveCategory] = useState("all");
   const [openIds, setOpenIds] = useState(["ord-1"]);
 
@@ -210,8 +210,8 @@ export default function FAQ() {
   return (
     <div className="faq-page">
       <SeoHead
-        title="Frequently Asked Questions (FAQ) — Orders, Shipping & Returns | ZMW Clothing"
-        description="Find prompt answers regarding our premium streetwear fits, nationwide Indian logistics, easy returns, and payment options at ZMW Clothing."
+        title="Frequently Asked Questions (FAQ) — Orders, Shipping & Returns | HooDee Daddy"
+        description="Find prompt answers regarding our premium streetwear fits, nationwide Indian logistics, easy returns, and payment options at HooDee Daddy."
         canonicalPath="/faq"
         schemas={schemas}
       />

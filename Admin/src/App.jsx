@@ -7,7 +7,6 @@ import AdminLayout from "./layouts/AdminLayout";
 import Login from "./pages/Login/Login";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import CategoriesPage from "./pages/Categories/CategoriesPage";
-import SubcategoriesPage from "./pages/Subcategories/SubcategoriesPage";
 import ProductsPage from "./pages/Products/ProductsPage";
 import ProductFormPage from "./pages/Products/ProductFormPage";
 import InventoryPage from "./pages/Inventory/InventoryPage";
@@ -48,7 +47,6 @@ export default function App() {
           >
             <Route index element={<Dashboard />} />
             <Route path="categories" element={<CategoriesPage />} />
-            <Route path="subcategories" element={<SubcategoriesPage />} />
             <Route path="products" element={<ProductsPage />} />
             <Route path="products/new" element={<ProductFormPage />} />
             <Route path="products/:id/edit" element={<ProductFormPage />} />

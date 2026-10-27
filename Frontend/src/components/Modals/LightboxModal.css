@@ -6,7 +6,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(14, 14, 12, 0.92);
+  background-color: var(--brand-white);
   backdrop-filter: blur(10px);
   z-index: var(--z-lightbox);
   display: flex;
@@ -20,7 +20,7 @@
   position: relative;
   max-width: 900px;
   width: 100%;
-  background-color: var(--color-white);
+  background-color: var(--brand-white);
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: var(--shadow-xl);
@@ -35,7 +35,7 @@
 }
 
 .lightbox-image-box {
-  background-color: var(--color-sand);
+  background-color: var(--brand-white);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -54,7 +54,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  background-color: var(--color-white);
+  background-color: var(--brand-white);
 }
 
 .lightbox-header {
@@ -67,19 +67,19 @@
 
 .lightbox-handle {
   font-weight: 700;
-  color: var(--color-ink);
+  color: var(--brand-blue);
   font-size: var(--text-small);
 }
 
 .lightbox-counter {
   font-size: var(--text-xs);
-  color: var(--color-grey-400);
+  color: var(--brand-blue);
   font-weight: 600;
 }
 
 .lightbox-caption {
   font-size: var(--text-small);
-  color: var(--color-grey-600);
+  color: var(--brand-blue);
   line-height: 1.6;
   margin: 20px 0;
   flex: 1;
@@ -96,7 +96,7 @@
 .lightbox-likes {
   font-size: var(--text-xs);
   font-weight: 600;
-  color: var(--color-ink);
+  color: var(--brand-blue);
 }
 
 /* Nav & Close buttons */
@@ -107,8 +107,8 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: rgba(25, 24, 22, 0.7);
-  color: var(--color-white);
+  background: var(--brand-white);
+  color: var(--brand-blue);
   font-size: 1.1rem;
   display: flex;
   align-items: center;
@@ -118,7 +118,7 @@
 }
 
 .lightbox-close-btn:hover {
-  background: var(--color-ink);
+  background: var(--brand-white);
 }
 
 .lightbox-nav-btn {
@@ -128,8 +128,8 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.85);
-  color: var(--color-ink);
+  background: var(--brand-white);
+  color: var(--brand-blue);
   font-size: 1.6rem;
   line-height: 1;
   display: flex;
@@ -149,8 +149,8 @@
 }
 
 .lightbox-nav-btn:hover {
-  background: var(--color-ink);
-  color: var(--color-white);
+  background: var(--brand-white);
+  color: var(--brand-orange);
 }
 
 @media (max-width: 820px) {

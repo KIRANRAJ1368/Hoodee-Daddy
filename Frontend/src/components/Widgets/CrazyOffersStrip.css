@@ -5,9 +5,11 @@
 .crazy-offers-strip {
   width: 100%;
   padding: clamp(28px, 3.5vw, 42px) 0;
-  background: #0B0E14;
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFF8F0 50%, #FFFFFF 100%);
   position: relative;
   overflow: hidden;
+  border-top: 1px solid rgba(255, 115, 0, 0.15);
+  border-bottom: 1px solid rgba(255, 115, 0, 0.15);
 }
 
 .crazy-offers-strip::before {
@@ -17,7 +19,7 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, transparent, #FAA703 30%, #E09500 70%, transparent);
+  background: linear-gradient(90deg, transparent, #FF7300, transparent);
 }
 
 .crazy-offers-grid {
@@ -41,33 +43,52 @@
 }
 
 .offer-card-primary {
-  background: linear-gradient(135deg, #1C0A00 0%, #3B1200 60%, #521900 100%);
-  border: 1px solid rgba(255, 107, 0, 0.4);
-  box-shadow: 0 8px 32px rgba(255, 107, 0, 0.15);
+  background: linear-gradient(135deg, #091525 0%, #152538 100%);
+  border: 1.5px solid rgba(255, 115, 0, 0.35);
+  box-shadow: 0 10px 30px rgba(9, 21, 37, 0.2);
+  color: #FFFFFF;
 }
 
 .offer-card-secondary {
-  background: linear-gradient(135deg, #1A0D00 0%, #3D1F00 60%, #592B00 100%);
-  border: 1px solid rgba(245, 158, 11, 0.4);
-  box-shadow: 0 8px 32px rgba(245, 158, 11, 0.15);
+  background: linear-gradient(135deg, #FF7300 0%, #FF5500 100%);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 10px 30px rgba(255, 115, 0, 0.35);
+  color: #FFFFFF;
 }
 
 .crazy-offer-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 14px 40px rgba(255, 107, 0, 0.25);
+}
+
+.offer-card-primary:hover {
+  box-shadow: 0 16px 40px rgba(9, 21, 37, 0.35), 0 0 20px rgba(255, 115, 0, 0.25);
+  border-color: #FF7300;
+}
+
+.offer-card-secondary:hover {
+  box-shadow: 0 16px 40px rgba(255, 115, 0, 0.5);
 }
 
 .offer-badge-label {
   align-self: flex-start;
-  font-size: 0.65rem;
+  font-size: 0.68rem;
   font-weight: 900;
   letter-spacing: 0.14em;
-  padding: 4px 10px;
+  padding: 4px 12px;
   border-radius: var(--radius-pill);
-  background: rgba(255, 255, 255, 0.12);
-  color: #F8FAFC;
-  border: 1px solid rgba(255, 255, 255, 0.2);
   margin-bottom: 12px;
+}
+
+.offer-card-primary .offer-badge-label {
+  background: rgba(255, 115, 0, 0.18);
+  color: #FFAA00;
+  border: 1px solid rgba(255, 170, 0, 0.35);
+}
+
+.offer-card-secondary .offer-badge-label {
+  background: rgba(255, 255, 255, 0.25);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.45);
 }
 
 .offer-main-content {
@@ -79,39 +100,60 @@
   font-size: 0.82rem;
   font-weight: 800;
   letter-spacing: 0.12em;
-  color: rgba(255, 255, 255, 0.85);
   text-transform: uppercase;
   margin-bottom: 4px;
+}
+
+.offer-card-primary .offer-subhead {
+  color: #E2E8F0;
+}
+
+.offer-card-secondary .offer-subhead {
+  color: rgba(255, 255, 255, 0.92);
 }
 
 .offer-value {
   font-family: var(--font-display);
   font-size: clamp(1.8rem, 2.8vw, 2.4rem);
   font-weight: 900;
-  color: #FFFFFF;
   margin: 0;
   line-height: 1;
   letter-spacing: -0.01em;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .offer-card-primary .offer-value {
-  color: #FFA500;
+  color: #FFAA00;
+  text-shadow: 0 0 18px rgba(255, 170, 0, 0.45);
 }
 
 .offer-card-secondary .offer-value {
-  color: #FBBF24;
+  color: #FFFFFF;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .offer-code-hint {
   font-size: 0.78rem;
-  color: rgba(255, 255, 255, 0.65);
   margin: 8px 0 0 0;
 }
 
-.offer-code-hint strong {
-  color: #FFFFFF;
+.offer-card-primary .offer-code-hint {
+  color: #94A3B8;
+}
+
+.offer-card-secondary .offer-code-hint {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.offer-card-primary .offer-code-hint strong {
+  color: #FFAA00;
   background: rgba(255, 255, 255, 0.12);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.offer-card-secondary .offer-code-hint strong {
+  color: #FF5500;
+  background: #FFFFFF;
   padding: 2px 6px;
   border-radius: 4px;
 }
@@ -124,9 +166,7 @@
 }
 
 .offer-copy-btn {
-  padding: 8px 16px;
-  background: #FFFFFF;
-  color: #0B0E14;
+  padding: 8px 18px;
   font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0.06em;
@@ -136,22 +176,50 @@
   transition: all var(--dur-fast) var(--ease-smooth);
 }
 
-.offer-copy-btn:hover {
-  background: #FAA703;
-  color: #111827;
+.offer-card-primary .offer-copy-btn {
+  background: linear-gradient(135deg, #FF7300, #FF5500);
+  color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(255, 115, 0, 0.35);
+}
+
+.offer-card-primary .offer-copy-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(255, 115, 0, 0.5);
+}
+
+.offer-card-secondary .offer-copy-btn {
+  background: #FFFFFF;
+  color: #091525;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.offer-card-secondary .offer-copy-btn:hover {
+  background: #091525;
+  color: #FFFFFF;
 }
 
 .offer-explore-link {
   font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0.08em;
-  color: #FFFFFF;
   text-decoration: none;
   transition: color var(--dur-fast);
 }
 
-.offer-explore-link:hover {
-  color: #FAA703;
+.offer-card-primary .offer-explore-link {
+  color: #E2E8F0;
+}
+
+.offer-card-primary .offer-explore-link:hover {
+  color: #FF7300;
+}
+
+.offer-card-secondary .offer-explore-link {
+  color: #FFFFFF;
+}
+
+.offer-card-secondary .offer-explore-link:hover {
+  text-decoration: underline;
 }
 
 /* ── Center Brand Callout ── */
@@ -162,27 +230,31 @@
 
 .crazy-deal-pill {
   display: inline-block;
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   font-weight: 800;
   letter-spacing: 0.14em;
-  color: #FAA703;
-  margin-bottom: 6px;
+  color: var(--brand-orange);
+  background: rgba(255, 115, 0, 0.1);
+  border: 1px solid rgba(255, 115, 0, 0.25);
+  border-radius: var(--radius-pill);
+  padding: 4px 12px;
+  margin-bottom: 8px;
 }
 
 .crazy-offers-heading {
   font-family: var(--font-display);
   font-size: clamp(1.8rem, 3.2vw, 2.6rem);
   font-weight: 900;
-  color: #FFFFFF;
+  color: var(--brand-blue);
   margin: 0;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   line-height: 1;
 }
 
 .crazy-offers-sub {
   font-size: 0.82rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--brand-blue);
   margin: 8px 0 0 0;
   max-width: 260px;
   margin-left: auto;

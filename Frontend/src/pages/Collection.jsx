@@ -81,7 +81,7 @@ function renderHeroIcon(name) {
       );
     case "star":
       return (
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="#FAA703" stroke="#FAA703" strokeWidth="1" aria-hidden="true">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--brand-blue)" stroke="var(--brand-blue)" strokeWidth="1" aria-hidden="true">
           <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
         </svg>
       );
@@ -108,7 +108,7 @@ const BANNER_CONFIG = {
     ctaText: "Shop Men's",
     urgencyTag: "✨ Fresh Drop",
     image: "/images/crazymonk-cat-mens.jpg",
-    imagePosition: "center center"
+    imagePosition: "center top"
   },
   women: {
     categoryName: "Women",
@@ -127,7 +127,7 @@ const BANNER_CONFIG = {
     ctaText: "Shop Women's",
     urgencyTag: "✨ Fresh Drop",
     image: "/images/crazymonk-cat-womens.jpg",
-    imagePosition: "center center"
+    imagePosition: "center top"
   },
   boys: {
     categoryName: "Boys",
@@ -146,7 +146,7 @@ const BANNER_CONFIG = {
     ctaText: "Shop Boys'",
     urgencyTag: "⚡ Selling Out Fast",
     image: "/images/banner-boys.jpg",
-    imagePosition: "85% top"
+    imagePosition: "center top"
   },
   girls: {
     categoryName: "Girls",
@@ -165,7 +165,7 @@ const BANNER_CONFIG = {
     ctaText: "Shop Girls'",
     urgencyTag: "✨ Fresh Drop",
     image: "/images/banner-girls.jpg",
-    imagePosition: "85% top"
+    imagePosition: "center top"
   },
   babies: {
     categoryName: "Babies",
@@ -184,7 +184,7 @@ const BANNER_CONFIG = {
     ctaText: "Shop Babies'",
     urgencyTag: "🍼 Gentle Care",
     image: "/images/banner-babies.jpg",
-    imagePosition: "85% top"
+    imagePosition: "center top"
   },
   "best-sellers": {
     categoryName: "Best Sellers",
@@ -202,7 +202,7 @@ const BANNER_CONFIG = {
     ],
     ctaText: "Shop Best Sellers",
     image: "/images/crazymonk-hero-hoodies.jpg",
-    imagePosition: "center center"
+    imagePosition: "center top"
   },
   "new-arrivals": {
     categoryName: "New Arrivals",
@@ -220,11 +220,11 @@ const BANNER_CONFIG = {
     ],
     ctaText: "Shop New Arrivals",
     image: "/images/crazymonk-hero-oversized.jpg",
-    imagePosition: "center center"
+    imagePosition: "center top"
   },
   default: {
     categoryName: "Collection",
-    badge: "ZMW Wardrobe",
+    badge: "HooDee Daddy Wardrobe",
     badgeIcon: "bolt",
     subBadge: "All Collections",
     offer: "ALL STYLES",
@@ -238,7 +238,7 @@ const BANNER_CONFIG = {
     ],
     ctaText: "Shop Collection",
     image: "/images/dept-family-banner.jpg",
-    imagePosition: "75% 25%"
+    imagePosition: "center top"
   }
 };
 
@@ -253,12 +253,12 @@ function GridIcon({ columns }) {
     <svg className="coll-grid-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <g className="icon-inactive">
         {rects.map((x, i) => (
-          <rect key={i} x={x + 1} y="3" width={w} height="18" rx="1.5" fill="#94A3B8" />
+          <rect key={i} x={x + 1} y="3" width={w} height="18" rx="1.5" fill="var(--brand-blue)" />
         ))}
       </g>
       <g className="icon-active">
         {rects.map((x, i) => (
-          <rect key={i} x={x + 1} y="3" width={w} height="18" rx="1.5" fill="#fff" />
+          <rect key={i} x={x + 1} y="3" width={w} height="18" rx="1.5" fill="var(--brand-blue)" />
         ))}
       </g>
     </svg>
@@ -270,7 +270,7 @@ export default function Collection() {
   const navigate = useNavigate();
   const location = useLocation();
   const { allProducts, homeData, storefrontStatus, seoSettings, refreshHomeData } = useShop();
-  const { categorySlug, subcategorySlug } = useParams();
+  const { categorySlug } = useParams();
   const catalog = allProducts || [];
 
   useEffect(() => {
@@ -287,7 +287,7 @@ export default function Collection() {
   const rawCategoryParam = (categorySlug || searchParams.get("category") || "all").toLowerCase();
   const categoryParam = CATEGORY_ALIASES[rawCategoryParam] || rawCategoryParam;
   const collectionParam = (searchParams.get("collection") || "all").toLowerCase();
-  const typeParam = (subcategorySlug || searchParams.get("type") || "all").toLowerCase();
+  const typeParam = (searchParams.get("type") || "all").toLowerCase();
   const searchParam = (searchParams.get("q") || searchParams.get("search") || "").trim().toLowerCase();
   const colorParam = searchParams.getAll("color");
   const sizeParam = searchParams.getAll("size");
@@ -334,7 +334,7 @@ export default function Collection() {
   const [isSortOpen, setIsSortOpen] = useState(false);
   const sortRef = useRef(null);
 
-    const baseUrl = (seoSettings?.canonical_base_url || "https://zmwclothing.com").replace(/\/+$/, "");
+    const baseUrl = (seoSettings?.canonical_base_url || "https://hoodeedaddy.com").replace(/\/+$/, "");
 
   const homeCategories = useMemo(() => {
     const cats = homeData?.categories || [];
@@ -386,12 +386,12 @@ export default function Collection() {
 
   const seoTitle = useMemo(() => {
     if (matchedCatObj?.meta_title) return matchedCatObj.meta_title;
-    if (collectionParam === "best-sellers") return "Best Sellers — Most Popular Streetwear Drops | ZMW Clothing";
-    if (collectionParam === "new-arrivals") return "New Arrivals — Fresh Drops & Limited Editions | ZMW Clothing";
+    if (collectionParam === "best-sellers") return "Best Sellers — Most Popular Streetwear Drops | HooDee Daddy";
+    if (collectionParam === "new-arrivals") return "New Arrivals — Fresh Drops & Limited Editions | HooDee Daddy";
     if (categoryParam !== "all" && seoSettings?.category_title_format) {
       return seoSettings.category_title_format.replace("{name}", categoryName);
     }
-    return `${categoryName} Collection — Luxury Apparel | ZMW Clothing`;
+    return `${categoryName} Collection — Luxury Apparel | HooDee Daddy`;
   }, [matchedCatObj, collectionParam, categoryParam, seoSettings, categoryName]);
 
   const seoDescription = useMemo(() => {
@@ -399,7 +399,7 @@ export default function Collection() {
     if (categoryParam !== "all" && seoSettings?.category_description_format) {
       return seoSettings.category_description_format.replace("{name}", categoryName);
     }
-    return `Explore our premium ${categoryName.toLowerCase()} collection at ZMW Clothing. Handcrafted natural fibres, relaxed street fits, and nationwide express shipping.`;
+    return `Explore our premium ${categoryName.toLowerCase()} collection at HooDee Daddy. Handcrafted natural fibres, relaxed street fits, and nationwide express shipping.`;
   }, [matchedCatObj, categoryParam, seoSettings, categoryName]);
 
   const canonicalPath = categoryParam !== "all" ? `/categories/${categoryParam}` : "/collection";
@@ -507,7 +507,9 @@ export default function Collection() {
       ctaText: `Shop ${catName}`,
       urgencyTag: "",
       image: matchedCategory.banner_image_url || "/images/dept-family-banner.jpg",
-      imagePosition: matchedCategory.banner_image_position || "center center"
+      imagePosition: matchedCategory.banner_image_position && matchedCategory.banner_image_position !== "center center"
+        ? matchedCategory.banner_image_position
+        : "center top"
     };
   }, [matchedCategory]);
 
@@ -520,7 +522,9 @@ export default function Collection() {
         tag: matchedCategory.banner_tag,
         badge_promo: matchedCategory.banner_badge_promo,
         image_url: matchedCategory.banner_image_url,
-        image_position: matchedCategory.banner_image_position || "center center",
+        image_position: matchedCategory.banner_image_position && matchedCategory.banner_image_position !== "center center"
+          ? matchedCategory.banner_image_position
+          : "center top",
         primary_cta_text: matchedCategory.banner_primary_cta_text,
         primary_cta_link: matchedCategory.banner_primary_cta_link || `/collection?category=${encodeURIComponent(matchedCategory.slug)}`,
         secondary_cta_text: matchedCategory.banner_secondary_cta_text
@@ -552,7 +556,7 @@ export default function Collection() {
   const banner = useMemo(() => {
     if (resolvedCategoryBanner) {
       const promo = resolvedCategoryBanner.badge_promo?.trim() || "";
-      const tag = resolvedCategoryBanner.tag?.trim() || config.badge || "ZMW";
+      const tag = resolvedCategoryBanner.tag?.trim() || config.badge || "HooDee Daddy";
       const title = resolvedCategoryBanner.title?.trim() || config.title || `${activeCategoryLabel.toUpperCase()} COLLECTION`;
       const subtitle = resolvedCategoryBanner.subtitle?.trim() || config.subtitle || "";
       const offer = promo || title;
@@ -578,7 +582,9 @@ export default function Collection() {
         title: headline,
         subtitle: subtitle,
         image: resolvedCategoryBanner.image_url || config.image,
-        imagePosition: resolvedCategoryBanner.image_position || config.imagePosition || "center center",
+        imagePosition: (resolvedCategoryBanner.image_position && resolvedCategoryBanner.image_position !== "center center")
+          ? resolvedCategoryBanner.image_position
+          : (config.imagePosition || "center top"),
         ctaText: resolvedCategoryBanner.primary_cta_text?.trim() || config.ctaText || "Shop Now",
         ctaLink: null,
         urgencyTag,
@@ -660,72 +666,13 @@ export default function Collection() {
     }
   }, [location.pathname, location.search, location.hash, scrollToProducts]);
 
-  // When a specific subcategory is selected, hide the banner and display the
-  // subcategory name and product grid directly.
-  const isSubcategoryView = typeParam !== "all";
+  const isSubcategoryView = false;
   const isBannerlessCollection = collectionParam === "best-sellers" || collectionParam === "new-arrivals";
   const isSearchListing = Boolean(searchParam);
-  const isBannerlessListing = isBannerlessCollection || isSearchListing || isSubcategoryView;
+  const isBannerlessListing = isBannerlessCollection || isSearchListing;
 
-  const activeSubcategory = useMemo(() => {
-    const needle = normalizeToken(typeParam);
-    if (!needle) return null;
-
-    const scoped = categoryParam === "all"
-      ? homeCategories
-      : homeCategories.filter((c) => c.slug === categoryParam || c.slug === CATEGORY_ALIASES[categoryParam]);
-
-    const pool = [];
-    scoped.forEach((c) => {
-      (c.subcategories || []).forEach((s) => {
-        pool.push({ id: s.id, name: s.name, slug: s.slug, categorySlug: c.slug });
-      });
-    });
-
-    return (
-      pool.find((s) => normalizeToken(s.slug) === needle)
-      || pool.find((s) => normalizeToken(s.name) === needle)
-      || pool.find((s) => {
-        const name = normalizeToken(s.name);
-        return Boolean(name) && (name.includes(needle) || needle.includes(name));
-      })
-      || null
-    );
-  }, [homeCategories, categoryParam, typeParam]);
-
-  /**
-   * True when a product belongs to the selected subcategory.
-   * Matches by subcategoryId if available, or exact normalized subCategory name/slug,
-   * while ensuring the product belongs to the active category.
-   */
-  const matchesActiveSubcategory = (p) => {
-    if (typeParam === "all") return true;
-
-    if (activeSubcategory) {
-      const matchCat =
-        !activeSubcategory.categorySlug ||
-        p.category === activeSubcategory.categorySlug ||
-        (activeSubcategory.categorySlug === "men" && p.category === "mens") ||
-        (activeSubcategory.categorySlug === "mens" && p.category === "men") ||
-        (activeSubcategory.categorySlug === "women" && p.category === "womens") ||
-        (activeSubcategory.categorySlug === "womens" && p.category === "women");
-
-      const matchId = p.subcategoryId && activeSubcategory.id && Number(p.subcategoryId) === Number(activeSubcategory.id);
-      const matchName =
-        (p.subCategory && normalizeToken(p.subCategory) === normalizeToken(activeSubcategory.name)) ||
-        (p.subCategory && normalizeToken(p.subCategory) === normalizeToken(activeSubcategory.slug));
-
-      return Boolean(matchCat && (matchId || matchName));
-    }
-
-    // Home payload unavailable (offline / API error): fall back to comparing the
-    // type token with the product's subcategory name, still exactly.
-    const needle = normalizeToken(typeParam);
-    return Boolean(needle) && (
-      normalizeToken(p.subCategory) === needle ||
-      (p.subCategory && normalizeToken(p.subCategory).replace(/\s+/g, "-") === needle)
-    );
-  };
+  const activeSubcategory = null;
+  const matchesActiveSubcategory = () => true;
 
   const updateParams = (updates) => {
     let hasUrlChange = false;
@@ -785,39 +732,26 @@ export default function Collection() {
     if (searchParam) {
       const pName = (p.name || "").toLowerCase();
       const pCat = (p.category || "").toLowerCase();
-      const pSub = (p.subCategory || "").toLowerCase();
       const pDesc = (p.description || "").toLowerCase();
       const pSku = (p.sku || "").toLowerCase();
       const pColors = (p.colors || p.color || []).map((c) => (c.name || "").toLowerCase()).join(" ");
       const searchMatches =
         pName.includes(searchParam) ||
         pCat.includes(searchParam) ||
-        pSub.includes(searchParam) ||
         pDesc.includes(searchParam) ||
         pSku.includes(searchParam) ||
         pColors.includes(searchParam);
       if (!searchMatches) return false;
     }
     if (categoryParam === "all") return true;
-    // Strict: only match products whose category slug exactly equals the URL param.
-    // No cross-category aliases (e.g. "kids" must NOT pull in boys/girls products).
-    // Each category is independent — products appear only when Admin assigns them
-    // to that specific category.
     const pCat = String(p.category || "").toLowerCase();
     if (isCategoryMatch(pCat, categoryParam)) return true;
-
-    // Support subcategory filter links (e.g. ?category=oversized-t-shirts).
-    // Only exact subcategory slug match is used — no partial string matching
-    // to prevent unrelated products leaking in.
-    const sub = (p.subCategory || "").toLowerCase().replace(/\s+/g, "-");
-    if (sub && sub === categoryParam) return true;
-
     return false;
   };
 
   const baseCategoryProducts = useMemo(() => {
-    return catalog.filter((p) => matchesCategory(p) && matchesActiveSubcategory(p));
-  }, [catalog, categoryParam, searchParam, typeParam, activeSubcategory]);
+    return catalog.filter((p) => matchesCategory(p));
+  }, [catalog, categoryParam, searchParam, typeParam]);
 
   const availableColors = useMemo(() => {
     const map = new Map();
@@ -900,14 +834,12 @@ export default function Collection() {
       if (searchParam) {
         const pName = (p.name || "").toLowerCase();
         const pCat = (p.category || "").toLowerCase();
-        const pSub = (p.subCategory || "").toLowerCase();
         const pDesc = (p.description || "").toLowerCase();
         const pSku = (p.sku || "").toLowerCase();
         const pColors = (p.colors || p.color || []).map((c) => (c.name || "").toLowerCase()).join(" ");
         const searchMatches =
           pName.includes(searchParam) ||
           pCat.includes(searchParam) ||
-          pSub.includes(searchParam) ||
           pDesc.includes(searchParam) ||
           pSku.includes(searchParam) ||
           pColors.includes(searchParam);
@@ -916,7 +848,7 @@ export default function Collection() {
       if (categoryParam !== "all" && !matchesCategory(p)) return false;
       if (collectionParam === "best-sellers" && !p.isBestSeller) return false;
       if (collectionParam === "new-arrivals" && !p.isNewArrival) return false;
-      if (!matchesActiveSubcategory(p)) return false;
+      
       if (colorParam.length > 0) {
         const pColors = (p.colors || p.color || []).map((c) => (c.name || c).toLowerCase());
         (p.variants || []).forEach((v) => { if (v.color) pColors.push(v.color.toLowerCase()); });
@@ -986,7 +918,7 @@ export default function Collection() {
         break;
     }
     return list;
-  }, [catalog, searchParam, categoryParam, collectionParam, typeParam, colorParam, sizeParam, availabilityParam, minPrice, maxPrice, sortParam, activeSubcategory]);
+  }, [catalog, searchParam, categoryParam, collectionParam, typeParam, colorParam, sizeParam, availabilityParam, minPrice, maxPrice, sortParam]);
 
   const activeFiltersCount = useMemo(() => {
     let count = 0;
@@ -1219,7 +1151,10 @@ export default function Collection() {
                     </svg>
                   )}
                 </span>
-                <span className="coll-ref-label">In Stock</span>
+                <span className="coll-ref-label">
+                  <span className="coll-stock-pulse-dot" aria-hidden="true" />
+                  In Stock
+                </span>
                 <span className="coll-ref-count">({inStockCount})</span>
               </button>
             </li>
@@ -1237,7 +1172,10 @@ export default function Collection() {
                     </svg>
                   )}
                 </span>
-                <span className="coll-ref-label">Out of Stock</span>
+                <span className="coll-ref-label">
+                  <span className="coll-out-dot" aria-hidden="true" />
+                  Out of Stock
+                </span>
                 <span className="coll-ref-count">({outOfStockCount})</span>
               </button>
             </li>
@@ -1252,7 +1190,7 @@ export default function Collection() {
       <div className="collection-page" style={{ minHeight: "50vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div style={{ textAlign: "center", padding: "48px 24px" }}>
           <div className="spinner" style={{ margin: "0 auto 16px" }} />
-          <p style={{ color: "#64748b", fontSize: "14px", fontWeight: 500 }}>Redirecting to active collection...</p>
+          <p style={{ color: "var(--brand-blue)", fontSize: "14px", fontWeight: 500 }}>Redirecting to active collection...</p>
         </div>
       </div>
     );
@@ -1267,7 +1205,7 @@ export default function Collection() {
         canonicalPath={canonicalPath}
         schema={collectionSchemas}
       />
-      <h1 className="sr-only">{categoryName} Collection — Luxury Apparel &amp; Streetwear | ZMW</h1>
+      <h1 className="sr-only">{categoryName} Collection — Luxury Apparel &amp; Streetwear | HooDee Daddy</h1>
 
       {/* ── Collection Page Hero-Style Category Banner — Pure Bright Image, Zero Overlay Shade ── */}
       {!isBannerlessListing && (
@@ -1279,9 +1217,9 @@ export default function Collection() {
           <div className="coll-hero-wrapper">
             <img
               src={banner.image}
-              alt={categoryName ? `${categoryName} Collection Banner` : "ZMW Apparel Collection"}
+              alt={categoryName ? `${categoryName} Collection Banner` : "HooDee Daddy Apparel Collection"}
               className="coll-hero-backdrop-img"
-              style={{ objectPosition: banner.imagePosition || "center center" }}
+              style={{ objectPosition: banner.imagePosition || "center top" }}
               onError={(event) => { event.currentTarget.src = "/images/hero-mens-oversized-tee.jpg"; }}
             />
             {/* CrazyMonk-style Streetwear Live Category Pulse Badge */}
@@ -1297,51 +1235,6 @@ export default function Collection() {
 
       <section id="collection-catalog" className="coll-catalog-section section-padding" aria-label="Product catalog">
         <div className="container">
-          {/* Breadcrumb Navigation */}
-          <nav className="coll-page-breadcrumbs" aria-label="Breadcrumb">
-            <Link to="/" className="coll-page-breadcrumb-link">Home</Link>
-            <span className="coll-page-breadcrumb-sep">/</span>
-            <Link to="/collection" className="coll-page-breadcrumb-link" onClick={clearAllFilters}>Collection</Link>
-            {categoryParam !== "all" && (
-              <>
-                <span className="coll-page-breadcrumb-sep">/</span>
-                <span className="coll-page-breadcrumb-active">{activeCategoryLabel}</span>
-                {isSubcategoryView && activeSubcategory && (
-                  <>
-                    <span className="coll-page-breadcrumb-sep">/</span>
-                    <span className="coll-page-breadcrumb-active">{activeSubcategory.name}</span>
-                  </>
-                )}
-              </>
-            )}
-          </nav>
-          {/* Category Subcategories Quick Filter Pills */}
-          {matchedCategory?.subcategories && matchedCategory.subcategories.length > 0 && (
-            <div className="coll-subcat-pills-bar" role="group" aria-label="Subcategories">
-              <Link
-                to={`/categories/${encodeURIComponent(categoryParam)}`}
-                className={`coll-subcat-pill ${typeParam === "all" ? "active" : ""}`}
-              >
-                All {matchedCategory.name}
-              </Link>
-              {matchedCategory.subcategories.map((sub) => {
-                const isSubActive =
-                  normalizeToken(typeParam) === normalizeToken(sub.slug) ||
-                  normalizeToken(typeParam) === normalizeToken(sub.name);
-                const subSlug = sub.slug || sub.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-                return (
-                  <Link
-                    key={sub.id || sub.slug}
-                    to={`/categories/${encodeURIComponent(categoryParam)}/${encodeURIComponent(subSlug)}`}
-                    className={`coll-subcat-pill ${isSubActive ? "active" : ""}`}
-                  >
-                    {sub.name}
-                  </Link>
-                );
-              })}
-            </div>
-          )}
-
           {/* Bannerless listings keep their page context above the catalog. */}
           {(isBannerlessListing || isSubcategoryView) && (
             <nav className="coll-subcat-trail" aria-label="Breadcrumb">
@@ -1354,18 +1247,9 @@ export default function Collection() {
                   {collectionParam === "best-sellers" ? "Best Sellers" : "New Arrivals"}
                 </h1>
               ) : (
-                <>
-                  <Link
-                    to={`/categories/${encodeURIComponent(categoryParam)}`}
-                    className="coll-subcat-trail-link"
-                  >
-                    {activeCategoryLabel}
-                  </Link>
-                  <span className="coll-subcat-trail-sep">/</span>
-                  <h1 className="coll-subcat-trail-current">
-                    {activeSubcategory?.name || typeParam}
-                  </h1>
-                </>
+                <h1 className="coll-subcat-trail-current">
+                  {activeCategoryLabel}
+                </h1>
               )}
             </nav>
           )}
@@ -1496,7 +1380,7 @@ export default function Collection() {
                   <h2 className="coll-sidebar-title">Filters</h2>
                   {activeFiltersCount > 0 && (
                     <button type="button" className="coll-sidebar-clear" onClick={clearAllFilters}>
-                      Clear ({activeFiltersCount})
+                      Clear All ({activeFiltersCount})
                     </button>
                   )}
                 </div>
@@ -1556,8 +1440,6 @@ export default function Collection() {
                   <p className="coll-empty-desc">
                     {catalog.length === 0
                       ? "No products have been added yet. Please check back later."
-                      : isSubcategoryView
-                      ? `No products found in "${activeSubcategory?.name || typeParam}".`
                       : baseCategoryProducts.length === 0
                       ? "No products found in this category."
                       : "No designs match your current filter combination. Try adjusting your filters."}

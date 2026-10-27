@@ -31,20 +31,20 @@ export default function SeoSettingsPage() {
     default_meta_keywords: "",
     homepage_title: "",
     homepage_description: "",
-    product_title_format: "{name} | ZMW Clothing",
+    product_title_format: "{name} | HooDee Daddy",
     product_description_format: "{description}",
-    category_title_format: "{name} Collection — Luxury Apparel | ZMW Clothing",
+    category_title_format: "{name} Collection — Luxury Apparel | HooDee Daddy",
     category_description_format: "",
-    canonical_base_url: "https://zmwclothing.com",
+    canonical_base_url: "https://hoodeedaddy.com",
     og_title: "",
     og_description: "",
     og_image_url: "",
     robots_index: true,
     robots_follow: true,
     robots_custom_rules: "",
-    organization_name: "ZMW Clothing",
+    organization_name: "HooDee Daddy",
     organization_telephone: "+919876543210",
-    organization_email: "zmw@gmail.com"
+    organization_email: "support@hoodeedaddy.com"
   });
 
   const [confirmBlockRobots, setConfirmBlockRobots] = useState(false);
@@ -115,7 +115,7 @@ export default function SeoSettingsPage() {
     return <LoadingState message="Loading SEO settings..." />;
   }
 
-  const cleanBase = (form.canonical_base_url || "https://zmwclothing.com").replace(/\/+$/, "");
+  const cleanBase = (form.canonical_base_url || "https://hoodeedaddy.com").replace(/\/+$/, "");
 
   return (
     <div className="seo-page">
@@ -123,7 +123,7 @@ export default function SeoSettingsPage() {
         <div>
           <h1 className="seo-title">SEO & Metadata Settings</h1>
           <p className="seo-subtitle">
-            Configure search engine titles, Open Graph tags, XML sitemaps, and indexing rules for ZMW Clothing.
+            Configure search engine titles, Open Graph tags, XML sitemaps, and indexing rules for HooDee Daddy.
           </p>
         </div>
         <div className="seo-header-actions">
@@ -222,7 +222,7 @@ export default function SeoSettingsPage() {
                   className="seo-input"
                   value={form.default_meta_title}
                   onChange={(e) => handleChange("default_meta_title", e.target.value)}
-                  placeholder="e.g. ZMW Clothing — Luxury Pret-a-Porter & Haute Couture"
+                  placeholder="e.g. HooDee Daddy — Luxury Pret-a-Porter & Haute Couture"
                   maxLength={255}
                 />
                 <span className="seo-char-count">{form.default_meta_title.length} / 60-70 recommended chars</span>
@@ -245,7 +245,7 @@ export default function SeoSettingsPage() {
                   className="seo-input"
                   value={form.default_meta_keywords || ""}
                   onChange={(e) => handleChange("default_meta_keywords", e.target.value)}
-                  placeholder="ZMW clothing, luxury fashion, couture, menswear, womenswear, oversized t-shirts"
+                  placeholder="HooDee Daddy, kids fashion, streetwear, couture, menswear, womenswear, oversized t-shirts"
                 />
               </FormField>
 
@@ -255,7 +255,7 @@ export default function SeoSettingsPage() {
                   className="seo-input"
                   value={form.canonical_base_url}
                   onChange={(e) => handleChange("canonical_base_url", e.target.value)}
-                  placeholder="https://zmwclothing.com"
+                  placeholder="https://hoodeedaddy.com"
                 />
                 <span className="seo-field-hint">
                   Used to generate self-referential canonical tags and absolute URLs in XML sitemaps.
@@ -278,7 +278,7 @@ export default function SeoSettingsPage() {
                   className="seo-input"
                   value={form.homepage_title}
                   onChange={(e) => handleChange("homepage_title", e.target.value)}
-                  placeholder="ZMW Clothing — Luxury Fashion, Streetwear & Everyday Essentials"
+                  placeholder="HooDee Daddy — Luxury Fashion, Streetwear & Everyday Essentials"
                   maxLength={255}
                 />
                 <span className="seo-char-count">{form.homepage_title.length} / 60-70 recommended chars</span>
@@ -290,7 +290,7 @@ export default function SeoSettingsPage() {
                   rows={4}
                   value={form.homepage_description}
                   onChange={(e) => handleChange("homepage_description", e.target.value)}
-                  placeholder="Discover ZMW's luxury streetwear and couture collections. Handcrafted 240+ GSM oversized t-shirts, 450 GSM hoodies, and tailored apparel."
+                  placeholder="Discover HooDee Daddy's kids streetwear and couture collections. Handcrafted 240+ GSM oversized t-shirts, 450 GSM hoodies, and tailored apparel."
                 />
                 <span className="seo-char-count">{form.homepage_description.length} / 150-160 recommended chars</span>
               </FormField>
@@ -320,7 +320,7 @@ export default function SeoSettingsPage() {
                     className="seo-input"
                     value={form.product_title_format}
                     onChange={(e) => handleChange("product_title_format", e.target.value)}
-                    placeholder="{name} | ZMW Clothing"
+                    placeholder="{name} | HooDee Daddy"
                   />
                   <span className="seo-field-hint">Available tags: <code>{"{name}"}</code>, <code>{"{category}"}</code>, <code>{"{price}"}</code></span>
                 </FormField>
@@ -331,7 +331,7 @@ export default function SeoSettingsPage() {
                     rows={2}
                     value={form.product_description_format || ""}
                     onChange={(e) => handleChange("product_description_format", e.target.value)}
-                    placeholder="Buy {name} online at ZMW Clothing. {description}"
+                    placeholder="Buy {name} online at HooDee Daddy. {description}"
                   />
                   <span className="seo-field-hint">Defaults to the product's own description if left blank.</span>
                 </FormField>
@@ -345,7 +345,7 @@ export default function SeoSettingsPage() {
                     className="seo-input"
                     value={form.category_title_format}
                     onChange={(e) => handleChange("category_title_format", e.target.value)}
-                    placeholder="{name} Collection — Luxury Apparel | ZMW Clothing"
+                    placeholder="{name} Collection — Luxury Apparel | HooDee Daddy"
                   />
                   <span className="seo-field-hint">Available tags: <code>{"{name}"}</code></span>
                 </FormField>
@@ -356,7 +356,7 @@ export default function SeoSettingsPage() {
                     rows={2}
                     value={form.category_description_format || ""}
                     onChange={(e) => handleChange("category_description_format", e.target.value)}
-                    placeholder="Explore the latest {name} collection at ZMW Clothing. Premium luxury fabrics, considered tailoring, and pan-India delivery."
+                    placeholder="Explore the latest {name} collection at HooDee Daddy. Premium luxury fabrics, considered tailoring, and pan-India delivery."
                   />
                 </FormField>
               </div>
@@ -377,7 +377,7 @@ export default function SeoSettingsPage() {
                   className="seo-input"
                   value={form.og_title || ""}
                   onChange={(e) => handleChange("og_title", e.target.value)}
-                  placeholder="ZMW Clothing — Luxury Pret-a-Porter & Haute Couture"
+                  placeholder="HooDee Daddy — Luxury Pret-a-Porter & Haute Couture"
                 />
               </FormField>
 
@@ -397,7 +397,7 @@ export default function SeoSettingsPage() {
                   className="seo-input"
                   value={form.og_image_url || ""}
                   onChange={(e) => handleChange("og_image_url", e.target.value)}
-                  placeholder="/images/zmw-logo.png"
+                  placeholder="/images/hoodee-daddy-logo.png"
                 />
                 <span className="seo-field-hint">Recommended size: 1200 × 630 pixels (PNG or JPG).</span>
               </FormField>
@@ -485,7 +485,7 @@ export default function SeoSettingsPage() {
               <div className="google-serp-site">
                 <div className="google-serp-favicon">Z</div>
                 <div>
-                  <div className="google-serp-domain">zmwclothing.com</div>
+                  <div className="google-serp-domain">hoodeedaddy.com</div>
                   <div className="google-serp-url">{cleanBase}</div>
                 </div>
               </div>
@@ -493,8 +493,8 @@ export default function SeoSettingsPage() {
                 {activeTab === "homepage"
                   ? form.homepage_title || form.default_meta_title
                   : activeTab === "templates"
-                  ? form.product_title_format.replace("{name}", "ZMW Atelier Heavyweight Oversized Tee")
-                  : form.default_meta_title || "ZMW Clothing — Luxury Pret-a-Porter & Haute Couture"}
+                  ? form.product_title_format.replace("{name}", "HooDee Daddy Heavyweight Oversized Tee")
+                  : form.default_meta_title || "HooDee Daddy — Luxury Pret-a-Porter & Haute Couture"}
               </h3>
               <p className="google-serp-snippet">
                 {activeTab === "homepage"
@@ -514,15 +514,15 @@ export default function SeoSettingsPage() {
             <div className="social-card-preview">
               <div className="social-card-img-placeholder">
                 <img
-                  src={form.og_image_url || "/images/zmw-logo.png"}
+                  src={form.og_image_url || "/images/hoodee-daddy-logo.png"}
                   alt="OG Preview"
                   onError={(e) => {
-                    e.currentTarget.src = "/images/zmw-logo.png";
+                    e.currentTarget.src = "/images/hoodee-daddy-logo.png";
                   }}
                 />
               </div>
               <div className="social-card-content">
-                <span className="social-card-domain">zmwclothing.com</span>
+                <span className="social-card-domain">hoodeedaddy.com</span>
                 <h4 className="social-card-title">{form.og_title || form.default_meta_title}</h4>
                 <p className="social-card-desc">{form.og_description || form.default_meta_description}</p>
               </div>
