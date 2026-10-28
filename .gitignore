@@ -44,3 +44,5 @@ temp/
 
 # Local config overrides
 config.local.js
+
+Backend/migrations.zip
