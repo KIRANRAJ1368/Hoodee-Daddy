@@ -112,7 +112,7 @@ export default function AboutUs() {
             <div className="about-col-media">
               <div className="about-image-card">
                 <img
-                  src={process.env.PUBLIC_URL + "/images/photo-1556821840-3a63f95609a7.jpg"}
+                  src="/images/photo-1556821840-3a63f95609a7.jpg"
                   alt="HooDee Daddy Cozy Combed Cotton Kids Streetwear"
                   className="about-card-img"
                   loading="lazy"

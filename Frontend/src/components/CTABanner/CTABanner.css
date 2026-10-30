@@ -36,7 +36,7 @@
 }
 
 /* ── CTA Button (brand amber pill, elegant & responsive) ── */
-.cta-banner .zmw-primary-cta {
+.cta-banner .hd-primary-cta {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -56,7 +56,7 @@
   white-space: nowrap;
 }
 
-.cta-banner .zmw-primary-cta:hover {
+.cta-banner .hd-primary-cta:hover {
   background: var(--brand-white);
   border-color: var(--brand-orange);
   color: var(--brand-orange);
@@ -64,14 +64,14 @@
   box-shadow: 0 6px 18px rgba(9, 21, 37, 0.22);
 }
 
-.cta-banner .zmw-primary-cta svg {
+.cta-banner .hd-primary-cta svg {
   width: 13px;
   height: 13px;
   transition: transform 250ms ease;
   flex-shrink: 0;
 }
 
-.cta-banner .zmw-primary-cta:hover svg {
+.cta-banner .hd-primary-cta:hover svg {
   transform: translateX(3px);
 }
 
@@ -82,40 +82,40 @@
     margin-bottom: 8px;
   }
 
-  .cta-banner .zmw-primary-cta {
+  .cta-banner .hd-primary-cta {
     padding: 8px 18px;
     font-size: 0.74rem;
     gap: 7px;
   }
 
-  .cta-banner .zmw-primary-cta svg {
+  .cta-banner .hd-primary-cta svg {
     width: 12px;
     height: 12px;
   }
 }
 
 @media (max-width: 480px) {
-  .cta-banner .zmw-primary-cta {
+  .cta-banner .hd-primary-cta {
     padding: 7px 15px;
     font-size: 0.70rem;
     gap: 6px;
     letter-spacing: 0.05em;
   }
 
-  .cta-banner .zmw-primary-cta svg {
+  .cta-banner .hd-primary-cta svg {
     width: 11px;
     height: 11px;
   }
 }
 
 @media (max-width: 360px) {
-  .cta-banner .zmw-primary-cta {
+  .cta-banner .hd-primary-cta {
     padding: 6px 13px;
     font-size: 0.66rem;
     gap: 5px;
   }
 
-  .cta-banner .zmw-primary-cta svg {
+  .cta-banner .hd-primary-cta svg {
     width: 10px;
     height: 10px;
   }

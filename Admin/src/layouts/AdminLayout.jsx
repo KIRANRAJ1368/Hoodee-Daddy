@@ -51,8 +51,8 @@ const NAV_SECTIONS = [
   {
     title: "Catalog Management",
     items: [
-      { to: "/products", label: "Products", icon: Shirt },
       { to: "/categories", label: "Categories", icon: FolderTree },
+      { to: "/products", label: "Products", icon: Shirt },
       { to: "/variants", label: "Variants", icon: Layers },
       { to: "/stock", label: "Stock Management", icon: Package2 }
     ]

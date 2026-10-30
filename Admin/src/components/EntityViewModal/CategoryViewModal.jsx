@@ -1,6 +1,7 @@
 import { FolderTree, Hash, Layers, Eye } from "lucide-react";
 import Modal from "../Modal/Modal";
 import StatusBadge from "../StatusBadge/StatusBadge";
+import { resolveImageUrl } from "../../utils/imageUrl";
 import "./EntityViewModal.css";
 
 const formatDate = (value) =>
@@ -96,7 +97,7 @@ export default function CategoryViewModal({ category, onEdit, onClose }) {
               >
                 <div style={{ height: 160, overflow: "hidden", position: "relative" }}>
                   <img
-                    src={data.banner_image_url}
+                    src={resolveImageUrl(data.banner_image_url)}
                     alt={data.name}
                     style={{
                       width: "100%",

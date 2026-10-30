@@ -86,38 +86,38 @@ async function sendPasswordResetOtp(email, otp) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HooDee Daddy - Password Reset Code</title>
 </head>
-<body style="margin: 0; padding: 24px 0; background-color: #f7f7f8; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1f2937;">
-  <div style="max-width: 520px; margin: 0 auto; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
-    <div style="background-color: #111827; padding: 28px 24px; text-align: center;">
-      <span style="font-size: 13px; font-weight: 700; letter-spacing: 3px; color: #d4af37; text-transform: uppercase;">HOODEE DADDY</span>
-      <h1 style="color: #ffffff; font-size: 20px; font-weight: 600; margin: 10px 0 0 0; letter-spacing: 0.5px;">Password Reset Verification</h1>
+<body style="margin: 0; padding: 24px 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #091525;">
+  <div style="max-width: 520px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 16px rgba(9, 21, 37, 0.08);">
+    <div style="background-color: #091525; padding: 28px 24px; text-align: center; border-bottom: 3px solid #ff7300;">
+      <span style="font-size: 13px; font-weight: 800; letter-spacing: 3px; color: #ff7300; text-transform: uppercase;">HOODEE DADDY</span>
+      <h1 style="color: #ffffff; font-size: 20px; font-weight: 700; margin: 10px 0 0 0; letter-spacing: 0.5px;">Password Reset Verification</h1>
     </div>
     <div style="padding: 32px 28px;">
-      <p style="font-size: 15px; line-height: 1.6; color: #374151; margin: 0 0 18px 0;">
+      <p style="font-size: 15px; line-height: 1.6; color: #334155; margin: 0 0 18px 0;">
         Hello,
       </p>
-      <p style="font-size: 15px; line-height: 1.6; color: #374151; margin: 0 0 24px 0;">
+      <p style="font-size: 15px; line-height: 1.6; color: #334155; margin: 0 0 24px 0;">
         We received a request to reset your <strong>HooDee Daddy</strong> account password. Use the verification code below to complete your password reset:
       </p>
       
-      <div style="background: #f3f4f6; border: 2px dashed #d1d5db; border-radius: 10px; padding: 22px; text-align: center; margin: 24px 0;">
-        <span style="display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: #6b7280; margin-bottom: 8px;">Your 6-Digit One-Time Code</span>
-        <span style="font-family: 'Courier New', Courier, monospace; font-size: 36px; font-weight: 800; letter-spacing: 8px; color: #111827; display: inline-block;">${otp}</span>
+      <div style="background: #f8fafc; border: 2px dashed #ff7300; border-radius: 10px; padding: 22px; text-align: center; margin: 24px 0;">
+        <span style="display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #64748b; margin-bottom: 8px;">Your 6-Digit One-Time Code</span>
+        <span style="font-family: 'Courier New', Courier, monospace; font-size: 38px; font-weight: 900; letter-spacing: 8px; color: #091525; display: inline-block;">${otp}</span>
       </div>
 
-      <div style="background: #fefce8; border-left: 4px solid #eab308; padding: 12px 16px; border-radius: 4px; margin-bottom: 24px;">
-        <p style="margin: 0; font-size: 13px; color: #854d0e; line-height: 1.5;">
+      <div style="background: #fff7ed; border-left: 4px solid #ff7300; padding: 12px 16px; border-radius: 4px; margin-bottom: 24px;">
+        <p style="margin: 0; font-size: 13px; color: #9a3412; line-height: 1.5;">
           ⏱️ <strong>Important:</strong> This verification code is valid for <strong>10 minutes</strong> and can only be used once.
         </p>
       </div>
 
-      <p style="font-size: 13px; line-height: 1.5; color: #6b7280; margin: 0 0 8px 0;">
+      <p style="font-size: 13px; line-height: 1.5; color: #64748b; margin: 0 0 8px 0;">
         If you did not request a password reset, no further action is required. Your password will remain unchanged.
       </p>
     </div>
 
-    <div style="background: #f9fafb; border-top: 1px solid #f3f4f6; padding: 18px 24px; text-align: center;">
-      <p style="font-size: 12px; color: #9ca3af; margin: 0;">
+    <div style="background: #091525; padding: 18px 24px; text-align: center;">
+      <p style="font-size: 12px; color: #94a3b8; margin: 0;">
         &copy; ${new Date().getFullYear()} HooDee Daddy. All rights reserved.
       </p>
     </div>
@@ -180,12 +180,12 @@ async function sendOrderConfirmationEmail(email, order) {
     const meta = [it.size ? `Size: ${it.size}` : "", it.color ? `Color: ${it.color}` : ""].filter(Boolean).join(" | ");
     return `
       <tr>
-        <td style="padding: 10px 8px; border-bottom: 1px solid #eeeeee; font-size: 13px; color: #111827;">
+        <td style="padding: 10px 8px; border-bottom: 1px solid #e2e8f0; font-size: 13px; color: #091525;">
           <strong>${title}</strong>
-          ${meta ? `<div style="font-size: 11px; color: #6b7280; margin-top: 2px;">${meta}</div>` : ""}
+          ${meta ? `<div style="font-size: 11px; color: #64748b; margin-top: 2px;">${meta}</div>` : ""}
         </td>
-        <td style="padding: 10px 8px; border-bottom: 1px solid #eeeeee; font-size: 13px; color: #4b5563; text-align: center;">${qty}</td>
-        <td style="padding: 10px 8px; border-bottom: 1px solid #eeeeee; font-size: 13px; color: #111827; text-align: right;">₹${price}</td>
+        <td style="padding: 10px 8px; border-bottom: 1px solid #e2e8f0; font-size: 13px; color: #475569; text-align: center;">${qty}</td>
+        <td style="padding: 10px 8px; border-bottom: 1px solid #e2e8f0; font-size: 13px; color: #091525; text-align: right;">₹${price}</td>
       </tr>
     `;
   }).join("");
@@ -197,82 +197,82 @@ async function sendOrderConfirmationEmail(email, order) {
   <meta charset="utf-8">
   <title>Order Confirmation - HooDee Daddy</title>
 </head>
-<body style="margin: 0; padding: 24px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8f6f0; color: #111827;">
-  <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb; box-shadow: 0 4px 16px rgba(0,0,0,0.06);">
-    <div style="background: #111111; padding: 28px 24px; text-align: center;">
-      <h1 style="color: #c5a059; font-size: 26px; letter-spacing: 0.18em; margin: 0; font-weight: 700;">HooDee Daddy</h1>
-      <p style="color: #d1d5db; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; margin: 6px 0 0 0;">Haute Couture & Luxury Apparel</p>
+<body style="margin: 0; padding: 24px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; color: #091525;">
+  <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(9, 21, 37, 0.08);">
+    <div style="background: #091525; padding: 28px 24px; text-align: center; border-bottom: 3px solid #ff7300;">
+      <h1 style="color: #ffffff; font-size: 26px; letter-spacing: 0.15em; margin: 0; font-weight: 800;">HooDee Daddy</h1>
+      <p style="color: #ff7300; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; margin: 6px 0 0 0; font-weight: 700;">Premium Hoodies &amp; Everyday Essentials</p>
     </div>
 
     <div style="padding: 32px 28px;">
-      <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.15em; color: #c5a059; text-transform: uppercase;">Order Confirmed</span>
-      <h2 style="font-size: 20px; color: #111827; margin: 6px 0 16px 0;">Thank you, ${customerName}</h2>
-      <p style="font-size: 14px; line-height: 1.6; color: #4b5563; margin: 0 0 24px 0;">
-        We have received your order <strong>${orderNumber}</strong>. Our atelier artisans are hand-inspecting and preparing your pieces for express dispatch.
+      <span style="font-size: 11px; font-weight: 800; letter-spacing: 0.15em; color: #ff7300; text-transform: uppercase; background: #fff7ed; padding: 4px 10px; border-radius: 999px; border: 1px solid #ffedd5;">Order Confirmed</span>
+      <h2 style="font-size: 20px; color: #091525; margin: 12px 0 16px 0;">Thank you, ${customerName}</h2>
+      <p style="font-size: 14px; line-height: 1.6; color: #334155; margin: 0 0 24px 0;">
+        We have received your order <strong>${orderNumber}</strong>. Our fulfillment team is preparing your pieces with precision for express dispatch.
       </p>
 
-      <div style="background: #fdfcf9; border: 1px solid #efe9dc; border-radius: 6px; padding: 16px; margin-bottom: 24px;">
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
         <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
           <tr>
-            <td style="color: #6b7280; padding: 3px 0;">Order Reference:</td>
-            <td style="text-align: right; font-weight: 600; color: #111827;">${orderNumber}</td>
+            <td style="color: #64748b; padding: 4px 0;">Order Reference:</td>
+            <td style="text-align: right; font-weight: 700; color: #091525;">${orderNumber}</td>
           </tr>
           <tr>
-            <td style="color: #6b7280; padding: 3px 0;">Payment Method:</td>
-            <td style="text-align: right; font-weight: 600; color: #111827;">${(order.payment_method || "Online Pay").toUpperCase()}</td>
+            <td style="color: #64748b; padding: 4px 0;">Payment Method:</td>
+            <td style="text-align: right; font-weight: 600; color: #091525;">${(order.payment_method || "Online Pay").toUpperCase()}</td>
           </tr>
           <tr>
-            <td style="color: #6b7280; padding: 3px 0;">Delivery Destination:</td>
-            <td style="text-align: right; color: #111827;">${order.shipping_address}${order.city ? `, ${order.city}` : ""}</td>
+            <td style="color: #64748b; padding: 4px 0;">Delivery Destination:</td>
+            <td style="text-align: right; color: #091525;">${order.shipping_address}${order.city ? `, ${order.city}` : ""}</td>
           </tr>
         </table>
       </div>
 
-      <h3 style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.08em; color: #111827; margin: 0 0 10px 0; border-bottom: 2px solid #111111; padding-bottom: 6px;">
+      <h3 style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: #091525; margin: 0 0 10px 0; border-bottom: 2px solid #091525; padding-bottom: 6px;">
         Ordered Items
       </h3>
       <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
         <thead>
-          <tr style="background: #f9fafb;">
-            <th style="padding: 8px; text-align: left; font-size: 11px; color: #6b7280; text-transform: uppercase;">Piece</th>
-            <th style="padding: 8px; text-align: center; font-size: 11px; color: #6b7280; text-transform: uppercase;">Qty</th>
-            <th style="padding: 8px; text-align: right; font-size: 11px; color: #6b7280; text-transform: uppercase;">Price</th>
+          <tr style="background: #091525; color: #ffffff;">
+            <th style="padding: 8px; text-align: left; font-size: 11px; text-transform: uppercase; color: #ffffff;">Piece</th>
+            <th style="padding: 8px; text-align: center; font-size: 11px; text-transform: uppercase; color: #ffffff;">Qty</th>
+            <th style="padding: 8px; text-align: right; font-size: 11px; text-transform: uppercase; color: #ffffff;">Price</th>
           </tr>
         </thead>
         <tbody>
-          ${itemsHtml || '<tr><td colspan="3" style="padding: 12px; text-align: center; color: #6b7280;">Standard Luxury Order</td></tr>'}
+          ${itemsHtml || '<tr><td colspan="3" style="padding: 12px; text-align: center; color: #64748b;">HooDee Daddy Order</td></tr>'}
         </tbody>
       </table>
 
-      <div style="border-top: 1px solid #e5e7eb; padding-top: 12px; margin-bottom: 24px;">
+      <div style="border-top: 1px solid #e2e8f0; padding-top: 12px; margin-bottom: 24px;">
         <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
           <tr>
-            <td style="padding: 3px 0; color: #6b7280;">Subtotal:</td>
-            <td style="padding: 3px 0; text-align: right; color: #111827;">₹${subtotal}</td>
+            <td style="padding: 4px 0; color: #64748b;">Subtotal:</td>
+            <td style="padding: 4px 0; text-align: right; color: #091525; font-weight: 600;">₹${subtotal}</td>
           </tr>
           ${discount > 0 ? `
           <tr>
-            <td style="padding: 3px 0; color: #2e7d32;">Privilege Discount:</td>
-            <td style="padding: 3px 0; text-align: right; color: #2e7d32;">-₹${discount.toLocaleString("en-IN")}</td>
+            <td style="padding: 4px 0; color: #059669;">Special Discount:</td>
+            <td style="padding: 4px 0; text-align: right; color: #059669; font-weight: 600;">-₹${discount.toLocaleString("en-IN")}</td>
           </tr>` : ""}
           <tr>
-            <td style="padding: 3px 0; color: #6b7280;">Express Insured Courier:</td>
-            <td style="padding: 3px 0; text-align: right; color: #111827;">${shipping > 0 ? `₹${shipping.toLocaleString("en-IN")}` : "COMPLIMENTARY"}</td>
+            <td style="padding: 4px 0; color: #64748b;">Express Insured Courier:</td>
+            <td style="padding: 4px 0; text-align: right; color: #091525;">${shipping > 0 ? `₹${shipping.toLocaleString("en-IN")}` : "FREE"}</td>
           </tr>
-          <tr style="font-size: 16px; font-weight: 700; border-top: 1px solid #111111;">
-            <td style="padding: 10px 0 0 0; color: #111827;">Total Paid:</td>
-            <td style="padding: 10px 0 0 0; text-align: right; color: #c5a059;">₹${total}</td>
+          <tr style="font-size: 16px; font-weight: 800; border-top: 2px solid #091525;">
+            <td style="padding: 10px 0 0 0; color: #091525;">Total Paid:</td>
+            <td style="padding: 10px 0 0 0; text-align: right; color: #ff7300; font-size: 18px;">₹${total}</td>
           </tr>
         </table>
       </div>
 
-      <div style="background: #f9fafb; border-radius: 6px; padding: 14px; text-align: center; font-size: 12px; color: #6b7280;">
-        Questions or special tailoring instructions? Reach our concierge at <a href="mailto:support@hoodeedaddy.com" style="color: #c5a059; text-decoration: none; font-weight: 600;">support@hoodeedaddy.com</a> or WhatsApp <strong>+91 9876543210</strong>.
+      <div style="background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; padding: 14px; text-align: center; font-size: 12px; color: #64748b;">
+        Questions or instructions? Contact our support desk at <a href="mailto:support@hoodeedaddy.com" style="color: #ff7300; text-decoration: none; font-weight: 700;">support@hoodeedaddy.com</a> or WhatsApp <strong>+91 9876543210</strong>.
       </div>
     </div>
 
-    <div style="background: #111111; padding: 16px; text-align: center; font-size: 11px; color: #9ca3af;">
-      &copy; ${new Date().getFullYear()} HooDee Daddy Atelier, 123 Avinashi Road, Coimbatore. All rights reserved.
+    <div style="background: #091525; padding: 16px; text-align: center; font-size: 11px; color: #94a3b8;">
+      &copy; ${new Date().getFullYear()} HooDee Daddy, 123 Avinashi Road, Peelamedu, Coimbatore. All rights reserved.
     </div>
   </div>
 </body>
@@ -315,7 +315,7 @@ async function sendRefundConfirmationEmail(email, order) {
   const upiId = order.refund_upi_id || "Direct Account Transfer";
 
   const subject = `Refund Processed: ₹${amount} for Order ${orderNumber} — HooDee Daddy`;
-  const text = `Dear ${customerName},\n\nYour refund of ₹${amount} for order ${orderNumber} has been processed successfully to your UPI ID: ${upiId}.\n\nBank / UPI Reference Number (UTR): ${utr}\n\nThank you for choosing HooDee Daddy.\n\nHooDee Daddy Atelier`;
+  const text = `Dear ${customerName},\n\nYour refund of ₹${amount} for order ${orderNumber} has been processed successfully to your UPI ID: ${upiId}.\n\nBank / UPI Reference Number (UTR): ${utr}\n\nThank you for choosing HooDee Daddy.\n\nHooDee Daddy Team`;
 
   const html = `
 <!DOCTYPE html>
@@ -324,17 +324,17 @@ async function sendRefundConfirmationEmail(email, order) {
   <meta charset="utf-8">
   <title>Refund Confirmation - HooDee Daddy</title>
 </head>
-<body style="margin: 0; padding: 24px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8f6f0; color: #111827;">
-  <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb; box-shadow: 0 4px 16px rgba(0,0,0,0.06);">
-    <div style="background: #111111; padding: 28px 24px; text-align: center;">
-      <h1 style="color: #c5a059; font-size: 26px; letter-spacing: 0.18em; margin: 0; font-weight: 700;">HooDee Daddy</h1>
-      <p style="color: #d1d5db; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; margin: 6px 0 0 0;">Haute Couture & Luxury Apparel</p>
+<body style="margin: 0; padding: 24px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; color: #091525;">
+  <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(9, 21, 37, 0.08);">
+    <div style="background: #091525; padding: 28px 24px; text-align: center; border-bottom: 3px solid #ff7300;">
+      <h1 style="color: #ffffff; font-size: 26px; letter-spacing: 0.15em; margin: 0; font-weight: 800;">HooDee Daddy</h1>
+      <p style="color: #ff7300; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; margin: 6px 0 0 0; font-weight: 700;">Premium Hoodies &amp; Everyday Essentials</p>
     </div>
 
     <div style="padding: 32px 28px;">
-      <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.15em; color: #059669; text-transform: uppercase;">Refund Completed</span>
-      <h2 style="font-size: 20px; color: #111827; margin: 6px 0 16px 0;">Refund Initiated, ${customerName}</h2>
-      <p style="font-size: 14px; line-height: 1.6; color: #4b5563; margin: 0 0 24px 0;">
+      <span style="font-size: 11px; font-weight: 800; letter-spacing: 0.15em; color: #059669; text-transform: uppercase; background: #ecfdf5; padding: 4px 10px; border-radius: 999px; border: 1px solid #a7f3d0;">Refund Completed</span>
+      <h2 style="font-size: 20px; color: #091525; margin: 12px 0 16px 0;">Refund Initiated, ${customerName}</h2>
+      <p style="font-size: 14px; line-height: 1.6; color: #334155; margin: 0 0 24px 0;">
         We have successfully transferred your refund for order <strong>${orderNumber}</strong>. The funds should reflect in your linked bank account immediately or within 24 hours.
       </p>
 
@@ -342,34 +342,34 @@ async function sendRefundConfirmationEmail(email, order) {
         <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
           <tr>
             <td style="color: #065f46; padding: 6px 0;">Order Reference:</td>
-            <td style="text-align: right; font-weight: 600; color: #111827;">${orderNumber}</td>
+            <td style="text-align: right; font-weight: 700; color: #091525;">${orderNumber}</td>
           </tr>
           <tr>
             <td style="color: #065f46; padding: 6px 0;">Refund Amount:</td>
-            <td style="text-align: right; font-weight: 700; font-size: 16px; color: #059669;">₹${amount}</td>
+            <td style="text-align: right; font-weight: 800; font-size: 18px; color: #059669;">₹${amount}</td>
           </tr>
           <tr>
             <td style="color: #065f46; padding: 6px 0;">Credited to UPI ID:</td>
-            <td style="text-align: right; font-weight: 600; color: #111827;">${upiId}</td>
+            <td style="text-align: right; font-weight: 600; color: #091525;">${upiId}</td>
           </tr>
           <tr>
             <td style="color: #065f46; padding: 6px 0;">Bank UTR / Ref Number:</td>
-            <td style="text-align: right; font-family: monospace; font-weight: 700; color: #111827;">${utr}</td>
+            <td style="text-align: right; font-family: monospace; font-weight: 700; color: #091525;">${utr}</td>
           </tr>
           <tr>
             <td style="color: #065f46; padding: 6px 0;">Settlement Date:</td>
-            <td style="text-align: right; color: #6b7280;">${new Date().toLocaleDateString("en-IN", { dateStyle: "long" })}</td>
+            <td style="text-align: right; color: #64748b;">${new Date().toLocaleDateString("en-IN", { dateStyle: "long" })}</td>
           </tr>
         </table>
       </div>
 
-      <div style="background: #f9fafb; border-radius: 6px; padding: 14px; text-align: center; font-size: 12px; color: #6b7280;">
-        Need assistance with your refund? Contact our concierge at <a href="mailto:support@hoodeedaddy.com" style="color: #c5a059; text-decoration: none; font-weight: 600;">support@hoodeedaddy.com</a>.
+      <div style="background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; padding: 14px; text-align: center; font-size: 12px; color: #64748b;">
+        Need assistance with your refund? Contact our support desk at <a href="mailto:support@hoodeedaddy.com" style="color: #ff7300; text-decoration: none; font-weight: 700;">support@hoodeedaddy.com</a>.
       </div>
     </div>
 
-    <div style="background: #111111; padding: 16px; text-align: center; font-size: 11px; color: #9ca3af;">
-      &copy; ${new Date().getFullYear()} HooDee Daddy Atelier. All rights reserved.
+    <div style="background: #091525; padding: 16px; text-align: center; font-size: 11px; color: #94a3b8;">
+      &copy; ${new Date().getFullYear()} HooDee Daddy. All rights reserved.
     </div>
   </div>
 </body>
@@ -525,10 +525,10 @@ function buildOrderStatusEmailHtml(order, newStatus, prevStatus = null, extra = 
       const isCompleted = stepNum <= currentStepIndex;
       const isCurrent = stepNum === currentStepIndex;
 
-      const circleBg = isCompleted ? "#c5a059" : "#e5e7eb";
-      const circleText = isCompleted ? "#ffffff" : "#6b7280";
-      const labelColor = isCurrent ? "#111827" : (isCompleted ? "#c5a059" : "#9ca3af");
-      const labelWeight = isCurrent ? "700" : (isCompleted ? "600" : "500");
+      const circleBg = isCompleted ? "#ff7300" : "#e2e8f0";
+      const circleText = isCompleted ? "#ffffff" : "#64748b";
+      const labelColor = isCurrent ? "#091525" : (isCompleted ? "#ff7300" : "#94a3b8");
+      const labelWeight = isCurrent ? "800" : (isCompleted ? "700" : "500");
 
       return `
         <td style="text-align: center; width: 25%; vertical-align: top; padding: 0 4px;">
@@ -543,7 +543,7 @@ function buildOrderStatusEmailHtml(order, newStatus, prevStatus = null, extra = 
     }).join("");
 
     stepperHtml = `
-      <div style="background: #fafaf9; border: 1px solid #e7e5e4; border-radius: 8px; padding: 18px 12px; margin: 24px 0;">
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px 12px; margin: 24px 0;">
         <table style="width: 100%; border-collapse: collapse;">
           <tr>
             ${stepCols}
@@ -564,7 +564,7 @@ function buildOrderStatusEmailHtml(order, newStatus, prevStatus = null, extra = 
         <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
           <tr>
             <td style="color: #4b5563; padding: 4px 0;">Courier Partner:</td>
-            <td style="text-align: right; font-weight: 600; color: #111827;">${courierName}</td>
+            <td style="text-align: right; font-weight: 600; color: #091525;">${courierName}</td>
           </tr>
           ${awbCode ? `
           <tr>
@@ -573,12 +573,12 @@ function buildOrderStatusEmailHtml(order, newStatus, prevStatus = null, extra = 
           </tr>` : ""}
           <tr>
             <td style="color: #4b5563; padding: 4px 0;">Estimated Delivery:</td>
-            <td style="text-align: right; font-weight: 600; color: #111827;">${estimatedDelivery}</td>
+            <td style="text-align: right; font-weight: 600; color: #091525;">${estimatedDelivery}</td>
           </tr>
         </table>
         ${trackingUrl ? `
         <div style="text-align: center; margin-top: 16px;">
-          <a href="${trackingUrl}" target="_blank" style="display: inline-block; background-color: #111827; color: #c5a059; text-decoration: none; padding: 10px 24px; border-radius: 6px; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; border: 1px solid #c5a059;">
+          <a href="${trackingUrl}" target="_blank" style="display: inline-block; background-color: #ff7300; color: #ffffff; text-decoration: none; padding: 10px 24px; border-radius: 6px; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;">
             Track Your Shipment &rarr;
           </a>
         </div>` : ""}
@@ -595,16 +595,16 @@ function buildOrderStatusEmailHtml(order, newStatus, prevStatus = null, extra = 
         const metaList = [it.size ? `Size: ${it.size}` : "", it.color ? `Color: ${it.color}` : ""].filter(Boolean).join(" | ");
         return `
           <tr>
-            <td style="padding: 10px 8px; border-bottom: 1px solid #eeeeee; font-size: 13px; color: #111827;">
+            <td style="padding: 10px 8px; border-bottom: 1px solid #eeeeee; font-size: 13px; color: #091525;">
               <strong>${title}</strong>
-              ${metaList ? `<div style="font-size: 11px; color: #6b7280; margin-top: 2px;">${metaList}</div>` : ""}
+              ${metaList ? `<div style="font-size: 11px; color: #64748b; margin-top: 2px;">${metaList}</div>` : ""}
             </td>
             <td style="padding: 10px 8px; border-bottom: 1px solid #eeeeee; font-size: 13px; color: #4b5563; text-align: center;">${qty}</td>
-            <td style="padding: 10px 8px; border-bottom: 1px solid #eeeeee; font-size: 13px; color: #111827; text-align: right;">₹${price}</td>
+            <td style="padding: 10px 8px; border-bottom: 1px solid #eeeeee; font-size: 13px; color: #091525; text-align: right;">₹${price}</td>
           </tr>
         `;
       }).join("")
-    : `<tr><td colspan="3" style="padding: 12px; text-align: center; color: #6b7280;">Standard Luxury Order (${orderNumber})</td></tr>`;
+    : `<tr><td colspan="3" style="padding: 12px; text-align: center; color: #64748b;">HooDee Daddy Order (${orderNumber})</td></tr>`;
 
   const html = `
 <!DOCTYPE html>
@@ -613,33 +613,33 @@ function buildOrderStatusEmailHtml(order, newStatus, prevStatus = null, extra = 
   <meta charset="utf-8">
   <title>${meta.subject}</title>
 </head>
-<body style="margin: 0; padding: 24px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8f6f0; color: #111827;">
-  <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb; box-shadow: 0 4px 16px rgba(0,0,0,0.06);">
-    <!-- Brand Luxury Banner -->
-    <div style="background: #111111; padding: 28px 24px; text-align: center;">
-      <h1 style="color: #c5a059; font-size: 26px; letter-spacing: 0.18em; margin: 0; font-weight: 700;">HooDee Daddy</h1>
-      <p style="color: #d1d5db; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; margin: 6px 0 0 0;">Haute Couture & Luxury Apparel</p>
+<body style="margin: 0; padding: 24px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; color: #091525;">
+  <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(9, 21, 37, 0.08);">
+    <!-- Brand Banner -->
+    <div style="background: #091525; padding: 28px 24px; text-align: center; border-bottom: 3px solid #ff7300;">
+      <h1 style="color: #ffffff; font-size: 26px; letter-spacing: 0.15em; margin: 0; font-weight: 800;">HooDee Daddy</h1>
+      <p style="color: #ff7300; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; margin: 6px 0 0 0; font-weight: 700;">Premium Hoodies &amp; Everyday Essentials</p>
     </div>
 
     <!-- Main Content -->
     <div style="padding: 32px 28px;">
       <!-- Status Badge -->
       <div style="margin-bottom: 12px;">
-        <span style="display: inline-block; padding: 4px 12px; border-radius: 9999px; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; background-color: ${meta.badgeBg}; color: ${meta.badgeColor}; border: 1px solid ${meta.badgeBorder};">
+        <span style="display: inline-block; padding: 4px 12px; border-radius: 9999px; font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; background-color: ${meta.badgeBg}; color: ${meta.badgeColor}; border: 1px solid ${meta.badgeBorder};">
           ${meta.badge}
         </span>
       </div>
 
-      <h2 style="font-size: 20px; color: #111827; margin: 0 0 14px 0;">
+      <h2 style="font-size: 20px; color: #091525; margin: 0 0 14px 0;">
         ${meta.headline}
       </h2>
 
-      <p style="font-size: 14px; line-height: 1.6; color: #4b5563; margin: 0 0 16px 0;">
+      <p style="font-size: 14px; line-height: 1.6; color: #334155; margin: 0 0 16px 0;">
         ${meta.lead}
       </p>
 
-      <div style="background: #fdfcf9; border-left: 3px solid #c5a059; padding: 12px 16px; margin-bottom: 20px; border-radius: 0 6px 6px 0;">
-        <p style="font-size: 13px; line-height: 1.5; color: #78350f; margin: 0;">
+      <div style="background: #f8fafc; border-left: 3px solid #ff7300; padding: 12px 16px; margin-bottom: 20px; border-radius: 0 6px 6px 0;">
+        <p style="font-size: 13px; line-height: 1.5; color: #091525; margin: 0;">
           📌 <strong>What's Happening Now:</strong> ${meta.nextStep}
         </p>
       </div>
@@ -651,37 +651,37 @@ function buildOrderStatusEmailHtml(order, newStatus, prevStatus = null, extra = 
       ${courierHighlightHtml}
 
       <!-- Order Metadata Summary Card -->
-      <div style="background: #fdfcf9; border: 1px solid #efe9dc; border-radius: 6px; padding: 16px; margin-bottom: 24px;">
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
         <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
           <tr>
-            <td style="color: #6b7280; padding: 4px 0;">Order Reference:</td>
-            <td style="text-align: right; font-weight: 600; color: #111827;">${orderNumber}</td>
+            <td style="color: #64748b; padding: 4px 0;">Order Reference:</td>
+            <td style="text-align: right; font-weight: 700; color: #091525;">${orderNumber}</td>
           </tr>
           <tr>
-            <td style="color: #6b7280; padding: 4px 0;">Current Status:</td>
-            <td style="text-align: right; font-weight: 700; color: ${meta.badgeColor}; text-transform: uppercase;">${status}</td>
+            <td style="color: #64748b; padding: 4px 0;">Current Status:</td>
+            <td style="text-align: right; font-weight: 800; color: ${meta.badgeColor}; text-transform: uppercase;">${status}</td>
           </tr>
           <tr>
-            <td style="color: #6b7280; padding: 4px 0;">Payment Method:</td>
-            <td style="text-align: right; font-weight: 600; color: #111827;">${(order.payment_method || "COD").toUpperCase()}</td>
+            <td style="color: #64748b; padding: 4px 0;">Payment Method:</td>
+            <td style="text-align: right; font-weight: 600; color: #091525;">${(order.payment_method || "COD").toUpperCase()}</td>
           </tr>
           <tr>
-            <td style="color: #6b7280; padding: 4px 0;">Delivery Address:</td>
-            <td style="text-align: right; color: #111827;">${order.shipping_address || "On File"}${order.city ? `, ${order.city}` : ""}${order.pincode ? ` - ${order.pincode}` : ""}</td>
+            <td style="color: #64748b; padding: 4px 0;">Delivery Address:</td>
+            <td style="text-align: right; color: #091525;">${order.shipping_address || "On File"}${order.city ? `, ${order.city}` : ""}${order.pincode ? ` - ${order.pincode}` : ""}</td>
           </tr>
         </table>
       </div>
 
       <!-- Ordered Items -->
-      <h3 style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: #111827; margin: 0 0 10px 0; border-bottom: 2px solid #111111; padding-bottom: 6px;">
+      <h3 style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: #091525; margin: 0 0 10px 0; border-bottom: 2px solid #091525; padding-bottom: 6px;">
         Order Items Summary
       </h3>
       <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
         <thead>
-          <tr style="background: #f9fafb;">
-            <th style="padding: 8px; text-align: left; font-size: 11px; color: #6b7280; text-transform: uppercase;">Piece</th>
-            <th style="padding: 8px; text-align: center; font-size: 11px; color: #6b7280; text-transform: uppercase;">Qty</th>
-            <th style="padding: 8px; text-align: right; font-size: 11px; color: #6b7280; text-transform: uppercase;">Price</th>
+          <tr style="background: #091525; color: #ffffff;">
+            <th style="padding: 8px; text-align: left; font-size: 11px; text-transform: uppercase; color: #ffffff;">Piece</th>
+            <th style="padding: 8px; text-align: center; font-size: 11px; text-transform: uppercase; color: #ffffff;">Qty</th>
+            <th style="padding: 8px; text-align: right; font-size: 11px; text-transform: uppercase; color: #ffffff;">Price</th>
           </tr>
         </thead>
         <tbody>
@@ -690,37 +690,37 @@ function buildOrderStatusEmailHtml(order, newStatus, prevStatus = null, extra = 
       </table>
 
       <!-- Financial Totals -->
-      <div style="border-top: 1px solid #e5e7eb; padding-top: 12px; margin-bottom: 24px;">
+      <div style="border-top: 1px solid #e2e8f0; padding-top: 12px; margin-bottom: 24px;">
         <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
           <tr>
-            <td style="padding: 3px 0; color: #6b7280;">Subtotal:</td>
-            <td style="padding: 3px 0; text-align: right; color: #111827;">₹${subtotal}</td>
+            <td style="padding: 4px 0; color: #64748b;">Subtotal:</td>
+            <td style="padding: 4px 0; text-align: right; color: #091525; font-weight: 600;">₹${subtotal}</td>
           </tr>
           ${discount > 0 ? `
           <tr>
-            <td style="padding: 3px 0; color: #2e7d32;">Privilege Discount:</td>
-            <td style="padding: 3px 0; text-align: right; color: #2e7d32;">-₹${discount.toLocaleString("en-IN")}</td>
+            <td style="padding: 4px 0; color: #059669;">Special Discount:</td>
+            <td style="padding: 4px 0; text-align: right; color: #059669; font-weight: 600;">-₹${discount.toLocaleString("en-IN")}</td>
           </tr>` : ""}
           <tr>
-            <td style="padding: 3px 0; color: #6b7280;">Express Insured Delivery:</td>
-            <td style="padding: 3px 0; text-align: right; color: #111827;">${shipping > 0 ? `₹${shipping.toLocaleString("en-IN")}` : "COMPLIMENTARY"}</td>
+            <td style="padding: 4px 0; color: #64748b;">Express Insured Delivery:</td>
+            <td style="padding: 4px 0; text-align: right; color: #091525;">${shipping > 0 ? `₹${shipping.toLocaleString("en-IN")}` : "FREE"}</td>
           </tr>
-          <tr style="font-size: 16px; font-weight: 700; border-top: 1px solid #111111;">
-            <td style="padding: 10px 0 0 0; color: #111827;">Total Order Amount:</td>
-            <td style="padding: 10px 0 0 0; text-align: right; color: #c5a059;">₹${total}</td>
+          <tr style="font-size: 16px; font-weight: 800; border-top: 2px solid #091525;">
+            <td style="padding: 10px 0 0 0; color: #091525;">Total Order Amount:</td>
+            <td style="padding: 10px 0 0 0; text-align: right; color: #ff7300; font-size: 18px;">₹${total}</td>
           </tr>
         </table>
       </div>
 
-      <!-- Atelier Concierge Contact -->
-      <div style="background: #f9fafb; border-radius: 6px; padding: 14px; text-align: center; font-size: 12px; color: #6b7280;">
-        Have questions about your order delivery? Reach our dedicated atelier concierge anytime at <a href="mailto:support@hoodeedaddy.com" style="color: #c5a059; text-decoration: none; font-weight: 600;">support@hoodeedaddy.com</a> or WhatsApp <strong>+91 9876543210</strong>.
+      <!-- Concierge Contact -->
+      <div style="background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; padding: 14px; text-align: center; font-size: 12px; color: #64748b;">
+        Have questions about your order delivery? Reach our dedicated support team anytime at <a href="mailto:support@hoodeedaddy.com" style="color: #ff7300; text-decoration: none; font-weight: 700;">support@hoodeedaddy.com</a> or WhatsApp <strong>+91 9876543210</strong>.
       </div>
     </div>
 
-    <!-- Luxury Footer -->
-    <div style="background: #111111; padding: 16px; text-align: center; font-size: 11px; color: #9ca3af;">
-      &copy; ${new Date().getFullYear()} HooDee Daddy Atelier, 123 Avinashi Road, Coimbatore. All rights reserved.
+    <!-- Footer -->
+    <div style="background: #091525; padding: 16px; text-align: center; font-size: 11px; color: #94a3b8;">
+      &copy; ${new Date().getFullYear()} HooDee Daddy, 123 Avinashi Road, Peelamedu, Coimbatore. All rights reserved.
     </div>
   </div>
 </body>
@@ -814,7 +814,7 @@ function buildWelcomeEmailHtml(customer = {}) {
   const customerPhone = customer.phone || "On File";
   const storeUrl = process.env.STOREFRONT_URL || "http://localhost:3000";
 
-  const subject = `Welcome to HooDee Daddy Atelier, ${customerName}! — Your Luxury Account is Ready`;
+  const subject = `Welcome to HooDee Daddy, ${customerName}! — Your Account is Ready`;
 
   const html = `
 <!DOCTYPE html>
@@ -824,97 +824,97 @@ function buildWelcomeEmailHtml(customer = {}) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${subject}</title>
 </head>
-<body style="margin: 0; padding: 24px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8f6f0; color: #111827;">
-  <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb; box-shadow: 0 4px 16px rgba(0,0,0,0.06);">
-    <!-- Brand Luxury Banner -->
-    <div style="background: #111111; padding: 32px 24px; text-align: center;">
-      <h1 style="color: #c5a059; font-size: 28px; letter-spacing: 0.2em; margin: 0; font-weight: 700;">HooDee Daddy</h1>
-      <p style="color: #d1d5db; font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; margin: 6px 0 0 0;">Haute Couture &amp; Luxury Apparel</p>
+<body style="margin: 0; padding: 24px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; color: #091525;">
+  <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(9, 21, 37, 0.08);">
+    <!-- Brand Banner -->
+    <div style="background: #091525; padding: 32px 24px; text-align: center; border-bottom: 3px solid #ff7300;">
+      <h1 style="color: #ffffff; font-size: 28px; letter-spacing: 0.15em; margin: 0; font-weight: 800;">HooDee Daddy</h1>
+      <p style="color: #ff7300; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; margin: 6px 0 0 0; font-weight: 700;">Premium Hoodies &amp; Everyday Essentials</p>
     </div>
 
     <!-- Main Content -->
     <div style="padding: 34px 28px;">
       <div style="margin-bottom: 12px;">
-        <span style="display: inline-block; padding: 4px 12px; border-radius: 9999px; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; background-color: #fdf8ee; color: #92400e; border: 1px solid #f3e2b3;">
-          WELCOME TO THE ATELIER
+        <span style="display: inline-block; padding: 4px 12px; border-radius: 9999px; font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; background-color: #fff7ed; color: #c2410c; border: 1px solid #ffedd5;">
+          WELCOME TO HOODEE DADDY
         </span>
       </div>
 
-      <h2 style="font-size: 22px; color: #111827; margin: 0 0 14px 0;">
+      <h2 style="font-size: 22px; color: #091525; margin: 0 0 14px 0;">
         Welcome to HooDee Daddy, ${customerName}!
       </h2>
 
-      <p style="font-size: 14px; line-height: 1.65; color: #4b5563; margin: 0 0 20px 0;">
-        Thank you for registering with <strong>HooDee Daddy Atelier</strong>. Your personal member profile has been activated, giving you seamless access to our Mens, Womens, Girls, and Babies collections, real-time order notifications, and express doorstep delivery.
+      <p style="font-size: 14px; line-height: 1.65; color: #334155; margin: 0 0 20px 0;">
+        Thank you for registering with <strong>HooDee Daddy</strong>. Your personal member profile has been activated, giving you seamless access to our Men, Women, Girls, and Babies collections, real-time order notifications, and express doorstep delivery.
       </p>
 
       <!-- Account Details Box -->
-      <div style="background: #fdfcf9; border: 1px solid #efe9dc; border-radius: 8px; padding: 18px; margin-bottom: 24px;">
-        <div style="font-size: 11px; font-weight: 700; color: #c5a059; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 10px;">
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px; margin-bottom: 24px;">
+        <div style="font-size: 11px; font-weight: 800; color: #ff7300; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 10px;">
           ✨ Registered Member Profile
         </div>
         <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
           <tr>
-            <td style="color: #6b7280; padding: 4px 0;">Customer Name:</td>
-            <td style="text-align: right; font-weight: 600; color: #111827;">${customerName}</td>
+            <td style="color: #64748b; padding: 4px 0;">Customer Name:</td>
+            <td style="text-align: right; font-weight: 600; color: #091525;">${customerName}</td>
           </tr>
           <tr>
-            <td style="color: #6b7280; padding: 4px 0;">Registered Email:</td>
-            <td style="text-align: right; font-weight: 600; color: #111827;">${customerEmail}</td>
+            <td style="color: #64748b; padding: 4px 0;">Registered Email:</td>
+            <td style="text-align: right; font-weight: 600; color: #091525;">${customerEmail}</td>
           </tr>
           <tr>
-            <td style="color: #6b7280; padding: 4px 0;">Phone Number:</td>
-            <td style="text-align: right; font-weight: 600; color: #111827;">${customerPhone}</td>
+            <td style="color: #64748b; padding: 4px 0;">Phone Number:</td>
+            <td style="text-align: right; font-weight: 600; color: #091525;">${customerPhone}</td>
           </tr>
           <tr>
-            <td style="color: #6b7280; padding: 4px 0;">Account Status:</td>
+            <td style="color: #64748b; padding: 4px 0;">Account Status:</td>
             <td style="text-align: right; font-weight: 700; color: #059669;">ACTIVE &amp; VERIFIED</td>
           </tr>
         </table>
       </div>
 
       <!-- Member Perks -->
-      <h3 style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: #111827; margin: 0 0 12px 0; border-bottom: 2px solid #111111; padding-bottom: 6px;">
+      <h3 style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: #091525; margin: 0 0 12px 0; border-bottom: 2px solid #091525; padding-bottom: 6px;">
         Your HooDee Daddy Member Privileges
       </h3>
-      <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 13px; color: #374151;">
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 13px; color: #334155;">
         <tr>
-          <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">
+          <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9;">
             <strong>📦 Live Order Status Emails</strong> — Instant email alerts when your order is Confirmed, Packed, Shipped, or Delivered.
           </td>
         </tr>
         <tr>
-          <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">
-            <strong>🚚 Express Shiprocket Tracking</strong> — Direct AWB courier tracking from our Coimbatore warehouse to your doorstep.
+          <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9;">
+            <strong>🚚 Express Tracking</strong> — Direct courier tracking from our Coimbatore distribution hub to your doorstep.
           </td>
         </tr>
         <tr>
-          <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">
-            <strong>🎁 Exclusive Privilege Coupons</strong> — Enjoy member-only seasonal offers at checkout.
+          <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9;">
+            <strong>🎁 Exclusive Coupons</strong> — Enjoy member-only seasonal discounts at checkout.
           </td>
         </tr>
         <tr>
           <td style="padding: 8px 0;">
-            <strong>🛡️ Hassle-Free Returns &amp; Concierge Support</strong> — Easy online tracking, cancellations, and direct UPI refunds.
+            <strong>🛡️ Easy Support &amp; Returns</strong> — Easy online tracking, cancellations, and fast UPI refunds.
           </td>
         </tr>
       </table>
 
       <!-- CTA Button -->
       <div style="text-align: center; margin: 28px 0;">
-        <a href="${storeUrl}" target="_blank" style="display: inline-block; background-color: #111827; color: #c5a059; text-decoration: none; padding: 12px 28px; border-radius: 6px; font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; border: 1px solid #c5a059;">
+        <a href="${storeUrl}" target="_blank" style="display: inline-block; background-color: #ff7300; color: #ffffff; text-decoration: none; padding: 13px 32px; border-radius: 6px; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;">
           Explore HooDee Daddy Collections &rarr;
         </a>
       </div>
 
-      <div style="background: #f9fafb; border-radius: 6px; padding: 14px; text-align: center; font-size: 12px; color: #6b7280;">
-        Need styling advice or assistance? Reach our atelier concierge at <a href="mailto:support@hoodeedaddy.com" style="color: #c5a059; text-decoration: none; font-weight: 600;">support@hoodeedaddy.com</a> or WhatsApp <strong>+91 9876543210</strong>.
+      <div style="background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; padding: 14px; text-align: center; font-size: 12px; color: #64748b;">
+        Need advice or assistance? Reach our customer care team at <a href="mailto:support@hoodeedaddy.com" style="color: #ff7300; text-decoration: none; font-weight: 700;">support@hoodeedaddy.com</a> or WhatsApp <strong>+91 9876543210</strong>.
       </div>
     </div>
 
-    <!-- Luxury Footer -->
-    <div style="background: #111111; padding: 16px; text-align: center; font-size: 11px; color: #9ca3af;">
-      &copy; ${new Date().getFullYear()} HooDee Daddy Atelier, 123 Avinashi Road, Coimbatore. All rights reserved.
+    <!-- Footer -->
+    <div style="background: #091525; padding: 16px; text-align: center; font-size: 11px; color: #94a3b8;">
+      &copy; ${new Date().getFullYear()} HooDee Daddy, 123 Avinashi Road, Peelamedu, Coimbatore. All rights reserved.
     </div>
   </div>
 </body>
@@ -1029,22 +1029,22 @@ HooDee Daddy System`;
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>New Customer Lead - HooDee Daddy</title>
 </head>
-<body style="margin: 0; padding: 24px 0; background-color: #0f172a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b;">
-  <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: #0f172a;">
+<body style="margin: 0; padding: 24px 0; background-color: #091525; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #091525;">
+  <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: #091525;">
     <tr>
       <td align="center">
-        <table role="presentation" width="560" border="0" cellpadding="0" cellspacing="0" style="max-width: 560px; width: 100%; margin: 0 auto; background: #ffffff; border-radius: 14px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.35);">
+        <table role="presentation" width="560" border="0" cellpadding="0" cellspacing="0" style="max-width: 560px; width: 100%; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.35);">
           <!-- Header Banner -->
           <tr>
-            <td style="background: linear-gradient(135deg, #111827 0%, #1f2937 100%); padding: 32px 28px; text-align: center; border-bottom: 3px solid #d4af37;">
-              <span style="display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: 3px; color: #d4af37; text-transform: uppercase; background: rgba(212, 175, 55, 0.12); padding: 4px 12px; border-radius: 999px; margin-bottom: 12px; border: 1px solid rgba(212, 175, 55, 0.25);">
+            <td style="background-color: #091525; padding: 32px 28px; text-align: center; border-bottom: 3px solid #ff7300;">
+              <span style="display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: 3px; color: #ff7300; text-transform: uppercase; background: rgba(255, 115, 0, 0.12); padding: 4px 12px; border-radius: 999px; margin-bottom: 12px; border: 1px solid rgba(255, 115, 0, 0.3);">
                 HOODEE DADDY ADMIN ALERT
               </span>
-              <h1 style="color: #ffffff; font-size: 22px; font-weight: 700; margin: 0; letter-spacing: 0.3px;">
+              <h1 style="color: #ffffff; font-size: 22px; font-weight: 800; margin: 0; letter-spacing: 0.3px;">
                 New Customer Visit Lead
               </h1>
-              <p style="color: #9ca3af; font-size: 13.5px; margin: 8px 0 0 0;">
-                First-time storefront visitor submitted delivery & contact details
+              <p style="color: #94a3b8; font-size: 13.5px; margin: 8px 0 0 0;">
+                First-time storefront visitor submitted delivery &amp; contact details
               </p>
             </td>
           </tr>
@@ -1052,8 +1052,8 @@ HooDee Daddy System`;
           <!-- Content Body -->
           <tr>
             <td style="padding: 32px 28px;">
-              <p style="font-size: 14.5px; line-height: 1.6; color: #475569; margin: 0 0 20px 0;">
-                Hello <strong>Admin</strong>, a new potential customer visited the <strong>HooDee Daddy</strong> website and shared their contact and location details:
+              <p style="font-size: 14.5px; line-height: 1.6; color: #334155; margin: 0 0 20px 0;">
+                Hello <strong>Admin</strong>, a new potential customer visited the <strong>HooDee Daddy</strong> storefront and shared their contact and location details:
               </p>
 
               <!-- Main Details Card -->
@@ -1062,15 +1062,15 @@ HooDee Daddy System`;
                   <td style="padding: 14px 18px; border-bottom: 1px solid #e2e8f0; font-size: 13px; color: #64748b; font-weight: 600; width: 38%;">
                     📱 Mobile Number
                   </td>
-                  <td style="padding: 14px 18px; border-bottom: 1px solid #e2e8f0; font-size: 15px; color: #0f172a; font-weight: 700;">
-                    <a href="tel:+91${phone}" style="color: #0284c7; text-decoration: none;">+91 ${phone}</a>
+                  <td style="padding: 14px 18px; border-bottom: 1px solid #e2e8f0; font-size: 15px; color: #ff7300; font-weight: 800;">
+                    <a href="tel:+91${phone}" style="color: #ff7300; text-decoration: none;">+91 ${phone}</a>
                   </td>
                 </tr>
                 <tr>
                   <td style="padding: 14px 18px; border-bottom: 1px solid #e2e8f0; font-size: 13px; color: #64748b; font-weight: 600;">
                     📮 Delivery PIN Code
                   </td>
-                  <td style="padding: 14px 18px; border-bottom: 1px solid #e2e8f0; font-size: 15px; color: #0f172a; font-weight: 700;">
+                  <td style="padding: 14px 18px; border-bottom: 1px solid #e2e8f0; font-size: 15px; color: #091525; font-weight: 700;">
                     ${pincode}
                   </td>
                 </tr>
@@ -1110,15 +1110,15 @@ HooDee Daddy System`;
               </table>
 
               <!-- Action / Tip Box -->
-              <div style="background: #fffbeb; border: 1px solid #fef3c7; border-radius: 8px; padding: 14px 18px; margin-bottom: 24px;">
-                <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #92400e;">
-                  💡 <strong>Checkout Autofill Active:</strong> These details have also been saved to this customer's browser. When they proceed to checkout, their phone number and PIN code will be automatically filled for a lightning-fast ordering experience.
+              <div style="background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 14px 18px; margin-bottom: 24px;">
+                <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #9a3412;">
+                  💡 <strong>Checkout Autofill Active:</strong> These details have also been saved to this customer's browser. When they proceed to checkout, their phone number and PIN code will be automatically filled for a fast ordering experience.
                 </p>
               </div>
 
               <!-- Admin Call to Action -->
               <div style="text-align: center; margin-top: 26px;">
-                <a href="http://localhost:5173" style="display: inline-block; background-color: #111827; color: #ffffff; text-decoration: none; font-size: 13.5px; font-weight: 600; padding: 13px 28px; border-radius: 8px; letter-spacing: 0.3px; box-shadow: 0 4px 12px rgba(17, 24, 39, 0.2);">
+                <a href="http://localhost:5173" style="display: inline-block; background-color: #ff7300; color: #ffffff; text-decoration: none; font-size: 13.5px; font-weight: 700; padding: 13px 28px; border-radius: 8px; letter-spacing: 0.3px; box-shadow: 0 4px 12px rgba(255, 115, 0, 0.25);">
                   Open HooDee Daddy Admin Panel &rarr;
                 </a>
               </div>
@@ -1127,9 +1127,9 @@ HooDee Daddy System`;
 
           <!-- Footer -->
           <tr>
-            <td style="background-color: #f8fafc; padding: 20px 28px; text-align: center; border-top: 1px solid #f1f5f9; font-size: 12px; color: #94a3b8;">
-              <p style="margin: 0 0 6px 0;">This is an automated notification from your HooDee Daddy eCommerce platform.</p>
-              <p style="margin: 0; font-size: 11px; color: #cbd5e1;">© ${new Date().getFullYear()} HooDee Daddy. All rights reserved.</p>
+            <td style="background-color: #091525; padding: 20px 28px; text-align: center; font-size: 12px; color: #94a3b8;">
+              <p style="margin: 0 0 6px 0;">This is an automated notification from your HooDee Daddy platform.</p>
+              <p style="margin: 0; font-size: 11px; color: #64748b;">© ${new Date().getFullYear()} HooDee Daddy. All rights reserved.</p>
             </td>
           </tr>
         </table>

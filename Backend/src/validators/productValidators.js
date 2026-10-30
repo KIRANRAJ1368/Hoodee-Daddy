@@ -14,8 +14,8 @@ function productRules() {
       .withMessage("Slug may only contain lowercase letters, numbers and hyphens"),
     body("sku").optional({ values: "falsy" }).trim().isLength({ max: 60 }),
     body("category_id").isInt().withMessage("category_id is required"),
-    body("product_type").optional({ values: "null" }).isString().isLength({ max: 60 }),
-    body("description").optional({ values: "null" }).isString(),
+    body("product_type").trim().notEmpty().withMessage("Product type is required").isLength({ max: 60 }),
+    body("description").trim().notEmpty().withMessage("Product description is required"),
     body("price").isFloat({ min: 0.01 }).withMessage("Selling price must be greater than zero"),
     body("original_price")
       .optional({ values: "null" })
@@ -31,11 +31,12 @@ function productRules() {
     body("is_best_seller").optional().isBoolean(),
     body("is_new_arrival").optional().isBoolean(),
     body("is_sale").optional().isBoolean(),
+    body("show_on_homepage").optional().isBoolean(),
     body("badge_label").optional({ values: "null" }).isString().isLength({ max: 40 }),
     body("badge_type").optional({ values: "null" }).isIn(["hot", "new", "sale"]),
     body("images")
-      .isArray({ min: 1, max: 12 })
-      .withMessage("At least 1 product image (Front View) is required. Maximum 12 images allowed."),
+      .isArray({ min: 2, max: 12 })
+      .withMessage("Both Front View and Back View images are required (minimum 2). Maximum 12 images allowed."),
     body("images.*")
       .custom((val) => {
         if (typeof val === "string" && val.trim().length > 0) return true;
@@ -43,7 +44,7 @@ function productRules() {
         throw new Error("Invalid image entry");
       })
       .withMessage("Each image must have a valid URL"),
-    body("specifications").isArray({ min: 3, max: 10 }).withMessage("Specifications must contain between 3 and 10 items"),
+    body("specifications").isArray({ min: 4, max: 10 }).withMessage("Specifications must contain between 4 and 10 items"),
     body("specifications.*.title").isString().trim().notEmpty().withMessage("Specification title cannot be empty"),
     body("specifications.*.value").isString().trim().notEmpty().withMessage("Specification value cannot be empty"),
     body("colors").isArray({ min: 1 }).withMessage("At least one product color is required"),

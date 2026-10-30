@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate, Navigate } from "react-router-dom";
+import { Link, useNavigate, useLocation, Navigate } from "react-router-dom";
 import { useShop } from "../context/ShopContext";
 import { storefrontApi } from "../services/storefrontApi";
 import InvoiceModal from "../components/Modals/InvoiceModal";
@@ -41,13 +41,31 @@ export default function CustomerProfile() {
     customerToken,
     logoutCustomer,
     setAuthModalState,
+    setPostAuthRedirect,
     addToast,
     formatPrice
   } = useShop();
 
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const [activeTab, setActiveTab] = useState("orders"); // 'orders' | 'profile' | 'addresses'
+  const [activeTab, setActiveTab] = useState(() => {
+    if (typeof window !== "undefined") {
+      if (window.location.pathname === "/profile") return "profile";
+      if (window.location.pathname === "/addresses") return "addresses";
+    }
+    return "orders";
+  }); // 'orders' | 'profile' | 'addresses'
+
+  useEffect(() => {
+    if (location.pathname === "/profile") {
+      setActiveTab("profile");
+    } else if (location.pathname === "/addresses") {
+      setActiveTab("addresses");
+    } else if (location.pathname === "/my-orders" || location.pathname === "/account") {
+      setActiveTab("orders");
+    }
+  }, [location.pathname]);
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [ordersError, setOrdersError] = useState("");
@@ -89,6 +107,13 @@ export default function CustomerProfile() {
     }
   }, [customerUser]);
 
+  const extractOrders = (data) => {
+    if (Array.isArray(data)) return data;
+    if (Array.isArray(data?.orders)) return data.orders;
+    if (Array.isArray(data?.data)) return data.data;
+    return [];
+  };
+
   const loadOrders = async (isSilent = false) => {
     if (!customerToken) {
       setLoadingOrders(false);
@@ -99,7 +124,7 @@ export default function CustomerProfile() {
     setOrdersError("");
     try {
       const data = await storefrontApi.getMyOrders(customerToken);
-      setOrders(Array.isArray(data) ? data : []);
+      setOrders(extractOrders(data));
       setOrdersError("");
     } catch (err) {
       console.warn("Orders fetch notice:", err.message);
@@ -107,7 +132,7 @@ export default function CustomerProfile() {
       setTimeout(async () => {
         try {
           const retryData = await storefrontApi.getMyOrders(customerToken);
-          setOrders(Array.isArray(retryData) ? retryData : []);
+          setOrders(extractOrders(retryData));
           setOrdersError("");
         } catch (_) {
           // Gracefully maintain state without crashing
@@ -164,7 +189,7 @@ export default function CustomerProfile() {
 
   const reloadOrders = async () => {
     const data = await storefrontApi.getMyOrders(customerToken);
-    setOrders(data || []);
+    setOrders(extractOrders(data));
   };
 
   const saveItemReview = async (e) => {
@@ -287,7 +312,7 @@ export default function CustomerProfile() {
       );
 
       const updated = await storefrontApi.getMyOrders(customerToken);
-      setOrders(updated || []);
+      setOrders(extractOrders(updated));
       setCancelModalOrder(null);
       setCancelReason("");
       setCancelComments("");
@@ -314,7 +339,10 @@ export default function CustomerProfile() {
           <button
             type="button"
             className="btn btn-primary"
-            onClick={() => setAuthModalState("login")}
+            onClick={() => {
+              setPostAuthRedirect("/my-orders");
+              setAuthModalState("login");
+            }}
             style={{ padding: "10px 24px" }}
           >
             Sign In / Register

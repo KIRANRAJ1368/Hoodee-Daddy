@@ -18,6 +18,7 @@ export default function CategoryFormModal({ category, onClose, onSaved, defaultS
   const [showOnHomepage, setShowOnHomepage] = useState(category?.show_on_homepage ?? true);
   const [bannerImageUrl, setBannerImageUrl] = useState(category?.banner_image_url || "");
 
+  const [fieldErrors, setFieldErrors] = useState({});
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const toast = useToast();
@@ -28,15 +29,42 @@ export default function CategoryFormModal({ category, onClose, onSaved, defaultS
       setSlug(slugify(value));
     }
     if (error) setError("");
+    if (fieldErrors.name) {
+      setFieldErrors((prev) => ({ ...prev, name: "" }));
+    }
   }
 
   function validate() {
-    const trimmed = (name || "").trim();
-    if (!trimmed) {
-      return "Please enter the category name";
+    const errs = {};
+    const trimmedName = (name || "").trim();
+    if (!trimmedName) {
+      errs.name = "Category Name is required";
+    } else if (trimmedName.length > 80) {
+      errs.name = "Category Name must be under 80 characters";
     }
-    if (trimmed.length > 80) {
-      return "Category name must be under 80 characters";
+
+    const trimmedSlug = (slug || "").trim();
+    if (!trimmedSlug) {
+      errs.slug = "URL Slug is required";
+    }
+
+    if (sortOrder === "" || sortOrder === null || isNaN(Number(sortOrder))) {
+      errs.sortOrder = "Display Order Sequence is required";
+    }
+
+    const trimmedDesc = (description || "").trim();
+    if (!trimmedDesc) {
+      errs.description = "Category Short Description is required";
+    }
+
+    if (!bannerImageUrl || !bannerImageUrl.trim()) {
+      errs.bannerImageUrl = "Collection Page Hero Banner image is required (1920 × 800px)";
+    }
+
+    setFieldErrors(errs);
+    if (Object.keys(errs).length > 0) {
+      const first = Object.values(errs)[0];
+      return first;
     }
     return "";
   }
@@ -59,16 +87,16 @@ export default function CategoryFormModal({ category, onClose, onSaved, defaultS
       const payload = {
         name: cleanName,
         slug: generatedSlug,
-        description: description.trim() || null,
+        description: description.trim(),
         sort_order: Number(sortOrder) || 0,
         is_active: Boolean(isActive),
         show_on_homepage: Boolean(showOnHomepage),
-        banner_image_url: bannerImageUrl.trim() || null,
+        banner_image_url: bannerImageUrl.trim(),
         banner_image_position: "center center",
         banner_tag: null,
         banner_badge_promo: null,
         banner_title: `${cleanName.toUpperCase()} COLLECTION`,
-        banner_subtitle: description.trim() || null,
+        banner_subtitle: description.trim(),
         banner_primary_cta_text: null,
         banner_primary_cta_link: `/collection?category=${generatedSlug}`
       };
@@ -106,7 +134,7 @@ export default function CategoryFormModal({ category, onClose, onSaved, defaultS
           <FormField
             label="Category Name *"
             htmlFor="cat-name"
-            error={error}
+            error={fieldErrors.name || error}
             hint="Primary storefront category title (e.g. Men, Women, Kids)"
           >
             <input
@@ -114,31 +142,50 @@ export default function CategoryFormModal({ category, onClose, onSaved, defaultS
               placeholder="e.g. Men, Women, Kids, Unisex"
               value={name}
               onChange={(e) => handleNameChange(e.target.value)}
-              className={error ? "has-error" : ""}
+              className={fieldErrors.name ? "has-error" : ""}
               autoFocus
               required
             />
           </FormField>
 
           <FormField
-            label="URL Slug"
+            label="URL Slug *"
             htmlFor="cat-slug"
-            hint="URL parameter: /collection?category=slug"
+            error={fieldErrors.slug}
+            hint="URL parameter: /categories/:slug"
           >
-            <input
-              id="cat-slug"
-              placeholder="e.g. mens, women, kids"
-              value={slug}
-              onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]+/g, "-"))}
-            />
+            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+              <input
+                id="cat-slug"
+                placeholder="e.g. newborn-babies, kidshoodies"
+                value={slug}
+                onChange={(e) => {
+                  setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]+/g, "-"));
+                  if (fieldErrors.slug) setFieldErrors((p) => ({ ...p, slug: "" }));
+                }}
+                className={fieldErrors.slug ? "has-error" : ""}
+                style={{ flex: 1 }}
+                required
+              />
+              <button
+                type="button"
+                className="btn btn-secondary"
+                style={{ fontSize: "11px", padding: "8px 12px", whiteSpace: "nowrap" }}
+                onClick={() => setSlug(slugify(name))}
+                title="Generate slug from category name"
+              >
+                Sync Slug
+              </button>
+            </div>
           </FormField>
         </div>
 
         {/* 2. Display Order Sequence & Short Description */}
         <div className="form-grid">
           <FormField
-            label="Display Order Sequence"
+            label="Display Order Sequence *"
             htmlFor="cat-sort-order"
+            error={fieldErrors.sortOrder}
             hint="Lower number appears first on navbar & storefront"
           >
             <input
@@ -147,20 +194,31 @@ export default function CategoryFormModal({ category, onClose, onSaved, defaultS
               min="0"
               placeholder="e.g. 0, 1, 2"
               value={sortOrder}
-              onChange={(e) => setSortOrder(e.target.value)}
+              onChange={(e) => {
+                setSortOrder(e.target.value);
+                if (fieldErrors.sortOrder) setFieldErrors((p) => ({ ...p, sortOrder: "" }));
+              }}
+              className={fieldErrors.sortOrder ? "has-error" : ""}
+              required
             />
           </FormField>
 
           <FormField
-            label="Short Description"
+            label="Short Description *"
             htmlFor="cat-desc"
+            error={fieldErrors.description}
             hint="Category description used across storefront"
           >
             <input
               id="cat-desc"
               placeholder="e.g. Premium pure cotton drops and streetwear fits"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e) => {
+                setDescription(e.target.value);
+                if (fieldErrors.description) setFieldErrors((p) => ({ ...p, description: "" }));
+              }}
+              className={fieldErrors.description ? "has-error" : ""}
+              required
             />
           </FormField>
         </div>
@@ -170,11 +228,22 @@ export default function CategoryFormModal({ category, onClose, onSaved, defaultS
           <ImageUploadField
             label="Collection Page Hero Banner"
             value={bannerImageUrl}
-            onChange={(url) => setBannerImageUrl(url)}
+            onChange={(url) => {
+              setBannerImageUrl(url);
+              if (fieldErrors.bannerImageUrl) setFieldErrors((p) => ({ ...p, bannerImageUrl: "" }));
+            }}
             folder="banners"
             aspectRatio="16/9"
             previewHeight={180}
-            hint="Upload a high-resolution landscape banner image for this category collection page (Recommended: 1920 × 800px). Supports JPG, PNG, WEBP."
+            required
+            error={fieldErrors.bannerImageUrl}
+            dimensionRule={{
+              minWidth: 1200,
+              minRatio: 2.0,
+              maxRatio: 2.6,
+              label: "1920 × 800px (2.4:1 ratio, min 1200px wide)"
+            }}
+            hint="Upload a high-resolution landscape banner image for this category collection page (Required: 1920 × 800px, 2.4:1 ratio). Other sizes will be rejected."
           />
         </div>
 

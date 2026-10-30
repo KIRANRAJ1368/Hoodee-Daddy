@@ -79,6 +79,7 @@ export default function ProductViewModal({ product, productId, onClose }) {
   const badges = [];
   if (data.isBestSeller) badges.push({ label: "Best Seller", className: "pv-badge-gold" });
   if (data.isNewArrival) badges.push({ label: "New Drop", className: "pv-badge-gold" });
+  if (data.showOnHomepage) badges.push({ label: "Home Page", className: "pv-badge-blue" });
   if (data.isSale) badges.push({ label: "On Sale", className: "pv-badge-red" });
   if (data.isNew) badges.push({ label: "New", className: "pv-badge-dark" });
   if (data.badge) badges.push({ label: data.badge, className: "pv-badge-blue" });

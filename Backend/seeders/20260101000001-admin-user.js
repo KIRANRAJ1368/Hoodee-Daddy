@@ -5,7 +5,7 @@ module.exports = {
   up: async (queryInterface) => {
     const email = process.env.SEED_ADMIN_EMAIL;
     const password = process.env.SEED_ADMIN_PASSWORD;
-    const name = process.env.SEED_ADMIN_NAME || "ZMW Admin";
+    const name = process.env.SEED_ADMIN_NAME || "HooDee Daddy Admin";
 
     if (!email || !password) {
       throw new Error(

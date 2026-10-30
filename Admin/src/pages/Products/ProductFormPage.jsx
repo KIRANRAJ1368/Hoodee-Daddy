@@ -42,6 +42,7 @@ function makeColorGroup(overrides = {}, defaultPreset = "2–4 Years") {
 const DEFAULT_SPECIFICATIONS = [
   { title: "", value: "" },
   { title: "", value: "" },
+  { title: "", value: "" },
   { title: "", value: "" }
 ];
 
@@ -62,6 +63,7 @@ const BLANK_FORM = {
   is_best_seller: false,
   is_new_arrival: true,
   is_sale: false,
+  show_on_homepage: false,
   badge_label: "",
   badge_type: "",
   is_active: true,
@@ -219,6 +221,7 @@ export default function ProductFormPage() {
           is_best_seller: p.isBestSeller ?? p.is_best_seller ?? false,
           is_new_arrival: p.isNewArrival ?? p.is_new_arrival ?? false,
           is_sale: p.isSale ?? p.is_sale ?? false,
+          show_on_homepage: p.showOnHomepage ?? p.show_on_homepage ?? false,
           badge_label: p.badge || p.badge_label || "",
           badge_type: p.badgeType || p.badge_type || "",
           meta_title: p.metaTitle || p.meta_title || "",
@@ -229,12 +232,14 @@ export default function ProductFormPage() {
         });
 
         if (Array.isArray(p.specifications) && p.specifications.length > 0) {
-          setSpecifications(
-            p.specifications.map((s) => ({
-              title: s.title || "",
-              value: s.value || ""
-            }))
-          );
+          const loadedSpecs = p.specifications.map((s) => ({
+            title: s.title || "",
+            value: s.value || ""
+          }));
+          while (loadedSpecs.length < 4) {
+            loadedSpecs.push({ title: "", value: "" });
+          }
+          setSpecifications(loadedSpecs);
         }
 
         const matchedCat = categories.find((c) => String(c.id) === String(p.category_id || p.categoryId));
@@ -339,10 +344,13 @@ export default function ProductFormPage() {
         setErrors((prev) => {
           const next = { ...prev };
           delete next.frontImage;
-          delete next.images;
+          if (backImage) delete next.images;
           return next;
         });
         toast.success("Front View (Primary Cover) uploaded successfully!");
+        if (!backImage) {
+          toast.warning("Front image added! Please upload the Back View Image now. Both are required.");
+        }
       }
     } catch (err) {
       toast.error(err.message || "Failed to upload Front View image. Please try again.");
@@ -379,6 +387,12 @@ export default function ProductFormPage() {
       const url = data.files?.[0]?.url;
       if (url) {
         setBackImage(url);
+        setErrors((prev) => {
+          const next = { ...prev };
+          delete next.backImage;
+          if (frontImage) delete next.images;
+          return next;
+        });
         toast.success("Back View (Secondary Angle) uploaded successfully!");
       }
     } catch (err) {
@@ -484,7 +498,7 @@ export default function ProductFormPage() {
     toast.success("Set as Back View Image!");
   }
 
-  // ── Dynamic Specifications Handlers (Min 3, Max 10) ──
+  // ── Dynamic Specifications Handlers (Min 4, Max 10) ──
   function handleAddSpecification() {
     if (specifications.length >= 10) {
       toast.error("Maximum 10 specifications allowed");
@@ -494,8 +508,8 @@ export default function ProductFormPage() {
   }
 
   function handleRemoveSpecification(idx) {
-    if (specifications.length <= 3) {
-      toast.error("At least 3 specifications are required (Minimum 3)");
+    if (specifications.length <= 4) {
+      toast.error("At least 4 specifications are required (Minimum 4)");
       return;
     }
     setSpecifications((prev) => prev.filter((_, i) => i !== idx));
@@ -530,7 +544,7 @@ export default function ProductFormPage() {
       groupId: `additional-${variant.id || `${variant.color}-${variant.size}`}`,
       color: variant.color || "",
       colorHex: variant.colorHex || "#181715",
-      size: variant.size || "Free Size",
+      size: (variant.size && variant.size !== "Free Size") ? variant.size : (isBabies ? "0–2 Months" : "2–4 Years"),
       salePrice: Number(variant.priceOverride ?? defaultSalePrice),
       mrp: Number(variant.originalPriceOverride ?? defaultMrp),
       stock: Number(variant.stockCount ?? 0),
@@ -562,7 +576,7 @@ export default function ProductFormPage() {
       setColorGroups((prevGroups) =>
         prevGroups.map((group) => {
           const onlyHasStandardPresets = group.sizes.every((s) =>
-            ["Free Size", "XS", "S", "M", "L", "XL", "XXL", "3XL", ...BABIES_AGE_PRESETS, ...KIDS_AGE_PRESETS].includes(s)
+            [...BABIES_AGE_PRESETS, ...KIDS_AGE_PRESETS, "XS", "S", "M", "L", "XL", "XXL", "3XL"].includes(s)
           );
           if (group.sizes.length === 0 || onlyHasStandardPresets) {
             const firstPreset = nextPresets[0];
@@ -638,6 +652,8 @@ export default function ProductFormPage() {
     if (!form.name?.trim()) validationErrors.name = "Please enter the product name";
     if (!form.slug?.trim()) validationErrors.slug = "Please enter the product URL slug";
     if (!form.category_id) validationErrors.category_id = "Please select a product category";
+    if (!form.product_type?.trim()) validationErrors.product_type = "Please enter the product type / silhouette (e.g. Hoodies, Tees, Pyjamas)";
+    if (!form.description?.trim()) validationErrors.description = "Please enter the product description";
 
     const defaultColor = colorGroups[0];
     if (!defaultColor?.name.trim()) validationErrors.variants = "Enter the default product color name.";
@@ -662,11 +678,16 @@ export default function ProductFormPage() {
     });
 
     if (!frontImage) validationErrors.frontImage = "Please upload the required Front View Image (Primary Cover)";
-    const combinedImages = [frontImage, backImage, ...thumbnailImages].filter(Boolean);
-    if (combinedImages.length < 1) validationErrors.images = "Please upload at least 1 product image (Front View).";
-    else if (combinedImages.length > 12) validationErrors.images = "Maximum 12 images allowed (Front View + Back View + up to 10 thumbnails).";
+    if (!backImage) validationErrors.backImage = "Please upload the required Back View Image (Secondary Angle)";
 
-    if (specifications.length < 3) validationErrors.specifications = "Please provide at least 3 specifications (Minimum 3).";
+    const combinedImages = [frontImage, backImage, ...thumbnailImages].filter(Boolean);
+    if (!frontImage || !backImage) {
+      validationErrors.images = "Both Front View and Back View images are strictly required for this product.";
+    } else if (combinedImages.length > 12) {
+      validationErrors.images = "Maximum 12 images allowed (Front View + Back View + up to 10 thumbnails).";
+    }
+
+    if (specifications.length < 4) validationErrors.specifications = "Please provide at least 4 specifications (Minimum 4).";
     else if (specifications.length > 10) validationErrors.specifications = "Maximum 10 specifications allowed.";
     else {
       const emptyIdx = specifications.findIndex((spec) => !spec.title?.trim() || !spec.value?.trim());
@@ -675,7 +696,17 @@ export default function ProductFormPage() {
 
     setErrors(validationErrors);
     if (Object.keys(validationErrors).length) {
-      const firstError = validationErrors.name || validationErrors.slug || validationErrors.category_id || validationErrors.variants || validationErrors.frontImage || validationErrors.images || validationErrors.specifications;
+      const firstError =
+        validationErrors.name ||
+        validationErrors.slug ||
+        validationErrors.category_id ||
+        validationErrors.product_type ||
+        validationErrors.description ||
+        validationErrors.frontImage ||
+        validationErrors.backImage ||
+        validationErrors.variants ||
+        validationErrors.images ||
+        validationErrors.specifications;
       toast.error(firstError || "Please fill in all required fields properly.");
       return;
     }
@@ -718,7 +749,7 @@ export default function ProductFormPage() {
         created_at: variant.createdAt || variant.created_at || undefined,
         color: variant.color,
         colorHex: variant.colorHex || "#181715",
-        size: variant.size || (defaultColor.sizes[0] || "2–4 Years"),
+        size: (variant.size && variant.size !== "Free Size") ? variant.size : (defaultColor.sizes[0] || (isBabies ? "0–2 Months" : "2–4 Years")),
         stock_count: Number(variant.stockCount ?? 0),
         sales_count: Number(variant.salesCount ?? variant.sales_count ?? 0),
         price_override: variant.priceOverride ?? null,
@@ -819,12 +850,13 @@ export default function ProductFormPage() {
               />
             </FormField>
 
-            <FormField label="Product Type / Silhouette" htmlFor="p-type" hint="e.g. Hoodies, Tees, Cargos, Jackets">
+            <FormField label="Product Type / Silhouette *" htmlFor="p-type" error={errors.product_type} hint="e.g. Hoodies, Tees, Cargos, Jackets">
               <input
                 id="p-type"
                 placeholder="e.g. Hoodies"
                 value={form.product_type}
                 onChange={(e) => update("product_type", e.target.value)}
+                required
               />
             </FormField>
           </div>
@@ -845,13 +877,14 @@ export default function ProductFormPage() {
             </select>
           </FormField>
 
-          <FormField label="Product Description" htmlFor="p-desc" hint="Fabric composition, fit, GSM weight, washing care instructions">
+          <FormField label="Product Description *" htmlFor="p-desc" error={errors.description} hint="Fabric composition, fit, GSM weight, washing care instructions">
             <textarea
               id="p-desc"
               rows={4}
               placeholder="e.g. Cut from 450 GSM French Terry cotton for structure and warmth. Features dropped shoulders, double-layered hood, and ribbed cuffs..."
               value={form.description}
               onChange={(e) => update("description", e.target.value)}
+              required
             />
           </FormField>
         </div>
@@ -1003,6 +1036,16 @@ export default function ProductFormPage() {
               />
               <span>Mark as <strong>On Sale</strong></span>
             </label>
+
+            <label className="checkbox-row">
+              <input
+                id="p-homepage"
+                type="checkbox"
+                checked={form.show_on_homepage}
+                onChange={(e) => update("show_on_homepage", e.target.checked)}
+              />
+              <span>Show on <strong>Home Page</strong></span>
+            </label>
           </div>
 
           <div className="form-grid">
@@ -1057,15 +1100,51 @@ export default function ProductFormPage() {
               <ImageIcon size={18} />
             </div>
             <div>
-              <h3 className="section-title">Product Photography Showcase</h3>
-              <p className="section-sub">Dual primary angles (Front View &amp; Back View) plus up to 10 thumbnail gallery images</p>
+              <h3 className="section-title">Product Photography Showcase *</h3>
+              <p className="section-sub">Both Front View and Back View images are strictly mandatory. Up to 10 additional gallery thumbnails supported.</p>
             </div>
           </div>
+
+          {/* Prompt message when Front Image is added but Back Image is missing */}
+          {frontImage && !backImage && (
+            <div
+              className="back-image-required-prompt"
+              style={{
+                background: "#fffbeb",
+                border: "1.5px solid #fde68a",
+                padding: "12px 16px",
+                borderRadius: "10px",
+                marginBottom: "16px",
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+                color: "#92400e"
+              }}
+            >
+              <span style={{ fontSize: "22px", flexShrink: 0 }}>⚠️</span>
+              <div style={{ flex: 1 }}>
+                <strong style={{ display: "block", fontSize: "14px", color: "#b45309" }}>
+                  Front image added! Please add the Back View image now.
+                </strong>
+                <span style={{ fontSize: "13px" }}>
+                  Every product must have both Front and Back view photos. Click the Back View box below to upload the reverse side.
+                </span>
+              </div>
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
+                onClick={() => backFileInputRef.current?.click()}
+                style={{ whiteSpace: "nowrap" }}
+              >
+                Upload Back View Now
+              </button>
+            </div>
+          )}
 
           {/* 5A: Dual Primary Views — Front View + Back View side by side */}
           <div className="primary-views-dual-grid">
             {/* Front View Card (Compulsory) */}
-            <div className={`product-image-card ${errors.frontImage || errors.images ? "has-image-error" : ""}`}>
+            <div className={`product-image-card ${errors.frontImage || (errors.images && !frontImage) ? "has-image-error" : ""}`}>
               <div className="product-image-card-header">
                 <div>
                   <h4 className="photo-title">
@@ -1163,15 +1242,17 @@ export default function ProductFormPage() {
               )}
             </div>
 
-            {/* Back View Card (Optional) */}
-            <div className="product-image-card">
+            {/* Back View Card (Compulsory) */}
+            <div className={`product-image-card ${errors.backImage || (errors.images && !backImage) ? "has-image-error" : ""}`}>
               <div className="product-image-card-header">
                 <div>
-                  <h4 className="photo-title">Back View <span style={{ color: "var(--color-grey-500)", fontWeight: 400 }}>(Optional)</span></h4>
-                  <p className="photo-tag-sub">Shows the reverse side of the apparel piece.</p>
+                  <h4 className="photo-title">
+                    Back View <span className="required-asterisk">* (Secondary Angle)</span>
+                  </h4>
+                  <p className="photo-tag-sub">Shows the reverse side of the apparel piece. Mandatory.</p>
                 </div>
                 {backImage && (
-                  <span className="badge-primary-cover photo-role-badge back">Back View</span>
+                  <span className="badge-primary-cover photo-role-badge back">★ Back View</span>
                 )}
               </div>
 
@@ -1243,7 +1324,9 @@ export default function ProductFormPage() {
                     {isUploadingBack ? "Uploading Back View..." : "Upload Back View Image"}
                   </strong>
                   <p className="main-upload-sub">PNG, JPG, JFIF or WEBP up to 10MB</p>
-                  <span className="main-compulsory-tag" style={{ background: "rgba(107,114,128,0.12)", color: "var(--color-grey-600)" }}>Optional — Secondary Angle</span>
+                  <span className="main-compulsory-tag" style={{ background: "#fef3c7", color: "#92400e", border: "1px solid #fde68a" }}>
+                    Required — Secondary View
+                  </span>
                 </div>
               )}
 
@@ -1255,6 +1338,9 @@ export default function ProductFormPage() {
                 onChange={(e) => handleBackImageUpload(e.target.files)}
                 disabled={isUploadingBack}
               />
+              {errors.backImage && (
+                <div className="field-error-text" style={{ marginTop: 8 }}>{errors.backImage}</div>
+              )}
             </div>
           </div>
 
@@ -1381,7 +1467,7 @@ export default function ProductFormPage() {
           </div>
         </div>
 
-        {/* ── Section 6: Dynamic Product Specifications (Min 3, Max 10) ── */}
+        {/* ── Section 6: Dynamic Product Specifications (Min 4, Max 10) ── */}
         <div className="card form-section-card">
           <div className="section-card-heading" style={{ justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
@@ -1390,12 +1476,12 @@ export default function ProductFormPage() {
               </div>
               <div>
                 <h3 className="section-title">Product Details &amp; Specifications</h3>
-                <p className="section-sub">Min 3 required • Max 10 allowed (Displayed in luxury 2-column table on storefront)</p>
+                <p className="section-sub">Min 4 required • Max 10 allowed (Displayed in luxury 2-column table on storefront)</p>
               </div>
             </div>
 
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <span className="spec-count-pill">{specifications.length} / 10 (Min 3)</span>
+              <span className="spec-count-pill">{specifications.length} / 10 (Min 4)</span>
               <button
                 type="button"
                 className="btn btn-secondary btn-sm"
@@ -1439,8 +1525,8 @@ export default function ProductFormPage() {
                   type="button"
                   className="btn-trash-spec"
                   onClick={() => handleRemoveSpecification(idx)}
-                  disabled={specifications.length <= 3}
-                  title={specifications.length <= 3 ? "Minimum 3 specifications required" : "Remove this specification"}
+                  disabled={specifications.length <= 4}
+                  title={specifications.length <= 4 ? "Minimum 4 specifications required" : "Remove this specification"}
                 >
                   <Trash2 size={15} />
                 </button>

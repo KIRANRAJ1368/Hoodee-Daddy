@@ -3,6 +3,16 @@ const ApiError = require("../utils/ApiError");
 const { sendSuccess } = require("../utils/apiResponse");
 const { serializeProduct } = require("../services/productSerializer");
 const { PRODUCT_INCLUDES } = require("../services/productService");
+const env = require("../config/env");
+
+function sanitizeMediaUrl(url) {
+  if (!url || typeof url !== "string") return url;
+  if (url.includes("/uploads/")) {
+    const idx = url.indexOf("/uploads/");
+    return `${env.appUrl}${url.slice(idx)}`;
+  }
+  return url;
+}
 
 /**
  * One call that gives the customer frontend everything the homepage
@@ -33,8 +43,10 @@ async function getHomePayload(req, res) {
   const bannersByPlacement = {};
   banners.forEach((b) => {
     const placement = b.placement === "home_hero" ? "hero" : b.placement;
+    const bannerObj = b.toJSON ? b.toJSON() : { ...b };
+    bannerObj.image_url = sanitizeMediaUrl(bannerObj.image_url);
     if (!bannersByPlacement[placement]) bannersByPlacement[placement] = [];
-    bannersByPlacement[placement].push(b);
+    bannersByPlacement[placement].push(bannerObj);
   });
 
   // Alias placements so queries by 'men' or 'mens', 'women' or 'womens' always resolve
@@ -59,7 +71,7 @@ async function getHomePayload(req, res) {
         subtitle: cat.banner_subtitle || cat.description || `Explore our premium ${cat.name.toLowerCase()} essentials.`,
         tag: cat.banner_tag || cat.name,
         badge_promo: cat.banner_badge_promo || "New Collection",
-        image_url: cat.banner_image_url || "/images/dept-family-banner.jpg",
+        image_url: sanitizeMediaUrl(cat.banner_image_url) || "/images/dept-family-banner.jpg",
         image_position: cat.banner_image_position || "center center",
         primary_cta_text: cat.banner_primary_cta_text || `Shop ${cat.name}`,
         primary_cta_link: `/collection?category=${encodeURIComponent(cat.slug)}`,
@@ -129,7 +141,7 @@ async function getHomePayload(req, res) {
   // Fetch products for all active categories (first 4 active products per category)
   const categoryIds = categories.map((c) => c.id);
   const categoryProductsRaw = categoryIds.length > 0 ? await Product.findAll({
-    where: { category_id: categoryIds, is_active: true },
+    where: { category_id: categoryIds, is_active: true, show_on_homepage: true },
     include: PRODUCT_INCLUDES,
     order: [["id", "ASC"]]
   }) : [];
@@ -154,6 +166,7 @@ async function getHomePayload(req, res) {
     const c = cat.toJSON ? cat.toJSON() : { ...cat };
     return {
       ...c,
+      banner_image_url: sanitizeMediaUrl(c.banner_image_url),
       products: productsByCatId.get(c.id) || []
     };
   });

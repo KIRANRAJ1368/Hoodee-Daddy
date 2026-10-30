@@ -30,6 +30,7 @@ router.delete("/:id", requireAuth, v.idParam, validate, productController.remove
 
 router.patch("/:id/best-seller", requireAuth, v.idParam, validate, productController.toggleBestSeller);
 router.patch("/:id/new-arrival", requireAuth, v.idParam, validate, productController.toggleNewArrival);
+router.patch("/:id/show-on-homepage", requireAuth, v.idParam, validate, productController.toggleShowOnHomepage);
 router.patch("/:id/stock", requireAuth, v.stock, validate, productController.updateStock);
 
 router.get("/:id/variants", requireAuth, v.idParam, validate, productController.listVariants);

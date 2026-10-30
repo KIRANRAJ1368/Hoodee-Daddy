@@ -33,6 +33,7 @@ export default function Navbar() {
     wishlistCount,
     setIsSearchOpen,
     setAuthModalState,
+    setPostAuthRedirect,
     setIsOrderTrackOpen,
     customerUser,
     logoutCustomer
@@ -331,7 +332,7 @@ export default function Navbar() {
 
             <Link to="/" className="brand-logo" onClick={closeAllMenus} aria-label="HooDee Daddy home">
               <img
-                src={process.env.PUBLIC_URL + "/images/hoodee-daddy-logo.svg"}
+                src="/images/hoodee-daddy-logo.svg"
                 alt="HooDee Daddy"
                 className="brand-logo-img"
                 width="943"
@@ -435,6 +436,7 @@ export default function Navbar() {
                     if (customerUser) {
                       setUserDropdownOpen((prev) => !prev);
                     } else {
+                      setPostAuthRedirect("/my-orders");
                       setAuthModalState("login");
                     }
                   }}
@@ -532,7 +534,7 @@ export default function Navbar() {
                   <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                 </svg>
                 {wishlistCount > 0 && (
-                  <span className="badge-count">{wishlistCount}</span>
+                  <span className="badge-count" aria-hidden="true">{wishlistCount > 99 ? "99+" : wishlistCount}</span>
                 )}
               </Link>
 
@@ -548,7 +550,7 @@ export default function Navbar() {
                   <path d="M16 10a4 4 0 0 1-8 0"></path>
                 </svg>
                 {cartItemCount > 0 && (
-                  <span className="badge-count">{cartItemCount}</span>
+                  <span className="badge-count" aria-hidden="true">{cartItemCount > 99 ? "99+" : cartItemCount}</span>
                 )}
               </Link>
             </div>
@@ -578,7 +580,7 @@ export default function Navbar() {
               aria-label="HooDee Daddy home"
             >
               <img
-                src={process.env.PUBLIC_URL + "/images/hoodee-daddy-logo.svg"}
+                src="/images/hoodee-daddy-logo.svg"
                 alt="HooDee Daddy"
                 className="mobile-brand-logo-img"
                 width="120"
@@ -670,6 +672,7 @@ export default function Navbar() {
                 style={{ width: "100%", marginBottom: "8px" }}
                 onClick={() => {
                   setMobileMenuOpen(false);
+                  setPostAuthRedirect("/my-orders");
                   setAuthModalState("login");
                 }}
               >

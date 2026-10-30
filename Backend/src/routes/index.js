@@ -17,7 +17,9 @@ router.use("/customers", require("./customers.routes"));
 router.use("/coupons", require("./coupons.routes"));
 router.use("/admin/uploads", require("./upload.routes"));
 router.use("/admin/dashboard", require("./dashboard.routes"));
+router.use("/dashboard", require("./dashboard.routes"));
 router.use("/admin/reports", require("./reports.routes"));
+router.use("/reports", require("./reports.routes"));
 router.use("/seo", require("./seo.routes"));
 router.use("/leads", require("./leads.routes"));
 

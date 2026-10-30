@@ -534,7 +534,7 @@ export default function StockManagementPage() {
                                     />
                                     <span className="s-color-size-label">
                                       {v.color || "Standard"} /{" "}
-                                      {v.size || "Free Size"}
+                                      {v.size || "Standard"}
                                     </span>
                                   </div>
                                 </td>
@@ -710,7 +710,7 @@ export default function StockManagementPage() {
                       }}
                     />
                     {adjustingItem.variant.color || "Standard"} /{" "}
-                    {adjustingItem.variant.size || "Free Size"}
+                    {adjustingItem.variant.size || "Standard"}
                   </div>
                   <div className="s-modal-item-current">
                     Available stock: <strong>{adjustingItem.currentQty} units</strong>

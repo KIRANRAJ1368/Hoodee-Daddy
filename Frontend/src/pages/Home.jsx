@@ -95,13 +95,20 @@ export default function Home() {
       {/* 4. Dynamic Category Sections (All Active Categories from Admin) */}
       {categories.map((category) => {
         const sectionKey =
-          category.slug === "mens" || category.slug === "men"
-            ? "mens_categories"
+          category.slug === "newborn-babies" || category.slug === "babies" || category.slug === "mens" || category.slug === "men"
+            ? "newborn-babies_categories"
             : category.slug === "women" || category.slug === "womens"
             ? "womens_categories"
+            : category.slug === "boys-fashion" || category.slug === "boys"
+            ? "boys-fashion_categories"
+            : category.slug === "girlsfashion" || category.slug === "girls"
+            ? "girlsfashion_categories"
             : `${category.slug}_categories`;
 
-        const sectionConfig = sectionMap.get(sectionKey) || sectionMap.get(category.slug);
+        const sectionConfig =
+          sectionMap.get(sectionKey) ||
+          sectionMap.get(`${category.slug}_categories`) ||
+          sectionMap.get(category.slug);
         if (sectionConfig && sectionConfig.is_active === false) {
           return null;
         }

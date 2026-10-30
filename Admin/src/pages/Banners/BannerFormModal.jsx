@@ -68,7 +68,7 @@ export default function BannerFormModal({ banner = {}, heroCount = 0, offerCount
     image_url: banner?.image_url || "",
     image_position: banner?.image_position || "center center",
     primary_cta_text: banner?.primary_cta_text || "",
-    primary_cta_link: banner?.primary_cta_link || "",
+    primary_cta_link: banner?.primary_cta_link || "/collection",
     secondary_cta_text: banner?.secondary_cta_text || "",
     secondary_cta_link: banner?.secondary_cta_link || "",
     sort_order: banner?.sort_order ?? 0,
@@ -76,9 +76,30 @@ export default function BannerFormModal({ banner = {}, heroCount = 0, offerCount
   });
 
   const isHeroPlacement = form.placement === "hero";
+  const isOfferPlacement = form.placement === "offers";
   const [errors, setErrors] = useState({});
   const [isSaving, setIsSaving] = useState(false);
   const toast = useToast();
+
+  const dimensionRule = useMemo(() => {
+    if (form.placement === "offers") {
+      return {
+        minWidth: 500,
+        minHeight: 500,
+        minRatio: 0.92,
+        maxRatio: 1.08,
+        label: "800 × 800px (1:1 Square, min 500×500px)"
+      };
+    }
+    // Hero, category collection headers, and promo placements:
+    return {
+      minWidth: 1200,
+      minHeight: 450,
+      minRatio: 2.0,
+      maxRatio: 2.6,
+      label: "1920 × 800px (2.4:1 ratio, min 1200px wide)"
+    };
+  }, [form.placement]);
 
   function update(field, value) {
     setForm((f) => ({ ...f, [field]: value }));
@@ -105,18 +126,30 @@ export default function BannerFormModal({ banner = {}, heroCount = 0, offerCount
       return;
     }
 
-    if (!form.image_url) {
-      toast.error("Please upload a banner image");
-      setErrors((prev) => ({ ...prev, image_url: "Please upload a banner image" }));
-      return;
+    const valErrors = {};
+    if (!form.placement) valErrors.placement = "Banner placement is required";
+    if (!form.image_url) valErrors.image_url = "Banner image is required";
+    if (!form.title || !form.title.trim()) valErrors.title = "Headline Title is required";
+    if (form.sort_order === "" || form.sort_order === null || isNaN(Number(form.sort_order))) {
+      valErrors.sort_order = "Display Order Sequence is required";
+    }
+    if (!form.primary_cta_link || !form.primary_cta_link.trim()) {
+      valErrors.primary_cta_link = "Destination Link is required";
     }
 
-    // For Hero Banners: automatically set a clean reference title if not provided
-    const finalTitle = form.title?.trim() || (isHeroPlacement ? `Hero Banner ${(form.sort_order ?? 0) + 1}` : "Campaign Banner");
+    if (isOfferPlacement) {
+      if (!form.badge_promo || !form.badge_promo.trim()) {
+        valErrors.badge_promo = "Promo Badge Tag is required (e.g. FLAT 20% OFF)";
+      }
+      if (!form.subtitle || !form.subtitle.trim()) {
+        valErrors.subtitle = "Offer Subtitle / Details are required";
+      }
+    }
 
-    if (!isHeroPlacement && (!form.title || !form.title.trim())) {
-      toast.error("Please enter the headline title");
-      setErrors((prev) => ({ ...prev, title: "Please enter the headline title" }));
+    if (Object.keys(valErrors).length > 0) {
+      setErrors(valErrors);
+      const first = Object.values(valErrors)[0];
+      toast.error(first);
       return;
     }
 
@@ -125,15 +158,15 @@ export default function BannerFormModal({ banner = {}, heroCount = 0, offerCount
     try {
       const payload = {
         placement: form.placement,
-        sort_order: form.sort_order ?? 0,
-        image_url: form.image_url,
+        sort_order: Number(form.sort_order) || 0,
+        image_url: form.image_url.trim(),
         is_active: form.is_active ?? true,
-        title: finalTitle,
-        subtitle: isHeroPlacement ? null : (form.subtitle?.trim() || null),
-        tag: isHeroPlacement ? null : (form.tag?.trim() || null),
-        badge_promo: isHeroPlacement ? null : (form.badge_promo?.trim() || null),
-        primary_cta_text: isHeroPlacement ? null : (form.primary_cta_text?.trim() || null),
-        primary_cta_link: isHeroPlacement ? (form.primary_cta_link || null) : (form.primary_cta_link || null),
+        title: form.title.trim(),
+        subtitle: form.subtitle?.trim() || null,
+        tag: form.tag?.trim() || null,
+        badge_promo: form.badge_promo?.trim() || null,
+        primary_cta_text: form.primary_cta_text?.trim() || (isOfferPlacement ? "Claim Offer" : "Shop Now"),
+        primary_cta_link: form.primary_cta_link.trim(),
         secondary_cta_text: null,
         secondary_cta_link: null
       };
@@ -210,12 +243,13 @@ export default function BannerFormModal({ banner = {}, heroCount = 0, offerCount
             </select>
           </FormField>
 
-          <FormField label="Display Order Sequence" htmlFor="b-sort" hint="Lower number appears first (e.g. 0, 1, 2)">
+          <FormField label="Display Order Sequence *" htmlFor="b-sort" error={errors.sort_order} hint="Lower number appears first (e.g. 0, 1, 2)">
             <input
               id="b-sort"
               type="number"
               value={form.sort_order}
               onChange={(e) => update("sort_order", Number(e.target.value))}
+              required
             />
           </FormField>
         </div>
@@ -226,83 +260,128 @@ export default function BannerFormModal({ banner = {}, heroCount = 0, offerCount
           value={form.image_url}
           onChange={(url) => update("image_url", url)}
           folder="banners"
-          aspectRatio="16/9"
-          previewHeight={200}
-          hint="Upload a high-resolution landscape banner image (Recommended: 1920 × 800px or 16:9 ratio). Supports JPG, PNG, WEBP."
+          aspectRatio={isOfferPlacement ? "1/1" : "16/9"}
+          previewHeight={isOfferPlacement ? 180 : 200}
+          dimensionRule={dimensionRule}
+          hint={
+            isOfferPlacement
+              ? "Upload square offer image (Required: 800 × 800px, 1:1 ratio). Other sizes will be rejected."
+              : "Upload high-resolution landscape banner image (Required: 1920 × 800px, 2.4:1 ratio). Other sizes will be rejected."
+          }
           error={errors.image_url}
           required
         />
 
-        {/* Non-Hero Placements Only: Headline, Tag, Subtitle, CTA */}
-        {!isHeroPlacement && (
-          <>
-            <FormField label="Headline Title *" htmlFor="b-title" error={errors.title}>
-              <input
-                id="b-title"
-                placeholder="e.g. Redefine Your Wardrobe"
-                value={form.title}
-                onChange={(e) => update("title", e.target.value)}
-                required
-              />
-            </FormField>
+        {/* 3. Headline Title * */}
+        <div style={{ marginTop: 14 }}>
+          <FormField label="Headline Title *" htmlFor="b-title" error={errors.title} hint="Title for the campaign / carousel slide">
+            <input
+              id="b-title"
+              placeholder={isHeroPlacement ? "e.g. Pure Streetwear Drop 2026" : "e.g. Redefine Your Wardrobe"}
+              value={form.title}
+              onChange={(e) => update("title", e.target.value)}
+              required
+            />
+          </FormField>
+        </div>
 
+        {/* 4. Destination Link * */}
+        <FormField label="Destination URL Link *" htmlFor="b-cta1-link" error={errors.primary_cta_link} hint="Link opened when banner is clicked">
+          <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+            <input
+              id="b-cta1-link"
+              placeholder="/collection or /categories/kidshoodies"
+              value={form.primary_cta_link}
+              onChange={(e) => update("primary_cta_link", e.target.value)}
+              style={{ flex: 1 }}
+              required
+            />
+            <select
+              style={{ width: "160px" }}
+              onChange={(e) => e.target.value && update("primary_cta_link", e.target.value)}
+              value=""
+            >
+              <option value="">Quick Presets...</option>
+              <option value="/collection">All Collections</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={`/categories/${cat.slug}`}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </FormField>
+
+        {/* Offer Placements Specific Required Fields */}
+        {isOfferPlacement && (
+          <div style={{ background: "#fff7ed", padding: "14px", borderRadius: 8, border: "1px solid #ffedd5", marginTop: 12 }}>
+            <h4 style={{ margin: "0 0 10px 0", fontSize: "13px", fontWeight: 700, color: "#c2410c" }}>
+              Offer Card Content &amp; Badges (All Required)
+            </h4>
             <div className="form-grid">
+              <FormField label="Promo Badge Tag *" htmlFor="b-badge" error={errors.badge_promo}>
+                <input
+                  id="b-badge"
+                  placeholder="e.g. FLAT 20% OFF or BUY 2 @ ₹999"
+                  value={form.badge_promo}
+                  onChange={(e) => update("badge_promo", e.target.value)}
+                  required
+                />
+              </FormField>
+
               <FormField label="Tagline / Eyebrow Text" htmlFor="b-tag">
                 <input
                   id="b-tag"
-                  placeholder="e.g. NEW SEASON DROP"
+                  placeholder="e.g. LIMITED TIME OFFER"
                   value={form.tag}
                   onChange={(e) => update("tag", e.target.value)}
                 />
               </FormField>
-
-              <FormField label="Promo Badge Tag" htmlFor="b-badge">
-                <input
-                  id="b-badge"
-                  placeholder="e.g. FLAT 20% OFF"
-                  value={form.badge_promo}
-                  onChange={(e) => update("badge_promo", e.target.value)}
-                />
-              </FormField>
             </div>
 
-            <FormField label="Subtitle / Description Copy" htmlFor="b-subtitle">
+            <FormField label="Offer Subtitle / Details *" htmlFor="b-subtitle" error={errors.subtitle}>
               <textarea
                 id="b-subtitle"
                 rows={2}
-                placeholder="Description copy for banner"
+                placeholder="e.g. On all premium pure cotton graphic hoodies and streetwear tees."
                 value={form.subtitle}
                 onChange={(e) => update("subtitle", e.target.value)}
+                required
               />
             </FormField>
 
-            <div className="form-grid">
-              <FormField label="Button Text (CTA)" htmlFor="b-cta1-text">
-                <input
-                  id="b-cta1-text"
-                  placeholder="e.g. Shop Now"
-                  value={form.primary_cta_text}
-                  onChange={(e) => update("primary_cta_text", e.target.value)}
-                />
-              </FormField>
+            <FormField label="Button Label (CTA)" htmlFor="b-cta-text">
+              <input
+                id="b-cta-text"
+                placeholder="e.g. Claim Offer"
+                value={form.primary_cta_text}
+                onChange={(e) => update("primary_cta_text", e.target.value)}
+              />
+            </FormField>
+          </div>
+        )}
 
-              <FormField label="Button Link" htmlFor="b-cta1-link">
-                <select
-                  id="b-cta1-link"
-                  value={form.primary_cta_link || ""}
-                  onChange={(e) => update("primary_cta_link", e.target.value)}
-                >
-                  <option value="">-- Select Destination --</option>
-                  <option value="/collection">All Categories</option>
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={`/collection?category=${encodeURIComponent(cat.slug)}`}>
-                      {cat.name}
-                    </option>
-                  ))}
-                </select>
-              </FormField>
-            </div>
-          </>
+        {/* Non-Hero / Non-Offer Extra Fields */}
+        {!isHeroPlacement && !isOfferPlacement && (
+          <div className="form-grid" style={{ marginTop: 12 }}>
+            <FormField label="Tagline / Eyebrow Text" htmlFor="b-tag">
+              <input
+                id="b-tag"
+                placeholder="e.g. NEW SEASON DROP"
+                value={form.tag}
+                onChange={(e) => update("tag", e.target.value)}
+              />
+            </FormField>
+
+            <FormField label="Promo Badge Tag" htmlFor="b-badge">
+              <input
+                id="b-badge"
+                placeholder="e.g. FLAT 20% OFF"
+                value={form.badge_promo}
+                onChange={(e) => update("badge_promo", e.target.value)}
+              />
+            </FormField>
+          </div>
         )}
 
         {/* 3. Active Checkbox */}

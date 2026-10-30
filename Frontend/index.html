@@ -188,7 +188,7 @@
       (function() {
         var dismissed = false;
 
-        window.__dismissHdLoader = window.__dismissZmwLoader = function() {
+        window.__dismissHdLoader = function() {
           if (dismissed) return;
           dismissed = true;
           var el = document.getElementById('hd-loading-screen');
@@ -203,8 +203,8 @@
 
         // Safety fallback timer: guarantees loader never gets stuck if network stalls
         setTimeout(function() {
-          if ((typeof window.__dismissHdLoader === 'function' || typeof window.__dismissZmwLoader === 'function')) {
-            (window.__dismissHdLoader || window.__dismissZmwLoader)();
+          if (typeof window.__dismissHdLoader === 'function') {
+            window.__dismissHdLoader();
           }
         }, 4500);
       })();

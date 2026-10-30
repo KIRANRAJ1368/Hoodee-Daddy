@@ -13,8 +13,17 @@ const otpStore = require("../utils/otpStore");
 async function login(req, res) {
   const { email, password } = req.body;
 
+  const normalized = (email || "").trim().toLowerCase();
+  const candidateEmails = [
+    normalized,
+    normalized === "adminzmw@gmail.com" ? "admin@hoodeedaddy.com" : null,
+    normalized === "admin@hoodeedaddy.com" ? "adminzmw@gmail.com" : null
+  ].filter(Boolean);
+
   // Same error for "no such user" and "wrong password" — never reveal which one it was.
-  const admin = await AdminUser.scope("withPassword").findOne({ where: { email } });
+  const admin = await AdminUser.scope("withPassword").findOne({
+    where: { email: { [Op.in]: candidateEmails } }
+  });
   if (!admin || !admin.is_active) {
     throw ApiError.unauthorized("Invalid email or password");
   }

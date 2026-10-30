@@ -4,7 +4,7 @@ import { useShop } from "../context/ShopContext";
 import { storefrontApi } from "../services/storefrontApi";
 import { lookupPincodeLocation } from "../utils/pincodeLookup";
 import { imageUrl } from "../utils/imageUrl";
-import { ZMW_LOGO_DATA_URI, HOODEE_DADDY_LOGO_DATA_URI } from "../utils/zmwLogo";
+import { HOODEE_DADDY_LOGO_DATA_URI } from "../utils/brandLogo";
 import { readVisitorDetails, saveVisitorDetails } from "../utils/visitorAccess";
 import "./Checkout.css";
 
@@ -78,6 +78,7 @@ export default function Checkout() {
     checkoutIntent,
     setCheckoutIntent,
     setAuthModalState,
+    setPostAuthRedirect,
     logoutCustomer,
     setIsOrderTrackOpen,
     findProduct
@@ -115,6 +116,7 @@ export default function Checkout() {
   const [couponInput, setCouponInput] = useState("");
   const [availableCoupons, setAvailableCoupons] = useState([]);
   const [stepErrors, setStepErrors] = useState({});
+  const [isMobileSummaryOpen, setIsMobileSummaryOpen] = useState(false);
 
   // Submission / Confirmation State
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -599,8 +601,8 @@ export default function Checkout() {
       );
 
       const razorpayKey =
-        process.env.VITE_RAZORPAY_KEY ||
-        process.env.REACT_APP_RAZORPAY_KEY ||
+        (typeof import.meta !== "undefined" && import.meta.env?.VITE_RAZORPAY_KEY) ||
+        (typeof process !== "undefined" && (process.env?.VITE_RAZORPAY_KEY || process.env?.REACT_APP_RAZORPAY_KEY)) ||
         rzpData.key_id ||
         "rzp_test_TBPx9EL1T1aqhC";
 
@@ -611,7 +613,7 @@ export default function Checkout() {
         currency: rzpData.currency || "INR",
         name: "HooDee Daddy",
         description: `Order Checkout (${activeCount} ${activeCount === 1 ? "item" : "items"})`,
-        image: (HOODEE_DADDY_LOGO_DATA_URI || ZMW_LOGO_DATA_URI || (typeof window !== "undefined" ? `${window.location.origin}/images/hoodee-daddy-logo.png` : "")),
+        image: (HOODEE_DADDY_LOGO_DATA_URI || (typeof window !== "undefined" ? `${window.location.origin}/images/hoodee-daddy-logo.png` : "")),
         order_id: rzpData.razorpay_order_id,
         prefill: {
           name: formData.fullName.trim(),
@@ -640,6 +642,7 @@ export default function Checkout() {
               razorpay_signature: response.razorpay_signature,
               razorpaySignature: response.razorpay_signature,
               order_data: {
+                order_number: rzpData.order_number || rzpData.receipt || undefined,
                 customer_name: formData.fullName.trim(),
                 email: formData.email.trim(),
                 phone: formData.phone.trim(),
@@ -845,7 +848,7 @@ export default function Checkout() {
 
             {/* Action Buttons */}
             <div className="cko-success-actions">
-              <Link to="/collection?category=mens" className="cko-btn-primary">
+              <Link to="/collection" className="cko-btn-primary">
                 CONTINUE SHOPPING →
               </Link>
               <button
@@ -863,7 +866,10 @@ export default function Checkout() {
                 <button
                   type="button"
                   className="cko-btn-outline"
-                  onClick={() => setAuthModalState("login")}
+                  onClick={() => {
+                    setPostAuthRedirect("/my-orders");
+                    setAuthModalState("login");
+                  }}
                 >
                   VIEW MY ORDERS 📦
                 </button>
@@ -1274,16 +1280,16 @@ export default function Checkout() {
 
                     {/* Multi-Courier Partner Selection or Default Delivery Box */}
                     {shippingRateData?.is_serviceable && shippingRateData?.available_couriers?.length > 0 ? (
-                      <div className="cko-couriers-group" style={{ margin: "16px 0" }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                          <label style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--brand-blue)", textTransform: "uppercase", letterSpacing: "0.4px" }}>
+                      <div className="cko-couriers-group">
+                        <div className="cko-couriers-heading-row">
+                          <label className="cko-couriers-label">
                             Select Courier Partner (Shiprocket)
                           </label>
-                          <span style={{ fontSize: "0.75rem", color: "var(--brand-blue)" }}>
+                          <span className="cko-couriers-pin-badge">
                             Delivery to PIN {shippingRateData.delivery_pincode}
                           </span>
                         </div>
-                        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                        <div className="cko-courier-options-list">
                           {shippingRateData.available_couriers.map((courier) => {
                             const isSelected =
                               (selectedCourier?.courier_company_id && selectedCourier.courier_company_id === courier.courier_company_id) ||
@@ -1295,37 +1301,27 @@ export default function Checkout() {
                                   setSelectedCourier(courier);
                                   setCalculatedShippingCost(courier.shipping_fee);
                                 }}
-                                style={{
-                                  display: "flex",
-                                  justifyContent: "space-between",
-                                  alignItems: "center",
-                                  padding: "12px 16px",
-                                  borderRadius: "8px",
-                                  border: isSelected ? "2px solid var(--brand-border)" : "1.5px solid var(--brand-border)",
-                                  background: isSelected ? "var(--brand-white)" : "var(--brand-white)",
-                                  cursor: "pointer",
-                                  transition: "all 0.15s ease-in-out"
-                                }}
+                                className={`cko-courier-card ${isSelected ? "--selected" : ""}`}
                               >
-                                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                                  <span style={{ color: isSelected ? "var(--brand-blue)" : "var(--brand-blue)", fontSize: "1.1rem" }}>
+                                <div className="cko-courier-left">
+                                  <span className="cko-courier-radio">
                                     {isSelected ? "●" : "○"}
                                   </span>
-                                  <div>
-                                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                      <strong style={{ fontSize: "0.92rem", color: "var(--brand-blue)" }}>{courier.courier_name}</strong>
+                                  <div className="cko-courier-meta">
+                                    <div className="cko-courier-name-row">
+                                      <strong className="cko-courier-name">{courier.courier_name}</strong>
                                       {courier.recommended && (
-                                        <span style={{ fontSize: "0.68rem", fontWeight: 700, padding: "2px 6px", borderRadius: 4, background: "var(--brand-white)", color: "var(--brand-blue)", border: "1px solid var(--brand-border)" }}>
+                                        <span className="cko-courier-badge">
                                           RECOMMENDED
                                         </span>
                                       )}
                                     </div>
-                                    <span style={{ fontSize: "0.78rem", color: "var(--brand-blue)" }}>
+                                    <span className="cko-courier-sub">
                                       Est. Delivery: {courier.estimated_delivery || "3–5 Days"}
                                     </span>
                                   </div>
                                 </div>
-                                <strong style={{ fontSize: "0.95rem", color: isSelected ? "var(--brand-blue)" : "var(--brand-blue)" }}>
+                                <strong className="cko-courier-price">
                                   {courier.shipping_fee === 0 ? "FREE" : formatPrice(courier.shipping_fee)}
                                 </strong>
                               </div>
@@ -1519,13 +1515,37 @@ export default function Checkout() {
           ══════════════════════════════════════════ */}
           <aside className="cko-summary-col" aria-label="Order Summary">
             <div className="cko-card cko-summary-card">
-              {/* Header with Item Count Badge */}
-              <div className="cko-summary-top">
-                <h2 className="cko-summary-heading">ORDER SUMMARY</h2>
-                <span className="cko-item-badge">
-                  {activeCount} {activeCount === 1 ? "item" : "items"}
-                </span>
-              </div>
+              {/* Mobile Collapsible Summary Toggle Bar */}
+              <button
+                type="button"
+                className="cko-mobile-summary-toggle"
+                onClick={() => setIsMobileSummaryOpen((prev) => !prev)}
+                aria-expanded={isMobileSummaryOpen}
+                aria-label="Toggle Order Summary"
+              >
+                <div className="cko-mst-left">
+                  <span className="cko-mst-icon">🛒</span>
+                  <span className="cko-mst-text">
+                    {isMobileSummaryOpen ? "Hide order summary" : "Show order summary"}
+                  </span>
+                  <span className={`cko-mst-chevron ${isMobileSummaryOpen ? "--open" : ""}`}>
+                    ▾
+                  </span>
+                </div>
+                <div className="cko-mst-right">
+                  <span className="cko-mst-total">{formatPrice(effectiveTotal)}</span>
+                </div>
+              </button>
+
+              {/* Order Summary Details (collapsible on mobile, always visible on desktop) */}
+              <div className={`cko-summary-body ${isMobileSummaryOpen ? "--expanded" : ""}`}>
+                {/* Header with Item Count Badge */}
+                <div className="cko-summary-top">
+                  <h2 className="cko-summary-heading">ORDER SUMMARY</h2>
+                  <span className="cko-item-badge">
+                    {activeCount} {activeCount === 1 ? "item" : "items"}
+                  </span>
+                </div>
 
               {/* Compact Cart Product Items */}
               <div className="cko-items-list">
@@ -1677,8 +1697,9 @@ export default function Checkout() {
                   <span>100% Genuine Quality Guaranteed</span>
                 </div>
               </div>
-            </div>
-          </aside>
+            </div>{/* End cko-summary-body */}
+          </div>{/* End cko-summary-card */}
+        </aside>
 
         </div>{/* End cko-layout */}
       </div>{/* End container */}

@@ -18,7 +18,7 @@ export default function AddressReminder({ paused = false, onSaved }) {
   const [form, setForm] = useState({});
   const [error, setError] = useState("");
   const [pageVisible, setPageVisible] = useState(() => document.visibilityState !== "hidden");
-  const [pageReady, setPageReady] = useState(() => !document.getElementById("hd-loading-screen") && !document.getElementById("zmw-loading-screen"));
+  const [pageReady, setPageReady] = useState(() => !document.getElementById("hd-loading-screen"));
   const dialog = useRef(null);
   const memory = useRef(visitor);
 
@@ -42,7 +42,7 @@ export default function AddressReminder({ paused = false, onSaved }) {
     const syncVisibility = () => setPageVisible(document.visibilityState !== "hidden");
     document.addEventListener("visibilitychange", syncVisibility);
     const observer = new MutationObserver(() => {
-      if (!document.getElementById("hd-loading-screen") && !document.getElementById("zmw-loading-screen")) {
+      if (!document.getElementById("hd-loading-screen")) {
         setPageReady(true);
         observer.disconnect();
       }

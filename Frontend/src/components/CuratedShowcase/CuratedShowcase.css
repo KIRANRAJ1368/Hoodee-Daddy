@@ -96,7 +96,7 @@
 }
 
 /* ── Unified Primary Action CTA Button (#FAA703) ── */
-.zmw-primary-cta {
+.hd-primary-cta {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -116,14 +116,14 @@
   white-space: nowrap;
 }
 
-.zmw-primary-cta:hover {
+.hd-primary-cta:hover {
   background: linear-gradient(135deg, #FF8A00 0%, #E64A00 100%);
   color: #FFFFFF;
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(255, 115, 0, 0.5);
 }
 
-.zmw-primary-cta svg {
+.hd-primary-cta svg {
   width: 13px;
   height: 13px;
   transition: transform 250ms ease;
@@ -131,7 +131,7 @@
   color: #FFFFFF;
 }
 
-.zmw-primary-cta:hover svg {
+.hd-primary-cta:hover svg {
   transform: translateX(3px);
 }
 
@@ -300,11 +300,12 @@
   transform: scale(1.04);
 }
 
-/* Badges */
+/* Badges — Positioned at bottom-left so badges NEVER cover or obstruct models' faces */
 .curated-badge {
   position: absolute;
-  top: 10px;
+  bottom: 10px;
   left: 10px;
+  top: auto;
   z-index: 3;
   padding: 4px 10px;
   font-family: var(--font-poppins);
@@ -739,8 +740,9 @@
   .curated-badge {
     font-size: 0.62rem;
     padding: 2.5px 7px;
-    top: 6px;
-    left: 6px;
+    top: auto;
+    bottom: 8px;
+    left: 8px;
     max-width: calc(100% - 46px);
     overflow: hidden;
     text-overflow: ellipsis;
@@ -792,8 +794,9 @@
   .curated-badge {
     font-size: 0.58rem;
     padding: 2px 6px;
-    top: 5px;
-    left: 5px;
+    top: auto;
+    bottom: 6px;
+    left: 6px;
     max-width: calc(100% - 40px);
   }
 

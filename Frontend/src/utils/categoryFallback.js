@@ -31,7 +31,7 @@ export function getCategoryHistory() {
       return parsed;
     }
   } catch {}
-  return ["men", "women", "boys", "girls", "babies"];
+  return ["newborn-babies", "kidshoodies", "kidspyjamas", "kidscoords", "girlsfashion", "boys-fashion"];
 }
 
 export function saveCategoryHistory(activeCategories) {

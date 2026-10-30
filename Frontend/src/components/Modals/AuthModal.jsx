@@ -27,6 +27,8 @@ export default function AuthModal() {
     setIsCheckoutOpen,
     pendingCheckout,
     setPendingCheckout,
+    postAuthRedirect,
+    setPostAuthRedirect,
     checkoutIntent,
     addToast
   } = useShop();
@@ -111,6 +113,7 @@ export default function AuthModal() {
     setErrorMessage("");
     setAuthModalState(null);
     setPendingCheckout(false);
+    setPostAuthRedirect(null);
     setFormData(INITIAL_FORM_DATA);
   };
 
@@ -180,7 +183,11 @@ export default function AuthModal() {
         // Reset the form state only after a successful API response
         setFormData(INITIAL_FORM_DATA);
         setAuthModalState(null);
-        if (pendingCheckout) {
+        if (postAuthRedirect) {
+          const target = postAuthRedirect;
+          setPostAuthRedirect(null);
+          navigate(target);
+        } else if (pendingCheckout) {
           setPendingCheckout(false);
           navigate(checkoutIntent === "buy-now" ? "/checkout" : "/cart", { replace: true, state: checkoutIntent === "buy-now" ? { buyNow: true } : {} });
         }
@@ -210,7 +217,11 @@ export default function AuthModal() {
         // Reset the form state only after a successful API response
         setFormData(INITIAL_FORM_DATA);
         setAuthModalState(null);
-        if (pendingCheckout) {
+        if (postAuthRedirect) {
+          const target = postAuthRedirect;
+          setPostAuthRedirect(null);
+          navigate(target);
+        } else if (pendingCheckout) {
           setPendingCheckout(false);
           navigate(checkoutIntent === "buy-now" ? "/checkout" : "/cart", { replace: true, state: checkoutIntent === "buy-now" ? { buyNow: true } : {} });
         }
@@ -369,10 +380,9 @@ export default function AuthModal() {
             {/* Modal Header */}
             <div className="auth-header">
               <img
-                src={process.env.PUBLIC_URL + "/images/hoodee-daddy-logo.svg"}
+                src="/images/hoodee-daddy-logo.svg"
                 alt="HooDee Daddy"
                 className="auth-brand-logo"
-                style={{ height: 42, width: "auto", margin: "0 auto 10px", display: "block" }}
               />
               <span className="auth-kicker">HOODEE DADDY</span>
               <h2 className="auth-title">
@@ -392,8 +402,8 @@ export default function AuthModal() {
                     ✦ Create an account or sign in to complete checkout
                   </span>
                 )}
-                {activeTab === "login" && "Sign in for express checkout, saved delivery details, and order tracking."}
-                {activeTab === "register" && "Join HooDee Daddy to save delivery addresses, view order history, and unlock member perks."}
+                {activeTab === "login" && "Sign in for express checkout and order tracking."}
+                {activeTab === "register" && "Join HooDee Daddy to save addresses and track orders."}
                 {activeTab === "forgot" && (
                   forgotStep === "request"
                     ? "Enter your registered email address to receive a 6-digit verification code (OTP)."

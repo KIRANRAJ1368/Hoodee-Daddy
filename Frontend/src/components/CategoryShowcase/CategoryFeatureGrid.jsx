@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useShop } from "../../context/ShopContext";
 import { imageUrl } from "../../utils/imageUrl";
 import ProductCard from "../ProductCard/ProductCard";
+import useManualScrollCarousel from "../../hooks/useManualScrollCarousel";
 import useCarousel from "../../hooks/useCarousel";
 import {
   CAROUSEL_BREAKPOINTS,
@@ -168,15 +169,18 @@ export function CategorySection({ category, section }) {
   const subtitle = banner?.subtitle || section?.subtitle || defaultSubtitle;
   const slugClass = `${category.slug}-feature-section`;
 
-  // First 4 active products for this category
+  // First 4 active products for this category that have "Show on Home Page" enabled
   const categoryProducts = useMemo(() => {
     if (Array.isArray(category.products) && category.products.length > 0) {
-      return category.products.slice(0, 4);
+      return category.products
+        .filter((p) => p.isActive !== false && (p.showOnHomepage === true || p.show_on_homepage === true))
+        .slice(0, 4);
     }
     const catId = Number(category.id);
     const catSlug = String(category.slug || "").trim().toLowerCase();
     return (allProducts || [])
       .filter((p) => {
+        if (p.isActive === false || (!p.showOnHomepage && !p.show_on_homepage)) return false;
         if (p.categoryId && Number(p.categoryId) === catId) return true;
         const pCat = String(p.category || "").trim().toLowerCase();
         if (pCat && pCat === catSlug) return true;
@@ -186,6 +190,10 @@ export function CategorySection({ category, section }) {
       })
       .slice(0, 4);
   }, [category, allProducts]);
+
+  const { scrollNext, scrollPrev, containerProps, trackProps } = useManualScrollCarousel({
+    autoDelayMs: 0
+  });
 
   return (
     <section className={`category-feature-section ${slugClass}`} aria-label={`${category.name} Collection`}>
@@ -214,12 +222,44 @@ export function CategorySection({ category, section }) {
           </Link>
         </div>
 
-        {/* First 4 Products Grid */}
+        {/* Category Products: 4-Item Grid on Desktop, Smooth Right-Left Slider on Responsive */}
         {categoryProducts.length > 0 ? (
-          <div className="cat-products-grid">
-            {categoryProducts.map((prod) => (
-              <ProductCard key={prod.id} product={prod} />
-            ))}
+          <div className="cat-products-carousel-container" {...containerProps}>
+            {categoryProducts.length > 2 && (
+              <button
+                type="button"
+                className="cat-carousel-side-arrow left"
+                onClick={scrollPrev}
+                aria-label={`Previous ${category.name} products`}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+              </button>
+            )}
+
+            <div className="cat-products-viewport" {...trackProps}>
+              <div className="cat-products-slider-track">
+                {categoryProducts.map((prod) => (
+                  <div key={prod.id} className="cat-product-slide carousel-slide-item">
+                    <ProductCard product={prod} />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {categoryProducts.length > 2 && (
+              <button
+                type="button"
+                className="cat-carousel-side-arrow right"
+                onClick={scrollNext}
+                aria-label={`Next ${category.name} products`}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </button>
+            )}
           </div>
         ) : (
           <div className="cat-empty-state">

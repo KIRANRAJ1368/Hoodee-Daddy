@@ -2,6 +2,16 @@ const { Op } = require("sequelize");
 const { Category, Product, HomepageSection, Banner } = require("../models");
 const ApiError = require("../utils/ApiError");
 const { sendSuccess } = require("../utils/apiResponse");
+const env = require("../config/env");
+
+function sanitizeMediaUrl(url) {
+  if (!url || typeof url !== "string") return url;
+  if (url.includes("/uploads/")) {
+    const idx = url.indexOf("/uploads/");
+    return `${env.appUrl}${url.slice(idx)}`;
+  }
+  return url;
+}
 
 const CATEGORY_SECTION_KEY_MAP = {
   mens: "mens_categories",
@@ -83,7 +93,11 @@ async function list(req, res) {
   const categories = await Category.findAll({
     where,
     order: [["sort_order", "ASC"], ["id", "ASC"]] });
-  const data = categories.map((c) => c.toJSON());
+  const data = categories.map((c) => {
+    const json = c.toJSON();
+    if (json.banner_image_url) json.banner_image_url = sanitizeMediaUrl(json.banner_image_url);
+    return json;
+  });
   return sendSuccess(res, { data });
 }
 
@@ -94,7 +108,9 @@ async function getBySlug(req, res) {
     : { slug: req.params.slug };
   const category = await Category.findOne({ where });
   if (!category) throw ApiError.notFound("Category not found");
-  return sendSuccess(res, { data: category.toJSON() });
+  const json = category.toJSON();
+  if (json.banner_image_url) json.banner_image_url = sanitizeMediaUrl(json.banner_image_url);
+  return sendSuccess(res, { data: json });
 }
 
 async function create(req, res) {

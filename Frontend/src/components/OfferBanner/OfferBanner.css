@@ -1,6 +1,6 @@
 /* ══════════════════════════════════════════════════════════════════
    MODERN PROMOTIONAL OFFER BANNER ROW
-   Reusing only existing ZMW website theme colors:
+   Reusing only existing HooDee Daddy website theme colors:
    - Base White: #FFFFFF
    - Border Line: #E2E8F0
    - Primary Brand Amber: #FAA703
@@ -33,7 +33,7 @@
   grid-template-columns: 1fr;
 }
 
-/* ── Modern Offer Card (Crisp White & ZMW Brand Amber Accent) ── */
+/* ── Modern Offer Card (Crisp White & HooDee Daddy Brand Amber Accent) ── */
 .offer-banner-card {
   position: relative;
   height: 245px;

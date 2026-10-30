@@ -123,7 +123,7 @@ function AppLoadingManager() {
       // Double rAF ensures the browser DOM updates and styles have rendered
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          const dismissLoader = window.__dismissHdLoader || window.__dismissZmwLoader;
+          const dismissLoader = window.__dismissHdLoader;
           if (!isCancelled && typeof dismissLoader === "function") {
             dismissLoader();
           }
@@ -194,22 +194,25 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/collection" element={<CollectionEntry />} />
-            <Route path="/shop-all" element={<Navigate to="/categories/mens" replace />} />
+            <Route path="/shop-all" element={<Navigate to="/collection" replace />} />
 
             {/* Clean SEO-friendly Category URLs & Subcategories */}
+            <Route path="/categories/mens" element={<Navigate to="/categories/newborn-babies" replace />} />
+            <Route path="/categories/men" element={<Navigate to="/categories/newborn-babies" replace />} />
             <Route path="/categories/:categorySlug" element={<Collection />} />
             <Route path="/categories/:categorySlug/:subcategorySlug" element={<CategoryAliasRedirect />} />
             <Route path="/category/:categorySlug" element={<CategoryAliasRedirect />} />
             <Route path="/category/:categorySlug/:subcategorySlug" element={<CategoryAliasRedirect />} />
 
             {/* Query-preserving category redirects */}
-            <Route path="/men" element={<CategoryRedirect defaultCategory="mens" />} />
-            <Route path="/mens" element={<CategoryRedirect defaultCategory="mens" />} />
-            <Route path="/women" element={<CategoryRedirect defaultCategory="women" />} />
-            <Route path="/kids" element={<CategoryRedirect defaultCategory="kids" />} />
-            <Route path="/boys" element={<CategoryRedirect defaultCategory="boys" />} />
-            <Route path="/girls" element={<CategoryRedirect defaultCategory="girls" />} />
-            <Route path="/babies" element={<CategoryRedirect defaultCategory="babies" />} />
+            <Route path="/men" element={<Navigate to="/categories/newborn-babies" replace />} />
+            <Route path="/mens" element={<Navigate to="/categories/newborn-babies" replace />} />
+            <Route path="/babies" element={<Navigate to="/categories/newborn-babies" replace />} />
+            <Route path="/newborn-babies" element={<CategoryRedirect defaultCategory="newborn-babies" />} />
+            <Route path="/women" element={<CategoryRedirect defaultCategory="girlsfashion" />} />
+            <Route path="/kids" element={<CategoryRedirect defaultCategory="kidshoodies" />} />
+            <Route path="/boys" element={<CategoryRedirect defaultCategory="boys-fashion" />} />
+            <Route path="/girls" element={<CategoryRedirect defaultCategory="girlsfashion" />} />
             <Route path="/best-sellers" element={<CategoryRedirect defaultCollection="best-sellers" />} />
             <Route path="/best-seller" element={<CategoryRedirect defaultCollection="best-sellers" />} />
             <Route path="/new-arrivals" element={<CategoryRedirect defaultCollection="new-arrivals" />} />

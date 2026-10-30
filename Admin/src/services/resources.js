@@ -31,6 +31,7 @@ export const productsApi = {
   remove: (id) => api.delete(`/products/${id}`),
   toggleBestSeller: (id, value) => api.patch(`/products/${id}/best-seller`, { value }),
   toggleNewArrival: (id, value) => api.patch(`/products/${id}/new-arrival`, { value }),
+  toggleShowOnHomepage: (id, value) => api.patch(`/products/${id}/show-on-homepage`, { value }),
   updateStock: (id, data) => api.patch(`/products/${id}/stock`, data),
   saveVariants: (id, variants) => api.put(`/products/${id}/variants`, { variants })
 };

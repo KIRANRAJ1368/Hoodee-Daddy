@@ -89,8 +89,8 @@ async function create(req, res) {
       let matchingVariant = null;
       if (variants.length > 0) {
         matchingVariant = variants.find((v) => {
-          const matchSize = v.size && item.size && v.size.label.toLowerCase() === String(item.size).toLowerCase();
-          const matchColor = v.color && item.color && v.color.name.toLowerCase() === String(item.color).toLowerCase();
+          const matchSize = !v.size || !item.size || (v.size.label && String(v.size.label).toLowerCase() === String(item.size).toLowerCase());
+          const matchColor = !v.color || !item.color || (v.color.name && String(v.color.name).toLowerCase() === String(item.color).toLowerCase());
           return matchSize && matchColor;
         });
 
@@ -299,6 +299,23 @@ async function getById(req, res) {
     ]
   });
   if (!order) throw ApiError.notFound("Order not found");
+
+  const isAdmin = req.admin || req.user?.role === "admin" || req.user?.role === "superadmin";
+  if (!isAdmin) {
+    const userId = req.user ? req.user.id : null;
+    const userEmail = req.user?.email ? String(req.user.email).toLowerCase().trim() : null;
+    const queryEmail = String(req.query.email || req.headers["x-order-email"] || "").toLowerCase().trim();
+
+    const isOwner =
+      (userId && order.user_id === userId) ||
+      (userEmail && order.email && order.email.toLowerCase().trim() === userEmail) ||
+      (queryEmail && order.email && order.email.toLowerCase().trim() === queryEmail);
+
+    if (!isOwner) {
+      throw ApiError.forbidden("Access denied. Please provide the verified order email to view this order invoice.");
+    }
+  }
+
   return sendSuccess(res, { data: order });
 }
 
@@ -347,8 +364,13 @@ async function getMyOrders(req, res) {
   });
 
   try {
+    const FIFTEEN_MINUTES_MS = 15 * 60 * 1000;
+    const now = Date.now();
     await Promise.all(rows.map(async (order) => {
-      if (order.awb_code && order.status !== "delivered" && order.status !== "cancelled" && order.status !== "returned") {
+      const lastCheck = order.updated_at ? new Date(order.updated_at).getTime() : 0;
+      const shouldSync = (now - lastCheck) > FIFTEEN_MINUTES_MS || order.shipping_status === "pending_dispatch";
+
+      if (shouldSync && order.awb_code && order.status !== "delivered" && order.status !== "cancelled" && order.status !== "returned") {
         try {
           const tracking = await shiprocketService.trackShipment(order.awb_code);
           if (tracking?.status && (tracking.status !== order.shipping_status || tracking.order_status !== order.status)) {
@@ -458,7 +480,9 @@ async function updateStatus(req, res) {
     order.status = newStatus;
     if (newStatus === "delivered") order.shipping_status = "delivered";
     if (newStatus === "cancelled") order.shipping_status = "cancelled";
-    if (newStatus === "shipped" && order.shipping_status === "pending_dispatch") order.shipping_status = "in_transit";
+    if (newStatus === "shipped" && (order.shipping_status === "pending_dispatch" || order.shipping_status === "manifested")) {
+      order.shipping_status = "in_transit";
+    }
     await order.save({ transaction });
     if (OrderStatusHistory) {
       await OrderStatusHistory.create({
@@ -509,12 +533,16 @@ async function requestCancellation(req, res) {
   const isAdmin = req.user?.role === "admin" || req.user?.role === "superadmin";
 
   if (!isAdmin) {
-    if (userId && order.user_id && order.user_id !== userId) {
-      throw ApiError.forbidden("You do not have permission to modify this order.");
-    }
-    if (!userId && email) {
-      if (order.email.toLowerCase().trim() !== email.toLowerCase().trim()) {
-        throw ApiError.forbidden("Email does not match this order.");
+    if (userId) {
+      const userEmail = (req.user.email || "").toLowerCase().trim();
+      const isOwner = (order.user_id && order.user_id === userId) || (order.email && order.email.toLowerCase().trim() === userEmail);
+      if (!isOwner) {
+        throw ApiError.forbidden("You do not have permission to modify this order.");
+      }
+    } else {
+      const cleanReqEmail = String(email || "").toLowerCase().trim();
+      if (!cleanReqEmail || order.email.toLowerCase().trim() !== cleanReqEmail) {
+        throw ApiError.forbidden("Valid order email address is required to submit a cancellation or return request.");
       }
     }
   }
@@ -577,6 +605,14 @@ async function requestCancellation(req, res) {
 
   await order.save();
 
+  await OrderStatusHistory.create({
+    order_id: order.id,
+    status: order.status,
+    shipping_status: order.shipping_status,
+    source: userId ? "customer" : "guest",
+    note: `Cancellation/return requested (${determinedType}): ${reason}`
+  }).catch(() => {});
+
   return sendSuccess(res, {
     message:
       determinedType === "pre_pack"
@@ -610,9 +646,23 @@ async function approveCancellation(req, res) {
         await adjustItemStock(item, item.quantity, transaction);
       }
       order.status = "cancelled";
+      order.shipping_status = "cancelled";
       order.cancellation_status = order.payment_method === "COD" ? "completed" : "approved";
       order.refund_status = order.payment_method === "COD" ? "not_required" : "pending";
       await order.save({ transaction });
+
+      // Roll back coupon usage if used
+      if (order.coupon_code) {
+        await Coupon.decrement("times_used", { by: 1, where: { code: order.coupon_code }, transaction }).catch(() => {});
+      }
+
+      await OrderStatusHistory.create({
+        order_id: order.id,
+        status: order.status,
+        shipping_status: order.shipping_status,
+        source: "admin",
+        note: `Pre-pack cancellation approved by store admin. Inventory restocked.`
+      }, { transaction });
     });
 
     if (order.email) {
@@ -639,6 +689,14 @@ async function approveCancellation(req, res) {
     order.cancellation_status = "rto_in_transit";
     order.shipping_status = "rto";
     await order.save();
+
+    await OrderStatusHistory.create({
+      order_id: order.id,
+      status: order.status,
+      shipping_status: order.shipping_status,
+      source: "admin",
+      note: "In-transit cancellation approved. Forward delivery stopped; courier alerted for RTO."
+    });
 
     if (order.email) {
       mailer.sendOrderStatusUpdateEmail(order.email, order, "cancelled", order.status, {
@@ -694,6 +752,14 @@ async function approveReturn(req, res) {
   }
   await order.save();
 
+  await OrderStatusHistory.create({
+    order_id: order.id,
+    status: order.status,
+    shipping_status: order.shipping_status,
+    source: "admin",
+    note: `Post-delivery return approved. Reverse pickup scheduled (Reverse AWB: ${order.reverse_awb_code || 'Pending'}).`
+  });
+
   return sendSuccess(res, {
     message: "Return approved! Shiprocket reverse pickup scheduled and reverse AWB generated.",
     data: order
@@ -711,6 +777,14 @@ async function rejectCancellation(req, res) {
   order.refund_status = "not_required";
   order.refund_notes = req.body.notes || req.body.reason || "Cancellation / Return request rejected by store admin.";
   await order.save();
+
+  await OrderStatusHistory.create({
+    order_id: order.id,
+    status: order.status,
+    shipping_status: order.shipping_status,
+    source: "admin",
+    note: `Cancellation/return request rejected: ${order.refund_notes}`
+  });
 
   return sendSuccess(res, {
     message: "Cancellation / return request has been rejected.",
@@ -740,15 +814,30 @@ async function markWarehouseReceived(req, res) {
 
     if (isCodInTransit) {
       order.status = "returned";
+      order.shipping_status = "rto";
       order.cancellation_status = "completed";
       order.refund_status = "not_required";
     } else {
       order.status = "returned";
+      order.shipping_status = "rto";
       order.cancellation_status = "rto_delivered";
       order.refund_status = "pending";
     }
 
+    // Roll back coupon usage if used
+    if (order.coupon_code) {
+      await Coupon.decrement("times_used", { by: 1, where: { code: order.coupon_code }, transaction }).catch(() => {});
+    }
+
     await order.save({ transaction });
+
+    await OrderStatusHistory.create({
+      order_id: order.id,
+      status: order.status,
+      shipping_status: order.shipping_status,
+      source: "warehouse",
+      note: `Returned package inspected and received at warehouse. Restocked into inventory by ${order.warehouse_inspected_by}.`
+    }, { transaction });
   });
 
   if (order.email) {
@@ -793,6 +882,14 @@ async function processUpiRefund(req, res) {
   }
 
   await order.save();
+
+  await OrderStatusHistory.create({
+    order_id: order.id,
+    status: order.status,
+    shipping_status: order.shipping_status,
+    source: "admin",
+    note: `UPI refund of ₹${refundAmount.toLocaleString("en-IN")} settled (UTR: ${utrNumber}). Customer notified via email.`
+  });
 
   // Send luxury email notification to customer asynchronously
   if (order.email) {
@@ -848,13 +945,19 @@ async function trackOrder(req, res) {
     throw ApiError.notFound(`No order found matching "${cleanOrderNumber}". Please verify your order number.`);
   }
 
-  // If email or phone is provided, verify match for privacy
-  if (email && email.trim()) {
-    if (order.email.toLowerCase().trim() !== email.toLowerCase().trim()) {
+  // Verify match for customer privacy and security
+  const cleanEmail = (email || "").toLowerCase().trim();
+  const cleanPhone = (phone || "").replace(/\D/g, "");
+
+  if (!cleanEmail && !cleanPhone) {
+    throw ApiError.badRequest("Please provide your email address or phone number to verify and track your order.");
+  }
+
+  if (cleanEmail) {
+    if (order.email.toLowerCase().trim() !== cleanEmail) {
       throw ApiError.badRequest("The email address provided does not match the records for this order.");
     }
-  } else if (phone && phone.trim()) {
-    const cleanPhone = phone.replace(/\D/g, "");
+  } else if (cleanPhone) {
     const orderPhone = (order.phone || "").replace(/\D/g, "");
     if (!orderPhone.includes(cleanPhone) && !cleanPhone.includes(orderPhone)) {
       throw ApiError.badRequest("The phone number provided does not match the records for this order.");
@@ -1004,10 +1107,9 @@ async function calculateOrderFinancials({ items, couponCode, pincode, isCod = fa
 
     let matchingVariant = null;
     if (variants.length > 0) {
-      // A variant cart line must match the exact color and size selected by the shopper.
       matchingVariant = variants.find((v) => {
-        const matchSize = v.size && item.size && v.size.label.toLowerCase() === String(item.size).toLowerCase();
-        const matchColor = v.color && item.color && v.color.name.toLowerCase() === String(item.color).toLowerCase();
+        const matchSize = !v.size || !item.size || (v.size.label && String(v.size.label).toLowerCase() === String(item.size).toLowerCase());
+        const matchColor = !v.color || !item.color || (v.color.name && String(v.color.name).toLowerCase() === String(item.color).toLowerCase());
         return matchSize && matchColor;
       });
 
@@ -1179,6 +1281,8 @@ async function createRazorpayOrder(req, res) {
       razorpay_order_id: rzpOrder.id,
       amount: rzpOrder.amount,
       currency: rzpOrder.currency,
+      receipt,
+      order_number: receipt,
       key_id: razorpayService.getKeyId(),
       calculated_total: financials.total,
       subtotal: financials.subtotal,
@@ -1273,7 +1377,7 @@ async function verifyRazorpayPayment(req, res) {
       await financials.coupon.save({ transaction });
     }
 
-    const orderNumber = generateOrderNumber();
+    const orderNumber = order_data.order_number || order_data.orderNumber || order_data.receipt || generateOrderNumber();
     const orderNotes = [
       `Razorpay Payment Verified`,
       `Payment ID: ${razorpay_payment_id}`,
@@ -1324,6 +1428,17 @@ async function verifyRazorpayPayment(req, res) {
         quantity: row.quantity,
         line_total: row.line_total
       })),
+      { transaction }
+    );
+
+    await OrderStatusHistory.create(
+      {
+        order_id: order.id,
+        status: order.status,
+        shipping_status: order.shipping_status,
+        source: "system",
+        note: `Razorpay payment verified (Payment ID: ${razorpay_payment_id}). Order confirmed.`
+      },
       { transaction }
     );
 

@@ -449,6 +449,10 @@ async function createShipment(order) {
           raw: json
         };
       } else {
+        if (res.status === 401) {
+          cachedToken = null;
+          tokenExpiresAt = 0;
+        }
         const errText = await res.text();
         console.warn("[SHIPROCKET CREATE ORDER] API returned status", res.status, errText);
       }
@@ -535,6 +539,9 @@ async function trackShipment(awbCode) {
           };
         }
       }
+    } else if (res.status === 401) {
+      cachedToken = null;
+      tokenExpiresAt = 0;
     }
   } catch (err) {
     console.warn("[SHIPROCKET TRACK] Tracking call notice:", err.message);
@@ -572,6 +579,10 @@ async function cancelShiprocketOrder(shiprocketOrderId) {
           raw: json
         };
       } else {
+        if (res.status === 401) {
+          cachedToken = null;
+          tokenExpiresAt = 0;
+        }
         const errText = await res.text();
         console.warn("[SHIPROCKET CANCEL] API returned status", res.status, errText);
       }
@@ -693,6 +704,10 @@ async function createReversePickup(orderOrParams, returnReason, pickupAddress) {
           raw: json
         };
       } else {
+        if (res.status === 401) {
+          cachedToken = null;
+          tokenExpiresAt = 0;
+        }
         const errText = await res.text();
         console.warn("[SHIPROCKET REVERSE PICKUP] API returned status", res.status, errText);
       }

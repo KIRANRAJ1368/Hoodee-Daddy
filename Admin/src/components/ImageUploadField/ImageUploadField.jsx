@@ -15,17 +15,20 @@ export default function ImageUploadField({
   aspectRatio = "4/5",
   previewHeight = 160,
   error,
-  required = false
+  required = false,
+  dimensionRule = null
 }) {
   const [isUploading, setIsUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [showLightbox, setShowLightbox] = useState(false);
   const [localPreview, setLocalPreview] = useState(null);
+  const [dimensionError, setDimensionError] = useState("");
   const fileInputRef = useRef(null);
   const toast = useToast();
 
   async function handleFiles(files) {
     if (!files || files.length === 0) return;
+    setDimensionError("");
     const file = files[0];
     const isImage = (file.type && (file.type.startsWith("image/") || file.type.includes("jfif") || file.type.includes("jpeg"))) ||
       /\.(jfif|jpe?g|png|webp|gif|svg)$/i.test(file.name || "");
@@ -38,6 +41,58 @@ export default function ImageUploadField({
     if (file.size > MAX_SIZE_MB * 1024 * 1024) {
       toast.error(`"${file.name}" is too large (${(file.size / (1024 * 1024)).toFixed(1)}MB). Please choose an image under ${MAX_SIZE_MB}MB.`);
       return;
+    }
+
+    // Dimension Rule Validation (Enforce exact/recommended banner dimensions)
+    if (dimensionRule) {
+      try {
+        const dimensions = await new Promise((resolve, reject) => {
+          const img = new Image();
+          const tempUrl = URL.createObjectURL(file);
+          img.onload = () => {
+            const w = img.naturalWidth;
+            const h = img.naturalHeight;
+            URL.revokeObjectURL(tempUrl);
+            resolve({ width: w, height: h });
+          };
+          img.onerror = () => {
+            URL.revokeObjectURL(tempUrl);
+            reject(new Error("Unable to read image dimensions"));
+          };
+          img.src = tempUrl;
+        });
+
+        const { width, height } = dimensions;
+        const ratio = width / (height || 1);
+
+        let violation = "";
+        if (dimensionRule.exactWidth && dimensionRule.exactHeight) {
+          if (width !== dimensionRule.exactWidth || height !== dimensionRule.exactHeight) {
+            violation = `Image size must be exactly ${dimensionRule.exactWidth} × ${dimensionRule.exactHeight}px. (Your image is ${width} × ${height}px).`;
+          }
+        } else {
+          if (dimensionRule.minWidth && width < dimensionRule.minWidth) {
+            violation = `Image width must be at least ${dimensionRule.minWidth}px. (Your image is ${width}px wide).`;
+          } else if (dimensionRule.minHeight && height < dimensionRule.minHeight) {
+            violation = `Image height must be at least ${dimensionRule.minHeight}px. (Your image is ${height}px high).`;
+          } else if (dimensionRule.minRatio && ratio < dimensionRule.minRatio) {
+            violation = `Image is too tall for this banner (aspect ratio is ${ratio.toFixed(2)}:1, expected at least ${dimensionRule.minRatio.toFixed(2)}:1). Required size: ${dimensionRule.label || "Landscape banner"} (Your image is ${width} × ${height}px).`;
+          } else if (dimensionRule.maxRatio && ratio > dimensionRule.maxRatio) {
+            violation = `Image is too wide for this banner (aspect ratio is ${ratio.toFixed(2)}:1, expected at most ${dimensionRule.maxRatio.toFixed(2)}:1). Required size: ${dimensionRule.label || "Banner"} (Your image is ${width} × ${height}px).`;
+          }
+        }
+
+        if (violation) {
+          setDimensionError(violation);
+          toast.error(violation);
+          if (fileInputRef.current) fileInputRef.current.value = "";
+          return;
+        }
+      } catch (e) {
+        toast.error("Failed to inspect image dimensions. Please try another image.");
+        if (fileInputRef.current) fileInputRef.current.value = "";
+        return;
+      }
     }
 
     const objectUrl = URL.createObjectURL(file);
@@ -213,7 +268,20 @@ export default function ImageUploadField({
         </div>
       )}
 
+      {dimensionRule?.label && (
+        <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 6, fontSize: "12px", color: "#64748b" }}>
+          <span style={{ fontWeight: 600, color: "#091525" }}>Required Banner Size:</span>
+          <span style={{ background: "#f1f5f9", padding: "2px 8px", borderRadius: 4, fontWeight: 700, color: "#ff7300", border: "1px solid #e2e8f0" }}>
+            {dimensionRule.label}
+          </span>
+        </div>
+      )}
       {hint && <span className="image-upload-hint">{hint}</span>}
+      {dimensionError && (
+        <span className="image-upload-error" style={{ display: "block", marginTop: 4, color: "#dc2626", fontWeight: 600 }}>
+          ⚠️ {dimensionError}
+        </span>
+      )}
       {error && <span className="image-upload-error">{error}</span>}
 
       {/* Clickable Lightbox */}

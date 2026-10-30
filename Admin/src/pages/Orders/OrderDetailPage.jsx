@@ -554,7 +554,7 @@ export default function OrderDetailPage() {
                   )}
 
                   {/* Stage 2 & 3: Package in RTO / Reverse Transit -> Warehouse Receipt */}
-                  {order.cancellation_status === "rto_in_transit" && (
+                  {(order.cancellation_status === "rto_in_transit" || (order.cancellation_type === "post_delivery" && order.cancellation_status === "approved")) && (
                     <div
                       style={{
                         background: "#f0fdfa",

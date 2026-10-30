@@ -8,6 +8,7 @@ import StatusBadge from "../../components/StatusBadge/StatusBadge";
 import CategoryFormModal from "./CategoryFormModal";
 import CategoryViewModal from "../../components/EntityViewModal/CategoryViewModal";
 import { broadcastCatalogUpdate } from "../../utils/broadcastCatalogUpdate";
+import { resolveImageUrl } from "../../utils/imageUrl";
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState([]);
@@ -155,7 +156,7 @@ export default function CategoriesPage() {
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   {row.banner_image_url ? (
                     <img
-                      src={row.banner_image_url}
+                      src={resolveImageUrl(row.banner_image_url)}
                       alt={row.banner_title || row.name}
                       style={{
                         width: 58,

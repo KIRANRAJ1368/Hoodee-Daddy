@@ -38,6 +38,7 @@ module.exports = (sequelize, DataTypes) => {
       // Publish toggle — inactive products are hidden from public APIs but
       // kept for admin/order history.
       is_active: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
+      show_on_homepage: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
 
       // Dynamic Specifications array: [{ title: "SILHOUETTE", value: "Relaxed Regular Fit" }]
       specifications: { type: DataTypes.JSON, allowNull: true },

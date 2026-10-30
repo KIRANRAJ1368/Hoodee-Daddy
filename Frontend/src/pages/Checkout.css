@@ -427,39 +427,170 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   background-color: var(--brand-white);
   border: 1.5px solid var(--color-ink, var(--brand-border));
   border-radius: 6px;
   padding: 14px 18px;
   margin: 10px 0 24px 0;
+  box-sizing: border-box;
 }
 
 .cko-dob-left {
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+
+.cko-dob-left > div {
+  min-width: 0;
 }
 
 .cko-dob-radio {
   color: var(--brand-blue);
   font-size: 1rem;
+  flex-shrink: 0;
 }
 
 .cko-dob-title {
   display: block;
   font-size: 0.86rem;
   color: var(--brand-blue);
+  word-break: break-word;
 }
 
 .cko-dob-sub {
   font-size: 0.74rem;
   color: var(--brand-blue);
+  word-break: break-word;
 }
 
 .cko-dob-price {
   font-size: 0.86rem;
   font-weight: 700;
   color: var(--brand-blue);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* Courier Partner Selection Group (Shiprocket) */
+.cko-couriers-group {
+  margin: 16px 0 24px 0;
+}
+
+.cko-couriers-heading-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin-bottom: 10px;
+}
+
+.cko-couriers-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--brand-blue);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.cko-couriers-pin-badge {
+  font-size: 0.74rem;
+  color: var(--brand-blue);
+  opacity: 0.85;
+}
+
+.cko-courier-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cko-courier-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1.5px solid var(--brand-border);
+  background: var(--brand-white);
+  cursor: pointer;
+  transition: all 0.18s ease-in-out;
+  gap: 12px;
+  box-sizing: border-box;
+}
+
+.cko-courier-card:hover {
+  border-color: var(--brand-orange);
+}
+
+.cko-courier-card.--selected {
+  border: 2px solid var(--brand-blue);
+  background: #F8FAFC;
+  box-shadow: 0 2px 8px rgba(9, 21, 37, 0.04);
+}
+
+.cko-courier-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+
+.cko-courier-radio {
+  color: var(--brand-blue);
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.cko-courier-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.cko-courier-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.cko-courier-name {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--brand-blue);
+  overflow-wrap: break-word;
+}
+
+.cko-courier-badge {
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--brand-blue);
+  color: #FFFFFF;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.cko-courier-sub {
+  font-size: 0.78rem;
+  color: var(--brand-blue);
+  opacity: 0.85;
+}
+
+.cko-courier-price {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--brand-blue);
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 /* Payment Method Selectable Cards */
@@ -503,6 +634,7 @@
 .cko-pm-icon {
   font-size: 1.3rem;
   line-height: 1;
+  flex-shrink: 0;
 }
 
 .cko-pm-details {
@@ -510,6 +642,7 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
 }
 
 .cko-pm-name {
@@ -526,6 +659,7 @@
 .cko-pm-check {
   font-size: 0.95rem;
   color: var(--brand-blue);
+  flex-shrink: 0;
 }
 
 .cko-pm-title-row {
@@ -760,6 +894,15 @@
 
 .cko-summary-card {
   padding: 26px 24px 28px;
+}
+
+/* Mobile Summary Toggle Bar — hidden by default on desktop */
+.cko-mobile-summary-toggle {
+  display: none;
+}
+
+.cko-summary-body {
+  display: block;
 }
 
 .cko-summary-top {
@@ -1541,43 +1684,194 @@
 /* Tablet Portrait & Mobile (<= 960px) */
 @media (max-width: 960px) {
   .cko-layout {
-    grid-template-columns: 1fr;
-    gap: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
   }
 
   .cko-summary-col {
+    order: -1; /* Move order summary directly above checkout steps on mobile/tablet */
     position: static;
-    max-width: 600px;
-    margin: 0 auto;
+    max-width: 100%;
+    margin: 0;
     width: 100%;
-  }
-}
-
-/* Mobile & Small Tablets */
-@media (max-width: 680px) {
-  .cko-page {
-    padding-top: 20px;
-  }
-
-  .cko-steps-card {
-    padding: 20px 18px 24px;
   }
 
   .cko-summary-card {
-    padding: 20px 18px;
+    padding: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: var(--brand-white);
+    border: 1px solid var(--brand-border);
   }
 
+  .cko-mobile-summary-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 14px 18px;
+    background: #F8FAFC;
+    border: none;
+    border-bottom: 1px solid var(--brand-border);
+    cursor: pointer;
+    min-height: 52px;
+    box-sizing: border-box;
+    transition: background-color 150ms ease;
+  }
+
+  .cko-mobile-summary-toggle:hover {
+    background: #F1F5F9;
+  }
+
+  .cko-mst-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .cko-mst-icon {
+    font-size: 1.15rem;
+  }
+
+  .cko-mst-text {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--brand-blue);
+  }
+
+  .cko-mst-chevron {
+    font-size: 0.85rem;
+    color: var(--brand-blue);
+    transition: transform 200ms ease;
+    display: inline-block;
+  }
+
+  .cko-mst-chevron.--open {
+    transform: rotate(180deg);
+  }
+
+  .cko-mst-right {
+    display: flex;
+    align-items: center;
+  }
+
+  .cko-mst-total {
+    font-family: var(--font-poppins, "Plus Jakarta Sans", sans-serif);
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--brand-blue);
+  }
+
+  .cko-summary-body {
+    display: none;
+    padding: 20px 18px 24px;
+  }
+
+  .cko-summary-body.--expanded {
+    display: block;
+    animation: ckoFadeSlide 200ms ease-out forwards;
+  }
+
+  @keyframes ckoFadeSlide {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+/* Tablet & Mobile Screens (<= 768px): Prevent iOS Safari Auto-Zoom */
+@media (max-width: 768px) {
+  .cko-input,
+  .cko-coupon-input,
+  input.cko-input,
+  select.cko-input,
+  textarea.cko-input {
+    font-size: 16px !important; /* Eliminates auto-zoom on iOS Safari when tapping inputs */
+  }
+}
+
+/* Mobile & Small Tablets (<= 680px) */
+@media (max-width: 680px) {
+  .cko-page {
+    padding-top: 18px;
+    padding-bottom: 32px;
+  }
+
+  .cko-header-center {
+    margin-bottom: 22px;
+  }
+
+  .cko-page-title {
+    font-size: 1.55rem;
+  }
+
+  .cko-page-subtitle {
+    font-size: 0.78rem;
+    margin-bottom: 10px;
+  }
+
+  .cko-trust-pill {
+    padding: 4px 12px;
+    font-size: 0.7rem;
+    gap: 6px 10px;
+  }
+
+  .cko-steps-card {
+    padding: 20px 16px 24px;
+  }
+
+  .cko-summary-body {
+    padding: 16px 14px 20px;
+  }
+
+  /* Stepper Tab column alignment for clean touch and readability */
   .cko-stepper-nav {
-    margin-bottom: 24px;
-    padding-bottom: 18px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 22px;
+    padding-bottom: 14px;
+    position: relative;
+  }
+
+  .cko-step-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    min-width: 58px;
+    z-index: 2;
+  }
+
+  .cko-step-circle {
+    width: 32px;
+    height: 32px;
+    font-size: 0.85rem;
   }
 
   .cko-step-name {
-    display: none; /* Keep stepper clean on small screens */
+    display: block !important;
+    font-size: 0.65rem;
+    letter-spacing: 0.04em;
+    font-weight: 700;
+    text-align: center;
   }
 
   .cko-step-line {
-    margin: 0 8px;
+    flex: 1;
+    height: 2px;
+    margin: 15px -4px 0 -4px;
+    z-index: 1;
   }
 
   .cko-grid-2,
@@ -1586,70 +1880,201 @@
     gap: 0;
   }
 
-  .cko-submit-step-btn {
-    width: 100%;
+  .cko-form-group {
+    margin-bottom: 16px;
   }
 
   .cko-step-btn-row {
     flex-direction: column-reverse;
     gap: 10px;
-  }
-
-  .cko-step-btn-row button {
     width: 100%;
   }
-}
-@media (max-width: 425px) {
-  .cko-steps-card {
-    padding: 18px 14px 22px;
+
+  .cko-step-btn-row button,
+  .cko-submit-step-btn,
+  .cko-btn-primary,
+  .cko-btn-outline {
+    width: 100%;
+    min-height: 48px;
+    box-sizing: border-box;
+    text-align: center;
+    justify-content: center;
   }
 
-  .cko-summary-card {
-    padding: 18px 14px;
+  .cko-auth-banner {
+    padding: 10px 12px;
+    margin-bottom: 18px;
   }
 
-  .cko-page-title {
-    font-size: 1.6rem;
+  .cko-completed-summary-bar {
+    padding: 10px 12px;
+    margin-bottom: 18px;
   }
 
-  .cko-trust-pill {
-    padding: 4px 12px;
+  .cko-pm-card {
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  .cko-delivery-option-box {
+    padding: 12px 14px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .cko-courier-card {
+    padding: 12px 14px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .cko-courier-price {
+    margin-left: 28px;
+    font-size: 0.9rem;
+  }
+
+  .cko-razorpay-info-box,
+  .cko-cod-info-box {
+    padding: 14px 14px;
+  }
+
+  .cko-rzp-tag {
     font-size: 0.7rem;
+    max-width: 100%;
+    white-space: normal;
+    line-height: 1.35;
+  }
+
+  .cko-success-card {
+    padding: 24px 16px;
+    margin: 12px auto;
+  }
+
+  .cko-order-quick-strip {
+    padding: 12px 14px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .cko-receipt-table {
+    padding: 14px 14px;
+  }
+
+  .cko-receipt-item-row {
+    padding: 8px 10px;
+    gap: 10px;
+  }
+
+  .cko-receipt-row {
+    font-size: 0.8rem;
+    gap: 8px;
+  }
+
+  .cko-success-actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+  }
+
+  .cko-success-actions a,
+  .cko-success-actions button {
+    width: 100%;
+    min-height: 48px;
+    box-sizing: border-box;
+    text-align: center;
+    justify-content: center;
   }
 }
 
-@media (max-width: 340px) {
+/* Extra Small Phones (<= 420px) */
+@media (max-width: 420px) {
   .cko-steps-card {
-    padding: 16px 10px 18px;
+    padding: 16px 12px 20px;
   }
 
-  .cko-summary-card {
-    padding: 14px 10px;
+  .cko-summary-body {
+    padding: 14px 12px;
   }
 
   .cko-page-title {
     font-size: 1.4rem;
   }
 
-  .cko-input {
-    padding: 9px 10px;
-    font-size: 0.82rem;
+  .cko-trust-pill {
+    padding: 4px 10px;
+    font-size: 0.68rem;
+    gap: 6px 8px;
   }
 
-  .cko-pm-card {
-    padding: 10px 10px;
+  .cko-step-tab {
+    min-width: 50px;
+  }
+
+  .cko-step-circle {
+    width: 28px;
+    height: 28px;
+    font-size: 0.78rem;
+  }
+
+  .cko-step-name {
+    font-size: 0.6rem;
+    letter-spacing: 0.02em;
+  }
+
+  .cko-step-line {
+    margin: 13px -4px 0 -4px;
+  }
+
+  .cko-available-coupon {
+    flex-direction: column;
+    align-items: flex-start;
     gap: 8px;
   }
 
+  .cko-available-coupon-action {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Super Compact / Fold Phones (<= 340px) */
+@media (max-width: 340px) {
+  .cko-steps-card {
+    padding: 14px 8px 16px;
+  }
+
+  .cko-summary-body {
+    padding: 12px 8px;
+  }
+
+  .cko-page-title {
+    font-size: 1.25rem;
+  }
+
+  .cko-step-tab {
+    min-width: 40px;
+  }
+
+  .cko-step-name {
+    font-size: 0.55rem;
+    letter-spacing: 0;
+  }
+
+  .cko-pm-card {
+    padding: 10px 8px;
+    gap: 6px;
+  }
+
   .cko-delivery-option-box {
-    padding: 10px 10px;
+    padding: 10px 8px;
   }
 
   .cko-receipt-table {
-    padding: 12px 10px;
+    padding: 10px 8px;
   }
 
   .cko-success-card {
-    padding: 24px 14px;
+    padding: 20px 8px;
   }
 }

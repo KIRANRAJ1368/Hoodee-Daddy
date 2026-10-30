@@ -5,7 +5,7 @@ const { publicUrlFor } = require("../middleware/upload");
 const ALLOWED_FOLDERS = new Set(["products", "variants", "categories", "subcategories", "banners", "returns", "reviews"]);
 
 async function upload(req, res) {
-  const { folder } = req.params;
+  const folder = req.params.folder || req.uploadFolder;
   if (!ALLOWED_FOLDERS.has(folder)) throw ApiError.badRequest("Invalid upload folder");
 
   if (!req.files || req.files.length === 0) {

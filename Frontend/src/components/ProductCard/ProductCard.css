@@ -63,11 +63,13 @@
   transform: scale(1.045);
 }
 
-/* ── Tasteful Brand Badges (ZMW Brand Palette) ── */
+/* ── Tasteful Brand Badges (HooDee Daddy Brand Palette) ── */
+/* Positioned at bottom-left so badges NEVER cover or obstruct models' faces */
 .product-badge {
   position: absolute;
-  top: 10px;
+  bottom: 10px;
   left: 10px;
+  top: auto;
   z-index: 3;
   padding: 4px 10px;
   font-family: var(--font-primary, "Plus Jakarta Sans", sans-serif);
@@ -95,7 +97,7 @@
   border: none;
 }
 
-/* 3. TRENDING — ZMW Streetwear Orange */
+/* 3. TRENDING — HooDee Daddy Streetwear Orange */
 .product-badge.badge-trending {
   background: linear-gradient(135deg, #FF7300, #FF5500);
   color: #FFFFFF;
@@ -193,7 +195,7 @@
   box-shadow: 0 6px 16px rgba(255, 115, 0, 0.28);
 }
 
-/* Cart Icon Button hover with ZMW Amber */
+/* Cart Icon Button hover with HooDee Daddy Amber */
 .card-cart-icon-btn:hover {
   background: linear-gradient(135deg, #FF7300, #FF5500);
   color: #FFFFFF;
@@ -371,6 +373,14 @@
     width: 14px;
     height: 14px;
   }
+
+  .product-badge {
+    top: auto;
+    bottom: 8px;
+    left: 8px;
+    font-size: 9.5px;
+    padding: 2.5px 7px;
+  }
 }
 
 @media (max-width: 360px) {
@@ -404,9 +414,10 @@
   }
 
   .product-badge {
-    top: 6px;
+    top: auto;
+    bottom: 6px;
     left: 6px;
-    font-size: 9px;
+    font-size: 8.5px;
     padding: 2px 6px;
   }
 }

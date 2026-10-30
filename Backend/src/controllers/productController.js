@@ -68,6 +68,15 @@ async function toggleBestSeller(req, res) {
   return sendSuccess(res, { data: { id: product.id, is_best_seller: product.is_best_seller } });
 }
 
+
+async function toggleShowOnHomepage(req, res) {
+  const product = await Product.findByPk(req.params.id);
+  if (!product) throw ApiError.notFound("Product not found");
+  product.show_on_homepage = req.body.value !== undefined ? Boolean(req.body.value) : !product.show_on_homepage;
+  await product.save();
+  return sendSuccess(res, { data: { id: product.id, show_on_homepage: product.show_on_homepage } });
+}
+
 async function toggleNewArrival(req, res) {
   const product = await Product.findByPk(req.params.id);
   if (!product) throw ApiError.notFound("Product not found");
@@ -187,6 +196,7 @@ module.exports = {
   remove,
   toggleBestSeller,
   toggleNewArrival,
+  toggleShowOnHomepage,
   updateStock,
   listVariants,
   createVariant,

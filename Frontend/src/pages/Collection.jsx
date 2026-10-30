@@ -7,6 +7,7 @@ import { isCategoryMatch, resolveFallbackCategory, saveCategoryHistory } from ".
 import ProductCard from "../components/ProductCard/ProductCard";
 import RecentlyViewed from "../components/RecentlyViewed/RecentlyViewed";
 import { CURRENCY_SYMBOL, formatINRNumber, formatPrice } from "../utils/formatPrice";
+import { imageUrl } from "../utils/imageUrl";
 
 const SHIPPING_LABEL = "Pan-India Express Shipping";
 import "./Collection.css";
@@ -506,7 +507,7 @@ export default function Collection() {
       ],
       ctaText: `Shop ${catName}`,
       urgencyTag: "",
-      image: matchedCategory.banner_image_url || "/images/dept-family-banner.jpg",
+      image: imageUrl(matchedCategory.banner_image_url) || "/images/dept-family-banner.jpg",
       imagePosition: matchedCategory.banner_image_position && matchedCategory.banner_image_position !== "center center"
         ? matchedCategory.banner_image_position
         : "center top"
@@ -581,7 +582,7 @@ export default function Collection() {
         offerTag: applyMinPrice(offerTag),
         title: headline,
         subtitle: subtitle,
-        image: resolvedCategoryBanner.image_url || config.image,
+        image: imageUrl(resolvedCategoryBanner.image_url) || config.image,
         imagePosition: (resolvedCategoryBanner.image_position && resolvedCategoryBanner.image_position !== "center center")
           ? resolvedCategoryBanner.image_position
           : (config.imagePosition || "center top"),
@@ -1216,19 +1217,12 @@ export default function Collection() {
         >
           <div className="coll-hero-wrapper">
             <img
-              src={banner.image}
+              src={imageUrl(banner.image)}
               alt={categoryName ? `${categoryName} Collection Banner` : "HooDee Daddy Apparel Collection"}
               className="coll-hero-backdrop-img"
               style={{ objectPosition: banner.imagePosition || "center top" }}
               onError={(event) => { event.currentTarget.src = "/images/hero-mens-oversized-tee.jpg"; }}
             />
-            {/* CrazyMonk-style Streetwear Live Category Pulse Badge */}
-            <div className="coll-crazymonk-pill" aria-hidden="true">
-              <span className="coll-crazymonk-dot" />
-              <span className="coll-crazymonk-text">
-                {categoryName ? `${categoryName.toUpperCase()} · HOODIES & TEES` : "STREETWEAR DROP"}
-              </span>
-            </div>
           </div>
         </section>
       )}

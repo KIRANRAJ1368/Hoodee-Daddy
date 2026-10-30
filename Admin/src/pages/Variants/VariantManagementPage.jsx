@@ -14,14 +14,20 @@ import {
   AlertCircle,
   Image as ImageIcon
 } from "lucide-react";
-import { productsApi, uploadApi } from "../../services/resources";
+import { productsApi, categoriesApi, uploadApi } from "../../services/resources";
 import { useToast } from "../../context/ToastContext";
 import { useConfirm } from "../../components/ConfirmDialog/ConfirmDialog";
 import { resolveImageUrl } from "../../utils/imageUrl";
 import LoadingState from "../../components/LoadingState/LoadingState";
 import Pagination from "../../components/Pagination/Pagination";
 import { sortNewestFirst } from "../../utils/sortNewestFirst";
-import { getAgePresetsForCategory, isBabiesCategory } from "../../utils/agePresets";
+import {
+  getAgePresetsForCategory,
+  isBabiesCategory,
+  matchAgePreset,
+  normalizeAgeStr,
+  sizeToSkuSuffix
+} from "../../utils/agePresets";
 import "./VariantManagementPage.css";
 
 const PRODUCTS_PER_PAGE = 10;
@@ -59,6 +65,7 @@ export default function VariantManagementPage() {
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingVariant, setEditingVariant] = useState(null);
+  const [categories, setCategories] = useState([]);
 
   const toast = useToast();
   const [confirm, ConfirmModal] = useConfirm();
@@ -66,8 +73,12 @@ export default function VariantManagementPage() {
   const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const res = await productsApi.list({ limit: 200 });
+      const [res, catRes] = await Promise.all([
+        productsApi.list({ limit: 200 }),
+        categoriesApi.list().catch(() => ({ data: [] }))
+      ]);
       setProducts(res.data || []);
+      setCategories(catRes.data || []);
     } catch (err) {
       toast.error(err.message || "Failed to load variants");
     } finally {
@@ -158,11 +169,13 @@ export default function VariantManagementPage() {
   }
 
   function handleOpenEdit(product, variant, variantIdx) {
+    const isBaby = isBabiesCategory(product, categories);
+    const dynamicSize = matchAgePreset(variant.size, isBaby);
     setEditingVariant({
       productId: String(product.id),
       variantId: variant.id,
       variantIdx,
-      size: variant.size || "Free Size",
+      size: dynamicSize,
       color: variant.color || "",
       colorHex: variant.colorHex || "#181715",
       sku: variant.skuSuffix || variant.sku_suffix || "",
@@ -203,7 +216,7 @@ export default function VariantManagementPage() {
 
     try {
       await productsApi.saveVariants(product.id, updatedVariants);
-      toast.delete(`Variant "${variant.color || "Standard"} / ${variant.size || "Free Size"}" has been deleted successfully.`);
+      toast.delete(`Variant "${variant.color || "Standard"} / ${variant.size || ""}" has been deleted successfully.`);
       loadData();
     } catch (err) {
       toast.error(err.message || "Failed to delete variant");
@@ -219,10 +232,11 @@ export default function VariantManagementPage() {
       return;
     }
 
+    const isBaby = isBabiesCategory(targetProduct, categories);
     const currentVariants = (targetProduct.variants || []).map((v) => ({
       id: v.id,
       created_at: v.createdAt || v.created_at || undefined,
-      size: v.size || "Free Size",
+      size: matchAgePreset(v.size, isBaby),
       color: v.color || "Standard",
       colorHex: v.colorHex,
       sku_suffix: v.skuSuffix || v.sku_suffix || null,
@@ -539,7 +553,7 @@ export default function VariantManagementPage() {
                                     />
                                     <span className="v-color-size-label">
                                       {v.color || "Standard"} /{" "}
-                                      {v.size || "Free Size"}
+                                      {v.size && v.size !== "Free Size" ? v.size : (isBabiesCategory(prod, categories) ? "0–2 Months" : "2–4 Years")}
                                     </span>
                                   </div>
                                 </td>
@@ -664,6 +678,7 @@ export default function VariantManagementPage() {
         <VariantModal
           editingData={editingVariant}
           products={products}
+          categories={categories}
           onClose={() => setIsModalOpen(false)}
           onSave={handleSaveVariant}
         />
@@ -675,7 +690,7 @@ export default function VariantManagementPage() {
 }
 
 /* ── Add / Edit Variant Modal ── */
-function VariantModal({ editingData, products, onClose, onSave }) {
+function VariantModal({ editingData, products, categories = [], onClose, onSave }) {
   const isEdit = Boolean(
     editingData && editingData.variantIdx !== undefined
   );
@@ -690,13 +705,13 @@ function VariantModal({ editingData, products, onClose, onSave }) {
   );
 
   const isBabies = useMemo(
-    () => isBabiesCategory(selectedProduct?.category),
-    [selectedProduct]
+    () => isBabiesCategory(selectedProduct || selectedProduct?.category, categories),
+    [selectedProduct, categories]
   );
 
   const currentAgePresets = useMemo(
-    () => getAgePresetsForCategory(selectedProduct?.category),
-    [selectedProduct]
+    () => getAgePresetsForCategory(selectedProduct || selectedProduct?.category, categories),
+    [selectedProduct, categories]
   );
 
   const [colorName, setColorName] = useState(
@@ -706,8 +721,19 @@ function VariantModal({ editingData, products, onClose, onSave }) {
     editingData?.colorHex || "#181715"
   );
 
-  const [selectedSizes, setSelectedSizes] = useState(editingData?.size ? [editingData.size] : []);
-  const [customSizeInput, setCustomSizeInput] = useState(editingData?.size || "");
+  const [selectedSizes, setSelectedSizes] = useState(() => {
+    if (editingData?.size) {
+      return [matchAgePreset(editingData.size, isBabies)];
+    }
+    return [currentAgePresets[0]];
+  });
+  const [customSizeInput, setCustomSizeInput] = useState(() => {
+    if (editingData?.size && editingData.size !== "Free Size") {
+      const isPreset = currentAgePresets.some((p) => normalizeAgeStr(p) === normalizeAgeStr(editingData.size));
+      if (!isPreset) return editingData.size;
+    }
+    return "";
+  });
   const [samePriceAndStock, setSamePriceAndStock] = useState(isEdit);
   const [sizeValues, setSizeValues] = useState({});
   const [sku, setSku] = useState(editingData?.sku || "");
@@ -760,10 +786,11 @@ function VariantModal({ editingData, products, onClose, onSave }) {
   useEffect(() => {
     if (!skuTouched && selectedProduct) {
       const colorShort = (colorName || "DEF").substring(0, 3).toUpperCase();
-      const sizeShort = (selectedSizes[0] || customSizeInput || "FS").replace(/\s+/g, "").toUpperCase();
+      const currentSize = selectedSizes[0] || customSizeInput || currentAgePresets[0];
+      const sizeShort = sizeToSkuSuffix(currentSize, isBabies);
       setSku(`${selectedProduct.sku}-${colorShort}-${sizeShort}`);
     }
-  }, [selectedProduct, colorName, selectedSizes, customSizeInput, skuTouched]);
+  }, [selectedProduct, colorName, selectedSizes, customSizeInput, isBabies, currentAgePresets, skuTouched]);
 
   // Update price when product changes (add mode only)
   useEffect(() => {
@@ -777,12 +804,14 @@ function VariantModal({ editingData, products, onClose, onSave }) {
     if (errors.size) setErrors((previous) => ({ ...previous, size: undefined }));
     if (isEdit) {
       setSelectedSizes([sizeOption]);
-      setCustomSizeInput(sizeOption);
+      setCustomSizeInput("");
       return;
     }
     setSelectedSizes((previous) => {
-      const isSelected = previous.includes(sizeOption);
-      const next = isSelected ? previous.filter((item) => item !== sizeOption) : [...previous, sizeOption];
+      const isSelected = previous.some((item) => normalizeAgeStr(item) === normalizeAgeStr(sizeOption));
+      const next = isSelected
+        ? previous.filter((item) => normalizeAgeStr(item) !== normalizeAgeStr(sizeOption))
+        : [...previous, sizeOption];
       if (!isSelected) {
         setSizeValues((values) => ({ ...values, [sizeOption]: values[sizeOption] || { price, originalPrice, stockQty } }));
       }
@@ -794,10 +823,14 @@ function VariantModal({ editingData, products, onClose, onSave }) {
     const value = customSizeInput.trim();
     if (!value) return;
     if (errors.size) setErrors((previous) => ({ ...previous, size: undefined }));
-    const existing = selectedSizes.some((item) => item.toLowerCase() === value.toLowerCase());
-    if (!existing) {
-      setSelectedSizes((previous) => isEdit ? [value] : [...previous, value]);
-      setSizeValues((previous) => ({ ...previous, [value]: previous[value] || { price, originalPrice, stockQty } }));
+    if (isEdit) {
+      setSelectedSizes([value]);
+    } else {
+      const existing = selectedSizes.some((item) => normalizeAgeStr(item) === normalizeAgeStr(value));
+      if (!existing) {
+        setSelectedSizes((previous) => [...previous, value]);
+        setSizeValues((previous) => ({ ...previous, [value]: previous[value] || { price, originalPrice, stockQty } }));
+      }
     }
     setCustomSizeInput("");
   }
@@ -1127,39 +1160,43 @@ function VariantModal({ editingData, products, onClose, onSave }) {
                 </span>
               </label>
               <div className="v-size-presets-bar">
-                {currentAgePresets.map((s) => (
-                  <button
-                    key={s}
-                    type="button"
-                    className={`v-size-pill-btn ${selectedSizes.includes(s) ? "is-active" : ""}`}
-                    aria-pressed={selectedSizes.includes(s)}
-                    onClick={() => toggleSize(s)}
-                  >
-                    {s}
-                  </button>
-                ))}
+                {currentAgePresets.map((s) => {
+                  const isActive = selectedSizes.some((sel) => normalizeAgeStr(sel) === normalizeAgeStr(s));
+                  return (
+                    <button
+                      key={s}
+                      type="button"
+                      className={`v-size-pill-btn ${isActive ? "is-active" : ""}`}
+                      aria-pressed={isActive}
+                      onClick={() => toggleSize(s)}
+                    >
+                      {s}
+                    </button>
+                  );
+                })}
               </div>
               <div className="v-custom-size-row">
                 <input
                   type="text"
                   placeholder={isBabies ? "Add custom age (e.g. 12–18 Months)" : "Add custom age (e.g. 14–16 Years)"}
                   value={customSizeInput}
-                  onChange={(e) => {
-                    setCustomSizeInput(e.target.value);
-                    if (isEdit) setSelectedSizes([e.target.value]);
-                  }}
+                  onChange={(e) => setCustomSizeInput(e.target.value)}
                   onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustomSize(); } }}
                   className={`v-input ${errors.size ? "is-invalid" : ""}`}
                 />
                 <button type="button" className="v-btn-cancel" onClick={addCustomSize}>Add age</button>
               </div>
-              {!!selectedSizes.length && <div className="v-selected-sizes">
-                {selectedSizes.map((selectedSize) => (
-                  <button key={selectedSize} type="button" onClick={() => toggleSize(selectedSize)} disabled={isEdit}>
-                    {selectedSize}{!isEdit && <span>×</span>}
-                  </button>
-                ))}
-              </div>}
+              {selectedSizes.filter((s) => s && s.trim() && !currentAgePresets.some((p) => normalizeAgeStr(p) === normalizeAgeStr(s))).length > 0 && (
+                <div className="v-selected-sizes">
+                  {selectedSizes
+                    .filter((s) => s && s.trim() && !currentAgePresets.some((p) => normalizeAgeStr(p) === normalizeAgeStr(s)))
+                    .map((selectedSize) => (
+                      <button key={selectedSize} type="button" onClick={() => toggleSize(selectedSize)} disabled={isEdit}>
+                        {selectedSize}{!isEdit && <span>×</span>}
+                      </button>
+                    ))}
+                </div>
+              )}
               {errors.size && (
                 <span className="v-field-error">
                   <AlertCircle size={12} /> {errors.size}

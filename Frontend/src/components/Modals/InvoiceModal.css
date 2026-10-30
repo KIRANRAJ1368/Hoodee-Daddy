@@ -1,7 +1,12 @@
+/* ==========================================================================
+   HOODEE DADDY — TAX INVOICE MODAL & BRANDED PRINT STYLES
+   Brand Colors: Navy (#091525) & Vibrant Orange (#FF7300)
+   ========================================================================== */
+
 .invoice-modal-overlay {
   position: fixed;
   inset: 0;
-  background: var(--brand-overlay);
+  background: rgba(9, 21, 37, 0.75);
   backdrop-filter: blur(6px);
   z-index: 99999;
   display: flex;
@@ -12,25 +17,28 @@
 }
 
 .invoice-modal-wrapper {
-  background: var(--brand-white);
+  background: #ffffff;
   width: 100%;
-  max-width: 820px;
-  border-radius: 4px;
-  box-shadow: 0 25px 60px rgba(9, 21, 37, 0.35);
+  max-width: 840px;
+  border-radius: 10px;
+  box-shadow: 0 25px 60px rgba(9, 21, 37, 0.45);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   max-height: 94vh;
+  border: 1px solid #cbd5e1;
 }
 
+/* ── Screen Toolbar ── */
 .invoice-toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 24px;
-  background: var(--brand-white);
-  color: var(--brand-blue);
-  border-bottom: 1px solid var(--brand-border);
+  padding: 14px 24px;
+  background: #091525;
+  color: #ffffff;
+  border-bottom: 2px solid #ff7300;
+  flex-shrink: 0;
 }
 
 .invoice-toolbar-title {
@@ -39,102 +47,129 @@
   gap: 12px;
   font-size: 0.85rem;
   letter-spacing: 0.12em;
-  font-weight: 600;
-  color: var(--brand-blue);
+  font-weight: 700;
+  color: #ffffff;
 }
 
 .invoice-pill {
-  background: var(--brand-white);
-  color: var(--brand-blue);
-  padding: 3px 10px;
-  border-radius: 20px;
+  background: rgba(255, 115, 0, 0.15);
+  color: #ff7300;
+  padding: 3px 12px;
+  border-radius: 999px;
   font-size: 0.75rem;
-  border: 1px solid var(--brand-border);
+  border: 1px solid rgba(255, 115, 0, 0.4);
+  font-weight: 800;
 }
 
 .invoice-toolbar-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+}
+
+.invoice-btn-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.invoice-btn-download:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: #ffffff;
+  transform: translateY(-1px);
 }
 
 .invoice-btn-print {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  background: var(--brand-white);
-  color: var(--brand-blue);
+  gap: 6px;
+  background: #ff7300;
+  color: #ffffff;
   border: none;
   font-size: 0.82rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  padding: 8px 18px;
-  border-radius: 2px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 8px 16px;
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(255, 115, 0, 0.25);
 }
 
 .invoice-btn-print:hover {
-  background: var(--brand-white);
+  background: #ff8a00;
   transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(255, 115, 0, 0.35);
 }
 
 .invoice-btn-close {
   background: transparent;
-  color: var(--brand-blue);
-  border: 1px solid var(--brand-border);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
   width: 32px;
   height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  border-radius: 2px;
-  transition: color 0.2s;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  font-size: 0.85rem;
 }
 
 .invoice-btn-close:hover {
-  color: var(--brand-orange);
-  border-color: var(--brand-orange);
+  color: #ff7300;
+  border-color: #ff7300;
+  background: rgba(255, 115, 0, 0.15);
 }
 
+/* ── Printable Invoice Sheet ── */
 .invoice-sheet {
-  padding: 40px;
-  background: var(--brand-white);
-  color: var(--brand-blue);
+  padding: 36px 40px;
+  background: #ffffff;
+  color: #091525;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   overflow-y: auto;
   line-height: 1.5;
+  flex: 1;
 }
 
 .invoice-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 24px;
+  margin-bottom: 22px;
 }
 
-.brand-logo-text {
-  font-family: "Cinzel", "Playfair Display", Georgia, serif;
-  font-size: 2.2rem;
-  letter-spacing: 0.15em;
-  margin: 0;
-  color: var(--brand-blue);
-  font-weight: 700;
+.invoice-brand-logo {
+  height: 48px;
+  width: auto;
+  margin-bottom: 6px;
 }
 
 .brand-sub {
-  font-size: 0.68rem;
-  letter-spacing: 0.2em;
-  color: var(--brand-blue);
-  margin: 4px 0 12px 0;
-  font-weight: 600;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  color: #ff7300;
+  margin: 4px 0 10px 0;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
 .brand-address p {
   margin: 2px 0;
   font-size: 0.8rem;
-  color: var(--brand-blue);
+  color: #475569;
 }
 
 .invoice-doc-details {
@@ -143,69 +178,84 @@
 
 .doc-title {
   font-size: 1.4rem;
-  letter-spacing: 0.1em;
-  color: var(--brand-blue);
-  margin: 0 0 12px 0;
+  letter-spacing: 0.08em;
+  color: #091525;
+  font-weight: 800;
+  margin: 0 0 10px 0;
+  border-bottom: 2px solid #ff7300;
+  display: inline-block;
+  padding-bottom: 2px;
 }
 
 .doc-meta-table {
   margin-left: auto;
   font-size: 0.82rem;
+  border-collapse: collapse;
 }
 
 .doc-meta-table td {
   padding: 3px 8px;
-  color: var(--brand-blue);
+  color: #091525;
+}
+
+.doc-meta-table td:first-child {
+  color: #64748b;
+  font-weight: 500;
 }
 
 .doc-meta-table td:last-child {
   text-align: right;
-  color: var(--brand-blue);
+  color: #091525;
+  font-weight: 600;
 }
 
 .status-badge {
   display: inline-block;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 0.7rem;
-  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
   letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 .status-badge.paid {
-  background: var(--brand-white);
-  color: var(--brand-blue);
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #10b981;
 }
 
 .status-badge.pending {
-  background: var(--brand-white);
-  color: var(--brand-blue);
+  background: #fff7ed;
+  color: #c2410c;
+  border: 1px solid #fed7aa;
 }
 
 .invoice-divider {
-  height: 1px;
-  background: var(--brand-white);
-  margin: 24px 0;
+  height: 1.5px;
+  background: #e2e8f0;
+  margin: 20px 0;
 }
 
 .invoice-addresses {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 32px;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 
 .addr-block h3 {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: var(--brand-blue);
+  color: #64748b;
+  font-weight: 700;
   margin: 0 0 8px 0;
 }
 
 .addr-block .customer-name {
-  font-weight: 600;
-  color: var(--brand-blue);
+  font-weight: 700;
+  color: #091525;
   font-size: 0.95rem;
   margin: 0 0 4px 0;
 }
@@ -213,11 +263,14 @@
 .addr-block p {
   margin: 2px 0;
   font-size: 0.85rem;
-  color: var(--brand-blue);
+  color: #334155;
 }
 
 .invoice-table-wrapper {
   margin-bottom: 24px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  overflow: hidden;
 }
 
 .invoice-items-table {
@@ -226,42 +279,41 @@
 }
 
 .invoice-items-table th {
-  background: var(--brand-white);
+  background: #091525;
   text-transform: uppercase;
   font-size: 0.72rem;
   letter-spacing: 0.08em;
-  color: var(--brand-blue);
-  padding: 10px 12px;
-  border-top: 1px solid var(--brand-border);
-  border-bottom: 1px solid var(--brand-border);
+  color: #ffffff;
+  padding: 10px 14px;
   text-align: left;
+  font-weight: 700;
 }
 
 .invoice-items-table td {
-  padding: 14px 12px;
+  padding: 12px 14px;
   font-size: 0.85rem;
-  border-bottom: 1px solid var(--brand-border);
-  vertical-align: top;
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: middle;
+  color: #091525;
 }
 
 .item-title {
-  font-weight: 500;
-  color: var(--brand-blue);
+  font-weight: 600;
+  color: #091525;
 }
 
 .invoice-item-thumb {
   display: block;
-  width: 42px;
-  height: 52px;
-  margin-bottom: 6px;
-  border: 1px solid var(--brand-border);
+  width: 38px;
+  height: 48px;
+  border: 1px solid #e2e8f0;
   border-radius: 4px;
   object-fit: cover;
 }
 
 .item-variants {
-  font-size: 0.78rem;
-  color: var(--brand-blue);
+  font-size: 0.76rem;
+  color: #64748b;
   margin-top: 2px;
 }
 
@@ -270,21 +322,22 @@
   grid-template-columns: 1.2fr 1fr;
   gap: 32px;
   padding: 18px 0;
-  border-bottom: 1px solid var(--brand-border);
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .invoice-notes h4 {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   margin: 0 0 6px 0;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--brand-blue);
+  letter-spacing: 0.08em;
+  color: #091525;
+  font-weight: 700;
 }
 
 .invoice-notes p {
   font-size: 0.78rem;
-  color: var(--brand-blue);
-  margin: 4px 0;
+  color: #64748b;
+  margin: 3px 0;
 }
 
 .invoice-breakdown .calc-row {
@@ -292,24 +345,26 @@
   justify-content: space-between;
   font-size: 0.85rem;
   padding: 4px 0;
-  color: var(--brand-blue);
+  color: #334155;
 }
 
 .invoice-breakdown .discount-row {
-  color: var(--brand-blue);
+  color: #059669;
+  font-weight: 600;
 }
 
 .invoice-breakdown .total-row {
-  border-top: 1px solid var(--brand-border);
+  border-top: 2px solid #091525;
   margin-top: 8px;
   padding-top: 10px;
   font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--brand-blue);
+  font-weight: 800;
+  color: #091525;
 }
 
 .total-gold {
-  color: var(--brand-blue);
+  color: #ff7300;
+  font-weight: 800;
 }
 
 .invoice-footer {
@@ -322,44 +377,54 @@
 
 .stamp-badge {
   display: inline-block;
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   letter-spacing: 0.12em;
-  color: var(--brand-blue);
-  border: 1px solid var(--brand-border);
+  color: #ff7300;
+  border: 1.5px solid #ff7300;
   padding: 4px 10px;
-  border-radius: 2px;
-  font-weight: 600;
+  border-radius: 4px;
+  font-weight: 800;
 }
 
 .stamp-text {
   font-size: 0.72rem;
-  color: var(--brand-blue);
+  color: #64748b;
   margin: 6px 0 0 0;
 }
 
 .authorized-sign {
   text-align: center;
-  min-width: 180px;
+  min-width: 170px;
 }
 
 .sign-line {
-  border-bottom: 1px solid var(--brand-border);
+  border-bottom: 1.5px solid #091525;
   margin-bottom: 6px;
 }
 
 .authorized-sign p {
   margin: 2px 0;
   font-size: 0.78rem;
-  color: var(--brand-blue);
+  color: #64748b;
 }
 
 .sign-company {
-  font-weight: 600;
-  color: var(--brand-blue);
+  font-weight: 700;
+  color: #091525;
 }
 
-/* Print Overrides */
+/* ════════════════════════════════════════════════════════════════════════
+   Print Fallback Overrides (@media print)
+   ════════════════════════════════════════════════════════════════════════ */
 @media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm 14mm;
+  }
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
   body * {
     visibility: hidden;
   }
@@ -376,6 +441,7 @@
     max-height: none;
     width: 100%;
     max-width: 100%;
+    border: none;
   }
   #printable-invoice, #printable-invoice * {
     visibility: visible;
@@ -385,6 +451,6 @@
     left: 0;
     top: 0;
     width: 100%;
-    padding: 20px;
+    padding: 10px;
   }
 }

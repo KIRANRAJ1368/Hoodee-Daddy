@@ -1,9 +1,9 @@
-# ZMW Clothing Robots Configuration
+# HooDee Daddy Robots Configuration
 User-agent: *
 Allow: /
 User-agent: *
 Allow: /
 Disallow: /admin
-Sitemap: https://zmwclothing.com/sitemap.xml
+Sitemap: https://hoodeedaddy.com/sitemap.xml
 
-Sitemap: https://zmwclothing.com/sitemap.xml
+Sitemap: https://hoodeedaddy.com/sitemap.xml

@@ -37,6 +37,7 @@ function serializeProduct(product) {
     badge: p.badge_label,
     badgeType: p.badge_type,
     isActive: p.is_active,
+    showOnHomepage: Boolean(p.show_on_homepage),
     description: p.description,
     metaTitle: p.meta_title || null,
     metaDescription: p.meta_description || null,

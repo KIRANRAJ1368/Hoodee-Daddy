@@ -19,6 +19,7 @@ router.get("/my-orders/:id/status-history", requireCustomerAuth, orderController
 router.post(
   "/upload-proof",
   (req, res, next) => {
+    req.uploadFolder = "returns";
     const uploader = makeUploader("returns").array("files", 5);
     uploader(req, res, (err) => (err ? next(err) : next()));
   },
@@ -26,6 +27,7 @@ router.post(
 );
 
 router.post("/upload-review-images", requireCustomerAuth, (req, res, next) => {
+  req.uploadFolder = "reviews";
   const uploader = makeUploader("reviews").array("files", 4);
   uploader(req, res, (err) => (err ? next(err) : next()));
 }, uploadController.upload);

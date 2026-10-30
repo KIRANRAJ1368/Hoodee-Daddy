@@ -5,7 +5,7 @@ import SizeGuideModal from "../Modals/SizeGuideModal";
 import "./Footer.css";
 
 const QUICK_LINKS = [
-  { label: "Newborn Babies", href: "/categories/mens" },
+  { label: "Newborn Babies", href: "/categories/newborn-babies" },
   { label: "Kids Hoodies", href: "/categories/kidshoodies" },
   { label: "Best Sellers", href: "/collection?collection=best-sellers" },
   { label: "New Arrivals", href: "/collection?collection=new-arrivals" }
@@ -39,7 +39,7 @@ export default function Footer() {
           <div className="footer-brand-col">
             <Link to="/" className="footer-logo" aria-label="HooDee Daddy home">
               <img
-                src={process.env.PUBLIC_URL + "/images/hoodee-daddy-logo.svg"}
+                src="/images/hoodee-daddy-logo.svg"
                 alt="HooDee Daddy"
                 className="footer-brand-logo-img"
               />

@@ -23,7 +23,12 @@ const readCachedHomeData = () => {
     if (!cached) return null;
     const parsed = JSON.parse(cached);
     // Never retain stale product lists across sessions so deleted/added products reflect immediately
-    return parsed ? { ...parsed, newArrivals: [], bestSellers: [] } : null;
+    // Also strip cached category products — show_on_homepage filtering must always come from live API
+    if (!parsed) return null;
+    const freshCategories = Array.isArray(parsed.categories)
+      ? parsed.categories.map((c) => ({ ...c, products: [] }))
+      : parsed.categories;
+    return { ...parsed, newArrivals: [], bestSellers: [], categories: freshCategories };
   } catch {
     return null;
   }
@@ -297,6 +302,7 @@ export const ShopProvider = ({ children }) => {
 
   const [isAuthLoading, setIsAuthLoading] = useState(false);
   const [pendingCheckout, setPendingCheckout] = useState(false);
+  const [postAuthRedirect, setPostAuthRedirect] = useState(null);
 
   // Validate customer token on mount
   useEffect(() => {
@@ -317,6 +323,8 @@ export const ShopProvider = ({ children }) => {
         setCustomerToken(null);
         setCustomerUser(null);
         try {
+          localStorage.removeItem("hd_customer_token");
+          localStorage.removeItem("hd_customer_user");
           localStorage.removeItem("zmw_customer_token");
           localStorage.removeItem("zmw_customer_user");
         } catch (e) {
@@ -325,49 +333,158 @@ export const ShopProvider = ({ children }) => {
       });
   }, [customerToken]);
 
+  // Ref to hold any pending welcome coupon popup timer
+  const welcomeTimerRef = useRef(null);
+
+  /**
+   * Triggers the welcome coupon popup ("WELCOME10" - 10% OFF):
+   * - Triggered after the first-time visitor enters phone and pincode (waits 20 seconds).
+   * - Displayed to new members on sign-up / first login.
+   * - Automatically pre-saves 'WELCOME10' to 'hoodee_first_order_coupon' for checkout.
+   * - Strictly displays once: respects claimed / dismissed flags.
+   */
+  const triggerWelcomeCoupon = useCallback(
+    ({
+      couponCode = "WELCOME10",
+      discountText = "10% OFF",
+      userName = "Friend",
+      delay = 20000,
+      force = false
+    } = {}) => {
+      try {
+        const isClaimed = localStorage.getItem("hoodee_welcome_coupon_claimed") === "true";
+        const isDismissed = localStorage.getItem("hoodee_welcome_coupon_dismissed") === "true";
+        const isShown = localStorage.getItem("hoodee_welcome_coupon_shown") === "true";
+
+        if (!force && (isClaimed || isDismissed || isShown)) {
+          return;
+        }
+
+        try {
+          localStorage.setItem("hoodee_first_order_coupon", couponCode);
+        } catch {}
+
+        if (welcomeTimerRef.current) {
+          clearTimeout(welcomeTimerRef.current);
+          welcomeTimerRef.current = null;
+        }
+
+        // If delay is <= 0, open immediately
+        if (delay <= 0) {
+          try {
+            localStorage.setItem("hoodee_welcome_coupon_shown", "true");
+          } catch {}
+          setWelcomeCouponModal({
+            isOpen: true,
+            couponCode,
+            discountText,
+            userName: userName || "Friend"
+          });
+          return;
+        }
+
+        const targetTime = Date.now() + delay;
+        try {
+          sessionStorage.setItem("hoodee_coupon_target_time", String(targetTime));
+        } catch {}
+
+        welcomeTimerRef.current = setTimeout(() => {
+          welcomeTimerRef.current = null;
+          try {
+            sessionStorage.removeItem("hoodee_coupon_target_time");
+            const alreadyClaimed = localStorage.getItem("hoodee_welcome_coupon_claimed") === "true";
+            const alreadyDismissed = localStorage.getItem("hoodee_welcome_coupon_dismissed") === "true";
+            if (!force && (alreadyClaimed || alreadyDismissed)) {
+              return;
+            }
+            localStorage.setItem("hoodee_welcome_coupon_shown", "true");
+          } catch {}
+
+          setWelcomeCouponModal({
+            isOpen: true,
+            couponCode,
+            discountText,
+            userName: userName || "Friend"
+          });
+        }, delay);
+      } catch (e) {
+        console.warn("triggerWelcomeCoupon error", e);
+      }
+    },
+    []
+  );
+
+  // Resume in-flight welcome coupon countdown across page reloads
+  useEffect(() => {
+    try {
+      const targetStr = sessionStorage.getItem("hoodee_coupon_target_time");
+      const isClaimed = localStorage.getItem("hoodee_welcome_coupon_claimed") === "true";
+      const isDismissed = localStorage.getItem("hoodee_welcome_coupon_dismissed") === "true";
+      const isShown = localStorage.getItem("hoodee_welcome_coupon_shown") === "true";
+      if (targetStr && !isClaimed && !isDismissed && !isShown) {
+        const remaining = Math.max(1000, Number(targetStr) - Date.now());
+        triggerWelcomeCoupon({ delay: remaining });
+      }
+    } catch {}
+  }, [triggerWelcomeCoupon]);
+
   /**
    * Evaluates eligibility and displays the welcome coupon popup:
    * - Displayed only to first-time users who have not received the offer before.
    * - Never shown again to returning users or on subsequent logins.
    */
-  const triggerWelcomeOfferIfEligible = (user) => {
-    if (!user || !user.id) return;
-    try {
-      const userId = user.id;
-      const email = (user.email || "").trim().toLowerCase();
-      const phone = (user.phone || "").trim();
+  const triggerWelcomeOfferIfEligible = useCallback(
+    (user) => {
+      if (!user) return;
+      try {
+        const userId = user.id;
+        const email = (user.email || "").trim().toLowerCase();
+        const phone = (user.phone || "").trim();
 
-      // 1. Check if offer was already received/claimed by this user
-      if (localStorage.getItem(`hoodee_welcome_offer_claimed_${userId}`) === "true") return;
-      if (email && localStorage.getItem(`hoodee_welcome_offer_claimed_${email}`) === "true") return;
-      if (phone && localStorage.getItem(`hoodee_welcome_offer_claimed_${phone}`) === "true") return;
+        // Check if user is a returning customer who already placed orders
+        if (Number(user.orderCount || 0) > 0 || user.isFirstTimeUser === false) {
+          if (userId) localStorage.setItem(`hoodee_welcome_offer_claimed_${userId}`, "true");
+          if (email) localStorage.setItem(`hoodee_welcome_offer_claimed_${email}`, "true");
+          return;
+        }
 
-      // 2. Check if user is a returning customer who already placed orders
-      if (Number(user.orderCount || 0) > 0 || user.isFirstTimeUser === false) {
-        localStorage.setItem(`hoodee_welcome_offer_claimed_${userId}`, "true");
+        const isClaimed =
+          (userId && localStorage.getItem(`hoodee_welcome_offer_claimed_${userId}`) === "true") ||
+          (email && localStorage.getItem(`hoodee_welcome_offer_claimed_${email}`) === "true") ||
+          (phone && localStorage.getItem(`hoodee_welcome_offer_claimed_${phone}`) === "true") ||
+          localStorage.getItem("hoodee_welcome_coupon_claimed") === "true" ||
+          localStorage.getItem("hoodee_welcome_coupon_dismissed") === "true" ||
+          localStorage.getItem("hoodee_welcome_coupon_shown") === "true";
+
+        if (isClaimed) return;
+
+        if (userId) localStorage.setItem(`hoodee_welcome_offer_claimed_${userId}`, "true");
         if (email) localStorage.setItem(`hoodee_welcome_offer_claimed_${email}`, "true");
-        return;
-      }
+        if (phone) localStorage.setItem(`hoodee_welcome_offer_claimed_${phone}`, "true");
 
-      // Mark immediately as received so it will NEVER be shown again on future logins or refreshes
-      localStorage.setItem(`hoodee_welcome_offer_claimed_${userId}`, "true");
-      if (email) localStorage.setItem(`hoodee_welcome_offer_claimed_${email}`, "true");
-      if (phone) localStorage.setItem(`hoodee_welcome_offer_claimed_${phone}`, "true");
-      localStorage.setItem("hoodee_first_order_coupon", "WELCOME10");
-
-      // Smooth timeout to let login/auth transition complete before coupon popup opens
-      setTimeout(() => {
-        setWelcomeCouponModal({
-          isOpen: true,
+        triggerWelcomeCoupon({
           couponCode: "WELCOME10",
           discountText: "10% OFF",
-          userName: user.name || "Member"
+          userName: user.name || "Member",
+          delay: 20000,
+          force: false
         });
-      }, 450);
-    } catch (e) {
-      console.warn("Welcome coupon check failed", e);
-    }
-  };
+      } catch (e) {
+        console.warn("Welcome coupon check failed", e);
+      }
+    },
+    [triggerWelcomeCoupon]
+  );
+
+  // Listen to global open-welcome-coupon events
+  useEffect(() => {
+    const handleWelcomeEvent = (e) => {
+      const { couponCode, discountText, userName, force, delay } = e?.detail || {};
+      triggerWelcomeCoupon({ couponCode, discountText, userName, force, delay });
+    };
+    window.addEventListener("open-welcome-coupon", handleWelcomeEvent);
+    return () => window.removeEventListener("open-welcome-coupon", handleWelcomeEvent);
+  }, [triggerWelcomeCoupon]);
 
   const loginCustomer = async (email, password) => {
     setIsAuthLoading(true);
@@ -414,7 +531,10 @@ export const ShopProvider = ({ children }) => {
   const logoutCustomer = () => {
     setCustomerToken(null);
     setCustomerUser(null);
+    setPostAuthRedirect(null);
     try {
+      localStorage.removeItem("hd_customer_token");
+      localStorage.removeItem("hd_customer_user");
       localStorage.removeItem("zmw_customer_token");
       localStorage.removeItem("zmw_customer_user");
     } catch (e) {
@@ -968,8 +1088,12 @@ export const ShopProvider = ({ children }) => {
         // Auth
         authModalState,
         setAuthModalState,
+        postAuthRedirect,
+        setPostAuthRedirect,
         welcomeCouponModal,
         setWelcomeCouponModal,
+        triggerWelcomeCoupon,
+        triggerWelcomeOfferIfEligible,
         customerToken,
         customerUser,
         isCustomerAuthenticated: Boolean(customerUser),

@@ -252,6 +252,14 @@ async function syncTracking(req, res) {
  * Handle incoming webhook tracking event from Shiprocket.
  */
 async function handleWebhook(req, res) {
+  const webhookToken = process.env.SHIPROCKET_WEBHOOK_TOKEN;
+  if (webhookToken) {
+    const provided = req.headers["x-api-key"] || req.headers["x-webhook-token"] || req.query.token;
+    if (provided !== webhookToken) {
+      return res.status(401).json({ success: false, message: "Unauthorized webhook request" });
+    }
+  }
+
   const { awb, current_status, shipment_status } = req.body || {};
   if (!awb) return res.status(200).json({ success: true, message: "Ignored, no AWB" });
 

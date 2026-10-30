@@ -7,8 +7,9 @@ const create = [
     .trim()
     .matches(/^[a-z0-9-]+$/)
     .withMessage("Slug may only contain lowercase letters, numbers and hyphens"),
-  body("description").optional({ nullable: true }).isString(),
+  body("description").trim().notEmpty().withMessage("Category description is required"),
   body("sort_order").optional().isInt(),
+  body("banner_image_url").optional({ nullable: true }).isString(),
   body("is_active").optional().isBoolean(),
   body("show_on_homepage").optional().isBoolean(),
   body("meta_title").optional({ nullable: true }).isString().isLength({ max: 255 }),

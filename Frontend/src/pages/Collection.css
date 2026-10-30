@@ -50,74 +50,6 @@
   transform: scale(1.02);
 }
 
-/* ── CrazyMonk-style Streetwear Live Category Pulse Badge ── */
-.coll-crazymonk-pill {
-  position: absolute;
-  bottom: 22px;
-  left: 24px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(9, 21, 37, 0.88);
-  border: 1px solid rgba(255, 115, 0, 0.4);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  padding: 6px 14px 6px 10px;
-  border-radius: 999px;
-  z-index: 5;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
-  pointer-events: none;
-  animation: collPillFadeIn 0.4s ease;
-}
-
-.coll-crazymonk-dot {
-  width: 7.5px;
-  height: 7.5px;
-  border-radius: 50%;
-  background: #FF7300;
-  display: inline-block;
-  box-shadow: 0 0 10px rgba(255, 115, 0, 0.9);
-  animation: heroCrazymonkPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-.coll-crazymonk-text {
-  font-family: var(--font-primary, "Plus Jakarta Sans", sans-serif);
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  color: #FFFFFF;
-  text-transform: uppercase;
-}
-
-@keyframes collPillFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@media (max-width: 768px) {
-  .coll-crazymonk-pill {
-    bottom: 14px;
-    left: 14px;
-    padding: 4px 10px 4px 8px;
-  }
-  .coll-crazymonk-text {
-    font-size: 9.5px;
-    letter-spacing: 0.05em;
-  }
-}
-
-@media (max-width: 480px) {
-  .coll-crazymonk-pill {
-    display: none;
-  }
-}
-
 /* Scrim is completely disabled — Pure bright original banner */
 .coll-hero-backdrop-scrim {
   display: none !important;
@@ -488,13 +420,51 @@
 /* ── 2. Catalog Section ── */
 .coll-catalog-section {
   padding-top: 16px;
-  padding-bottom: 80px;
+  padding-bottom: clamp(18px, 2.2vw, 28px);
 }
 
 .coll-catalog-section .container {
   max-width: min(1720px, 94vw);
   padding-left: clamp(20px, 2.5vw, 36px);
   padding-right: clamp(20px, 2.5vw, 36px);
+}
+
+/* Subcategory breadcrumb trail - shown on subcategory pages, which have no banner */
+.coll-subcat-trail {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--brand-blue);
+}
+
+.coll-subcat-trail-link {
+  color: inherit;
+  text-decoration: none;
+  transition: color 150ms ease;
+}
+
+.coll-subcat-trail-link:hover {
+  color: var(--brand-orange);
+}
+
+.coll-subcat-trail-sep {
+  opacity: 0.5;
+}
+
+.coll-subcat-trail-current {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 1.6vw, 1.4rem);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--brand-blue);
 }
 
 /* ── 3. Toolbar ── */
@@ -1404,8 +1374,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 48px;
-  padding-top: 32px;
+  margin-top: clamp(20px, 2.5vw, 30px);
+  padding-top: clamp(14px, 1.8vw, 20px);
   border-top: 1px solid var(--brand-border);
   text-align: center;
 }
@@ -1414,7 +1384,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 18px;
+  margin-bottom: 10px;
 }
 
 .coll-progress-text {
@@ -1796,13 +1766,13 @@
 
   .coll-grid-cols-4,
   .coll-grid-cols-3 {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 18px 12px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px 12px;
   }
 
   .coll-grid-cols-2 {
     grid-template-columns: repeat(2, 1fr);
-    gap: 18px 12px;
+    gap: 16px 12px;
   }
 }
 
@@ -1839,45 +1809,7 @@
     font-size: 0.8rem;
   }
 
-/* Subcategory breadcrumb trail - shown on subcategory pages, which have no banner */
-.coll-subcat-trail {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 18px;
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--brand-blue);
-}
-
-.coll-subcat-trail-link {
-  color: inherit;
-  text-decoration: none;
-  transition: color 150ms ease;
-}
-
-.coll-subcat-trail-link:hover {
-  color: var(--brand-orange);
-}
-
-.coll-subcat-trail-sep {
-  opacity: 0.5;
-}
-
-.coll-subcat-trail-current {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: clamp(1.1rem, 1.6vw, 1.4rem);
-  font-weight: 900;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--brand-blue);
-}
-
-.coll-toolbar {
+  .coll-toolbar {
     flex-wrap: wrap;
     gap: 10px;
   }
@@ -1915,6 +1847,19 @@
   .coll-grid-cols-2 {
     grid-template-columns: repeat(2, 1fr);
     gap: 14px 10px;
+  }
+
+  .coll-catalog-section {
+    padding-bottom: 14px;
+  }
+
+  .coll-pagination {
+    margin-top: 16px;
+    padding-top: 12px;
+  }
+
+  .coll-pagination-progress {
+    margin-bottom: 8px;
   }
 }
 @media (max-width: 360px) {

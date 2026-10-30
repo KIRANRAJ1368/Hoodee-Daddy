@@ -45,6 +45,11 @@ export default function WelcomeCouponModal() {
   const userName = welcomeCouponModal?.userName || "Friend";
 
   const handleClose = () => {
+    try {
+      localStorage.setItem("hoodee_welcome_coupon_dismissed", "true");
+      localStorage.setItem("hoodee_welcome_coupon_shown", "true");
+      sessionStorage.removeItem("hoodee_coupon_target_time");
+    } catch {}
     setWelcomeCouponModal(null);
   };
 
@@ -52,6 +57,9 @@ export default function WelcomeCouponModal() {
     try {
       navigator.clipboard?.writeText(couponCode);
       localStorage.setItem("hoodee_first_order_coupon", couponCode);
+      localStorage.setItem("hoodee_welcome_coupon_claimed", "true");
+      localStorage.setItem("hoodee_welcome_coupon_shown", "true");
+      sessionStorage.removeItem("hoodee_coupon_target_time");
     } catch {}
     setCopied(true);
     addToast(`Coupon "${couponCode}" copied to clipboard!`, "success");
@@ -63,6 +71,21 @@ export default function WelcomeCouponModal() {
     handleClose();
     navigate("/collection");
   };
+
+  // Listen for direct custom open events (e.g. from banner click or navigation)
+  useEffect(() => {
+    const handleOpenModal = (e) => {
+      const { couponCode: code, discountText: text, userName: name } = e?.detail || {};
+      setWelcomeCouponModal({
+        isOpen: true,
+        couponCode: code || "WELCOME10",
+        discountText: text || "10% OFF",
+        userName: name || "Friend"
+      });
+    };
+    window.addEventListener("open-welcome-coupon-modal", handleOpenModal);
+    return () => window.removeEventListener("open-welcome-coupon-modal", handleOpenModal);
+  }, [setWelcomeCouponModal]);
 
   const handleKeyDown = (e) => {
     if (e.key === "Escape") {

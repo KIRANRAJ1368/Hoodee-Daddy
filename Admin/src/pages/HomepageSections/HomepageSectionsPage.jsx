@@ -49,11 +49,74 @@ const SECTION_METADATA = {
     description: "Showcases the latest apparel drops. Choose automatic mode (recent items) or hand-pick specific products to feature.",
     icon: Clock
   },
-  mens_categories: {
-    name: "Men Categories Showcase",
+  "newborn-babies_categories": {
+    name: "Newborn Babies Showcase",
     category: "Department Feature",
-    description: "Features Men's department headline, tagline, and category products connected directly to the database.",
-    categorySlug: "mens",
+    description: "Features Newborn Babies headline, tagline, and category products connected directly to the database.",
+    categorySlug: "newborn-babies",
+    icon: Shirt
+  },
+  mens_categories: {
+    name: "Newborn Babies Showcase",
+    category: "Department Feature",
+    description: "Features Newborn Babies headline, tagline, and category products connected directly to the database.",
+    categorySlug: "newborn-babies",
+    icon: Shirt
+  },
+  kidshoodies_categories: {
+    name: "Kids Hoodies Showcase",
+    category: "Department Feature",
+    description: "Features Kids Hoodies headline, tagline, and category products connected directly to the database.",
+    categorySlug: "kidshoodies",
+    icon: Shirt
+  },
+  kidspyjamas_categories: {
+    name: "Kids Pyjamas Showcase",
+    category: "Department Feature",
+    description: "Features Kids Pyjamas headline, tagline, and category products connected directly to the database.",
+    categorySlug: "kidspyjamas",
+    icon: Shirt
+  },
+  kidscoords_categories: {
+    name: "Kids Co-ords Showcase",
+    category: "Department Feature",
+    description: "Features Kids Co-ords headline, tagline, and category products connected directly to the database.",
+    categorySlug: "kidscoords",
+    icon: Shirt
+  },
+  "boys-fashion_categories": {
+    name: "Boys Fashion Showcase",
+    category: "Department Feature",
+    description: "Features Boys' department headline, tagline, and category products connected directly to the database.",
+    categorySlug: "boys-fashion",
+    icon: Shirt
+  },
+  boys_categories: {
+    name: "Boys Fashion Showcase",
+    category: "Department Feature",
+    description: "Features Boys' department headline, tagline, and category products connected directly to the database.",
+    categorySlug: "boys-fashion",
+    icon: Shirt
+  },
+  girlsfashion_categories: {
+    name: "Girls Fashion Showcase",
+    category: "Department Feature",
+    description: "Features Girls' department headline, tagline, and category products connected directly to the database.",
+    categorySlug: "girlsfashion",
+    icon: Shirt
+  },
+  girls_categories: {
+    name: "Girls Fashion Showcase",
+    category: "Department Feature",
+    description: "Features Girls' department headline, tagline, and category products connected directly to the database.",
+    categorySlug: "girlsfashion",
+    icon: Shirt
+  },
+  babies_categories: {
+    name: "Babies Categories Showcase",
+    category: "Department Feature",
+    description: "Features Babies' department headline, tagline, and category products connected directly to the database.",
+    categorySlug: "newborn-babies",
     icon: Shirt
   },
   womens_categories: {
@@ -61,27 +124,6 @@ const SECTION_METADATA = {
     category: "Department Feature",
     description: "Features Women's department headline, tagline, and category products connected directly to the database.",
     categorySlug: "women",
-    icon: Shirt
-  },
-  boys_categories: {
-    name: "Boys Categories Showcase",
-    category: "Department Feature",
-    description: "Features Boys' department headline, tagline, and category products connected directly to the database.",
-    categorySlug: "boys",
-    icon: Shirt
-  },
-  girls_categories: {
-    name: "Girls Categories Showcase",
-    category: "Department Feature",
-    description: "Features Girls' department headline, tagline, and category products connected directly to the database.",
-    categorySlug: "girls",
-    icon: Shirt
-  },
-  babies_categories: {
-    name: "Babies Categories Showcase",
-    category: "Department Feature",
-    description: "Features Babies' department headline, tagline, and category products connected directly to the database.",
-    categorySlug: "babies",
     icon: Shirt
   },
   best_sellers: {

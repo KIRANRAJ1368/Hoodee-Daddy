@@ -98,16 +98,33 @@ export default function ProductsPage() {
   }
 
   async function toggleFlag(product, flagName, apiFn) {
+    const previousValue = Boolean(product[flagName]);
+    const nextValue = !previousValue;
+    // Optimistic UI update
+    setProducts((prev) =>
+      prev.map((p) => (p.id === product.id ? { ...p, [flagName]: nextValue } : p))
+    );
     try {
-      await apiFn(product.id, !product[flagName]);
-      setProducts((prev) =>
-        prev.map((p) => (p.id === product.id ? { ...p, [flagName]: !p[flagName] } : p))
-      );
+      await apiFn(product.id, nextValue);
+      const label =
+        flagName === "isBestSeller"
+          ? "Best Seller"
+          : flagName === "showOnHomepage"
+          ? "Show on Home Page"
+          : "New Drop";
       toast.success(
-        `${product.name} ${flagName === "isBestSeller" ? "best seller" : "new arrival"} updated`
+        flagName === "showOnHomepage"
+          ? nextValue
+            ? `☑ ${product.name} → Show on Home Page (Enabled)`
+            : `☐ ${product.name} → Hide from Home Page (Disabled)`
+          : `${product.name} ${label} updated`
       );
       broadcastCatalogUpdate();
     } catch (err) {
+      // Revert if saving fails
+      setProducts((prev) =>
+        prev.map((p) => (p.id === product.id ? { ...p, [flagName]: previousValue } : p))
+      );
       toast.error(err.message || "Failed to update product status");
     }
   }
@@ -423,6 +440,25 @@ export default function ProductsPage() {
                     <span className="toggle-track">
                       <span className="toggle-handle" />
                       <span className="toggle-text">{row.isNewArrival ? "ON" : "OFF"}</span>
+                    </span>
+                  </label>
+                )
+              },
+              {
+                key: "showOnHomepage",
+                label: "Show on Home Page",
+                width: "140px",
+                align: "center",
+                render: (row) => (
+                  <label className="toggle-ref" title="Toggle Show on Home Page">
+                    <input
+                      type="checkbox"
+                      checked={Boolean(row.showOnHomepage)}
+                      onChange={() => toggleFlag(row, "showOnHomepage", productsApi.toggleShowOnHomepage)}
+                    />
+                    <span className="toggle-track">
+                      <span className="toggle-handle" />
+                      <span className="toggle-text">{row.showOnHomepage ? "ON" : "OFF"}</span>
                     </span>
                   </label>
                 )

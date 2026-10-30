@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useShop } from "../../context/ShopContext";
 import { storefrontApi } from "../../services/storefrontApi";
 import { lookupPincodeLocation } from "../../utils/pincodeLookup";
 import { readVisitorDetails, saveVisitorDetails, VISITOR_STORAGE_KEY } from "../../utils/visitorAccess";
@@ -38,6 +39,7 @@ function ArrowRightIcon() {
 }
 
 export default function FirstVisitModal({ children }) {
+  const { triggerWelcomeCoupon } = useShop();
   const [isOpen, setIsOpen] = useState(false);
   const [visitor, setVisitor] = useState(readVisitorDetails);
 
@@ -50,33 +52,25 @@ export default function FirstVisitModal({ children }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [completed, setCompleted] = useState(null);
 
-  const handleDismiss = () => {
-    setIsOpen(false);
-    try {
-      localStorage.setItem("hoodee_welcome_modal_dismissed", "true");
-    } catch {}
-  };
-
   const phoneRef = useRef(null);
   const pinRef = useRef(null);
   const errorRef = useRef(null);
   const dialogRef = useRef(null);
   const submittingRef = useRef(false);
+  const couponScheduledRef = useRef(false);
 
-  // Check if first-time visitor on initial load
+  // Check if visitor has completed phone & PIN check on initial load
+  // Mandatory gate: must fill phone & pincode to enter website
   useEffect(() => {
-    const isDismissed = () => {
+    const isCompleted = () => {
       try {
-        return (
-          localStorage.getItem("hoodee_welcome_modal_dismissed") === "true" ||
-          Boolean(readVisitorDetails())
-        );
+        return Boolean(readVisitorDetails());
       } catch {
         return false;
       }
     };
 
-    if (!isDismissed()) {
+    if (!isCompleted()) {
       const timer = setTimeout(() => {
         setIsOpen(true);
       }, 700);
@@ -114,16 +108,30 @@ export default function FirstVisitModal({ children }) {
     };
   }, [isOpen]);
 
-  // Handle completion auto-dismiss
+  // Handle completion auto-dismiss & trigger welcome coupon popup for first user
+  // Triggered exactly 20 seconds after entering phone and pincode
   useEffect(() => {
     if (!completed) return;
+    if (couponScheduledRef.current) return;
+    couponScheduledRef.current = true;
+
     dialogRef.current?.focus();
     const timer = setTimeout(() => {
       setVisitor(completed.details);
       setIsOpen(false);
+      setCompleted(null);
+
+      // Trigger Welcome Coupon Popup after exactly 20 seconds (20,000ms)
+      if (typeof triggerWelcomeCoupon === "function") {
+        triggerWelcomeCoupon({
+          userName: "Friend",
+          delay: 20000,
+          force: false
+        });
+      }
     }, 1800);
     return () => clearTimeout(timer);
-  }, [completed]);
+  }, [completed, triggerWelcomeCoupon]);
 
   // Live PIN code lookup
   useEffect(() => {
@@ -153,11 +161,10 @@ export default function FirstVisitModal({ children }) {
     };
   }, [pincode, isOpen]);
 
-  // Keyboard navigation & focus trap
+  // Keyboard navigation & focus trap (Escape does not dismiss; form submission is required)
   const handleKeyDown = (event) => {
     if (event.key === "Escape") {
       event.preventDefault();
-      handleDismiss();
       return;
     }
 
@@ -183,12 +190,6 @@ export default function FirstVisitModal({ children }) {
     } else if (!event.shiftKey && (document.activeElement === last || !controls.includes(document.activeElement))) {
       event.preventDefault();
       first.focus();
-    }
-  };
-
-  const handleBackdropClick = (e) => {
-    if (e.target === e.currentTarget) {
-      handleDismiss();
     }
   };
 
@@ -223,22 +224,18 @@ export default function FirstVisitModal({ children }) {
         state: location?.state || null
       };
 
-      const leadResult = await storefrontApi.submitFirstVisitLead(payload);
-      if (!leadResult?.id) throw new Error("We couldn't confirm your details. Please try again.");
+      const leadResult = await storefrontApi.submitFirstVisitLead(payload).catch(() => null);
 
       const details = {
         phone,
         pincode,
         district: leadResult?.district || location?.district || "",
         state: leadResult?.state || location?.state || "",
-        leadId: leadResult.id,
+        leadId: leadResult?.id || null,
         savedAt: new Date().toISOString()
       };
 
       saveVisitorDetails(details);
-      try {
-        localStorage.setItem("hoodee_welcome_modal_dismissed", "true");
-      } catch {}
       setCompleted({ details, isExisting: leadResult?.is_existing === true });
     } catch (error) {
       setSubmitError(error.message || "Unable to save your details. Check your connection and try again.");
@@ -254,7 +251,7 @@ export default function FirstVisitModal({ children }) {
       {children}
 
       {isOpen && (
-        <div className="fvm-backdrop" onClick={handleBackdropClick}>
+        <div className="fvm-backdrop">
           <section
             className={`fvm-popup-card${completed ? " is-complete" : ""}`}
             ref={dialogRef}
@@ -265,19 +262,6 @@ export default function FirstVisitModal({ children }) {
             tabIndex={-1}
             onKeyDown={handleKeyDown}
           >
-            {/* Top Close Button (✕) */}
-            <button
-              type="button"
-              className="fvm-close-btn"
-              onClick={handleDismiss}
-              aria-label="Close welcome coupon popup"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
-
             {/* Top Decorative Gradient Accent Bar */}
             <div className="fvm-card-accent-bar" aria-hidden="true" />
 
@@ -443,19 +427,10 @@ export default function FirstVisitModal({ children }) {
                       </>
                     ) : (
                       <>
-                        <span>Claim 10% OFF &amp; Continue Shopping</span>
+                        <span>Continue Shopping</span>
                         <ArrowRightIcon />
                       </>
                     )}
-                  </button>
-
-                  {/* Skip Button */}
-                  <button
-                    type="button"
-                    className="fvm-skip-btn"
-                    onClick={handleDismiss}
-                  >
-                    Skip and browse store
                   </button>
                 </form>
               </div>
